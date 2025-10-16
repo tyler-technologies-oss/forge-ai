@@ -1,0 +1,30 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+
+:host {
+  --forge-ai-icon-fill-color: #{forge-theme.variable(tertiary)};
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  height: 36px;
+  width: 36px;
+}
+
+forge-ai-gradient-container {
+  display: grid;
+  place-items: center;
+  height: 36px;
+  width: 36px;
+}
+
+svg {
+  fill: var(--forge-ai-icon-fill-color);
+  height: 24px;
+  width: 24px;
+}
+
+:host(:state(outline)) {
+  forge-ai-gradient-container {
+    --forge-gradient-container-radius: 100%;
+  }
+}

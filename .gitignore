@@ -1,0 +1,12 @@
+.coverage/
+.DS_Store
+.vscode/
+.turbo/
+.pnpm-store/
+node_modules/
+dist/
+types/
+cdn-deployment/
+*.tgz
+*storybook.log
+storybook-static/

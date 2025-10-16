@@ -1,0 +1,49 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/dist/button/forge-button';
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.scroll-container {
+  overflow: scroll;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  height: 100%;
+}
+
+.suggestions-container {
+  min-width: 100%;
+  display: table;
+}
+
+.suggestions-inline {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: max-content;
+  gap: #{forge-spacing.variable(small)};
+}
+
+.suggestions-block {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(small)};
+
+  > button {
+    width: 100%;
+  }
+}
+
+.suggestion {
+  --forge-button-shape: #{forge-shape.variable(medium)};
+  --forge-button-tonal-background: #{forge-theme.variable(tertiary-container)};
+  --forge-button-tonal-color: #{forge-theme.variable(on-tertiary-container)};
+  --forge-button-height: 32px;
+}

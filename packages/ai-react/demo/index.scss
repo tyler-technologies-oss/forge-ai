@@ -1,0 +1,17 @@
+@use '@tylertech/forge/sass/theme/theme-dark' as forge-theme-dark;
+
+@import '@tylertech/forge/dist/forge-core.css';
+@import '@tylertech/forge/dist/forge.css';
+
+html[data-forge-theme='dark'] {
+  @include forge-theme-dark.theme-properties;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+}

@@ -1,0 +1,97 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/core/styles/elevation' as forge-elevation;
+
+:host {
+  display: contents;
+  overflow: visible;
+}
+
+.ai-popover {
+  background: #{forge-theme.variable(surface-bright)};
+
+  border-radius: #{forge-shape.variable(medium)};
+  box-shadow: #{forge-theme.variable(surface-bright-shadow)};
+  box-sizing: border-box;
+
+  animation-duration: 150ms;
+  animation-timing-function: cubic-bezier(0, 0, 0, 1);
+  animation-name: fadein, scalein;
+  transform-origin: center center;
+}
+
+// Transform origin based on placement - target the overlay element that has the data attribute
+forge-ai-overlay[data-position-placement^='top'] {
+  &:not([data-position-placement*='-']) .ai-popover {
+    transform-origin: bottom center;
+  }
+
+  &[data-position-placement$='-start'] .ai-popover {
+    transform-origin: bottom left;
+  }
+
+  &[data-position-placement$='-end'] .ai-popover {
+    transform-origin: bottom right;
+  }
+}
+
+forge-ai-overlay[data-position-placement^='right'] {
+  &:not([data-position-placement*='-']) .ai-popover {
+    transform-origin: left center;
+  }
+
+  &[data-position-placement$='-start'] .ai-popover {
+    transform-origin: left top;
+  }
+
+  &[data-position-placement$='-end'] .ai-popover {
+    transform-origin: left bottom;
+  }
+}
+
+forge-ai-overlay[data-position-placement^='bottom'] {
+  &:not([data-position-placement*='-']) .ai-popover {
+    transform-origin: top center;
+  }
+
+  &[data-position-placement$='-start'] .ai-popover {
+    transform-origin: top left;
+  }
+
+  &[data-position-placement$='-end'] .ai-popover {
+    transform-origin: top right;
+  }
+}
+
+forge-ai-overlay[data-position-placement^='left'] {
+  &:not([data-position-placement*='-']) .ai-popover {
+    transform-origin: right center;
+  }
+
+  &[data-position-placement$='-start'] .ai-popover {
+    transform-origin: right top;
+  }
+
+  &[data-position-placement$='-end'] .ai-popover {
+    transform-origin: right bottom;
+  }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scalein {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
+}

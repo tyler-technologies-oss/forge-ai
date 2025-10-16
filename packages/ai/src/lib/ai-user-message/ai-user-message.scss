@@ -1,0 +1,30 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+
+:host {
+  display: inline-block;
+  box-sizing: border-box;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.ai-message-container {
+  padding-block: #{forge-spacing.variable(xsmall)};
+  padding-inline: #{forge-spacing.variable(medium)};
+  background-color: #{forge-theme.variable(surface)};
+  border: 1px solid #{forge-theme.variable(outline)};
+  border-radius: #{forge-spacing.variable(xsmall)};
+  border-start-end-radius: 0;
+  margin-inline-start: #{forge-spacing.variable(xxlarge)};
+  margin-inline-end: #{forge-spacing.variable(medium)};
+}
+
+span {
+  @include forge-typography.style(body1);
+  color: #{forge-theme.variable(on-surface)};
+  overflow-wrap: break-word;
+}

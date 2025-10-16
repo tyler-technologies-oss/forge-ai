@@ -1,0 +1,32 @@
+import { Meta, Title, Canvas } from '@storybook/addon-docs/blocks';
+import CustomArgTypes from '../../../blocks/CustomArgTypes';
+import * as AiFloatingChatStories from './AiFloatingChat.stories';
+
+<Meta of={AiFloatingChatStories} />
+
+<Title>AI Floating Chat</Title>
+
+The AI Floating Chat component is a structured form factor component that provides a complete floating chat interface with built-in composition of `ai-dialog` and `ai-chat-interface` components. This component handles all the wiring and event management automatically, providing an easy-to-use solution for common floating chat use cases.
+
+## Features
+
+- **Structured composition**: Combines ai-dialog and ai-chat-interface components automatically
+- **Built-in event handling**: Manages expand/minimize/open/close events internally
+- **Responsive behavior**: Adapts to different viewport sizes automatically
+- **Customizable slots**: Supports slotting messages, suggestions, and custom prompt components
+- **Rich API**: Provides methods and events for programmatic control
+
+## When to Use
+
+Use the AI Floating Chat component when you want:
+
+- A quick, easy-to-implement floating chat interface
+- Standard floating chat behavior without custom positioning logic
+- Built-in responsive behavior and event handling
+- A component that "just works" out of the box
+
+For more complex compositions or custom containers, consider using the atomic `ai-dialog` and `ai-chat-interface` components directly.
+
+## API
+
+<CustomArgTypes />

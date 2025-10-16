@@ -1,0 +1,42 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "lint": {
+      "outputs": [],
+      "cache": false
+    },
+    "format": {},
+    "format:check": {},
+    "test:ci": {
+      "outputs": []
+    },
+    "dev": {
+      "dependsOn": ["^build"],
+      "persistent": true,
+      "cache": false
+    },
+    "@tylertech/forge-ai-react#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "@tylertech/forge-ai-react#dev": {
+      "dependsOn": ["@tylertech/forge-ai#build"],
+      "persistent": true,
+      "cache": false
+    },
+    "storybook": {
+      "persistent": true,
+      "cache": false
+    },
+    "generate-proxies": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "changeset:version": {}
+  }
+}

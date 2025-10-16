@@ -1,0 +1,13 @@
+import { expect } from '@esm-bundle/chai';
+import { fixture, html } from '@open-wc/testing';
+import { {{pascalCase name}}Component } from './{{dashCase name}}';
+
+import './{{dashCase name}}';
+
+describe('{{pascalCase name}}', () => {
+  it('should contain shadow root', async () => {
+    const el = await fixture<{{pascalCase name}}Component>(html`<forge-{{dashCase name}}></forge-{{dashCase name}}>`);
+
+    expect(el.shadowRoot).to.be.ok;
+  });
+});

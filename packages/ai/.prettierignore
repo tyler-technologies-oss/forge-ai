@@ -1,0 +1,12 @@
+.coverage/
+.turbo/
+storybook-static/
+dist/
+templates/
+node_modules/
+src/dev/
+CONTRIBUTING.md
+CHANGELOG.md
+README.md
+plopfile.mjs
+.gitignore

@@ -1,0 +1,61 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/dist/card/forge-card';
+@use '@tylertech/forge/dist/field/forge-field';
+@use '@tylertech/forge/dist/divider/forge-divider';
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
+
+:host {
+  display: block;
+}
+
+.input-container {
+  .forge-card {
+    --forge-card-padding: 0;
+  }
+
+  .forge-field {
+    --forge-theme-outline-low: transparent;
+    --forge-field-height: 52px;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: #{forge-spacing.variable(xxsmall)};
+    height: 52px;
+    overflow-x: auto;
+  }
+}
+
+// .forge-icon-button img,
+// .forge-icon-button svg {
+//   fill: #{forge-theme.variable(text-medium)};
+// }
+
+::slotted([slot='additional-action']:not(:last-child)) {
+  margin-inline-end: #{forge-spacing.variable(small)};
+}
+
+:host(:state(inline)) {
+  ::slotted([slot='additional-action']) {
+    display: none;
+  }
+}
+
+:host(:state(inline)) {
+  .forge-field {
+    --forge-field-height: 52px;
+  }
+
+  .forge-divider {
+    display: none;
+  }
+
+  .input-container {
+    .actions {
+      padding: 0;
+    }
+  }
+}

@@ -1,0 +1,9 @@
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+
+:host {
+  display: block;
+}
+
+.ai-embedded-chat {
+  display: contents;
+}

@@ -1,0 +1,7 @@
+@use '@tylertech/forge/sass/theme/theme-dark';
+@use '@tylertech/forge/dist/forge.css';
+@use './preview-storybook';
+
+.forge-storybook-dark {
+  @include theme-dark.theme-properties;
+}

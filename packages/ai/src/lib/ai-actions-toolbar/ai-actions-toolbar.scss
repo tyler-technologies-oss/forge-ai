@@ -1,0 +1,16 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
+
+:host {
+  display: block;
+}
+
+.actions-toolbar {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xsmall)};
+}
+
+.forge-icon-button {
+  --forge-icon-button-color: var(--forge-theme-text-medium);
+}

@@ -1,0 +1,15 @@
+@use '@tylertech/forge/dist/drawer/forge-drawer';
+
+:host {
+  display: block;
+  width: auto;
+  height: 100%;
+  overflow: hidden;
+}
+
+.forge-drawer {
+  --forge-drawer-width: 420px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

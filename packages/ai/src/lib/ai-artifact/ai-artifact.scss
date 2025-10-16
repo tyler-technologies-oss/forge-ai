@@ -1,0 +1,31 @@
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/dist/toolbar/forge-toolbar' as forge-toolbar;
+
+:host {
+  display: block;
+}
+
+.artifact {
+  border: 1px solid #{forge-theme.variable(outline)};
+  border-radius: #{forge-shape.variable(large)};
+}
+
+.forge-toolbar {
+  --forge-theme-surface: transparent;
+  padding-inline: #{forge-spacing.variable(medium)};
+}
+
+.forge-toolbar__start {
+  @include forge-typography.style(heading1);
+}
+
+.forge-toolbar__end {
+  color: #{forge-theme.variable(text-medium)};
+}
+
+.content {
+  padding: #{forge-spacing.variable(medium)};
+}

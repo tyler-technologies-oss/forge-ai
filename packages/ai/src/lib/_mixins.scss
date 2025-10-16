@@ -1,0 +1,31 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+
+@mixin ai-gradient-container-border(
+  $surface-color: var(--forge-theme-surface),
+  $bottom-color: var(--forge-theme-tertiary-container-high),
+  $top-color: var(--forge-theme-outline)
+) {
+  background-image: linear-gradient($surface-color, $surface-color), linear-gradient(to top, $bottom-color, $top-color);
+}
+
+@mixin ai-chain-of-thought-grid() {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  padding: 0;
+}
+
+@mixin fade-in() {
+  opacity: 0; /* Initial state */
+  animation: fadein 250ms ease-in-out forwards; /* Apply animation */
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "name": "forge-ai",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Tyler Technologies, Inc.",
+  "packageManager": "pnpm@10.11.1",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "format": "turbo run format",
+    "format:check": "turbo run format:check",
+    "changeset:version": "changeset version && turbo run changeset:version",
+    "build": "turbo run build",
+    "build:ai": "pnpm run --filter=@tylertech/forge-ai build",
+    "build:ai-react": "turbo run @tylertech/forge-ai-react#build",
+    "lint": "turbo run lint",
+    "release": "pnpm run build && changeset publish",
+    "test": "turbo run test:ci",
+    "test:ai": "pnpm run --filter=@tylertech/forge-ai test",
+    "test:ai:focus": "pnpm run --filter=@tylertech/forge-ai test:focus",
+    "dev": "turbo run dev",
+    "dev:ai": "pnpm run --filter=@tylertech/forge-ai dev",
+    "dev:ai-react": "turbo run @tylertech/forge-ai-react#dev",
+    "storybook": "turbo run storybook --filter=@tylertech/forge-ai",
+    "build:storybook": "pnpm run --filter=@tylertech/forge-ai build:storybook",
+    "generate-proxies": "turbo run generate-proxies",
+    "cem": "pnpm run --filter=@tylertech/forge-ai cem",
+    "plop:ai": "pnpm run --filter=@tylertech/forge-ai plop"
+  },
+  "devDependencies": {
+    "@changesets/cli": "2.29.7",
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@repo/prettier-config": "workspace:",
+    "@types/node": "catalog:",
+    "commitlint": "^20.1.0",
+    "eslint": "catalog:",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.4",
+    "prettier": "catalog:",
+    "turbo": "^2.5.8",
+    "vite-plugin-ejs": "^1.7.0",
+    "vite-plugin-full-reload": "^1.2.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "reactify-wc>react": ">=17"
+    },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "core-js-pure",
+      "esbuild",
+      "lmdb",
+      "msgpackr-extract",
+      "nice-napi",
+      "node-sass",
+      "rs-module-lexer"
+    ]
+  }
+}

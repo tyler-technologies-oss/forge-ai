@@ -1,0 +1,62 @@
+{
+  "name": "@tylertech/forge-ai-react",
+  "version": "0.1.0",
+  "description": "A React adapter for Tyler Forge™ AI Web Components.",
+  "repository": "tyler-technologies-oss/forge-ai",
+  "author": "Tyler Technologies, Inc.",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "predev": "pnpm run build",
+    "dev": "vite",
+    "build:demo": "vite build",
+    "serve:demo": "vite preview",
+    "clean": "rimraf dist/",
+    "prebuild": "pnpm run clean",
+    "build": "pnpm run generate-proxies",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "generate-proxies": "node scripts/generate-proxies.mjs"
+  },
+  "dependencies": {
+    "tslib": "catalog:"
+  },
+  "peerDependencies": {
+    "@tylertech/forge-ai": "workspace:^",
+    "react": ">=17.0.0"
+  },
+  "devDependencies": {
+    "@repo/prettier-config": "workspace:",
+    "@tylertech-eslint/eslint-plugin": "catalog:",
+    "@tylertech/forge": "catalog:",
+    "@tylertech/forge-ai": "workspace:^",
+    "@tylertech/forge-react": "^3.2.0",
+    "@tylertech/tyler-icons": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "^18.3.26",
+    "@types/react-dom": "^18.3.7",
+    "@types/react-router": "^5.1.20",
+    "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "change-case": "^5.4.4",
+    "custom-element-react-wrappers": "^1.7.3",
+    "eslint": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-error-overlay": "^6.1.0",
+    "react-router": "^5.3.4",
+    "react-router-dom": "^5.3.4",
+    "rimraf": "catalog:",
+    "sass": "catalog:",
+    "typescript": "~5.8.3",
+    "vite": "catalog:",
+    "vite-tsconfig-paths": "catalog:"
+  }
+}

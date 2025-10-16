@@ -1,0 +1,21 @@
+import { Meta, Title, Canvas } from '@storybook/addon-docs/blocks';
+import CustomArgTypes from '../../../blocks/CustomArgTypes';
+import * as AiPromptStories from './AiPrompt.stories';
+
+<Meta of={AiPromptStories} />
+
+<Title />
+
+The AI Prompt component provides an input interface for users to interact with AI assistants. It features a flexible layout system with two variants: **stacked** (default) where action buttons appear below the input field, and **inline** where actions are positioned alongside the input. The component includes built-in functionality for file attachments, audio recording, and message sending, with proper accessibility support and customizable placeholder text. It automatically clears the input after sending and emits events for integration with chat interfaces.
+
+<Canvas of={AiPromptStories.Demo} />
+
+## Prompt Button
+
+The `<forge-prompt-button>` component is a utility component designed specifically for use within the AI Prompt's `additional-action` slot. This component provides a consistent, accessible button interface for additional prompt actions such as file attachments, voice input, model selection, or other contextual features.
+
+The prompt button supports leading and trailing icon slots and follows the Forge design system for consistent theming and interaction states. It's optimized for use within the prompt interface and maintains proper spacing and alignment with other prompt elements.
+
+## API
+
+<CustomArgTypes />

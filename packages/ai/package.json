@@ -1,0 +1,122 @@
+{
+  "name": "@tylertech/forge-ai",
+  "version": "0.1.0",
+  "description": "A library of prebuilt components based on Tyler Forge™ patterns and recipes.",
+  "license": "Apache-2.0",
+  "author": "Tyler Technologies, Inc.",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./*": {
+      "types": "./dist/*/index.d.ts",
+      "default": "./dist/*/index.mjs"
+    },
+    "./package.json": {
+      "default": "./package.json"
+    },
+    "./custom-elements.json": {
+      "default": "./custom-elements.json"
+    }
+  },
+  "customElements": "custom-elements.json",
+  "keywords": [
+    "tyler-forge",
+    "web-components",
+    "custom-elements",
+    "lit-element"
+  ],
+  "files": [
+    "./dist",
+    "./custom-elements.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tyler-technologies-oss/forge-ai.git"
+  },
+  "scripts": {
+    "dev": "vite src/dev/ -c vite.config.mts",
+    "start": "pnpm run storybook",
+    "prebuild": "rimraf dist",
+    "build": "pnpm run lint && vite build && pnpm run cem",
+    "preview": "vite preview",
+    "prestorybook": "pnpm run cem",
+    "storybook": "storybook dev -p 6016",
+    "prebuild:storybook": "pnpm run cem",
+    "build:storybook": "storybook build",
+    "lint": "pnpm run lint:lit-analyzer && pnpm run lint:eslint && pnpm run lint:stylelint",
+    "lint:eslint": "eslint .",
+    "lint:stylelint": "stylelint src/**/*.scss",
+    "lint:lit-analyzer": "lit-analyzer",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "cem": "cem analyze --config custom-elements-manifest.config.mjs --litelement --globs \"src/lib/**/*.ts\"",
+    "cem:watch": "pnpm run analyze -- --watch",
+    "test": "wtr --coverage --watch --group lib",
+    "test:focus": "wtr --coverage --watch --group",
+    "test:ci": "wtr --group lib",
+    "ci:package": "tar -czvhf deployment-assets.tar.gz -C cdn-deployment/@tylertech/forge-ai .",
+    "plop": "plop"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.7.4",
+    "@tylertech/tyler-icons": "catalog:",
+    "lit": "catalog:"
+  },
+  "peerDependencies": {
+    "@tylertech/forge": "^3.0.0"
+  },
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "catalog:",
+    "@esm-bundle/chai": "catalog:",
+    "@open-wc/testing": "catalog:",
+    "@repo/prettier-config": "workspace:",
+    "@storybook/addon-a11y": "catalog:",
+    "@storybook/addon-docs": "catalog:",
+    "@storybook/addon-links": "catalog:",
+    "@storybook/addon-themes": "catalog:",
+    "@storybook/web-components-vite": "catalog:",
+    "@tylertech/forge": "catalog:",
+    "@tylertech/stylelint-rules": "catalog:",
+    "@types/cssbeautify": "^0.3.5",
+    "@types/mocha": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "^18.3.26",
+    "@types/sinon": "catalog:",
+    "@ungap/structured-clone": "^1.3.0",
+    "@vueless/storybook-dark-mode": "catalog:",
+    "@wc-toolkit/jsdoc-tags": "^1.1.0",
+    "@web/dev-server-esbuild": "catalog:",
+    "@web/dev-server-rollup": "catalog:",
+    "@web/test-runner": "catalog:",
+    "@web/test-runner-commands": "catalog:",
+    "@web/test-runner-junit-reporter": "catalog:",
+    "@web/test-runner-playwright": "catalog:",
+    "cssbeautify": "^0.3.1",
+    "custom-element-svelte-integration": "^1.2.0",
+    "custom-element-vuejs-integration": "^1.4.0",
+    "eslint": "catalog:",
+    "glob": "catalog:",
+    "lit-analyzer": "catalog:",
+    "plop": "catalog:",
+    "postcss-lit": "catalog:",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-ga4": "^2.1.0",
+    "remark-gfm": "catalog:",
+    "rimraf": "catalog:",
+    "sass": "catalog:",
+    "sinon": "catalog:",
+    "storybook": "catalog:",
+    "stylelint": "catalog:",
+    "stylelint-config-standard": "catalog:",
+    "typescript": "~5.9.3",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vite-tsconfig-paths": "catalog:"
+  }
+}
