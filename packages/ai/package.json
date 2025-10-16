@@ -1,7 +1,7 @@
 {
   "name": "@tylertech/forge-ai",
   "version": "0.1.0",
-  "description": "A library of prebuilt components based on Tyler Forge™ patterns and recipes.",
+  "description": "A library of Tyler Forge™ AI chat interface web components.",
   "license": "Apache-2.0",
   "author": "Tyler Technologies, Inc.",
   "main": "./dist/index.mjs",
