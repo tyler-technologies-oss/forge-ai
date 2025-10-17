@@ -23,6 +23,7 @@
   padding-inline-start: #{forge-spacing.variable(medium)};
   padding-block-end: #{forge-spacing.variable(medium)};
   scrollbar-gutter: stable;
+  scroll-behavior: smooth;
 
   overflow-y: auto;
 
