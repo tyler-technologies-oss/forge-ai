@@ -57,6 +57,11 @@ export class AiChatInterfaceComponent extends LitElement {
   @state()
   private _hasMessages = false;
 
+  private _resizeObserver: ResizeObserver | null = null;
+  private _mutationObserver: MutationObserver | null = null;
+  private _userHasScrolledUp = false;
+  private _isScrollEventListenerAdded = false;
+
   get #header(): TemplateResult {
     return html`
       <forge-ai-chat-header
@@ -107,6 +112,131 @@ export class AiChatInterfaceComponent extends LitElement {
 
     if (['suggestions', 'prompt', 'default'].includes(slotName)) {
       this.requestUpdate();
+    }
+  }
+
+  /**
+   * Scrolls the messages container to the bottom only if user hasn't scrolled up
+   */
+  public scrollMessagesToBottom(): void {
+    const messagesContainer = this.shadowRoot?.querySelector('.messages-container') as HTMLElement;
+    if (!messagesContainer) {
+      return;
+    }
+
+    // Check if container has overflow (scrollbar is present)
+    const hasOverflow = messagesContainer.scrollHeight > messagesContainer.clientHeight;
+
+    // If no overflow, always scroll (no scrollbar means no user scroll conflict)
+    if (!hasOverflow) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      return;
+    }
+
+    // Setup scroll listener once overflow is detected
+    if (hasOverflow && !this._isScrollEventListenerAdded) {
+      this.#setupScrollListener(messagesContainer);
+    }
+
+    // Check if user is at the bottom (with small tolerance for floating point issues)
+    const tolerance = 5;
+    const isAtBottom =
+      messagesContainer.scrollTop + messagesContainer.clientHeight >= messagesContainer.scrollHeight - tolerance;
+
+    // Reset scroll flag if user is back at bottom
+    if (isAtBottom) {
+      this._userHasScrolledUp = false;
+    }
+
+    // Only auto-scroll if user hasn't manually scrolled up
+    if (!this._userHasScrolledUp) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+  public override firstUpdated(): void {
+    this.#setupResizeObserver();
+    this.#setupMutationObserver();
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#cleanupResizeObserver();
+    this.#cleanupMutationObserver();
+    this.#cleanupScrollListener();
+  }
+
+  #setupResizeObserver(): void {
+    const messagesContainer = this.shadowRoot?.querySelector('.messages-container') as HTMLElement;
+    if (!messagesContainer) {
+      return;
+    }
+
+    this._resizeObserver = new ResizeObserver(() => {
+      // Use requestAnimationFrame to ensure DOM updates are complete
+      requestAnimationFrame(() => {
+        this.scrollMessagesToBottom();
+      });
+    });
+
+    this._resizeObserver.observe(messagesContainer);
+  }
+
+  #cleanupResizeObserver(): void {
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
+  }
+
+  #setupMutationObserver(): void {
+    // Watch for changes in the light DOM (slotted content)
+    this._mutationObserver = new MutationObserver(() => {
+      requestAnimationFrame(() => {
+        this.scrollMessagesToBottom();
+      });
+    });
+
+    // Observe changes to the component's children (slotted content)
+    this._mutationObserver.observe(this, {
+      childList: true,
+      subtree: true,
+      attributes: false,
+      characterData: true
+    });
+  }
+
+  #cleanupMutationObserver(): void {
+    if (this._mutationObserver) {
+      this._mutationObserver.disconnect();
+      this._mutationObserver = null;
+    }
+  }
+
+  #setupScrollListener(messagesContainer: HTMLElement): void {
+    let lastScrollTop = messagesContainer.scrollTop;
+
+    const handleScroll = (): void => {
+      const currentScrollTop = messagesContainer.scrollTop;
+
+      // Detect if user scrolled up (not due to programmatic scroll to bottom)
+      if (currentScrollTop < lastScrollTop) {
+        this._userHasScrolledUp = true;
+      }
+
+      lastScrollTop = currentScrollTop;
+    };
+
+    messagesContainer.addEventListener('scroll', handleScroll, { passive: true });
+    this._isScrollEventListenerAdded = true;
+  }
+
+  #cleanupScrollListener(): void {
+    const messagesContainer = this.shadowRoot?.querySelector('.messages-container') as HTMLElement;
+    if (messagesContainer && this._isScrollEventListenerAdded) {
+      // Remove all scroll listeners (we can't remove specific one due to closure)
+      messagesContainer.replaceWith(messagesContainer.cloneNode(true));
+      this._isScrollEventListenerAdded = false;
     }
   }
 
