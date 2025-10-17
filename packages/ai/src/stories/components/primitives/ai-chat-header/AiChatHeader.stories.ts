@@ -22,20 +22,45 @@ const meta = {
   argTypes: {
     title: {
       control: 'text',
-      description: 'The title text to display in the header'
+      description: 'The title text to display in the header slot'
+    },
+    showExpandButton: {
+      control: 'boolean',
+      description: 'Controls whether the expand button is visible'
+    },
+    showMinimizeButton: {
+      control: 'boolean',
+      description: 'Controls whether the minimize button is visible'
+    },
+    expanded: {
+      control: 'boolean',
+      description: 'Indicates the current expanded state for displaying the appropriate expand/collapse icon'
+    },
+    minimizeIcon: {
+      control: { type: 'select' },
+      options: ['default', 'panel'],
+      description: 'Controls which minimize icon to display'
     }
   },
   args: {
-    title: 'AI Assistant'
+    title: 'AI Assistant',
+    showExpandButton: false,
+    showMinimizeButton: false,
+    expanded: false,
+    minimizeIcon: 'default'
   },
   render: (args: any) => {
     return html`
       <forge-ai-chat-header
-        .title=${args.title}
+        .showExpandButton=${args.showExpandButton}
+        .showMinimizeButton=${args.showMinimizeButton}
+        .expanded=${args.expanded}
+        .minimizeIcon=${args.minimizeIcon}
         @forge-ai-chat-header-expand=${expandAction}
         @forge-ai-chat-header-minimize=${minimizeAction}
         @forge-ai-chat-header-clear=${clearChatAction}
         @forge-ai-chat-header-info=${infoAction}>
+        <h1 slot="title">${args.title}</h1>
       </forge-ai-chat-header>
     `;
   }
@@ -46,64 +71,3 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {};
-
-export const WithCustomTitle: Story = {
-  args: {
-    title: 'My Custom AI Bot'
-  }
-};
-
-export const WithHeaderActions: Story = {
-  render: (args: any) => {
-    return html`
-      <forge-ai-chat-header
-        .title=${args.title}
-        @forge-ai-chat-header-expand=${expandAction}
-        @forge-ai-chat-header-minimize=${minimizeAction}
-        @forge-ai-chat-header-clear=${clearChatAction}
-        @forge-ai-chat-header-info=${infoAction}>
-        <forge-icon-button slot="header-actions" aria-label="Minimize chat window">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path fill="none" d="M0 0h24v24H0z" />
-            <path d="M6 19h12v2H6z" />
-          </svg>
-        </forge-icon-button>
-      </forge-ai-chat-header>
-    `;
-  }
-};
-
-export const InCard: Story = {
-  render: (args: any) => {
-    return html`
-      <forge-card no-padding raised>
-        <forge-ai-chat-header
-          .title=${args.title}
-          @forge-ai-chat-header-expand=${expandAction}
-          @forge-ai-chat-header-minimize=${minimizeAction}
-          @forge-ai-chat-header-clear=${clearChatAction}
-          @forge-ai-chat-header-info=${infoAction}>
-        </forge-ai-chat-header>
-      </forge-card>
-    `;
-  }
-};
-
-export const InCardWithActions: Story = {
-  args: {
-    title: 'Support Assistant'
-  },
-  render: (args: any) => {
-    return html`
-      <forge-card no-padding raised>
-        <forge-ai-chat-header
-          .title=${args.title}
-          @forge-ai-chat-header-expand=${expandAction}
-          @forge-ai-chat-header-minimize=${minimizeAction}
-          @forge-ai-chat-header-clear=${clearChatAction}
-          @forge-ai-chat-header-info=${infoAction}>
-        </forge-ai-chat-header>
-      </forge-card>
-    `;
-  }
-};

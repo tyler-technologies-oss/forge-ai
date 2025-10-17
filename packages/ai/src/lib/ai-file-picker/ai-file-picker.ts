@@ -61,7 +61,7 @@ export class ForgeAiFilePickerComponent extends LitElement {
    * The variant of the file picker button.
    */
   @property()
-  public variant: AiFilePickerVariant = 'button';
+  public variant: AiFilePickerVariant = 'icon-button';
 
   /**
    * Whether the file picker is disabled.
@@ -86,9 +86,6 @@ export class ForgeAiFilePickerComponent extends LitElement {
 
   @query('input[type="file"]')
   private _fileInput!: HTMLInputElement;
-
-  @query('button')
-  private _button!: HTMLButtonElement;
 
   public override connectedCallback(): void {
     super.connectedCallback();

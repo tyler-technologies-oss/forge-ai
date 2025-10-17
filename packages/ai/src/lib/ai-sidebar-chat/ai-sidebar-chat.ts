@@ -6,6 +6,7 @@ import type { AiSidebarComponent } from '../ai-sidebar';
 import type { AiModalComponent } from '../ai-modal';
 import '../ai-sidebar';
 import '../ai-chat-interface';
+import '../ai-chat-header';
 import '../ai-modal';
 
 import styles from './ai-sidebar-chat.scss?inline';
@@ -64,13 +65,16 @@ export class AiSidebarChatComponent extends LitElement {
 
   get #chatInterface(): TemplateResult {
     return html`
-      <forge-ai-chat-interface
-        show-expand-button
-        ?show-minimize-button=${!this.expanded}
-        minimize-icon=${this.expanded ? 'default' : 'panel'}
-        ?expanded=${this.expanded}
-        @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
-        @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}>
+      <forge-ai-chat-interface>
+        <forge-ai-chat-header
+          slot="header"
+          @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
+          @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
+          show-expand-button
+          ?show-minimize-button=${!this.expanded}
+          minimize-icon=${this.expanded ? 'default' : 'panel'}
+          ?expanded=${this.expanded}>
+        </forge-ai-chat-header>
         <slot></slot>
         <slot name="suggestions" slot="suggestions"></slot>
         <slot name="prompt" slot="prompt"></slot>

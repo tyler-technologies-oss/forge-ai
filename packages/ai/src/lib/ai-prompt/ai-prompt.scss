@@ -34,14 +34,8 @@
 //   fill: #{forge-theme.variable(text-medium)};
 // }
 
-::slotted([slot='additional-action']:not(:last-child)) {
+::slotted([slot='actions']:not(:last-child)) {
   margin-inline-end: #{forge-spacing.variable(small)};
-}
-
-:host(:state(inline)) {
-  ::slotted([slot='additional-action']) {
-    display: none;
-  }
 }
 
 :host(:state(inline)) {
@@ -53,9 +47,7 @@
     display: none;
   }
 
-  .input-container {
-    .actions {
-      padding: 0;
-    }
+  .actions {
+    display: none;
   }
 }

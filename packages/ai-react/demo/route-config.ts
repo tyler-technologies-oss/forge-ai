@@ -14,9 +14,7 @@ const routes: IAppRoute[] = [
     path: '/components',
     text: 'Components',
     icon: 'settings_input_component',
-    routes: [
-
-    ]
+    routes: []
   }
 ];
 

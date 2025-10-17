@@ -19,18 +19,6 @@ export interface ForgeAiChatInterfaceProps
     | "onFocus"
     | "onBlur"
   > {
-  /** Controls whether the expand button is visible in the header */
-  showExpandButton?: boolean;
-
-  /** Controls whether the minimize button is visible in the header */
-  showMinimizeButton?: boolean;
-
-  /** Indicates the current expanded state for displaying the appropriate expand/collapse icon */
-  expanded?: boolean;
-
-  /** Controls which minimize icon to display in the header */
-  minimizeIcon?: ForgeAiChatInterfaceElement["minimizeIcon"];
-
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -58,8 +46,12 @@ export interface ForgeAiChatInterfaceProps
  * ---
  *
  *
+ * ### **Methods:**
+ *  - **scrollMessagesToBottom(): _void_** - Scrolls the messages container to the bottom only if user hasn't scrolled up
+ *
  * ### **Slots:**
  *  - _default_ - Default slot for messages
+ * - **header** - Slot for AI chat header component
  * - **suggestions** - Slot for AI suggestions component
  * - **prompt** - Slot for AI prompt component
  */

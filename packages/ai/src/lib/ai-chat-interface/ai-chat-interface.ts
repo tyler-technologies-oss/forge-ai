@@ -1,8 +1,6 @@
 import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
-import { customElement, property, queryAssignedNodes, state } from 'lit/decorators.js';
+import { customElement, queryAssignedNodes, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
-import '../ai-chat-header/ai-chat-header';
-import type { MinimizeIconType } from '../ai-chat-header/ai-chat-header';
 import '../ai-empty-state/ai-empty-state';
 import '../ai-gradient-container/ai-gradient-container';
 
@@ -20,36 +18,13 @@ export const AiChatInterfaceComponentTagName: keyof HTMLElementTagNameMap = 'for
  * @tag forge-ai-chat-interface
  *
  * @slot - Default slot for messages
+ * @slot header - Slot for AI chat header component
  * @slot suggestions - Slot for AI suggestions component
  * @slot prompt - Slot for AI prompt component
  */
 @customElement(AiChatInterfaceComponentTagName)
 export class AiChatInterfaceComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
-
-  /**
-   * Controls whether the expand button is visible in the header
-   */
-  @property({ type: Boolean, attribute: 'show-expand-button' })
-  public showExpandButton = false;
-
-  /**
-   * Controls whether the minimize button is visible in the header
-   */
-  @property({ type: Boolean, attribute: 'show-minimize-button' })
-  public showMinimizeButton = false;
-
-  /**
-   * Indicates the current expanded state for displaying the appropriate expand/collapse icon
-   */
-  @property({ type: Boolean })
-  public expanded = false;
-
-  /**
-   * Controls which minimize icon to display in the header
-   */
-  @property({ attribute: 'minimize-icon' })
-  public minimizeIcon: MinimizeIconType = 'default';
 
   @queryAssignedNodes({ slot: 'suggestions', flatten: true })
   private _slottedSuggestionsNodes!: Node[];
@@ -62,16 +37,7 @@ export class AiChatInterfaceComponent extends LitElement {
   private _userHasScrolledUp = false;
   private _isScrollEventListenerAdded = false;
 
-  get #header(): TemplateResult {
-    return html`
-      <forge-ai-chat-header
-        ?show-expand-button=${this.showExpandButton}
-        ?show-minimize-button=${this.showMinimizeButton}
-        ?expanded=${this.expanded}
-        minimize-icon=${this.minimizeIcon}>
-      </forge-ai-chat-header>
-    `;
-  }
+  readonly #headerSlot = html`<slot name="header" @slotchange=${this.#handleSlotChange}></slot>`;
 
   readonly #suggestionsSlot = html`<slot name="suggestions" @slotchange=${this.#handleSlotChange}></slot>`;
 
@@ -110,7 +76,7 @@ export class AiChatInterfaceComponent extends LitElement {
       this._hasMessages = assignedElements.length > 0;
     }
 
-    if (['suggestions', 'prompt', 'default'].includes(slotName)) {
+    if (['header', 'suggestions', 'prompt', 'default'].includes(slotName)) {
       this.requestUpdate();
     }
   }
@@ -243,7 +209,7 @@ export class AiChatInterfaceComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="ai-chat-interface">
-        ${this.#header} ${this.#messagesContainer} ${this.#suggestions}
+        ${this.#headerSlot} ${this.#messagesContainer} ${this.#suggestions}
         <div class="prompt-container">${this.#prompt}</div>
       </div>
     `;

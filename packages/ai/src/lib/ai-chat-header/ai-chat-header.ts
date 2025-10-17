@@ -125,9 +125,9 @@ export class AiChatHeaderComponent extends LitElement {
                   `
                 )}
               </button>
-              <!-- <forge-ai-tooltip id="expand-tooltip" for="expand-button" placement="bottom">
+              <forge-ai-tooltip id="expand-tooltip" for="expand-button" placement="bottom">
                 ${this.expanded ? 'Collapse to smaller window' : 'Expand to full window'}
-              </forge-ai-tooltip> -->
+              </forge-ai-tooltip>
             `
           )}
           ${when(
@@ -169,9 +169,9 @@ export class AiChatHeaderComponent extends LitElement {
                   `
                 )}
               </button>
-              <!-- <forge-ai-tooltip id="minimize-tooltip" for="minimize-button" placement="bottom">
+              <forge-ai-tooltip id="minimize-tooltip" for="minimize-button" placement="bottom">
                 Minimize chat to taskbar
-              </forge-ai-tooltip> -->
+              </forge-ai-tooltip>
             `
           )}
         </div>

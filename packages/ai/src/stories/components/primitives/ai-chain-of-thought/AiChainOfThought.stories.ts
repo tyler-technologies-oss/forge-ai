@@ -7,6 +7,7 @@ import '$lib/ai-chain-of-thought/thought-image/thought-image';
 import '$lib/ai-chain-of-thought/thought-detail/thought-detail';
 import '$lib/ai-reasoning-header';
 import '$lib/ai-chat-interface';
+import '$lib/ai-chat-header';
 import '$lib/ai-prompt';
 import '$lib/ai-dropdown-menu';
 import '$lib/ai-dropdown-menu/ai-dropdown-menu-item';
@@ -116,6 +117,8 @@ export const InChatInterface: Story = {
     return html`
       <forge-ai-gradient-container style="height: 800px; width: 100%;">
         <forge-ai-chat-interface>
+          <forge-ai-chat-header slot="header"></forge-ai-chat-header>
+
           <forge-ai-user-message>
             Can you analyze this snowboarding image and tell me about the technique being used?
           </forge-ai-user-message>
@@ -259,6 +262,8 @@ export const SequentialLoading: Story = {
     return html`
       <forge-ai-gradient-container style="height: 800px; width: 100%;">
         <forge-ai-chat-interface>
+          <forge-ai-chat-header slot="header"></forge-ai-chat-header>
+
           <forge-ai-user-message>
             Can you tell me about Mini Australian Shepherds? I'm thinking about getting one as a family pet.
           </forge-ai-user-message>

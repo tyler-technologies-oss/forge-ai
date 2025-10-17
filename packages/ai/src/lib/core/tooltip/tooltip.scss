@@ -12,74 +12,70 @@
 }
 
 .ai-tooltip {
-  --_tooltip-slidein-x: 0;
-  --_tooltip-slidein-y: 0;
-
   @include forge-tooltip.tokens;
   @include forge-tooltip.base;
-  // max-width: 320px;
-  // padding: #{forge-spacing.variable(small)} #{forge-spacing.variable(medium)};
 
-  // background: #{forge-theme.variable(surface-inverse)};
-  // color: #{forge-theme.variable(on-surface-inverse)};
+  animation-duration: 150ms;
+  animation-timing-function: cubic-bezier(0, 0, 0, 1);
+  animation-name: tooltip-fadein, tooltip-scalein;
+  transform-origin: center center;
+}
 
-  // border-radius: #{forge-shape.variable(small)};
-  // border: none;
+// Transform origin based on placement - target the overlay element that has the data attribute
+forge-ai-overlay[data-position-placement^='top'] {
+  &:not([data-position-placement*='-']) .ai-tooltip {
+    transform-origin: bottom center;
+  }
 
-  // font-family: #{forge-typography.variable(body2, font-family)};
-  // font-size: #{forge-typography.variable(body2, font-size)};
-  // font-weight: #{forge-typography.variable(body2, font-weight)};
-  // line-height: #{forge-typography.variable(body2, line-height)};
+  &[data-position-placement$='-start'] .ai-tooltip {
+    transform-origin: bottom left;
+  }
 
-  // word-wrap: break-word;
-  // overflow-wrap: break-word;
-  // hyphens: auto;
+  &[data-position-placement$='-end'] .ai-tooltip {
+    transform-origin: bottom right;
+  }
+}
 
-  // animation-duration: 200ms;
-  // animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  // animation-name: tooltip-fadein;
+forge-ai-overlay[data-position-placement^='right'] {
+  &:not([data-position-placement*='-']) .ai-tooltip {
+    transform-origin: left center;
+  }
 
-  // Arrow styles (basic implementation)
-  //   &::after {
-  //     content: '';
-  //     position: absolute;
-  //     width: 0;
-  //     height: 0;
-  //     border: 6px solid transparent;
-  //     pointer-events: none;
-  //   }
+  &[data-position-placement$='-start'] .ai-tooltip {
+    transform-origin: left top;
+  }
 
-  //   &[data-placement^='top']::after {
-  //     top: 100%;
-  //     left: 50%;
-  //     transform: translateX(-50%);
-  //     border-top-color: #{forge-theme.variable(surface-inverse)};
-  //     border-bottom: none;
-  //   }
+  &[data-position-placement$='-end'] .ai-tooltip {
+    transform-origin: left bottom;
+  }
+}
 
-  //   &[data-placement^='bottom']::after {
-  //     bottom: 100%;
-  //     left: 50%;
-  //     transform: translateX(-50%);
-  //     border-bottom-color: #{forge-theme.variable(surface-inverse)};
-  //     border-top: none;
-  //   }
+forge-ai-overlay[data-position-placement^='bottom'] {
+  &:not([data-position-placement*='-']) .ai-tooltip {
+    transform-origin: top center;
+  }
 
-  //   &[data-placement^='left']::after {
-  //     left: 100%;
-  //     top: 50%;
-  //     transform: translateY(-50%);
-  //     border-left-color: #{forge-theme.variable(surface-inverse)};
-  //     border-right: none;
-  //   }
+  &[data-position-placement$='-start'] .ai-tooltip {
+    transform-origin: top left;
+  }
 
-  //   &[data-placement^='right']::after {
-  //     right: 100%;
-  //     top: 50%;
-  //     transform: translateY(-50%);
-  //     border-right-color: #{forge-theme.variable(surface-inverse)};
-  //     border-left: none;
-  //   }
+  &[data-position-placement$='-end'] .ai-tooltip {
+    transform-origin: top right;
+  }
+}
+
+forge-ai-overlay[data-position-placement^='left'] {
+  &:not([data-position-placement*='-']) .ai-tooltip {
+    transform-origin: right center;
+  }
+
+  &[data-position-placement$='-start'] .ai-tooltip {
+    transform-origin: right top;
+  }
+
+  &[data-position-placement$='-end'] .ai-tooltip {
+    transform-origin: right bottom;
+  }
 }
 
 .tooltip-content--hidden {
@@ -89,10 +85,17 @@
 @keyframes tooltip-fadein {
   from {
     opacity: 0;
-    transform: scale(0.8);
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes tooltip-scalein {
+  from {
+    transform: scale(0.8);
+  }
+  to {
     transform: scale(1);
   }
 }

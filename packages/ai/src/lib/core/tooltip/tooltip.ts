@@ -287,9 +287,10 @@ export class ForgeAiTooltipComponent extends LitElement {
               .anchor=${this._anchorElement}
               .placement=${this.placement}
               flip
+              shift
               .open=${this.open}
               @ai-overlay-toggle=${this._onOverlayToggle}>
-              <div class="ai-tooltip" data-placement=${this.placement}>${this.#tooltipContent}</div>
+              <div class="ai-tooltip">${this.#tooltipContent}</div>
             </forge-ai-overlay>`,
         () => html`
           <!-- Content shown when closed for accessibility -->

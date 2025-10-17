@@ -14,6 +14,7 @@ import {
 
 import '$lib/ai-sidebar';
 import '$lib/ai-chat-interface';
+import '$lib/ai-chat-header';
 import '$lib/ai-user-message';
 import '$lib/ai-response-message';
 import '$lib/ai-button';
@@ -98,13 +99,16 @@ const meta = {
           ?open=${args.open}
           @forge-ai-sidebar-open=${handleOpen}
           @forge-ai-sidebar-close=${handleClose}>
-          <forge-ai-chat-interface
-            show-expand-button
-            show-minimize-button
-            minimize-icon="panel"
-            ?expanded=${args.expanded}
-            @forge-ai-chat-header-expand=${handleExpandClick}
-            @forge-ai-chat-header-minimize=${handleMinimizeClick}>
+          <forge-ai-chat-interface>
+            <forge-ai-chat-header
+              slot="header"
+              show-expand-button
+              show-minimize-button
+              minimize-icon="panel"
+              ?expanded=${args.expanded}
+              @forge-ai-chat-header-expand=${handleExpandClick}
+              @forge-ai-chat-header-minimize=${handleMinimizeClick}>
+            </forge-ai-chat-header>
             <forge-ai-user-message>
               Hello! Can you help me understand the analytics data I'm seeing in my dashboard?
             </forge-ai-user-message>

@@ -1,4 +1,5 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/dist/button/forge-button';
 @use '../mixins' as mixins;
@@ -12,6 +13,10 @@
   --forge-button-border-radius: #{forge-spacing.variable(xsmall)};
   --forge-button-outlined-border-width: 0;
   --forge-button-outlined-background: transparent;
+  --forge-focus-indicator-shape-start-start: #{forge-shape.variable(medium)};
+  --forge-focus-indicator-shape-start-end: #{forge-shape.variable(medium)};
+  --forge-focus-indicator-shape-end-start: #{forge-shape.variable(medium)};
+  --forge-focus-indicator-shape-end-end: #{forge-shape.variable(medium)};
 }
 
 forge-ai-icon {

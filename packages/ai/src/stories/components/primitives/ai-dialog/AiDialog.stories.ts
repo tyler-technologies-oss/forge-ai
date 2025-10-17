@@ -3,6 +3,8 @@ import { html } from 'lit';
 
 import '$lib/ai-dialog';
 import '$lib/ai-chat-interface';
+import '$lib/ai-chat-header';
+import '$lib/ai-prompt';
 import '$lib/ai-user-message';
 import '$lib/ai-response-message';
 import '$lib/ai-fab';
@@ -41,12 +43,15 @@ const meta = {
 
     const dialog = html`
       <forge-ai-dialog ?open=${args.open} ?expanded=${args.expanded}>
-        <forge-ai-chat-interface
-          ?show-expand-button=${window.innerWidth > 768}
-          show-minimize-button
-          ?expanded=${args.expanded}
-          @forge-ai-chat-header-expand=${handleExpandClick}
-          @forge-ai-chat-header-minimize=${handleMinimizeClick}>
+        <forge-ai-chat-interface>
+          <forge-ai-chat-header
+            slot="header"
+            ?show-expand-button=${window.innerWidth > 768}
+            show-minimize-button
+            ?expanded=${args.expanded}
+            @forge-ai-chat-header-expand=${handleExpandClick}
+            @forge-ai-chat-header-minimize=${handleMinimizeClick}>
+          </forge-ai-chat-header>
           <forge-ai-user-message>
             Hello! Can you help me understand how to use TypeScript generics?
           </forge-ai-user-message>
@@ -54,6 +59,8 @@ const meta = {
             I'd be happy to help you understand TypeScript generics! Generics allow you to create reusable components
             that can work with different types while maintaining type safety.
           </forge-ai-response-message>
+
+          <forge-ai-prompt slot="prompt"></forge-ai-prompt>
         </forge-ai-chat-interface>
       </forge-ai-dialog>
     `;

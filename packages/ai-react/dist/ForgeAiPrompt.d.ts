@@ -64,6 +64,6 @@ export interface ForgeAiPromptProps
  *  - **forge-ai-prompt-send** - Fired when the send button is clicked or Enter is pressed.
  *
  * ### **Slots:**
- *  - **actions** - Slot for action components like dropdown menus, voice input, buttons, etc.
+ *  - **actions** - Slot for action components that are hidden in inline mode (voice input, file picker, model selectors, web search, etc.)
  */
 export const ForgeAiPrompt: React.ForwardRefExoticComponent<ForgeAiPromptProps>;

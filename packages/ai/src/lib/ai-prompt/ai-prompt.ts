@@ -1,5 +1,6 @@
-import { LitElement, PropertyValues, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { LitElement, PropertyValues, TemplateResult, html, unsafeCSS, nothing } from 'lit';
+import { customElement, property, queryAssignedNodes } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import { toggleState } from '../utils';
 
 import styles from './ai-prompt.scss?inline';
@@ -27,7 +28,7 @@ export const AiPromptComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-p
 /**
  * @tag forge-ai-prompt
  *
- * @slot actions - Slot for action components like dropdown menus, voice input, buttons, etc.
+ * @slot actions - Slot for action components that are hidden in inline mode (voice input, file picker, model selectors, web search, etc.)
  *
  * @state inline - The prompt is in inline layout mode with actions hidden.
  * @state stacked - The prompt is in stacked layout mode with actions displayed below the input.
@@ -50,6 +51,9 @@ export class AiPromptComponent extends LitElement {
   @property({ type: String, attribute: 'variant' })
   public variant: AiPromptVariant = 'stacked';
 
+  @queryAssignedNodes({ slot: 'actions', flatten: true })
+  private _actionsSlottedNodes!: Node[];
+
   readonly #internals: ElementInternals;
 
   constructor() {
@@ -69,12 +73,27 @@ export class AiPromptComponent extends LitElement {
     toggleState(this.#internals, 'stacked', this.variant === 'stacked');
   }
 
-  readonly #inputActions = html`
-    <hr class="forge-divider" />
-    <div class="actions">
-      <slot name="actions"></slot>
-    </div>
-  `;
+  readonly #actionsSlot = html`<slot name="actions" @slotchange=${this.#handleSlotChange}></slot>`;
+
+  get #conditionalActions(): TemplateResult | typeof nothing {
+    const hasActions = this._actionsSlottedNodes.length > 0;
+
+    return when(
+      hasActions,
+      () => html`
+        <hr class="forge-divider" />
+        <div class="actions">${this.#actionsSlot}</div>
+      `,
+      () => html`${this.#actionsSlot}` // Always render slot for detection
+    );
+  }
+
+  #handleSlotChange(evt: Event): void {
+    const slotName = (evt.target as HTMLSlotElement).name;
+    if (slotName === 'actions') {
+      this.requestUpdate();
+    }
+  }
 
   private _handleSend(): void {
     if (this.value.trim()) {
@@ -126,7 +145,7 @@ export class AiPromptComponent extends LitElement {
               </svg>
             </button>
           </div>
-          ${this.variant === 'stacked' ? this.#inputActions : ''}
+          ${this.#conditionalActions}
         </div>
       </div>
     `;

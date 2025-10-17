@@ -4,6 +4,7 @@ import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import type { AiDialogComponent } from '../ai-dialog';
 import '../ai-dialog';
 import '../ai-chat-interface';
+import '../ai-chat-header';
 
 import styles from './ai-floating-chat.scss?inline';
 
@@ -75,13 +76,16 @@ export class AiFloatingChatComponent extends LitElement {
         ?expanded=${this.expanded}
         @forge-ai-dialog-fullscreen-change=${this.#handleFullscreenChange}
         @forge-ai-dialog-close=${this.#handleDialogClose}>
-        <forge-ai-chat-interface
-          ?show-expand-button=${!this._isFullscreen}
-          show-minimize-button
-          minimize-icon="default"
-          ?expanded=${this.expanded}
-          @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
-          @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}>
+        <forge-ai-chat-interface>
+          <forge-ai-chat-header
+            slot="header"
+            @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
+            @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
+            ?show-expand-button=${!this._isFullscreen}
+            show-minimize-button
+            minimize-icon="default"
+            ?expanded=${this.expanded}>
+          </forge-ai-chat-header>
           <slot></slot>
           <slot name="suggestions" slot="suggestions"></slot>
           <slot name="prompt" slot="prompt"></slot>

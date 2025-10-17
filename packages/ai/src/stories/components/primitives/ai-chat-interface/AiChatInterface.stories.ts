@@ -1,14 +1,16 @@
 import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
+import { Suggestion } from '$lib/ai-suggestions';
+import { defineCardComponent } from '@tylertech/forge';
 
 import '$lib/ai-chat-interface';
+import '$lib/ai-chat-header';
 import '$lib/ai-user-message';
 import '$lib/ai-response-message';
 import '$lib/ai-suggestions';
 import '$lib/ai-gradient-container';
 import '$lib/ai-empty-state';
-import { Suggestion } from '$lib/ai-suggestions';
-import { defineCardComponent } from '@tylertech/forge';
+import '$lib/ai-prompt';
 
 const component = 'forge-ai-chat-interface';
 
@@ -18,7 +20,12 @@ const meta = {
   title: 'AI Components/Primitives/Chat Interface',
   component,
   render: () => {
-    return html`<forge-ai-chat-interface></forge-ai-chat-interface>`;
+    return html`
+      <forge-ai-chat-interface>
+        <forge-ai-chat-header slot="header"></forge-ai-chat-header>
+        <forge-ai-prompt slot="prompt"></forge-ai-prompt>
+      </forge-ai-chat-interface>
+    `;
   }
 } satisfies Meta;
 
@@ -41,9 +48,11 @@ export const WithEmptyState: Story = {
     return html`
       <forge-ai-gradient-container>
         <forge-ai-chat-interface>
+          <forge-ai-chat-header slot="header"></forge-ai-chat-header>
           <forge-ai-empty-state>
             <forge-ai-suggestions slot="actions" variant="block" .suggestions=${suggestions}> </forge-ai-suggestions>
           </forge-ai-empty-state>
+          <forge-ai-prompt slot="prompt"></forge-ai-prompt>
         </forge-ai-chat-interface>
       </forge-ai-gradient-container>
     `;
@@ -54,6 +63,7 @@ export const WithMessages: Story = {
   render: () => {
     return html`
       <forge-ai-chat-interface>
+        <forge-ai-chat-header slot="header"></forge-ai-chat-header>
         <forge-ai-user-message>
           Hello! Can you help me understand how to use TypeScript generics?
         </forge-ai-user-message>
@@ -66,6 +76,7 @@ export const WithMessages: Story = {
           Sure! Here's a simple example of a generic function: This function works with any type T, providing type
           safety while being reusable.
         </forge-ai-response-message>
+        <forge-ai-prompt slot="prompt"></forge-ai-prompt>
       </forge-ai-chat-interface>
     `;
   }
@@ -83,6 +94,7 @@ export const WithSuggestions: Story = {
 
     return html`
       <forge-ai-chat-interface>
+        <forge-ai-chat-header slot="header"></forge-ai-chat-header>
         <forge-ai-user-message>
           Hello! Can you help me understand how to use TypeScript generics?
         </forge-ai-user-message>
@@ -96,6 +108,7 @@ export const WithSuggestions: Story = {
           safety while being reusable.
         </forge-ai-response-message>
         <forge-ai-suggestions slot="suggestions" .suggestions=${suggestions}></forge-ai-suggestions>
+        <forge-ai-prompt slot="prompt"></forge-ai-prompt>
       </forge-ai-chat-interface>
     `;
   }
@@ -114,6 +127,7 @@ export const WithGradientBorderComponent: Story = {
     return html`
       <forge-ai-gradient-container>
         <forge-ai-chat-interface>
+          <forge-ai-chat-header slot="header"></forge-ai-chat-header>
           <forge-ai-user-message>
             Hello! Can you help me understand how to use TypeScript generics?
           </forge-ai-user-message>
@@ -127,6 +141,7 @@ export const WithGradientBorderComponent: Story = {
             safety while being reusable.
           </forge-ai-response-message>
           <forge-ai-suggestions slot="suggestions" .suggestions=${suggestions}></forge-ai-suggestions>
+          <forge-ai-prompt slot="prompt"></forge-ai-prompt>
         </forge-ai-chat-interface>
       </forge-ai-gradient-container>
     `;

@@ -33,7 +33,8 @@ For a complete sidebar chat solution, consider using the `ai-sidebar-chat` form 
 <Canvas>
   <div style={{ position: 'relative', height: '400px', overflow: 'hidden' }}>
     <forge-ai-sidebar>
-      <forge-ai-chat-interface show-minimize-button>
+      <forge-ai-chat-interface>
+        <forge-ai-chat-header slot="header" show-minimize-button></forge-ai-chat-header>
         <forge-ai-user-message>Hello! Can you help me understand how to use TypeScript generics?</forge-ai-user-message>
         <forge-ai-response-message>
           I'd be happy to help you understand TypeScript generics! Generics allow you to create reusable components that

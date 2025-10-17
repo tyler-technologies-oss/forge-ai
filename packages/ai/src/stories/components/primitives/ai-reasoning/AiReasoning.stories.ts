@@ -6,6 +6,7 @@ import '$lib/ai-reasoning/reasoning-content';
 import '$lib/ai-reasoning-header';
 import '$lib/ai-gradient-container';
 import '$lib/ai-chat-interface';
+import '$lib/ai-chat-header';
 
 const component = 'forge-ai-reasoning';
 
@@ -44,6 +45,7 @@ const meta = {
     const template = html`
       <forge-ai-gradient-container style="height: 800px; width: 100%;">
         <forge-ai-chat-interface>
+          <forge-ai-chat-header slot="header"></forge-ai-chat-header>
           <forge-ai-reasoning .expanded=${args.expanded} id="reasoning-container">
             <forge-ai-reasoning-header slot="header" .expanded=${args.expanded} .reasoning=${args.reasoning}>
               <span slot="reasoning-title">${args.reasoningTitle}</span>
