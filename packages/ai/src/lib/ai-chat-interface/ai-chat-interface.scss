@@ -7,6 +7,9 @@
   display: block;
   height: 100%;
   flex-grow: 1;
+
+  --forge-ai-chat-interface-message-container-padding: 0 #{forge-spacing.variable(medium)}
+    #{forge-spacing.variable(medium)};
 }
 
 .ai-chat-interface {
@@ -20,8 +23,7 @@
 .messages-container {
   @include forge-scrollbar.base;
 
-  padding-inline: #{forge-spacing.variable(medium)};
-  padding-block-end: #{forge-spacing.variable(medium)};
+  padding: var(--forge-ai-chat-interface-message-container-padding);
   overflow-y: auto;
 
   // Safari-specific: force scrollbar to always show
