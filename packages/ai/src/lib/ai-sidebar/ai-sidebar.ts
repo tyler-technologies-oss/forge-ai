@@ -41,8 +41,21 @@ export class AiSidebarComponent extends LitElement {
   @state()
   private _closing = false;
 
+  /**
+   * Indicates whether the animation container is in a closing state.
+   */
+  @state()
+  private _containerClosing = false;
+
   public override render(): TemplateResult {
-    const classes = {
+    const containerClasses = {
+      'animation-container': true,
+      'animation-container--open': this.open && !this._containerClosing,
+      'animation-container--closing': this._containerClosing,
+      'animation-container--closed': !this.open && !this._containerClosing
+    };
+
+    const drawerClasses = {
       'forge-drawer': true,
       'forge-drawer--right': true,
       'forge-drawer--closing': this._closing,
@@ -50,14 +63,16 @@ export class AiSidebarComponent extends LitElement {
     };
 
     return html`
-      <aside
-        class=${classMap(classes)}
-        ?open=${this.open}
-        role="complementary"
-        aria-hidden=${!this.open}
-        @transitionend=${this.#handleTransitionEnd}>
-        <slot></slot>
-      </aside>
+      <div class=${classMap(containerClasses)} @transitionend=${this.#handleContainerTransitionEnd}>
+        <aside
+          class=${classMap(drawerClasses)}
+          ?open=${this.open}
+          role="complementary"
+          aria-hidden=${!this.open}
+          @transitionend=${this.#handleDrawerTransitionEnd}>
+          <slot></slot>
+        </aside>
+      </div>
     `;
   }
 
@@ -67,6 +82,7 @@ export class AiSidebarComponent extends LitElement {
   public show(): void {
     if (!this.open) {
       this._closing = false;
+      this._containerClosing = false;
       this.open = true;
       this.#dispatchEvent('forge-ai-sidebar-open');
     }
@@ -76,9 +92,10 @@ export class AiSidebarComponent extends LitElement {
    * Closes the sidebar.
    */
   public close(): void {
-    if (this.open && !this._closing) {
+    if (this.open && !this._closing && !this._containerClosing) {
       this._closing = true;
-      // The actual closing and event dispatch will happen in #handleTransitionEnd
+      this._containerClosing = true;
+      // The actual closing and event dispatch will happen in transition end handlers
     }
   }
 
@@ -93,8 +110,17 @@ export class AiSidebarComponent extends LitElement {
     }
   }
 
-  #handleTransitionEnd(): void {
-    if (this._closing) {
+  #handleContainerTransitionEnd(evt: TransitionEvent): void {
+    // Only handle transitions from the animation container, not child elements
+    if (evt.target === evt.currentTarget && this._containerClosing) {
+      this._containerClosing = false;
+      // Wait for drawer animation to complete before finalizing close state
+    }
+  }
+
+  #handleDrawerTransitionEnd(evt: TransitionEvent): void {
+    // Only handle transitions from the drawer element, not child elements
+    if (evt.target === evt.currentTarget && this._closing) {
       this.open = false;
       this._closing = false;
       this.#dispatchEvent('forge-ai-sidebar-close');

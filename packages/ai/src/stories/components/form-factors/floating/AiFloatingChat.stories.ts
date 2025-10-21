@@ -6,6 +6,7 @@ import '$lib/ai-user-message';
 import '$lib/ai-response-message';
 import '$lib/ai-fab';
 import '$lib/ai-suggestions';
+import '$lib/ai-prompt';
 import { Suggestion } from '$lib/ai-suggestions';
 
 const component = 'forge-ai-floating-chat';
@@ -37,6 +38,7 @@ const meta = {
           I'd be happy to help you understand TypeScript generics! Generics allow you to create reusable components that
           can work with different types while maintaining type safety.
         </forge-ai-response-message>
+        <forge-ai-prompt slot="prompt"></forge-ai-prompt>
       </forge-ai-floating-chat>
     `;
 
@@ -95,6 +97,8 @@ export const WithSuggestions: Story = {
             console.log('Selected suggestion:', event.detail);
           }}>
         </forge-ai-suggestions>
+
+        <forge-ai-prompt slot="prompt"></forge-ai-prompt>
       </forge-ai-floating-chat>
     `;
 

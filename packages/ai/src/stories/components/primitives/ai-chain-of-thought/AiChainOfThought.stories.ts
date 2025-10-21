@@ -15,7 +15,7 @@ import '$lib/ai-voice-input';
 import '$lib/ai-gradient-container';
 import '$lib/ai-user-message';
 import '$lib/ai-response-message';
-import type { AiVoiceInputResultEvent } from '$lib/ai-voice-input';
+import type { ForgeAiVoiceInputResultEvent } from '$lib/ai-voice-input';
 import { defineCardComponent, defineIconComponent, defineIconButtonComponent, IconRegistry } from '@tylertech/forge';
 import { tylIconAdd, tylIconSparkles } from '@tylertech/tyler-icons';
 
@@ -32,7 +32,7 @@ const snowboardingSources = [
 ];
 
 const createPrompt = () => {
-  const handleVoiceInput = (event: CustomEvent<AiVoiceInputResultEvent>) => {
+  const handleVoiceInput = (event: CustomEvent<ForgeAiVoiceInputResultEvent>) => {
     const prompt = document.querySelector('forge-ai-prompt') as any;
     if (prompt) {
       prompt.value = event.detail.transcript;

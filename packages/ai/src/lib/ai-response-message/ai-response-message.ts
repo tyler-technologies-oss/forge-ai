@@ -11,13 +11,13 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'forge-ai-response-message-action': CustomEvent<AiResponseMessageActionEventData>;
+    'forge-ai-response-message-action': CustomEvent<ForgeAiResponseMessageActionEventData>;
   }
 }
 
 export type AiResponseMessageActionType = 'refresh' | 'copy' | 'thumbs-up' | 'thumbs-down';
 
-export interface AiResponseMessageActionEventData {
+export interface ForgeAiResponseMessageActionEventData {
   action: AiResponseMessageActionType;
 }
 
@@ -26,7 +26,7 @@ export const AiResponseMessageComponentTagName: keyof HTMLElementTagNameMap = 'f
 /**
  * @tag forge-ai-response-message
  *
- * @event {CustomEvent<AiResponseMessageActionEventData>} forge-ai-response-message-action - Fired when an action button is clicked.
+ * @event {CustomEvent<ForgeAiResponseMessageActionEventData>} forge-ai-response-message-action - Fired when an action button is clicked.
  */
 @customElement(AiResponseMessageComponentTagName)
 export class AiResponseMessageComponent extends LitElement {
@@ -34,9 +34,6 @@ export class AiResponseMessageComponent extends LitElement {
 
   @state()
   private _overlayOpen = false;
-
-  @state()
-  private _mousePosition: { x: number; y: number } | null = null;
 
   private _hoverTimeoutId: number | null = null;
   private _messageContainer: HTMLElement | null = null;
@@ -49,8 +46,8 @@ export class AiResponseMessageComponent extends LitElement {
     this._overlayOpen = true;
   };
 
-  private _handleMouseMove = (event: MouseEvent): void => {
-    this._mousePosition = { x: event.clientX, y: event.clientY };
+  private _handleMouseMove = (): void => {
+    // Mouse move handler placeholder for future use
   };
 
   private _handleMouseLeave = (): void => {
@@ -132,7 +129,7 @@ export class AiResponseMessageComponent extends LitElement {
   }
 
   private _emitActionEvent(action: AiResponseMessageActionType): void {
-    const event = new CustomEvent<AiResponseMessageActionEventData>('forge-ai-response-message-action', {
+    const event = new CustomEvent<ForgeAiResponseMessageActionEventData>('forge-ai-response-message-action', {
       bubbles: true,
       composed: true,
       cancelable: true,

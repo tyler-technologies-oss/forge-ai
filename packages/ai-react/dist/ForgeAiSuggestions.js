@@ -1,10 +1,10 @@
 import React, { forwardRef, useRef, useEffect } from "react";
 import "@tylertech/forge-ai/ai-suggestions";
-import { useEventListener } from "./react-utils.js";
+import { useEventListener, useProperties } from "./react-utils.js";
 
 export const ForgeAiSuggestions = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { suggestions, variant, ...filteredProps } = props;
+  const { variant, suggestions, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -12,6 +12,9 @@ export const ForgeAiSuggestions = forwardRef((props, forwardedRef) => {
     "forge-ai-suggestions-select",
     props.onForgeAiSuggestionsSelect,
   );
+
+  /** Properties - run whenever a property has changed */
+  useProperties(ref, "suggestions", props.suggestions);
 
   return React.createElement(
     "forge-ai-suggestions",
@@ -25,7 +28,6 @@ export const ForgeAiSuggestions = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
-      suggestions: props.suggestions,
       variant: props.variant,
       class: props.className,
       exportparts: props.exportparts,

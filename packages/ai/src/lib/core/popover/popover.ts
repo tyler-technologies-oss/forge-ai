@@ -57,7 +57,7 @@ export class ForgeAiPopoverComponent extends LitElement {
    * Whether the popover should flip to the opposite side when there's no space.
    */
   @property({ type: Boolean })
-  public flip = true;
+  public flip = false;
 
   /**
    * Whether the popover should shift to stay in view.

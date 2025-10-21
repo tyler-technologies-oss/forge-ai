@@ -48,7 +48,7 @@ export interface ForgeAiThreadsProps
 
   /** Fired when a thread is selected. */
   onForgeAiThreadsSelect?: (
-    event: CustomEvent<CustomEvent<AiThreadsSelectEventData>>,
+    event: CustomEvent<CustomEvent<ForgeAiThreadsSelectEventData>>,
   ) => void;
 
   /** Fired when the new chat button is clicked. */

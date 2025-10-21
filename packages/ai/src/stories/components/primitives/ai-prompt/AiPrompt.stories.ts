@@ -27,7 +27,23 @@ const meta = {
     },
     placeholder: {
       control: 'text',
-      description: 'Placeholder text for the input field'
+      description: 'Placeholder text for the textarea field'
+    },
+    autofocus: {
+      control: 'boolean',
+      description: 'Whether to autofocus the textarea field when the component renders'
+    },
+    sendDisabled: {
+      control: 'boolean',
+      description: 'Whether the send button is disabled'
+    },
+    inputDisabled: {
+      control: 'boolean',
+      description: 'Whether the textarea field is disabled'
+    },
+    cancelOnEscape: {
+      control: 'boolean',
+      description: 'Whether to dispatch cancel events when Escape key is pressed'
     },
     showAdditionalAction: {
       control: 'boolean',
@@ -37,12 +53,25 @@ const meta = {
   args: {
     variant: 'stacked',
     placeholder: 'Ask a question...',
+    sendDisabled: false,
+    inputDisabled: false,
+    cancelOnEscape: true,
     showAdditionalAction: false
   },
   render: (args: any) => {
     const onSend = action('forge-ai-prompt-send');
+    const onCancel = action('forge-ai-prompt-cancel');
+    const onAttachment = action('forge-ai-prompt-attachment');
     return html`
-      <forge-ai-prompt variant=${args.variant} placeholder=${args.placeholder} @forge-ai-prompt-send=${onSend}>
+      <forge-ai-prompt
+        variant=${args.variant}
+        placeholder=${args.placeholder}
+        ?send-disabled=${args.sendDisabled}
+        ?input-disabled=${args.inputDisabled}
+        ?cancel-on-escape=${args.cancelOnEscape}
+        @forge-ai-prompt-send=${onSend}
+        @forge-ai-prompt-cancel=${onCancel}
+        @forge-ai-prompt-attachment=${onAttachment}>
         <forge-ai-voice-input slot="actions"></forge-ai-voice-input>
         <forge-ai-file-picker slot="actions"></forge-ai-file-picker>
         ${args.showAdditionalAction

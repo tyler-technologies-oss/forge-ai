@@ -14,6 +14,7 @@ import {
 
 import '$lib/ai-sidebar';
 import '$lib/ai-chat-interface';
+import '$lib/ai-prompt';
 import '$lib/ai-chat-header';
 import '$lib/ai-user-message';
 import '$lib/ai-response-message';
@@ -126,6 +127,8 @@ const meta = {
               showing positive growth 5. **Address concerns** - Investigate any declining metrics Would you like me to
               walk through any of these areas with your current data?
             </forge-ai-response-message>
+
+            <forge-ai-prompt slot="prompt"></forge-ai-prompt>
           </forge-ai-chat-interface>
         </forge-ai-sidebar>
       </forge-scaffold>

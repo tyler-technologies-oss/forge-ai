@@ -58,7 +58,7 @@ export const AiVoiceInputComponentTagName: keyof HTMLElementTagNameMap = 'forge-
 /**
  * Event detail interface for the speech recognition result event.
  */
-export interface AiVoiceInputResultEvent {
+export interface ForgeAiVoiceInputResultEvent {
   /** The recognized speech text */
   transcript: string;
   /** Confidence score of the recognition result (0-1) */
@@ -115,7 +115,7 @@ export class AiVoiceInputComponent extends LitElement {
         const result = event.results[0];
         if (result.length > 0) {
           const alternative = result[0];
-          const eventDetail: AiVoiceInputResultEvent = {
+          const eventDetail: ForgeAiVoiceInputResultEvent = {
             transcript: alternative.transcript,
             confidence: alternative.confidence
           };

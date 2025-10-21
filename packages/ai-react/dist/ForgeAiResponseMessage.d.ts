@@ -42,7 +42,7 @@ export interface ForgeAiResponseMessageProps
 
   /** Fired when an action button is clicked. */
   onForgeAiResponseMessageAction?: (
-    event: CustomEvent<CustomEvent<AiResponseMessageActionEventData>>,
+    event: CustomEvent<CustomEvent<ForgeAiResponseMessageActionEventData>>,
   ) => void;
 }
 

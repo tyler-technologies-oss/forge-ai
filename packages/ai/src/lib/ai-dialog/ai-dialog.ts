@@ -20,6 +20,7 @@ declare global {
 }
 
 const VIEWPORT_WIDTH_THRESHOLD = 768;
+const CLOSE_ANIMATION_DURATION = 100;
 
 export const AiDialogComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-dialog';
 
@@ -52,6 +53,9 @@ export class AiDialogComponent extends LitElement {
   @state()
   private _isFullscreen = window.innerWidth <= VIEWPORT_WIDTH_THRESHOLD;
 
+  @state()
+  private _isClosing = false;
+
   /**
    * Gets the current fullscreen state (readonly)
    */
@@ -65,6 +69,7 @@ export class AiDialogComponent extends LitElement {
   #dragHandleRef: Ref<HTMLButtonElement> = createRef();
   #escapeKeyAbortController?: AbortController;
   #dragController: DragController | undefined;
+  #closeTimeout?: number;
 
   public override connectedCallback(): void {
     super.connectedCallback();
@@ -76,6 +81,12 @@ export class AiDialogComponent extends LitElement {
     super.disconnectedCallback();
     this.#cleanupMediaQuery();
     this.#removeEscapeKeyListener();
+
+    // Clean up close timeout
+    if (this.#closeTimeout) {
+      clearTimeout(this.#closeTimeout);
+      this.#closeTimeout = undefined;
+    }
   }
 
   public override updated(changedProperties: Map<string | number | symbol, unknown>): void {
@@ -101,13 +112,21 @@ export class AiDialogComponent extends LitElement {
   readonly #content = html`<slot></slot>`;
 
   get #popoverTemplate(): TemplateResult {
+    const dialogClasses = [
+      'ai-dialog',
+      this.#dragController?.isDragging ? 'dragging' : '',
+      this._isClosing ? 'closing' : ''
+    ]
+      .filter(Boolean)
+      .join(' ');
+
     return html`
       <dialog
         ${ref(this.#popoverElementRef)}
         aria-modal="false"
         aria-labelledby="dialog-title"
         popover="manual"
-        class="ai-dialog ${this.#dragController?.isDragging ? 'dragging' : ''}"
+        class="${dialogClasses}"
         @toggle=${this.#handlePopoverToggle}>
         <button
           ${ref(this.#dragHandleRef)}
@@ -232,9 +251,16 @@ export class AiDialogComponent extends LitElement {
   #handleOpenStateChange(): void {
     const useDialog = this._isFullscreen || this.expanded;
 
+    // Clear any existing close timeout
+    if (this.#closeTimeout) {
+      clearTimeout(this.#closeTimeout);
+      this.#closeTimeout = undefined;
+    }
+
     if (useDialog) {
       // Use dialog element for small viewport OR expanded state
       this.#removeEscapeKeyListener();
+      this._isClosing = false;
       const dialogElement = this.#aiModalElementRef.value;
       if (dialogElement) {
         if (this.open) {
@@ -252,11 +278,20 @@ export class AiDialogComponent extends LitElement {
       const popoverElement = this.#popoverElementRef.value;
       if (popoverElement) {
         if (this.open) {
+          this._isClosing = false;
           this.#addEscapeKeyListener();
           popoverElement.showPopover();
         } else {
           this.#removeEscapeKeyListener();
-          popoverElement.hidePopover();
+          // Set closing state to trigger animation
+          this._isClosing = true;
+
+          // Delay hiding the popover to allow animation to complete
+          this.#closeTimeout = window.setTimeout(() => {
+            this._isClosing = false;
+            popoverElement.hidePopover();
+            this.#closeTimeout = undefined;
+          }, CLOSE_ANIMATION_DURATION);
         }
       }
     }

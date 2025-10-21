@@ -20,11 +20,8 @@
 .messages-container {
   @include forge-scrollbar.base;
 
-  padding-inline-start: #{forge-spacing.variable(medium)};
+  padding-inline: #{forge-spacing.variable(medium)};
   padding-block-end: #{forge-spacing.variable(medium)};
-  scrollbar-gutter: stable;
-  scroll-behavior: smooth;
-
   overflow-y: auto;
 
   // Safari-specific: force scrollbar to always show

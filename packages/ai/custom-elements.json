@@ -96,7 +96,7 @@
           "events": [
             {
               "type": {
-                "text": "CustomEvent<AiActionsToolbarActionEventData>"
+                "text": "CustomEvent<ForgeAiActionsToolbarActionEventData>"
               },
               "description": "Fired when an action button is clicked. The detail contains the action type.",
               "name": "forge-ai-actions-toolbar-action"
@@ -209,81 +209,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChainOfThoughtComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chain-of-thought'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChainOfThoughtComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "attribute": "expanded",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chain-of-thought",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponentTagName",
-          "declaration": {
-            "name": "AiChainOfThoughtComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponent",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-button/ai-button.ts",
       "declarations": [
         {
@@ -359,246 +284,6 @@
           "declaration": {
             "name": "AiButtonComponent",
             "module": "src/lib/ai-button/ai-button.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChatInterfaceComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chat-interface'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChatInterfaceComponent",
-          "slots": [
-            {
-              "description": "Default slot for messages",
-              "name": ""
-            },
-            {
-              "description": "Slot for AI chat header component",
-              "name": "header"
-            },
-            {
-              "description": "Slot for AI suggestions component",
-              "name": "suggestions"
-            },
-            {
-              "description": "Slot for AI prompt component",
-              "name": "prompt"
-            }
-          ],
-          "members": [
-            {
-              "kind": "method",
-              "name": "scrollMessagesToBottom",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Scrolls the messages container to the bottom only if user hasn't scrolled up"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chat-interface",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChatInterfaceComponentTagName",
-          "declaration": {
-            "name": "AiChatInterfaceComponentTagName",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChatInterfaceComponent",
-          "declaration": {
-            "name": "AiChatInterfaceComponent",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChatInterfaceComponent",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-dialog/ai-dialog.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiDialogComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-dialog'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiDialogComponent",
-          "slots": [
-            {
-              "description": "Default slot for dialog content (typically ai-chat-interface)",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Indicates whether the dialog is open.",
-              "attribute": "open"
-            },
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
-              "attribute": "expanded"
-            },
-            {
-              "kind": "field",
-              "name": "isFullscreen",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Gets the current fullscreen state (readonly)",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "show",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Opens the dialog."
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Closes the dialog."
-            },
-            {
-              "kind": "method",
-              "name": "toggle",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Toggles the dialog open state."
-            }
-          ],
-          "events": [
-            {
-              "type": {
-                "text": "CustomEvent<{ isFullscreen: boolean }>"
-              },
-              "description": "Fired when the fullscreen state changes due to viewport size",
-              "name": "forge-ai-dialog-fullscreen-change"
-            },
-            {
-              "type": {
-                "text": "CustomEvent<void>"
-              },
-              "description": "Fired when the dialog is closed",
-              "name": "forge-ai-dialog-close"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Indicates whether the dialog is open.",
-              "fieldName": "open"
-            },
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-dialog",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiDialogComponentTagName",
-          "declaration": {
-            "name": "AiDialogComponentTagName",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiDialogComponent",
-          "declaration": {
-            "name": "AiDialogComponent",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiDialogComponent",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
           }
         }
       ]
@@ -764,6 +449,321 @@
           "declaration": {
             "name": "AiChatHeaderComponent",
             "module": "src/lib/ai-chat-header/ai-chat-header.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChainOfThoughtComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chain-of-thought'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChainOfThoughtComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chain-of-thought",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponentTagName",
+          "declaration": {
+            "name": "AiChainOfThoughtComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponent",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-dialog/ai-dialog.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiDialogComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-dialog'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiDialogComponent",
+          "slots": [
+            {
+              "description": "Default slot for dialog content (typically ai-chat-interface)",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Indicates whether the dialog is open.",
+              "attribute": "open"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "isFullscreen",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "description": "Gets the current fullscreen state (readonly)",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "show",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Opens the dialog."
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the dialog."
+            },
+            {
+              "kind": "method",
+              "name": "toggle",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Toggles the dialog open state."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<{ isFullscreen: boolean }>"
+              },
+              "description": "Fired when the fullscreen state changes due to viewport size",
+              "name": "forge-ai-dialog-fullscreen-change"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the dialog is closed",
+              "name": "forge-ai-dialog-close"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Indicates whether the dialog is open.",
+              "fieldName": "open"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-dialog",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiDialogComponentTagName",
+          "declaration": {
+            "name": "AiDialogComponentTagName",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiDialogComponent",
+          "declaration": {
+            "name": "AiDialogComponent",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiDialogComponent",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChatInterfaceComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chat-interface'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChatInterfaceComponent",
+          "slots": [
+            {
+              "description": "Default slot for messages",
+              "name": ""
+            },
+            {
+              "description": "Slot for AI chat header component",
+              "name": "header"
+            },
+            {
+              "description": "Slot for AI suggestions component",
+              "name": "suggestions"
+            },
+            {
+              "description": "Slot for AI prompt component",
+              "name": "prompt"
+            }
+          ],
+          "members": [
+            {
+              "kind": "method",
+              "name": "scrollToBottom",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Scrolls the messages container to the bottom with smooth animation"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chat-interface",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChatInterfaceComponentTagName",
+          "declaration": {
+            "name": "AiChatInterfaceComponentTagName",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChatInterfaceComponent",
+          "declaration": {
+            "name": "AiChatInterfaceComponent",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChatInterfaceComponent",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
           }
         }
       ]
@@ -1539,6 +1539,152 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiEmbeddedChatComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-embedded-chat'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiEmbeddedChatComponent",
+          "slots": [
+            {
+              "description": "Default slot for messages (ai-user-message, ai-response-message components)",
+              "name": ""
+            },
+            {
+              "description": "Slot for AI suggestions component",
+              "name": "suggestions"
+            },
+            {
+              "description": "Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.",
+              "name": "prompt"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Controls whether the modal view is open when expanded.",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "gradientVariant",
+              "type": {
+                "text": "'low' | 'medium' | 'high'"
+              },
+              "privacy": "public",
+              "default": "'medium'",
+              "description": "Controls the gradient variant applied to the container.",
+              "attribute": "gradient-variant"
+            },
+            {
+              "kind": "method",
+              "name": "expand",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Expands the chat to modal view."
+            },
+            {
+              "kind": "method",
+              "name": "collapse",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Collapses the chat from modal view back to embedded view."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the chat is expanded to modal view",
+              "name": "forge-ai-embedded-chat-expand"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the chat is collapsed from modal view",
+              "name": "forge-ai-embedded-chat-collapse"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Controls whether the modal view is open when expanded.",
+              "fieldName": "expanded"
+            },
+            {
+              "name": "gradient-variant",
+              "type": {
+                "text": "'low' | 'medium' | 'high'"
+              },
+              "default": "'medium'",
+              "description": "Controls the gradient variant applied to the container.",
+              "fieldName": "gradientVariant"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-embedded-chat",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiEmbeddedChatComponentTagName",
+          "declaration": {
+            "name": "AiEmbeddedChatComponentTagName",
+            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiEmbeddedChatComponent",
+          "declaration": {
+            "name": "AiEmbeddedChatComponent",
+            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiEmbeddedChatComponent",
+            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-empty-state/ai-empty-state.ts",
       "declarations": [
         {
@@ -1702,158 +1848,12 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiEmbeddedChatComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-embedded-chat'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiEmbeddedChatComponent",
-          "slots": [
-            {
-              "description": "Default slot for messages (ai-user-message, ai-response-message components)",
-              "name": ""
-            },
-            {
-              "description": "Slot for AI suggestions component",
-              "name": "suggestions"
-            },
-            {
-              "description": "Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.",
-              "name": "prompt"
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Controls whether the modal view is open when expanded.",
-              "attribute": "expanded"
-            },
-            {
-              "kind": "field",
-              "name": "gradientVariant",
-              "type": {
-                "text": "'low' | 'medium' | 'high'"
-              },
-              "privacy": "public",
-              "default": "'medium'",
-              "description": "Controls the gradient variant applied to the container.",
-              "attribute": "gradient-variant"
-            },
-            {
-              "kind": "method",
-              "name": "expand",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Expands the chat to modal view."
-            },
-            {
-              "kind": "method",
-              "name": "collapse",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Collapses the chat from modal view back to embedded view."
-            }
-          ],
-          "events": [
-            {
-              "type": {
-                "text": "CustomEvent<void>"
-              },
-              "description": "Fired when the chat is expanded to modal view",
-              "name": "forge-ai-embedded-chat-expand"
-            },
-            {
-              "type": {
-                "text": "CustomEvent<void>"
-              },
-              "description": "Fired when the chat is collapsed from modal view",
-              "name": "forge-ai-embedded-chat-collapse"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Controls whether the modal view is open when expanded.",
-              "fieldName": "expanded"
-            },
-            {
-              "name": "gradient-variant",
-              "type": {
-                "text": "'low' | 'medium' | 'high'"
-              },
-              "default": "'medium'",
-              "description": "Controls the gradient variant applied to the container.",
-              "fieldName": "gradientVariant"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-embedded-chat",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiEmbeddedChatComponentTagName",
-          "declaration": {
-            "name": "AiEmbeddedChatComponentTagName",
-            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiEmbeddedChatComponent",
-          "declaration": {
-            "name": "AiEmbeddedChatComponent",
-            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiEmbeddedChatComponent",
-            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-file-picker/ai-file-picker.ts",
       "declarations": [
         {
           "kind": "class",
           "description": "",
-          "name": "ForgeAiFilePickerComponent",
+          "name": "AiFilePickerComponent",
           "cssProperties": [
             {
               "description": "The width of the file picker button.",
@@ -1925,7 +1925,7 @@
             {
               "name": "forge-ai-file-picker-change",
               "type": {
-                "text": "CustomEvent<AiFilePickerChangeEventData>"
+                "text": "CustomEvent<ForgeAiFilePickerChangeEventData>"
               },
               "description": "Fired when a file is selected via click or drag & drop. The event detail contains the selected file and timestamp."
             }
@@ -1980,9 +1980,9 @@
       "exports": [
         {
           "kind": "js",
-          "name": "ForgeAiFilePickerComponent",
+          "name": "AiFilePickerComponent",
           "declaration": {
-            "name": "ForgeAiFilePickerComponent",
+            "name": "AiFilePickerComponent",
             "module": "src/lib/ai-file-picker/ai-file-picker.ts"
           }
         },
@@ -1990,7 +1990,7 @@
           "kind": "custom-element-definition",
           "name": "forge-ai-file-picker",
           "declaration": {
-            "name": "ForgeAiFilePickerComponent",
+            "name": "AiFilePickerComponent",
             "module": "src/lib/ai-file-picker/ai-file-picker.ts"
           }
         }
@@ -2514,7 +2514,7 @@
               },
               "privacy": "public",
               "default": "'Ask a question...'",
-              "description": "Placeholder text for the input field",
+              "description": "Placeholder text for the textarea field",
               "attribute": "placeholder"
             },
             {
@@ -2525,7 +2525,7 @@
               },
               "privacy": "public",
               "default": "''",
-              "description": "Current value of the input field",
+              "description": "Current value of the textarea field",
               "attribute": "value"
             },
             {
@@ -2538,15 +2538,102 @@
               "default": "'stacked'",
               "description": "Layout variant for the prompt component",
               "attribute": "variant"
+            },
+            {
+              "kind": "field",
+              "name": "sendDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the send button is disabled",
+              "attribute": "send-disabled"
+            },
+            {
+              "kind": "field",
+              "name": "autofocus",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to autofocus the textarea field when the component renders",
+              "attribute": "autofocus"
+            },
+            {
+              "kind": "field",
+              "name": "inputDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the textarea field is disabled",
+              "attribute": "input-disabled"
+            },
+            {
+              "kind": "field",
+              "name": "cancelOnEscape",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "true",
+              "description": "Whether to dispatch escape events when Escape key is pressed",
+              "attribute": "cancel-on-escape"
+            },
+            {
+              "kind": "field",
+              "name": "running",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the component is in running state (shows stop button instead of send button)",
+              "attribute": "running"
+            },
+            {
+              "kind": "method",
+              "name": "focus",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Focuses the textarea element"
             }
           ],
           "events": [
             {
               "type": {
-                "text": "CustomEvent<AiPromptSendEventData>"
+                "text": "CustomEvent<ForgeAiPromptSendEventData>"
               },
-              "description": "Fired when the send button is clicked or Enter is pressed.",
+              "description": "Fired when the send button is clicked or Enter is pressed (without Shift). Cancelable - if cancelled, running state is not set and input is not cleared.",
               "name": "forge-ai-prompt-send"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the Escape key is pressed (if cancelOnEscape is true).",
+              "name": "forge-ai-prompt-cancel"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiPromptAttachmentEventData>"
+              },
+              "description": "Fired when files are pasted into the textarea.",
+              "name": "forge-ai-prompt-attachment"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the stop button is clicked. Cancelable - if cancelled, running state remains true.",
+              "name": "forge-ai-prompt-stop"
             }
           ],
           "attributes": [
@@ -2556,7 +2643,7 @@
                 "text": "string"
               },
               "default": "'Ask a question...'",
-              "description": "Placeholder text for the input field",
+              "description": "Placeholder text for the textarea field",
               "fieldName": "placeholder"
             },
             {
@@ -2565,7 +2652,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Current value of the input field",
+              "description": "Current value of the textarea field",
               "fieldName": "value"
             },
             {
@@ -2576,6 +2663,51 @@
               "default": "'stacked'",
               "description": "Layout variant for the prompt component",
               "fieldName": "variant"
+            },
+            {
+              "name": "send-disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the send button is disabled",
+              "fieldName": "sendDisabled"
+            },
+            {
+              "name": "autofocus",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to autofocus the textarea field when the component renders",
+              "fieldName": "autofocus"
+            },
+            {
+              "name": "input-disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the textarea field is disabled",
+              "fieldName": "inputDisabled"
+            },
+            {
+              "name": "cancel-on-escape",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether to dispatch escape events when Escape key is pressed",
+              "fieldName": "cancelOnEscape"
+            },
+            {
+              "name": "running",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the component is in running state (shows stop button instead of send button)",
+              "fieldName": "running"
             }
           ],
           "superclass": {
@@ -2832,7 +2964,7 @@
           "events": [
             {
               "type": {
-                "text": "CustomEvent<AiResponseMessageActionEventData>"
+                "text": "CustomEvent<ForgeAiResponseMessageActionEventData>"
               },
               "description": "Fired when an action button is clicked.",
               "name": "forge-ai-response-message-action"
@@ -2991,119 +3123,6 @@
           "declaration": {
             "name": "AiSidebarComponent",
             "module": "src/lib/ai-sidebar/ai-sidebar.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-suggestions/ai-suggestions.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiSuggestionsComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-suggestions'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiSuggestionsComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "suggestions",
-              "type": {
-                "text": "Suggestion[]"
-              },
-              "privacy": "public",
-              "default": "[]",
-              "description": "Array of suggestion objects to display",
-              "attribute": "suggestions"
-            },
-            {
-              "kind": "field",
-              "name": "variant",
-              "type": {
-                "text": "AiSuggestionsVariant"
-              },
-              "privacy": "public",
-              "default": "'inline'",
-              "description": "Display variant for suggestions layout",
-              "attribute": "variant"
-            }
-          ],
-          "events": [
-            {
-              "type": {
-                "text": "CustomEvent<AiSuggestionsEventData>"
-              },
-              "description": "Fired when a suggestion is selected.",
-              "name": "forge-ai-suggestions-select"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "suggestions",
-              "type": {
-                "text": "Suggestion[]"
-              },
-              "default": "[]",
-              "description": "Array of suggestion objects to display",
-              "fieldName": "suggestions"
-            },
-            {
-              "name": "variant",
-              "type": {
-                "text": "AiSuggestionsVariant"
-              },
-              "default": "'inline'",
-              "description": "Display variant for suggestions layout",
-              "fieldName": "variant"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-suggestions",
-          "customElement": true,
-          "states": [
-            {
-              "name": "inline",
-              "description": "The suggestions are displayed inline."
-            },
-            {
-              "name": "block",
-              "description": "The suggestions are displayed as blocks."
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiSuggestionsComponentTagName",
-          "declaration": {
-            "name": "AiSuggestionsComponentTagName",
-            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiSuggestionsComponent",
-          "declaration": {
-            "name": "AiSuggestionsComponent",
-            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiSuggestionsComponent",
-            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
           }
         }
       ]
@@ -3291,6 +3310,212 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-suggestions/ai-suggestions.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiSuggestionsComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-suggestions'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiSuggestionsComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "Suggestion[]"
+              },
+              "privacy": "public",
+              "default": "[]",
+              "description": "Array of suggestion objects to display"
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "AiSuggestionsVariant"
+              },
+              "privacy": "public",
+              "default": "'inline'",
+              "description": "Display variant for suggestions layout",
+              "attribute": "variant"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiSuggestionsEventData>"
+              },
+              "description": "Fired when a suggestion is selected.",
+              "name": "forge-ai-suggestions-select"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "AiSuggestionsVariant"
+              },
+              "default": "'inline'",
+              "description": "Display variant for suggestions layout",
+              "fieldName": "variant"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-suggestions",
+          "customElement": true,
+          "states": [
+            {
+              "name": "inline",
+              "description": "The suggestions are displayed inline."
+            },
+            {
+              "name": "block",
+              "description": "The suggestions are displayed as blocks."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiSuggestionsComponentTagName",
+          "declaration": {
+            "name": "AiSuggestionsComponentTagName",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiSuggestionsComponent",
+          "declaration": {
+            "name": "AiSuggestionsComponent",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiSuggestionsComponent",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thinking-indicator'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiThinkingIndicatorComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thinking-indicator",
+          "customElement": true,
+          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponentTagName",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponent",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-user-message/ai-user-message.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiUserMessageComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-user-message'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiUserMessageComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-user-message",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiUserMessageComponentTagName",
+          "declaration": {
+            "name": "AiUserMessageComponentTagName",
+            "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiUserMessageComponent",
+          "declaration": {
+            "name": "AiUserMessageComponent",
+            "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiUserMessageComponent",
+            "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-threads/ai-threads.ts",
       "declarations": [
         {
@@ -3321,7 +3546,7 @@
           "events": [
             {
               "type": {
-                "text": "CustomEvent<AiThreadsSelectEventData>"
+                "text": "CustomEvent<ForgeAiThreadsSelectEventData>"
               },
               "description": "Fired when a thread is selected.",
               "name": "forge-ai-threads-select"
@@ -3382,57 +3607,6 @@
           "declaration": {
             "name": "AiThreadsComponent",
             "module": "src/lib/ai-threads/ai-threads.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-user-message/ai-user-message.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiUserMessageComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-user-message'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiUserMessageComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-user-message",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiUserMessageComponentTagName",
-          "declaration": {
-            "name": "AiUserMessageComponentTagName",
-            "module": "src/lib/ai-user-message/ai-user-message.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiUserMessageComponent",
-          "declaration": {
-            "name": "AiUserMessageComponent",
-            "module": "src/lib/ai-user-message/ai-user-message.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiUserMessageComponent",
-            "module": "src/lib/ai-user-message/ai-user-message.ts"
           }
         }
       ]
@@ -4248,7 +4422,7 @@
                 "text": "boolean"
               },
               "privacy": "public",
-              "default": "true",
+              "default": "false",
               "description": "Whether the popover should flip to the opposite side when there's no space.",
               "attribute": "flip"
             },
@@ -4300,7 +4474,7 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
+              "default": "false",
               "description": "Whether the popover should flip to the opposite side when there's no space.",
               "fieldName": "flip"
             },
@@ -4584,7 +4758,7 @@
   ],
   "branchName": "main",
   "forgeTypes": {
-    "AiActionsToolbarActionEventData": {
+    "ForgeAiActionsToolbarActionEventData": {
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
       "lineNumber": 16
     },
@@ -4600,21 +4774,9 @@
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "lineNumber": 23
     },
-    "AiChainOfThoughtComponent": {
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "lineNumber": 17
-    },
     "AiButtonComponent": {
       "path": "src/lib/ai-button/ai-button.ts",
       "lineNumber": 22
-    },
-    "AiChatInterfaceComponent": {
-      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
-      "lineNumber": 25
-    },
-    "AiDialogComponent": {
-      "path": "src/lib/ai-dialog/ai-dialog.ts",
-      "lineNumber": 34
     },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
@@ -4623,6 +4785,18 @@
     "AiChatHeaderComponent": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 47
+    },
+    "AiChainOfThoughtComponent": {
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "lineNumber": 17
+    },
+    "AiDialogComponent": {
+      "path": "src/lib/ai-dialog/ai-dialog.ts",
+      "lineNumber": 35
+    },
+    "AiChatInterfaceComponent": {
+      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
+      "lineNumber": 25
     },
     "ForgeAiDropdownMenuItemGroupComponent": {
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu-item-group.ts",
@@ -4638,15 +4812,15 @@
     },
     "DropdownMenuEvents": {
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu.ts",
-      "lineNumber": 26
+      "lineNumber": 24
     },
     "DropdownMenuVariant": {
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu.ts",
-      "lineNumber": 40
+      "lineNumber": 38
     },
     "ForgeAiDropdownMenuComponent": {
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu.ts",
-      "lineNumber": 101
+      "lineNumber": 99
     },
     "DropdownNavigationController": {
       "path": "src/lib/ai-dropdown-menu/navigation-controller.ts",
@@ -4684,6 +4858,10 @@
       "path": "src/lib/ai-dropdown-menu/selection-manager.ts",
       "lineNumber": 85
     },
+    "AiEmbeddedChatComponent": {
+      "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
+      "lineNumber": 39
+    },
     "AiEmptyStateComponent": {
       "path": "src/lib/ai-empty-state/ai-empty-state.ts",
       "lineNumber": 21
@@ -4692,11 +4870,7 @@
       "path": "src/lib/ai-fab/ai-fab.ts",
       "lineNumber": 22
     },
-    "AiEmbeddedChatComponent": {
-      "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
-      "lineNumber": 39
-    },
-    "AiFilePickerChangeEventData": {
+    "ForgeAiFilePickerChangeEventData": {
       "path": "src/lib/ai-file-picker/ai-file-picker.ts",
       "lineNumber": 21
     },
@@ -4704,7 +4878,7 @@
       "path": "src/lib/ai-file-picker/ai-file-picker.ts",
       "lineNumber": 28
     },
-    "ForgeAiFilePickerComponent": {
+    "AiFilePickerComponent": {
       "path": "src/lib/ai-file-picker/ai-file-picker.ts",
       "lineNumber": 56
     },
@@ -4728,17 +4902,21 @@
       "path": "src/lib/ai-modal/ai-modal.ts",
       "lineNumber": 30
     },
-    "AiPromptSendEventData": {
+    "ForgeAiPromptSendEventData": {
       "path": "src/lib/ai-prompt/ai-prompt.ts",
-      "lineNumber": 18
+      "lineNumber": 21
+    },
+    "ForgeAiPromptAttachmentEventData": {
+      "path": "src/lib/ai-prompt/ai-prompt.ts",
+      "lineNumber": 27
     },
     "AiPromptVariant": {
       "path": "src/lib/ai-prompt/ai-prompt.ts",
-      "lineNumber": 24
+      "lineNumber": 31
     },
     "AiPromptComponent": {
       "path": "src/lib/ai-prompt/ai-prompt.ts",
-      "lineNumber": 38
+      "lineNumber": 48
     },
     "AiReasoningComponent": {
       "path": "src/lib/ai-reasoning/ai-reasoning.ts",
@@ -4752,7 +4930,7 @@
       "path": "src/lib/ai-response-message/ai-response-message.ts",
       "lineNumber": 18
     },
-    "AiResponseMessageActionEventData": {
+    "ForgeAiResponseMessageActionEventData": {
       "path": "src/lib/ai-response-message/ai-response-message.ts",
       "lineNumber": 20
     },
@@ -4764,11 +4942,15 @@
       "path": "src/lib/ai-sidebar/ai-sidebar.ts",
       "lineNumber": 28
     },
+    "AiSidebarChatComponent": {
+      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
+      "lineNumber": 45
+    },
     "Suggestion": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 17
     },
-    "AiSuggestionsEventData": {
+    "ForgeAiSuggestionsEventData": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 22
     },
@@ -4780,25 +4962,25 @@
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 39
     },
-    "AiSidebarChatComponent": {
-      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
-      "lineNumber": 45
+    "AiThinkingIndicatorComponent": {
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "lineNumber": 24
+    },
+    "AiUserMessageComponent": {
+      "path": "src/lib/ai-user-message/ai-user-message.ts",
+      "lineNumber": 17
     },
     "Thread": {
       "path": "src/lib/ai-threads/ai-threads.ts",
       "lineNumber": 19
     },
-    "AiThreadsSelectEventData": {
+    "ForgeAiThreadsSelectEventData": {
       "path": "src/lib/ai-threads/ai-threads.ts",
       "lineNumber": 26
     },
     "AiThreadsComponent": {
       "path": "src/lib/ai-threads/ai-threads.ts",
       "lineNumber": 40
-    },
-    "AiUserMessageComponent": {
-      "path": "src/lib/ai-user-message/ai-user-message.ts",
-      "lineNumber": 17
     },
     "SpeechRecognitionAlternative": {
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
@@ -4820,7 +5002,7 @@
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
       "lineNumber": 39
     },
-    "AiVoiceInputResultEvent": {
+    "ForgeAiVoiceInputResultEvent": {
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
       "lineNumber": 61
     },

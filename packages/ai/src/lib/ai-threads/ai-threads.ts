@@ -10,7 +10,7 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'forge-ai-threads-select': CustomEvent<AiThreadsSelectEventData>;
+    'forge-ai-threads-select': CustomEvent<ForgeAiThreadsSelectEventData>;
     'forge-ai-threads-new-chat': CustomEvent;
     'forge-ai-threads-clear-history': CustomEvent;
   }
@@ -23,7 +23,7 @@ export interface Thread {
   date: Date;
 }
 
-export interface AiThreadsSelectEventData {
+export interface ForgeAiThreadsSelectEventData {
   id: string;
   title: string;
 }
@@ -33,7 +33,7 @@ export const AiThreadsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
 /**
  * @tag forge-ai-threads
  *
- * @event {CustomEvent<AiThreadsSelectEventData>} forge-ai-threads-select - Fired when a thread is selected.
+ * @event {CustomEvent<ForgeAiThreadsSelectEventData>} forge-ai-threads-select - Fired when a thread is selected.
  * @event {CustomEvent} forge-ai-threads-new-chat - Fired when the new chat button is clicked.
  * @event {CustomEvent} forge-ai-threads-clear-history - Fired when the clear history button is clicked.
  */
@@ -68,7 +68,7 @@ export class AiThreadsComponent extends LitElement {
     // Update selected thread ID to trigger re-render with new selection
     this._selectedThreadId = thread.id;
 
-    const event = new CustomEvent<AiThreadsSelectEventData>('forge-ai-threads-select', {
+    const event = new CustomEvent<ForgeAiThreadsSelectEventData>('forge-ai-threads-select', {
       detail: { id: thread.id, title: thread.title },
       bubbles: true,
       composed: true,

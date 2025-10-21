@@ -1,5 +1,5 @@
 export {
-  ForgeAiFilePickerComponent,
+  AiFilePickerComponent,
   type AiFilePickerVariant,
-  type AiFilePickerChangeEventData
+  type ForgeAiFilePickerChangeEventData
 } from './ai-file-picker.js';

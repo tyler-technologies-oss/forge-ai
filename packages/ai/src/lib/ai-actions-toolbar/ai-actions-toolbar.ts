@@ -9,11 +9,11 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'forge-ai-actions-toolbar-action': CustomEvent<AiActionsToolbarActionEventData>;
+    'forge-ai-actions-toolbar-action': CustomEvent<ForgeAiActionsToolbarActionEventData>;
   }
 }
 
-export interface AiActionsToolbarActionEventData {
+export interface ForgeAiActionsToolbarActionEventData {
   action: AiActionsToolbarAction;
 }
 
@@ -24,7 +24,7 @@ export const AiActionsToolbarComponentTagName: keyof HTMLElementTagNameMap = 'fo
 /**
  * @tag forge-ai-actions-toolbar
  *
- * @event {CustomEvent<AiActionsToolbarActionEventData>} forge-ai-actions-toolbar-action - Fired when an action button is clicked. The detail contains the action type.
+ * @event {CustomEvent<ForgeAiActionsToolbarActionEventData>} forge-ai-actions-toolbar-action - Fired when an action button is clicked. The detail contains the action type.
  */
 @customElement(AiActionsToolbarComponentTagName)
 export class AiActionsToolbarComponent extends LitElement {
@@ -32,7 +32,7 @@ export class AiActionsToolbarComponent extends LitElement {
 
   /** Emits the action event with the specified action type */
   private _emitActionEvent(action: AiActionsToolbarAction): void {
-    const event = new CustomEvent<AiActionsToolbarActionEventData>('forge-ai-actions-toolbar-action', {
+    const event = new CustomEvent<ForgeAiActionsToolbarActionEventData>('forge-ai-actions-toolbar-action', {
       detail: { action },
       bubbles: true,
       composed: true,

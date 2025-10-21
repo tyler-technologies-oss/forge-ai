@@ -22,6 +22,7 @@ export * from './ai-response-message';
 export * from './ai-sidebar';
 export * from './ai-sidebar-chat';
 export * from './ai-suggestions';
+export * from './ai-thinking-indicator';
 export * from './ai-threads';
 export * from './ai-user-message';
 export * from './ai-voice-input';

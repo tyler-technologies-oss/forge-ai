@@ -2,10 +2,8 @@ import { LitElement, html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import { ForgeAiPopoverComponent } from '../core/popover/popover.js';
+import { ForgeAiPopoverComponent, type PopoverPlacement } from '../core/popover/popover.js';
 import { type ForgeAiDropdownMenuItemComponent } from './ai-dropdown-menu-item.js';
-import { generateUniqueId } from '../utils.js';
-import { type PopoverPlacement } from '../core/popover/popover.js';
 import { DropdownNavigationController } from './navigation-controller.js';
 import {
   SelectionManager,
@@ -137,9 +135,6 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
    */
   @property()
   public value: string | string[] | null = null;
-
-  @state()
-  private _triggerButtonId = generateUniqueId('dropdown-trigger');
 
   @state()
   private _isSubmenu = false;
@@ -427,7 +422,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
   get #triggerButton(): TemplateResult {
     return html`
       <button
-        id=${this._triggerButtonId}
+        id="dropdown-trigger"
         class=${classMap({
           'forge-button': this.variant === 'button',
           'forge-icon-button': this.variant === 'icon-button'
@@ -435,6 +430,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
         type="button"
         aria-expanded=${this.open}
         aria-haspopup=${this._ariaHasPopup}
+        aria-controls="dropdown-content"
         ?disabled=${this.disabled}
         @click=${this._handleTriggerClick}>
         <slot name="start"></slot>
@@ -452,9 +448,11 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
         .flip=${true}
         @ai-popover-toggle=${this._onPopoverToggle}>
         <div
+          id="dropdown-content"
           role=${this._dropdownRole}
-          aria-labelledby=${this._triggerButtonId}
+          aria-labelledby="dropdown-trigger"
           aria-multiselectable=${ifDefined(this._ariaMultiSelectable)}
+          aria-orientation="vertical"
           @click=${this._onItemClick}
           tabindex="0"
           class="ai-dropdown-menu__dropdown"

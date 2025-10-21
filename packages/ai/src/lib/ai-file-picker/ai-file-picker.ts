@@ -7,18 +7,18 @@ import styles from './ai-file-picker.scss?inline';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'forge-ai-file-picker': ForgeAiFilePickerComponent;
+    'forge-ai-file-picker': AiFilePickerComponent;
   }
 
   interface HTMLElementEventMap {
-    'forge-ai-file-picker-change': CustomEvent<AiFilePickerChangeEventData>;
+    'forge-ai-file-picker-change': CustomEvent<ForgeAiFilePickerChangeEventData>;
   }
 }
 
 /**
  * Event data interface for the file picker change event.
  */
-export interface AiFilePickerChangeEventData {
+export interface ForgeAiFilePickerChangeEventData {
   /** The selected file */
   file: File;
   /** Timestamp when the file was selected */
@@ -50,11 +50,11 @@ export type AiFilePickerVariant = 'button' | 'icon-button';
  * @slot - The default slot for button content when no file is selected.
  * @slot icon - The icon slot for icon-button variant.
  *
- * @event {CustomEvent<AiFilePickerChangeEventData>} forge-ai-file-picker-change - Fired when a file is selected via click or drag & drop.
+ * @event {CustomEvent<ForgeAiFilePickerChangeEventData>} forge-ai-file-picker-change - Fired when a file is selected via click or drag & drop.
  * The event detail contains the selected file and timestamp.
  */
 @customElement('forge-ai-file-picker')
-export class ForgeAiFilePickerComponent extends LitElement {
+export class AiFilePickerComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   /**
@@ -163,7 +163,7 @@ export class ForgeAiFilePickerComponent extends LitElement {
 
   private _emitFileChangeEvent(file: File): void {
     this.dispatchEvent(
-      new CustomEvent<AiFilePickerChangeEventData>('forge-ai-file-picker-change', {
+      new CustomEvent<ForgeAiFilePickerChangeEventData>('forge-ai-file-picker-change', {
         detail: {
           file,
           timestamp: Date.now()

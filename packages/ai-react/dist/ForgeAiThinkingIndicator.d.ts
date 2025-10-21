@@ -1,9 +1,9 @@
 import React from "react";
-import { ForgeAiActionsToolbar as ForgeAiActionsToolbarElement } from "@tylertech/forge-ai/ai-actions-toolbar";
+import { ForgeAiThinkingIndicator as ForgeAiThinkingIndicatorElement } from "@tylertech/forge-ai/ai-thinking-indicator";
 
-export type { ForgeAiActionsToolbarElement };
+export type { ForgeAiThinkingIndicatorElement };
 
-export interface ForgeAiActionsToolbarProps
+export interface ForgeAiThinkingIndicatorProps
   extends Pick<
     React.AllHTMLAttributes<HTMLElement>,
     | "children"
@@ -39,19 +39,11 @@ export interface ForgeAiActionsToolbarProps
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
-
-  /** Fired when an action button is clicked. The detail contains the action type. */
-  onForgeAiActionsToolbarAction?: (
-    event: CustomEvent<CustomEvent<ForgeAiActionsToolbarActionEventData>>,
-  ) => void;
 }
 
 /**
- *
+ * A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response.
  * ---
  *
- *
- * ### **Events:**
- *  - **forge-ai-actions-toolbar-action** - Fired when an action button is clicked. The detail contains the action type.
  */
-export const ForgeAiActionsToolbar: React.ForwardRefExoticComponent<ForgeAiActionsToolbarProps>;
+export const ForgeAiThinkingIndicator: React.ForwardRefExoticComponent<ForgeAiThinkingIndicatorProps>;

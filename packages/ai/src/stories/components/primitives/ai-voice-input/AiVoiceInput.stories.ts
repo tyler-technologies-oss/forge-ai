@@ -1,9 +1,9 @@
 import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
 import { defineStackComponent } from '@tylertech/forge';
+import type { ForgeAiVoiceInputResultEvent } from '$lib/ai-voice-input';
 
 import '$lib/ai-voice-input';
-import type { AiVoiceInputResultEvent } from '$lib/ai-voice-input';
 
 defineStackComponent();
 
@@ -13,7 +13,7 @@ const meta = {
   title: 'AI Components/Primitives/Voice Input',
   component,
   render: () => {
-    const handleResult = (event: CustomEvent<AiVoiceInputResultEvent>) => {
+    const handleResult = (event: CustomEvent<ForgeAiVoiceInputResultEvent>) => {
       const resultDiv = document.getElementById('result');
       if (resultDiv) {
         resultDiv.textContent = `"${event.detail.transcript}" (confidence: ${Math.round(event.detail.confidence * 100)}%)`;

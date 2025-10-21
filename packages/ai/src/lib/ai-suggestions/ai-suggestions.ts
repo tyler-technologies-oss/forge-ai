@@ -10,7 +10,7 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'forge-ai-suggestions-select': CustomEvent<AiSuggestionsEventData>;
+    'forge-ai-suggestions-select': CustomEvent<ForgeAiSuggestionsEventData>;
   }
 }
 
@@ -19,7 +19,7 @@ export interface Suggestion {
   value: string;
 }
 
-export interface AiSuggestionsEventData {
+export interface ForgeAiSuggestionsEventData {
   text: string;
   value: string;
 }
@@ -34,14 +34,14 @@ export const AiSuggestionsComponentTagName: keyof HTMLElementTagNameMap = 'forge
  * @state inline - The suggestions are displayed inline.
  * @state block - The suggestions are displayed as blocks.
  *
- * @event {CustomEvent<AiSuggestionsEventData>} forge-ai-suggestions-select - Fired when a suggestion is selected.
+ * @event {CustomEvent<ForgeAiSuggestionsEventData>} forge-ai-suggestions-select - Fired when a suggestion is selected.
  */
 @customElement(AiSuggestionsComponentTagName)
 export class AiSuggestionsComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   /** Array of suggestion objects to display */
-  @property({ type: Array })
+  @property({ type: Array, attribute: false })
   public suggestions: Suggestion[] = [];
 
   /** Display variant for suggestions layout */
@@ -68,7 +68,7 @@ export class AiSuggestionsComponent extends LitElement {
   }
 
   get #suggestionButtons(): TemplateResult[] {
-    return this.suggestions.map(
+    return this.suggestions?.map(
       suggestion =>
         html`<button
           class="forge-button forge-button--tonal suggestion"
@@ -79,7 +79,7 @@ export class AiSuggestionsComponent extends LitElement {
   }
 
   private _handleSuggestionClick(suggestion: Suggestion): void {
-    const event = new CustomEvent<AiSuggestionsEventData>('forge-ai-suggestions-select', {
+    const event = new CustomEvent<ForgeAiSuggestionsEventData>('forge-ai-suggestions-select', {
       detail: {
         text: suggestion.text,
         value: suggestion.value

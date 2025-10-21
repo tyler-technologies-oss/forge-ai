@@ -19,9 +19,6 @@ export interface ForgeAiSuggestionsProps
     | "onFocus"
     | "onBlur"
   > {
-  /** Array of suggestion objects to display */
-  suggestions?: ForgeAiSuggestionsElement["suggestions"];
-
   /** Display variant for suggestions layout */
   variant?: ForgeAiSuggestionsElement["variant"];
 
@@ -46,9 +43,12 @@ export interface ForgeAiSuggestionsProps
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
+  /** Array of suggestion objects to display */
+  suggestions?: ForgeAiSuggestionsElement["suggestions"];
+
   /** Fired when a suggestion is selected. */
   onForgeAiSuggestionsSelect?: (
-    event: CustomEvent<CustomEvent<AiSuggestionsEventData>>,
+    event: CustomEvent<CustomEvent<ForgeAiSuggestionsEventData>>,
   ) => void;
 }
 

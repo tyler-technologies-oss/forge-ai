@@ -54,7 +54,7 @@ export interface ForgeAiFilePickerProps
 
   /** Fired when a file is selected via click or drag & drop. The event detail contains the selected file and timestamp. */
   onForgeAiFilePickerChange?: (
-    event: CustomEvent<CustomEvent<AiFilePickerChangeEventData>>,
+    event: CustomEvent<CustomEvent<ForgeAiFilePickerChangeEventData>>,
   ) => void;
 }
 

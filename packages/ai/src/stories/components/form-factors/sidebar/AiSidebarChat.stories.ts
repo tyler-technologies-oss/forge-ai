@@ -17,6 +17,7 @@ import '$lib/ai-user-message';
 import '$lib/ai-response-message';
 import '$lib/ai-suggestions';
 import '$lib/ai-button';
+import '$lib/ai-prompt';
 
 import {
   defineScaffoldComponent,
@@ -92,6 +93,8 @@ const meta = {
           positive growth 5. **Address concerns** - Investigate any declining metrics Would you like me to walk through
           any of these areas with your current data?
         </forge-ai-response-message>
+
+        <forge-ai-prompt slot="prompt"></forge-ai-prompt>
       </forge-ai-sidebar-chat>
     `;
 

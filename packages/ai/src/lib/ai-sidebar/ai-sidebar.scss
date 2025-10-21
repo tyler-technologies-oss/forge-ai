@@ -7,9 +7,34 @@
   overflow: hidden;
 }
 
+.animation-container {
+  --forge-drawer-width: 420px; /* Default value, can be overridden */
+  width: var(--forge-drawer-width);
+  height: 100%;
+  position: relative;
+  transition: width 250ms cubic-bezier(0.2, 0, 0, 1);
+  overflow: hidden;
+
+  &--closed {
+    width: 0;
+  }
+
+  &--closing {
+    width: 0;
+  }
+
+  &--open {
+    width: var(--forge-drawer-width);
+  }
+}
+
 .forge-drawer {
-  --forge-drawer-width: 420px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  width: var(--forge-drawer-width);
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
 }

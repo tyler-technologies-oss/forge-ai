@@ -4,6 +4,7 @@
 @use '@tylertech/forge/dist/field/forge-field';
 @use '@tylertech/forge/dist/divider/forge-divider';
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 
 :host {
   display: block;
@@ -16,7 +17,25 @@
 
   .forge-field {
     --forge-theme-outline-low: transparent;
-    --forge-field-height: 52px;
+    --forge-field-height: auto;
+
+    min-height: 52px;
+    align-items: center;
+
+    &:has(textarea) *:not(textarea) {
+      margin-block-start: initial;
+    }
+  }
+
+  textarea {
+    field-sizing: content;
+    resize: none;
+    max-height: 150px; // Limit to ~6 rows
+    overflow-y: auto;
+    outline: none;
+    padding: #{forge-spacing.variable(medium)} 0;
+
+    @include forge-scrollbar.base;
   }
 
   .actions {

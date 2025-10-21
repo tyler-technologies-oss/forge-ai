@@ -47,7 +47,7 @@ export interface ForgeAiChatInterfaceProps
  *
  *
  * ### **Methods:**
- *  - **scrollMessagesToBottom(): _void_** - Scrolls the messages container to the bottom only if user hasn't scrolled up
+ *  - **scrollToBottom(): _void_** - Scrolls the messages container to the bottom with smooth animation
  *
  * ### **Slots:**
  *  - _default_ - Default slot for messages
