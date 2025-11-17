@@ -110,6 +110,7 @@ export class ForgeAiTooltipComponent extends LitElement {
     super.disconnectedCallback();
     this._detachEventListeners();
     this._clearTimeouts();
+    document.removeEventListener('keydown', this._handleKeyDown);
   }
 
   public override updated(changedProperties: Map<string | number | symbol, unknown>): void {
@@ -121,6 +122,12 @@ export class ForgeAiTooltipComponent extends LitElement {
 
     if (changedProperties.has('open')) {
       this._updateHostAttributes();
+
+      if (this.open) {
+        document.addEventListener('keydown', this._handleKeyDown);
+      } else {
+        document.removeEventListener('keydown', this._handleKeyDown);
+      }
     }
   }
 
@@ -167,6 +174,8 @@ export class ForgeAiTooltipComponent extends LitElement {
       case 'hover':
         this._anchorElement.addEventListener('mouseenter', this._handleShow);
         this._anchorElement.addEventListener('mouseleave', this._handleHide);
+        this._anchorElement.addEventListener('focusin', this._handleShow);
+        this._anchorElement.addEventListener('focusout', this._handleHide);
         break;
       case 'focus':
         this._anchorElement.addEventListener('focusin', this._handleShow);
@@ -215,6 +224,12 @@ export class ForgeAiTooltipComponent extends LitElement {
 
   private _handleToggle = (): void => {
     this.open = !this.open;
+  };
+
+  private _handleKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape' && this.open) {
+      this.open = false;
+    }
   };
 
   private _clearTimeouts(): void {

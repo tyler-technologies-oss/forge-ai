@@ -27,6 +27,15 @@ When true, the chat will have an expanded width and be centered on the screen.
 When false, the chat will be positioned at the bottom-right corner with a fixed width. */
   expanded?: boolean;
 
+  /** Enable file upload functionality (default: false) */
+  enableFileUpload?: boolean;
+
+  /** Optional thread ID for conversation continuity */
+  threadId?: ForgeAiFloatingChatElement["threadId"];
+
+  /** Placeholder text for input (default: "Ask a question...") */
+  placeholder?: ForgeAiFloatingChatElement["placeholder"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -47,6 +56,15 @@ When false, the chat will be positioned at the bottom-right corner with a fixed 
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
+
+  /** Required. The adapter for communication with the AI service */
+  adapter?: ForgeAiFloatingChatElement["adapter"];
+
+  /** Optional client-side tools for the agent to execute */
+  tools?: ForgeAiFloatingChatElement["tools"];
+
+  /** Optional suggestions for empty state */
+  suggestions?: ForgeAiFloatingChatElement["suggestions"];
 
   /** Fired when the chat is opened */
   onForgeAiFloatingChatOpen?: (event: CustomEvent) => void;
@@ -80,8 +98,7 @@ When false, the chat will be positioned at the bottom-right corner with a fixed 
  * - **collapse(): _void_** - Collapses the chat to normal width.
  *
  * ### **Slots:**
- *  - _default_ - Default slot for messages (ai-user-message, ai-response-message components)
- * - **suggestions** - Slot for AI suggestions component
- * - **prompt** - Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.
+ *  - **header-title** - Slot for custom header title content (default: "AI Assistant")
+ * - **empty-state-heading** - Slot for custom empty state heading
  */
 export const ForgeAiFloatingChat: React.ForwardRefExoticComponent<ForgeAiFloatingChatProps>;

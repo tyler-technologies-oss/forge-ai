@@ -2,11 +2,12 @@ import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AiSidebarComponent } from '../ai-sidebar';
 import type { AiModalComponent } from '../ai-modal';
+import type { AiChatbotAdapter, ToolDefinition, Suggestion } from '../ai-chatbot';
 import '../ai-sidebar';
-import '../ai-chat-interface';
-import '../ai-chat-header';
+import '../ai-chatbot';
 import '../ai-modal';
 
 import styles from './ai-sidebar-chat.scss?inline';
@@ -29,18 +30,26 @@ export const AiSidebarChatComponentTagName: keyof HTMLElementTagNameMap = 'forge
 /**
  * @tag forge-ai-sidebar-chat
  *
- * @slot - Default slot for messages (ai-user-message, ai-response-message components)
- * @slot suggestions - Slot for AI suggestions component
- * @slot prompt - Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.
+ * @slot header-title - Slot for custom header title content (default: "AI Assistant")
+ * @slot empty-state-heading - Slot for custom empty state heading
  *
  * @fires forge-ai-sidebar-chat-open - Fired when the sidebar chat is opened
  * @fires forge-ai-sidebar-chat-close - Fired when the sidebar chat is closed
  * @fires forge-ai-sidebar-chat-expand - Fired when the sidebar chat is expanded to modal
  * @fires forge-ai-sidebar-chat-collapse - Fired when the sidebar chat is collapsed from modal
  *
- * @description A structured form factor component that combines ai-sidebar and ai-chat-interface
+ * @description A structured form factor component that combines ai-sidebar, ai-modal, and ai-chatbot
  * with automatic event handling for sidebar-based chat interfaces. When expanded, the chat
- * content is displayed in a fullscreen modal.
+ * content is displayed in a fullscreen modal. The chatbot component handles all chat UI,
+ * this component only manages positioning and expand/collapse state.
+ * All chatbot events (message-sent, message-received, tool-call, error, clear, info, connected, disconnected) bubble through unchanged.
+ *
+ * @property {AiChatbotAdapter} adapter - Required. The adapter for communication with the AI service
+ * @property {ToolDefinition[]} tools - Optional client-side tools for the agent to execute
+ * @property {string} threadId - Optional thread ID for conversation continuity
+ * @property {boolean} enableFileUpload - Enable file upload functionality (default: false)
+ * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
+ * @property {Suggestion[]} suggestions - Optional suggestions for empty state
  */
 @customElement(AiSidebarChatComponentTagName)
 export class AiSidebarChatComponent extends LitElement {
@@ -60,25 +69,45 @@ export class AiSidebarChatComponent extends LitElement {
   @property({ type: Boolean })
   public expanded = false;
 
+  @property({ attribute: false })
+  public adapter?: AiChatbotAdapter;
+
+  @property({ attribute: false })
+  public tools?: ToolDefinition[];
+
+  @property({ attribute: 'thread-id' })
+  public threadId?: string;
+
+  @property({ type: Boolean, attribute: 'enable-file-upload' })
+  public enableFileUpload = false;
+
+  @property()
+  public placeholder = 'Ask a question...';
+
+  @property({ attribute: false })
+  public suggestions?: Suggestion[];
+
   #sidebarRef: Ref<AiSidebarComponent> = createRef();
   #modalRef: Ref<AiModalComponent> = createRef();
 
   get #chatInterface(): TemplateResult {
     return html`
-      <forge-ai-chat-interface>
-        <forge-ai-chat-header
-          slot="header"
-          @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
-          @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
-          show-expand-button
-          ?show-minimize-button=${!this.expanded}
-          minimize-icon=${this.expanded ? 'default' : 'panel'}
-          ?expanded=${this.expanded}>
-        </forge-ai-chat-header>
-        <slot></slot>
-        <slot name="suggestions" slot="suggestions"></slot>
-        <slot name="prompt" slot="prompt"></slot>
-      </forge-ai-chat-interface>
+      <forge-ai-chatbot
+        .adapter=${this.adapter}
+        .tools=${this.tools}
+        thread-id=${ifDefined(this.threadId)}
+        ?enable-file-upload=${this.enableFileUpload}
+        placeholder=${this.placeholder}
+        .suggestions=${this.suggestions}
+        show-expand-button
+        ?show-minimize-button=${!this.expanded}
+        .minimizeIcon=${this.expanded ? 'default' : 'panel'}
+        ?expanded=${this.expanded}
+        @forge-ai-chatbot-expand=${this.#handleChatbotExpand}
+        @forge-ai-chatbot-minimize=${this.#handleChatbotMinimize}>
+        <slot name="header-title" slot="header-title"></slot>
+        <slot name="empty-state-heading" slot="empty-state-heading"></slot>
+      </forge-ai-chatbot>
     `;
   }
 
@@ -168,7 +197,7 @@ export class AiSidebarChatComponent extends LitElement {
     this.#dispatchEvent('forge-ai-sidebar-chat-close');
   }
 
-  #handleHeaderExpand(): void {
+  #handleChatbotExpand(): void {
     this.expanded = !this.expanded;
     if (this.expanded) {
       this.#dispatchEvent('forge-ai-sidebar-chat-expand');
@@ -177,7 +206,7 @@ export class AiSidebarChatComponent extends LitElement {
     }
   }
 
-  #handleHeaderMinimize(): void {
+  #handleChatbotMinimize(): void {
     this.close();
   }
 

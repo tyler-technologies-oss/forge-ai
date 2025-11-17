@@ -95,10 +95,10 @@ pnpm cem
 
 ```bash
 # Create new component with templates
-pnpm plop:ai component
+pnpm plop:ai component <component-name>
 
 # Create storybook story only
-pnpm plop:ai story
+pnpm plop:ai story <component-name>
 ```
 
 ## Key Conventions
@@ -187,6 +187,12 @@ src/lib/[component-name]/
 - For Storybook actions, always use `import { action } from 'storybook/actions';` not `@storybook/addon-actions`
 - For Storybook MDX docs, always use `import { Meta, Title, Canvas } from '@storybook/addon-docs/blocks';` and `import CustomArgTypes from '../../blocks/CustomArgTypes';` not `@storybook/blocks`
 - For Lit template variables, use `readonly` for static content and `get` for dynamic content that needs to re-render when component state changes
+- AVOID using inline CSS styles on HTML elements. Always use classes and define styles in the SCSS file, or check to see if there's an existing prebuilt component in the library that meets your needs.
+- When using boolean properties that reflect to attributes, always set the value to `false` by default in the property decorator, ie: `@property({ type: Boolean, reflect: true }) public myProp = false;`. Boolean properties should always be turned on by setting the attribute without a value, ie: `<forge-my-component my-prop></forge-my-component>` and we do not
+  like negatively worded properties like `no-header` or `disable-feature`. Always use positive wording like `has-header` or `enable-feature`.
+- If you are building a feature that could potentially be generic enough to be used by multiple components, consider building it as a separate utility function or mixin in the `utils/` folder so it can be reused across components, or if it needs to integrate with the Lit lifecycle, consider building it as Lit reactive controller.
+- Always prefer modern JavaScript/TypeScript features and syntax, like optional chaining, nullish coalescing, arrow functions, template literals, etc.
+- Prefer using the "config object" pattern for methods and functions that take multiple parameters, especially when some are optional. This improves readability and makes it easier to add parameters in the future without breaking existing calls.
 
 ### Conditional Content Pattern
 

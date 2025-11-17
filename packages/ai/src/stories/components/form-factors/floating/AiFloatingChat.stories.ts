@@ -1,13 +1,11 @@
 import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
+import { action } from 'storybook/actions';
 
 import '$lib/ai-floating-chat';
-import '$lib/ai-user-message';
-import '$lib/ai-response-message';
 import '$lib/ai-fab';
-import '$lib/ai-suggestions';
-import '$lib/ai-prompt';
-import { Suggestion } from '$lib/ai-suggestions';
+import type { Suggestion } from '$lib/ai-chatbot';
+import { createMockAdapter } from '../../../utils/mock-adapter';
 
 const component = 'forge-ai-floating-chat';
 
@@ -15,6 +13,10 @@ const meta = {
   title: 'AI Components/Form Factors/Floating',
   component,
   argTypes: {
+    adapter: {
+      control: false,
+      description: 'The adapter for communication with the AI service'
+    },
     open: {
       control: { type: 'boolean' },
       description: 'Controls whether the chat is open'
@@ -22,23 +24,49 @@ const meta = {
     expanded: {
       control: { type: 'boolean' },
       description: 'Controls whether the chat is displayed in an expanded state'
+    },
+    enableFileUpload: {
+      control: { type: 'boolean' },
+      description: 'Enable file upload functionality'
+    },
+    placeholder: {
+      control: 'text',
+      description: 'Placeholder text for input'
     }
   },
   args: {
     open: false,
-    expanded: false
+    expanded: false,
+    enableFileUpload: false,
+    placeholder: 'Ask a question...'
   },
   render: args => {
+    const adapter = createMockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
     const chat = html`
-      <forge-ai-floating-chat ?open=${args.open} ?expanded=${args.expanded}>
-        <forge-ai-user-message>
-          Hello! Can you help me understand how to use TypeScript generics?
-        </forge-ai-user-message>
-        <forge-ai-response-message>
-          I'd be happy to help you understand TypeScript generics! Generics allow you to create reusable components that
-          can work with different types while maintaining type safety.
-        </forge-ai-response-message>
-        <forge-ai-prompt slot="prompt"></forge-ai-prompt>
+      <forge-ai-floating-chat
+        .adapter=${adapter}
+        ?open=${args.open}
+        ?expanded=${args.expanded}
+        ?enable-file-upload=${args.enableFileUpload}
+        placeholder=${args.placeholder}
+        @forge-ai-floating-chat-open=${action('forge-ai-floating-chat-open')}
+        @forge-ai-floating-chat-close=${action('forge-ai-floating-chat-close')}
+        @forge-ai-floating-chat-expand=${action('forge-ai-floating-chat-expand')}
+        @forge-ai-floating-chat-collapse=${action('forge-ai-floating-chat-collapse')}
+        @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+        @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
+        @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+        @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+        @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}
+        @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
+        @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
+        @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}>
       </forge-ai-floating-chat>
     `;
 
@@ -55,9 +83,10 @@ const meta = {
     return html`
       <div style="min-height: 300px;">
         <div>
-          <h2>AI Floating Chat Demo (Form Factor Component)</h2>
+          <h2>AI Floating Chat Demo</h2>
           <p>Click the FAB in the bottom right corner to open the AI chat.</p>
-          <p>This demo shows the structured form factor component that handles composition automatically.</p>
+          <p>This form factor combines ai-dialog and ai-chatbot for floating chat UI.</p>
+          <p>Try sending messages, expanding the chat, or closing it.</p>
         </div>
         ${fab} ${chat}
       </div>
@@ -70,56 +99,3 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {};
-
-export const WithSuggestions: Story = {
-  render: args => {
-    const suggestions = [
-      { text: 'Can you show me an example?', value: 'example' },
-      { text: 'How do I use generics with interfaces?', value: 'interfaces' },
-      { text: 'What are the benefits of generics?', value: 'benefits' },
-      { text: 'How do I constrain generic types?', value: 'constraints' }
-    ] as Suggestion[];
-
-    const chat = html`
-      <forge-ai-floating-chat ?open=${args.open} ?expanded=${args.expanded}>
-        <forge-ai-user-message>
-          Hello! Can you help me understand how to use TypeScript generics?
-        </forge-ai-user-message>
-        <forge-ai-response-message>
-          I'd be happy to help you understand TypeScript generics! Generics allow you to create reusable components that
-          can work with different types while maintaining type safety.
-        </forge-ai-response-message>
-
-        <forge-ai-suggestions
-          slot="suggestions"
-          .suggestions=${suggestions}
-          @forge-ai-suggestions-select=${(event: CustomEvent) => {
-            console.log('Selected suggestion:', event.detail);
-          }}>
-        </forge-ai-suggestions>
-
-        <forge-ai-prompt slot="prompt"></forge-ai-prompt>
-      </forge-ai-floating-chat>
-    `;
-
-    const fab = html`
-      <forge-ai-fab
-        style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;"
-        @click=${() => {
-          const chatEl = document.querySelector('forge-ai-floating-chat');
-          chatEl?.show();
-        }}>
-      </forge-ai-fab>
-    `;
-
-    return html`
-      <div style="min-height: 300px;">
-        <div>
-          <h2>AI Floating Chat with Suggestions</h2>
-          <p>This example shows how to slot in suggestions to the chat interface.</p>
-        </div>
-        ${fab} ${chat}
-      </div>
-    `;
-  }
-};

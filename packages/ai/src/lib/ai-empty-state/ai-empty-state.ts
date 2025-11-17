@@ -15,37 +15,40 @@ export const AiEmptyStateComponentTagName: keyof HTMLElementTagNameMap = 'forge-
 /**
  * @tag forge-ai-empty-state
  *
- * @slot - The custom welcome message content.
+ * @slot icon - The custom icon/graphic to display.
+ * @slot heading - The custom heading/title to display.
+ * @slot body - The custom body message content.
  * @slot actions - The actions or suggestions to display below the message.
  */
 @customElement(AiEmptyStateComponentTagName)
 export class AiEmptyStateComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
-  @queryAssignedNodes({ flatten: true })
-  private _slottedNodes!: Node[];
+  @queryAssignedNodes({ slot: 'icon', flatten: true })
+  private _iconSlotNodes!: Node[];
 
-  readonly #messageSlot = html`<slot @slotchange=${this.#handleSlotChange}></slot>`;
+  @queryAssignedNodes({ slot: 'heading', flatten: true })
+  private _headingSlotNodes!: Node[];
+
+  @queryAssignedNodes({ slot: 'body', flatten: true })
+  private _bodySlotNodes!: Node[];
+
+  readonly #iconSlot = html`<slot name="icon" @slotchange=${this.#handleSlotChange}></slot>`;
+
+  readonly #headingSlot = html`<slot name="heading" @slotchange=${this.#handleSlotChange}></slot>`;
+
+  readonly #bodySlot = html`<slot name="body" @slotchange=${this.#handleSlotChange}></slot>`;
 
   readonly #defaultMessage = html`Welcome to AI Assistant! Start a conversation by asking a question or describing what
   you'd like help with.`;
 
-  get #messageContent(): TemplateResult {
-    const hasCustomContent = this._slottedNodes.length > 0;
+  get #iconContent(): TemplateResult {
+    const hasCustomIcon = this._iconSlotNodes.length > 0;
     return when(
-      hasCustomContent,
-      () => this.#messageSlot,
-      () => this.#defaultMessage
-    );
-  }
-
-  #handleSlotChange(): void {
-    this.requestUpdate();
-  }
-
-  public override render(): TemplateResult {
-    return html` <div class="forge-page-state">
-      <div class="welcome-container">
+      hasCustomIcon,
+      () => this.#iconSlot,
+      () => html`
+        ${this.#iconSlot}
         <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 92 92" class="graphic">
           <defs>
             <style>
@@ -117,7 +120,41 @@ export class AiEmptyStateComponent extends LitElement {
           <rect class="cls-5" x="59.69" y="8.29" width="12.26" height="51.94" rx="1" />
           <rect class="cls-6" x="60.49" y="47.79" width="10.63" height="4.51" />
         </svg>
-        <div class="forge-page-state__message message">${this.#messageContent}</div>
+      `
+    );
+  }
+
+  get #headingContent(): TemplateResult {
+    const hasCustomHeading = this._headingSlotNodes.length > 0;
+    return when(
+      hasCustomHeading,
+      () => this.#headingSlot,
+      () => this.#headingSlot
+    );
+  }
+
+  get #bodyContent(): TemplateResult {
+    const hasCustomBody = this._bodySlotNodes.length > 0;
+    return when(
+      hasCustomBody,
+      () => this.#bodySlot,
+      () => html` ${this.#bodySlot} ${this.#defaultMessage} `
+    );
+  }
+
+  #handleSlotChange(evt: Event): void {
+    const slotName = (evt.target as HTMLSlotElement).name || 'default';
+    if (['icon', 'heading', 'body'].includes(slotName)) {
+      this.requestUpdate();
+    }
+  }
+
+  public override render(): TemplateResult {
+    return html` <div class="forge-page-state">
+      <div class="welcome-container">
+        ${this.#iconContent}
+        <div class="heading">${this.#headingContent}</div>
+        <div class="forge-page-state__message message">${this.#bodyContent}</div>
         <slot name="actions"></slot>
       </div>
     </div>`;

@@ -1,0 +1,18 @@
+@use '@tylertech/forge/sass/theme' as forge-theme;
+@use '@tylertech/forge/dist/inline-message/forge-inline-message';
+
+:host {
+  display: block;
+}
+
+.forge-inline-message {
+  --forge-inline-message-background: #{forge-theme.variable(error-container-low)};
+  --forge-inline-message-color: #{forge-theme.variable(on-error-container-low)};
+  --forge-inline-message-icon-color: #{forge-theme.variable(on-error-container-low)};
+  --forge-inline-message-border-color: #{forge-theme.variable(error-container)};
+  --forge-inline-message-border-style: solid;
+
+  &__title {
+    font-weight: bold;
+  }
+}

@@ -16,6 +16,10 @@
   max-width: 768px;
 }
 
+.heading {
+  @include forge-typography.style(heading3);
+}
+
 .message {
   @include forge-typography.style(body2);
 }

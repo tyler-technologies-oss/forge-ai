@@ -39,7 +39,7 @@
     "url": "git+https://github.com/tyler-technologies-oss/forge-ai.git"
   },
   "scripts": {
-    "dev": "vite src/dev/ -c vite.config.mts",
+    "dev": "vite -c vite.config.mts",
     "start": "pnpm run storybook",
     "prebuild": "rimraf dist",
     "build": "pnpm run lint && vite build && pnpm run cem",
@@ -64,8 +64,10 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.4",
+    "@lit/context": "^1.1.6",
     "@tylertech/tyler-icons": "catalog:",
-    "lit": "catalog:"
+    "lit": "catalog:",
+    "marked": "^17.0.0"
   },
   "peerDependencies": {
     "@tylertech/forge": "^3.0.0"

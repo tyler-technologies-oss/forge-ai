@@ -1,7 +1,6 @@
 import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
-import { customElement, queryAssignedNodes, state } from 'lit/decorators.js';
+import { customElement, queryAssignedNodes } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
-import '../ai-empty-state/ai-empty-state';
 import '../ai-gradient-container/ai-gradient-container';
 
 import styles from './ai-chat-interface.scss?inline';
@@ -29,9 +28,6 @@ export class AiChatInterfaceComponent extends LitElement {
   @queryAssignedNodes({ slot: 'suggestions', flatten: true })
   private _slottedSuggestionsNodes!: Node[];
 
-  @state()
-  private _hasMessages = false;
-
   readonly #headerSlot = html`<slot name="header" @slotchange=${this.#handleSlotChange}></slot>`;
 
   readonly #suggestionsSlot = html`<slot name="suggestions" @slotchange=${this.#handleSlotChange}></slot>`;
@@ -51,27 +47,18 @@ export class AiChatInterfaceComponent extends LitElement {
     return this.#promptSlot;
   }
 
-  readonly #messagesSlot = html`<slot @slotchange=${this.#handleSlotChange}></slot>`;
-
   get #messagesContainer(): TemplateResult {
     return html`
       <div class="messages-container" part="messages">
-        ${this.#messagesSlot} ${!this._hasMessages ? html`<forge-ai-empty-state></forge-ai-empty-state>` : nothing}
+        <slot @slotchange=${this.#handleSlotChange}></slot>
       </div>
     `;
   }
 
   #handleSlotChange(evt: Event): void {
-    const slotName = (evt.target as HTMLSlotElement).name || 'default';
+    const slotName = (evt.target as HTMLSlotElement).name;
 
-    if (slotName === 'default') {
-      // Check if there are any assigned elements (messages)
-      const slot = evt.target as HTMLSlotElement;
-      const assignedElements = slot.assignedElements();
-      this._hasMessages = assignedElements.length > 0;
-    }
-
-    if (['header', 'suggestions', 'prompt', 'default'].includes(slotName)) {
+    if (['header', 'suggestions', 'prompt'].includes(slotName)) {
       this.requestUpdate();
     }
   }

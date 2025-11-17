@@ -1,0 +1,89 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/typography' as forge-typography;
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '@tylertech/forge/dist/expansion-panel/forge-expansion-panel';
+
+:host {
+  display: block;
+
+  forge-ai-artifact {
+    &[data-status='executing'] {
+      border-color: #{forge-theme.variable(primary)};
+      animation: pulse-border 1.5s ease-in-out infinite;
+    }
+
+    &[data-status='complete'] {
+      border-color: #{forge-theme.variable(success)};
+    }
+
+    &[data-status='error'] {
+      border-color: #{forge-theme.variable(error)};
+    }
+
+    &[data-expanded='false'] {
+      --forge-toolbar-divider-style: none;
+    }
+  }
+}
+
+.tool-start,
+.tool-actions {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(small)};
+}
+
+.tool-start {
+  flex: 1;
+}
+
+.status-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.tool-name {
+  font-weight: 500;
+}
+
+.tool-details {
+  display: grid;
+  gap: #{forge-spacing.variable(medium)};
+  padding: #{forge-spacing.variable(medium)};
+}
+
+.status-text {
+  font-size: 0.9em;
+}
+
+.section-label {
+  @include forge-typography.style(heading1);
+
+  margin-block-end: #{forge-spacing.variable(xsmall)};
+}
+
+.code-block {
+  background-color: #{forge-theme.variable(surface-container-minimum)};
+  color: #{forge-theme.variable(on-surface-container-minimum)};
+  padding: #{forge-spacing.variable(small)};
+  border-radius: #{forge-shape.variable(medium)};
+  overflow-x: auto;
+  margin: 0;
+  font-family: monospace;
+  font-size: 0.85em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+@keyframes pulse-border {
+  0%,
+  100% {
+    border-color: #{forge-theme.variable(primary)};
+  }
+  50% {
+    border-color: #{forge-theme.variable(primary-container)};
+  }
+}

@@ -156,9 +156,8 @@ export class AiPromptComponent extends LitElement {
     });
     this.dispatchEvent(event);
 
-    // Only set running state and clear input if event wasn't cancelled
+    // Only clear input if event wasn't cancelled
     if (!event.defaultPrevented) {
-      this.running = true;
       this.value = ''; // Clear input after sending
     }
   }
@@ -193,11 +192,6 @@ export class AiPromptComponent extends LitElement {
       cancelable: true
     });
     this.dispatchEvent(event);
-
-    // Only set running to false if event wasn't cancelled
-    if (!event.defaultPrevented) {
-      this.running = false;
-    }
   }
 
   private _handleEscape(): void {

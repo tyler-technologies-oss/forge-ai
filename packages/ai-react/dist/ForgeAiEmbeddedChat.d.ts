@@ -22,8 +22,17 @@ export interface ForgeAiEmbeddedChatProps
   /** Controls whether the modal view is open when expanded. */
   expanded?: boolean;
 
-  /** Controls the gradient variant applied to the container. */
+  /** Enable file upload functionality (default: false) */
+  enableFileUpload?: boolean;
+
+  /** Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium') */
   gradientVariant?: ForgeAiEmbeddedChatElement["gradientVariant"];
+
+  /** Optional thread ID for conversation continuity */
+  threadId?: ForgeAiEmbeddedChatElement["threadId"];
+
+  /** Placeholder text for input (default: "Ask a question...") */
+  placeholder?: ForgeAiEmbeddedChatElement["placeholder"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -45,6 +54,15 @@ export interface ForgeAiEmbeddedChatProps
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
+
+  /** Required. The adapter for communication with the AI service */
+  adapter?: ForgeAiEmbeddedChatElement["adapter"];
+
+  /** Optional client-side tools for the agent to execute */
+  tools?: ForgeAiEmbeddedChatElement["tools"];
+
+  /** Optional suggestions for empty state */
+  suggestions?: ForgeAiEmbeddedChatElement["suggestions"];
 
   /** Fired when the chat is expanded to modal view */
   onForgeAiEmbeddedChatExpand?: (event: CustomEvent<CustomEvent<void>>) => void;
@@ -69,8 +87,7 @@ export interface ForgeAiEmbeddedChatProps
  * - **collapse(): _void_** - Collapses the chat from modal view back to embedded view.
  *
  * ### **Slots:**
- *  - _default_ - Default slot for messages (ai-user-message, ai-response-message components)
- * - **suggestions** - Slot for AI suggestions component
- * - **prompt** - Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.
+ *  - **header-title** - Slot for custom header title content (default: "AI Assistant")
+ * - **empty-state-heading** - Slot for custom empty state heading
  */
 export const ForgeAiEmbeddedChat: React.ForwardRefExoticComponent<ForgeAiEmbeddedChatProps>;

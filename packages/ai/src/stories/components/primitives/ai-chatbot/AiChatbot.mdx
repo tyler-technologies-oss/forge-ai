@@ -1,0 +1,116 @@
+import { Meta, Title, Canvas } from '@storybook/addon-docs/blocks';
+import CustomArgTypes from '../../../blocks/CustomArgTypes';
+import * as AiChatbotStories from './AiChatbot.stories';
+
+<Meta of={AiChatbotStories} />
+
+<Title />
+
+The AI Chatbot component provides a complete, self-contained chat interface that implements the AG-UI protocol using an adapter pattern. It handles message rendering, streaming responses, tool execution, and file attachments.
+
+<Canvas of={AiChatbotStories.Demo} />
+
+## Features
+
+- **Adapter Pattern**: Abstract communication layer for AG-UI or custom protocols
+- **Streaming Support**: Real-time message streaming with visual indicators
+- **Tool Execution**: Client-side tool registration and execution
+- **Markdown Rendering**: Rich text formatting with code blocks, lists, and links
+- **File Attachments**: Optional file upload capability
+- **Client Context**: Inject application context into conversations
+- **Event-Driven**: Comprehensive event system for integration
+- **User Reactions**: Optional thumbs up/down feedback buttons
+
+## Basic Usage
+
+```typescript
+import { createAgUiAdapter } from '@tylertech/forge-ai';
+
+const adapter = createAgUiAdapter({
+  baseUrl: 'https://api.example.com',
+  agentId: 'your-agent-id',
+  credentials: 'include'
+});
+
+const chatbot = document.createElement('forge-ai-chatbot');
+chatbot.adapter = adapter;
+document.body.appendChild(chatbot);
+```
+
+## With Tools
+
+Register client-side tools for the agent to execute:
+
+```typescript
+const tools = [
+  {
+    name: 'getCurrentWeather',
+    description: 'Get the current weather for a location',
+    parameters: {
+      type: 'object',
+      properties: {
+        location: { type: 'string' }
+      },
+      required: ['location']
+    }
+  }
+];
+
+chatbot.tools = tools;
+
+chatbot.addEventListener('forge-ai-chatbot-tool-call', async e => {
+  const { toolName, arguments: args, respond } = e.detail;
+
+  if (toolName === 'getCurrentWeather') {
+    const weather = await fetchWeather(args.location);
+    await respond(weather);
+  }
+});
+```
+
+## Creating a Custom Adapter
+
+Implement the `AiChatbotAdapter` interface for custom protocols:
+
+```typescript
+interface AiChatbotAdapter {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  sendMessage(input: RunAgentInput): void;
+  onEvent(callback: (event: AgUiEvent) => void): void;
+  abort(): void;
+}
+
+const customAdapter: AiChatbotAdapter = {
+  async connect() {
+    // Initialize connection
+  },
+
+  async disconnect() {
+    // Clean up connection
+  },
+
+  sendMessage(input) {
+    // Send message and stream events back
+    this.eventCallback({ type: 'TEXT_MESSAGE_START', messageId: 'msg1' });
+    this.eventCallback({ type: 'TEXT_MESSAGE_CHUNK', delta: 'Hello' });
+    this.eventCallback({ type: 'TEXT_MESSAGE_END', messageId: 'msg1' });
+  },
+
+  onEvent(callback) {
+    this.eventCallback = callback;
+  },
+
+  abort() {
+    // Cancel ongoing requests
+  }
+};
+```
+
+## Keyboard Shortcuts
+
+- **Escape**: Abort the current streaming response
+
+## API
+
+<CustomArgTypes />

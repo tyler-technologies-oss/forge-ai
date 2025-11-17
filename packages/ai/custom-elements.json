@@ -138,77 +138,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-artifact/ai-artifact.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiArtifactComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-artifact'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiArtifactComponent",
-          "cssProperties": [
-            {
-              "description": "Surface color override for the toolbar (defaults to transparent)",
-              "name": "--forge-theme-surface"
-            }
-          ],
-          "slots": [
-            {
-              "description": "Content for the start (left) side of the toolbar, typically used for titles or headings",
-              "name": "start"
-            },
-            {
-              "description": "Action buttons for the end (right) side of the toolbar",
-              "name": "actions"
-            },
-            {
-              "description": "Main content area below the toolbar",
-              "name": ""
-            }
-          ],
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-artifact",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiArtifactComponentTagName",
-          "declaration": {
-            "name": "AiArtifactComponentTagName",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiArtifactComponent",
-          "declaration": {
-            "name": "AiArtifactComponent",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiArtifactComponent",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-button/ai-button.ts",
       "declarations": [
         {
@@ -290,6 +219,77 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-artifact/ai-artifact.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiArtifactComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-artifact'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiArtifactComponent",
+          "cssProperties": [
+            {
+              "description": "Surface color override for the toolbar (defaults to transparent)",
+              "name": "--forge-theme-surface"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Content for the start (left) side of the toolbar, typically used for titles or headings",
+              "name": "start"
+            },
+            {
+              "description": "Action buttons for the end (right) side of the toolbar",
+              "name": "actions"
+            },
+            {
+              "description": "Main content area below the toolbar",
+              "name": ""
+            }
+          ],
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-artifact",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiArtifactComponentTagName",
+          "declaration": {
+            "name": "AiArtifactComponentTagName",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiArtifactComponent",
+          "declaration": {
+            "name": "AiArtifactComponent",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiArtifactComponent",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
       "declarations": [
         {
@@ -359,165 +359,6 @@
           "declaration": {
             "name": "AiChainOfThoughtComponent",
             "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-dialog/ai-dialog.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiDialogComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-dialog'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiDialogComponent",
-          "slots": [
-            {
-              "description": "Default slot for dialog content (typically ai-chat-interface)",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Indicates whether the dialog is open.",
-              "attribute": "open"
-            },
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
-              "attribute": "expanded"
-            },
-            {
-              "kind": "field",
-              "name": "isFullscreen",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Gets the current fullscreen state (readonly)",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "show",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Opens the dialog."
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Closes the dialog."
-            },
-            {
-              "kind": "method",
-              "name": "toggle",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Toggles the dialog open state."
-            }
-          ],
-          "events": [
-            {
-              "type": {
-                "text": "CustomEvent<{ isFullscreen: boolean }>"
-              },
-              "description": "Fired when the fullscreen state changes due to viewport size",
-              "name": "forge-ai-dialog-fullscreen-change"
-            },
-            {
-              "type": {
-                "text": "CustomEvent<void>"
-              },
-              "description": "Fired when the dialog is closed",
-              "name": "forge-ai-dialog-close"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Indicates whether the dialog is open.",
-              "fieldName": "open"
-            },
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-dialog",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiDialogComponentTagName",
-          "declaration": {
-            "name": "AiDialogComponentTagName",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiDialogComponent",
-          "declaration": {
-            "name": "AiDialogComponent",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiDialogComponent",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
           }
         }
       ]
@@ -764,6 +605,715 @@
           "declaration": {
             "name": "AiChatHeaderComponent",
             "module": "src/lib/ai-chat-header/ai-chat-header.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "createAgUiAdapter",
+          "return": {
+            "type": {
+              "text": "AiChatbotAdapter"
+            }
+          },
+          "parameters": [
+            {
+              "name": "config",
+              "type": {
+                "text": "AgUiAdapterConfig"
+              }
+            }
+          ],
+          "description": "Creates an adapter for the AG-UI protocol"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "createAgUiAdapter",
+          "declaration": {
+            "name": "createAgUiAdapter",
+            "module": "src/lib/ai-chatbot/ag-ui-adapter.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/ai-chatbot-tool-call.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChatbotToolCallComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chatbot-tool-call'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChatbotToolCallComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "toolCall",
+              "type": {
+                "text": "ToolCall"
+              },
+              "privacy": "public"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chatbot-tool-call",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChatbotToolCallComponentTagName",
+          "declaration": {
+            "name": "AiChatbotToolCallComponentTagName",
+            "module": "src/lib/ai-chatbot/ai-chatbot-tool-call.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChatbotToolCallComponent",
+          "declaration": {
+            "name": "AiChatbotToolCallComponent",
+            "module": "src/lib/ai-chatbot/ai-chatbot-tool-call.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChatbotToolCallComponent",
+            "module": "src/lib/ai-chatbot/ai-chatbot-tool-call.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/ai-chatbot.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChatbotComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chatbot'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChatbotComponent",
+          "slots": [
+            {
+              "description": "Slot for custom header content",
+              "name": "header"
+            },
+            {
+              "description": "Slot for custom header title content (default: \"AI Assistant\")",
+              "name": "header-title"
+            },
+            {
+              "description": "Slot for custom empty state content (overrides default suggestions)",
+              "name": "empty-state"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "adapter",
+              "type": {
+                "text": "AiChatbotAdapter | undefined"
+              },
+              "privacy": "public"
+            },
+            {
+              "kind": "field",
+              "name": "tools",
+              "type": {
+                "text": "ToolDefinition[] | undefined"
+              },
+              "privacy": "public"
+            },
+            {
+              "kind": "field",
+              "name": "threadId",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "public",
+              "attribute": "thread-id"
+            },
+            {
+              "kind": "field",
+              "name": "enableFileUpload",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "enable-file-upload"
+            },
+            {
+              "kind": "field",
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "'Ask a question...'",
+              "attribute": "placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "Suggestion[] | undefined"
+              },
+              "privacy": "public"
+            },
+            {
+              "kind": "field",
+              "name": "showExpandButton",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "show-expand-button"
+            },
+            {
+              "kind": "field",
+              "name": "showMinimizeButton",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "show-minimize-button"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "minimizeIcon",
+              "type": {
+                "text": "'default' | 'panel'"
+              },
+              "privacy": "public",
+              "default": "'default'",
+              "attribute": "minimize-icon"
+            },
+            {
+              "kind": "method",
+              "name": "clearMessages",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Clears all messages from the chat history."
+            },
+            {
+              "kind": "method",
+              "name": "getMessages",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "description": "Gets the current message history."
+            },
+            {
+              "kind": "method",
+              "name": "setMessages",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "messages",
+                  "type": {
+                    "text": "ChatMessage[]"
+                  },
+                  "description": "Array of chat messages to set"
+                }
+              ],
+              "description": "Sets the message history. Useful for restoring conversation state."
+            },
+            {
+              "kind": "method",
+              "name": "sendMessage",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "content",
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "The message content to send"
+                },
+                {
+                  "name": "attachments",
+                  "optional": true,
+                  "type": {
+                    "text": "FileAttachment[]"
+                  },
+                  "description": "Optional file attachments"
+                }
+              ],
+              "description": "Programmatically sends a message as the user."
+            },
+            {
+              "kind": "method",
+              "name": "abort",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Aborts the current streaming response."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when adapter connects",
+              "name": "forge-ai-chatbot-connected"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when adapter disconnects",
+              "name": "forge-ai-chatbot-disconnected"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiChatbotMessageEventData>"
+              },
+              "description": "Fired when user sends a message",
+              "name": "forge-ai-chatbot-message-sent"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiChatbotMessageEventData>"
+              },
+              "description": "Fired when assistant message is complete",
+              "name": "forge-ai-chatbot-message-received"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiChatbotToolCallEventData>"
+              },
+              "description": "Fired when a tool needs to be executed",
+              "name": "forge-ai-chatbot-tool-call"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiChatbotErrorEventData>"
+              },
+              "description": "Fired when an error occurs",
+              "name": "forge-ai-chatbot-error"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when header expand button is clicked",
+              "name": "forge-ai-chatbot-expand"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when header minimize button is clicked",
+              "name": "forge-ai-chatbot-minimize"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when header clear option is selected (cancelable, prevents clearMessages() if default prevented)",
+              "name": "forge-ai-chatbot-clear"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when header info option is selected",
+              "name": "forge-ai-chatbot-info"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "thread-id",
+              "type": {
+                "text": "string | undefined"
+              },
+              "fieldName": "threadId"
+            },
+            {
+              "name": "enable-file-upload",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "enableFileUpload"
+            },
+            {
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Ask a question...'",
+              "fieldName": "placeholder"
+            },
+            {
+              "name": "show-expand-button",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "showExpandButton"
+            },
+            {
+              "name": "show-minimize-button",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "showMinimizeButton"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "expanded"
+            },
+            {
+              "name": "minimize-icon",
+              "type": {
+                "text": "'default' | 'panel'"
+              },
+              "default": "'default'",
+              "fieldName": "minimizeIcon"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chatbot",
+          "customElement": true,
+          "summary": "A complete, self-contained AI chatbot component that implements the AG-UI protocol using an adapter pattern."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChatbotComponentTagName",
+          "declaration": {
+            "name": "AiChatbotComponentTagName",
+            "module": "src/lib/ai-chatbot/ai-chatbot.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChatbotComponent",
+          "declaration": {
+            "name": "AiChatbotComponent",
+            "module": "src/lib/ai-chatbot/ai-chatbot.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChatbotComponent",
+            "module": "src/lib/ai-chatbot/ai-chatbot.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/context.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "chatbotContext"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "chatbotContext",
+          "declaration": {
+            "name": "chatbotContext",
+            "module": "src/lib/ai-chatbot/context.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/types.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/utils.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "generateId",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "prefix",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Generates a unique ID with a given prefix"
+        },
+        {
+          "kind": "function",
+          "name": "renderMarkdown",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "content",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Renders markdown content to HTML"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "generateId",
+          "declaration": {
+            "name": "generateId",
+            "module": "src/lib/ai-chatbot/utils.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "renderMarkdown",
+          "declaration": {
+            "name": "renderMarkdown",
+            "module": "src/lib/ai-chatbot/utils.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-dialog/ai-dialog.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiDialogComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-dialog'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiDialogComponent",
+          "slots": [
+            {
+              "description": "Default slot for dialog content (typically ai-chat-interface)",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Indicates whether the dialog is open.",
+              "attribute": "open"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "isFullscreen",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "description": "Gets the current fullscreen state (readonly)",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "show",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Opens the dialog."
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the dialog."
+            },
+            {
+              "kind": "method",
+              "name": "toggle",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Toggles the dialog open state."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<{ isFullscreen: boolean }>"
+              },
+              "description": "Fired when the fullscreen state changes due to viewport size",
+              "name": "forge-ai-dialog-fullscreen-change"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the dialog is closed",
+              "name": "forge-ai-dialog-close"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Indicates whether the dialog is open.",
+              "fieldName": "open"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-dialog",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiDialogComponentTagName",
+          "declaration": {
+            "name": "AiDialogComponentTagName",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiDialogComponent",
+          "declaration": {
+            "name": "AiDialogComponent",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiDialogComponent",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
           }
         }
       ]
@@ -1555,16 +2105,12 @@
           "name": "AiEmbeddedChatComponent",
           "slots": [
             {
-              "description": "Default slot for messages (ai-user-message, ai-response-message components)",
-              "name": ""
+              "description": "Slot for custom header title content (default: \"AI Assistant\")",
+              "name": "header-title"
             },
             {
-              "description": "Slot for AI suggestions component",
-              "name": "suggestions"
-            },
-            {
-              "description": "Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.",
-              "name": "prompt"
+              "description": "Slot for custom empty state heading",
+              "name": "empty-state-heading"
             }
           ],
           "members": [
@@ -1583,12 +2129,71 @@
               "kind": "field",
               "name": "gradientVariant",
               "type": {
-                "text": "'low' | 'medium' | 'high'"
+                "text": "string"
               },
               "privacy": "public",
               "default": "'medium'",
-              "description": "Controls the gradient variant applied to the container.",
+              "description": "Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium')",
               "attribute": "gradient-variant"
+            },
+            {
+              "kind": "field",
+              "name": "adapter",
+              "type": {
+                "text": "AiChatbotAdapter"
+              },
+              "privacy": "public",
+              "description": "Required. The adapter for communication with the AI service"
+            },
+            {
+              "kind": "field",
+              "name": "tools",
+              "type": {
+                "text": "ToolDefinition[]"
+              },
+              "privacy": "public",
+              "description": "Optional client-side tools for the agent to execute"
+            },
+            {
+              "kind": "field",
+              "name": "threadId",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "description": "Optional thread ID for conversation continuity",
+              "attribute": "thread-id"
+            },
+            {
+              "kind": "field",
+              "name": "enableFileUpload",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Enable file upload functionality (default: false)",
+              "attribute": "enable-file-upload"
+            },
+            {
+              "kind": "field",
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "'Ask a question...'",
+              "description": "Placeholder text for input (default: \"Ask a question...\")",
+              "attribute": "placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "Suggestion[]"
+              },
+              "privacy": "public",
+              "description": "Optional suggestions for empty state"
             },
             {
               "kind": "method",
@@ -1642,11 +2247,37 @@
             {
               "name": "gradient-variant",
               "type": {
-                "text": "'low' | 'medium' | 'high'"
+                "text": "string"
               },
               "default": "'medium'",
-              "description": "Controls the gradient variant applied to the container.",
+              "description": "Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium')",
               "fieldName": "gradientVariant"
+            },
+            {
+              "name": "thread-id",
+              "type": {
+                "text": "string"
+              },
+              "description": "Optional thread ID for conversation continuity",
+              "fieldName": "threadId"
+            },
+            {
+              "name": "enable-file-upload",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Enable file upload functionality (default: false)",
+              "fieldName": "enableFileUpload"
+            },
+            {
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Ask a question...'",
+              "description": "Placeholder text for input (default: \"Ask a question...\")",
+              "fieldName": "placeholder"
             }
           ],
           "superclass": {
@@ -1701,8 +2332,16 @@
           "name": "AiEmptyStateComponent",
           "slots": [
             {
-              "description": "The custom welcome message content.",
-              "name": ""
+              "description": "The custom icon/graphic to display.",
+              "name": "icon"
+            },
+            {
+              "description": "The custom heading/title to display.",
+              "name": "heading"
+            },
+            {
+              "description": "The custom body message content.",
+              "name": "body"
             },
             {
               "description": "The actions or suggestions to display below the message.",
@@ -1740,6 +2379,68 @@
           "declaration": {
             "name": "AiEmptyStateComponent",
             "module": "src/lib/ai-empty-state/ai-empty-state.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-error-message/ai-error-message.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiErrorMessageComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-error-message'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiErrorMessageComponent",
+          "slots": [
+            {
+              "description": "The error title text",
+              "name": "title"
+            },
+            {
+              "description": "The error message content",
+              "name": ""
+            }
+          ],
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-error-message",
+          "customElement": true,
+          "summary": "Displays error messages using Forge inline message banner style."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiErrorMessageComponentTagName",
+          "declaration": {
+            "name": "AiErrorMessageComponentTagName",
+            "module": "src/lib/ai-error-message/ai-error-message.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiErrorMessageComponent",
+          "declaration": {
+            "name": "AiErrorMessageComponent",
+            "module": "src/lib/ai-error-message/ai-error-message.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiErrorMessageComponent",
+            "module": "src/lib/ai-error-message/ai-error-message.ts"
           }
         }
       ]
@@ -2014,16 +2715,12 @@
           "name": "AiFloatingChatComponent",
           "slots": [
             {
-              "description": "Default slot for messages (ai-user-message, ai-response-message components)",
-              "name": ""
+              "description": "Slot for custom header title content (default: \"AI Assistant\")",
+              "name": "header-title"
             },
             {
-              "description": "Slot for AI suggestions component",
-              "name": "suggestions"
-            },
-            {
-              "description": "Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.",
-              "name": "prompt"
+              "description": "Slot for custom empty state heading",
+              "name": "empty-state-heading"
             }
           ],
           "members": [
@@ -2048,6 +2745,65 @@
               "default": "false",
               "description": "Controls the chat's positioning and size behavior.\nWhen true, the chat will have an expanded width and be centered on the screen.\nWhen false, the chat will be positioned at the bottom-right corner with a fixed width.",
               "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "adapter",
+              "type": {
+                "text": "AiChatbotAdapter"
+              },
+              "privacy": "public",
+              "description": "Required. The adapter for communication with the AI service"
+            },
+            {
+              "kind": "field",
+              "name": "tools",
+              "type": {
+                "text": "ToolDefinition[]"
+              },
+              "privacy": "public",
+              "description": "Optional client-side tools for the agent to execute"
+            },
+            {
+              "kind": "field",
+              "name": "threadId",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "description": "Optional thread ID for conversation continuity",
+              "attribute": "thread-id"
+            },
+            {
+              "kind": "field",
+              "name": "enableFileUpload",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Enable file upload functionality (default: false)",
+              "attribute": "enable-file-upload"
+            },
+            {
+              "kind": "field",
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "'Ask a question...'",
+              "description": "Placeholder text for input (default: \"Ask a question...\")",
+              "attribute": "placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "Suggestion[]"
+              },
+              "privacy": "public",
+              "description": "Optional suggestions for empty state"
             },
             {
               "kind": "method",
@@ -2141,6 +2897,32 @@
               "default": "false",
               "description": "Controls the chat's positioning and size behavior.\nWhen true, the chat will have an expanded width and be centered on the screen.\nWhen false, the chat will be positioned at the bottom-right corner with a fixed width.",
               "fieldName": "expanded"
+            },
+            {
+              "name": "thread-id",
+              "type": {
+                "text": "string"
+              },
+              "description": "Optional thread ID for conversation continuity",
+              "fieldName": "threadId"
+            },
+            {
+              "name": "enable-file-upload",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Enable file upload functionality (default: false)",
+              "fieldName": "enableFileUpload"
+            },
+            {
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Ask a question...'",
+              "description": "Placeholder text for input (default: \"Ask a question...\")",
+              "fieldName": "placeholder"
             }
           ],
           "superclass": {
@@ -2960,14 +3742,59 @@
           "kind": "class",
           "description": "",
           "name": "AiResponseMessageComponent",
-          "members": [],
+          "members": [
+            {
+              "kind": "field",
+              "name": "complete",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the message is complete. Toolbar only shows when true.",
+              "attribute": "complete",
+              "reflects": true
+            }
+          ],
           "events": [
             {
               "type": {
-                "text": "CustomEvent<ForgeAiResponseMessageActionEventData>"
+                "text": "CustomEvent<void>"
               },
-              "description": "Fired when an action button is clicked.",
-              "name": "forge-ai-response-message-action"
+              "description": "Fired when copy action is clicked.",
+              "name": "forge-ai-response-message-copy"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when refresh action is clicked.",
+              "name": "forge-ai-response-message-refresh"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when thumbs-up action is clicked.",
+              "name": "forge-ai-response-message-thumbs-up"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when thumbs-down action is clicked.",
+              "name": "forge-ai-response-message-thumbs-down"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "complete",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the message is complete. Toolbar only shows when true.",
+              "fieldName": "complete"
             }
           ],
           "superclass": {
@@ -3129,187 +3956,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiSidebarChatComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-sidebar-chat'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiSidebarChatComponent",
-          "slots": [
-            {
-              "description": "Default slot for messages (ai-user-message, ai-response-message components)",
-              "name": ""
-            },
-            {
-              "description": "Slot for AI suggestions component",
-              "name": "suggestions"
-            },
-            {
-              "description": "Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.",
-              "name": "prompt"
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Indicates whether the sidebar chat is open.",
-              "attribute": "open"
-            },
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Controls whether the chat is displayed in an expanded modal state.\nWhen true, the chat content will be shown in a fullscreen modal.\nWhen false, the chat will be displayed in the sidebar.",
-              "attribute": "expanded"
-            },
-            {
-              "kind": "method",
-              "name": "show",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Opens the sidebar chat."
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Closes the sidebar chat."
-            },
-            {
-              "kind": "method",
-              "name": "toggle",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Toggles the sidebar chat open state."
-            },
-            {
-              "kind": "method",
-              "name": "expand",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Expands the chat to fullscreen modal."
-            },
-            {
-              "kind": "method",
-              "name": "collapse",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Collapses the chat from fullscreen modal back to sidebar."
-            }
-          ],
-          "events": [
-            {
-              "description": "Fired when the sidebar chat is opened",
-              "name": "forge-ai-sidebar-chat-open"
-            },
-            {
-              "description": "Fired when the sidebar chat is closed",
-              "name": "forge-ai-sidebar-chat-close"
-            },
-            {
-              "description": "Fired when the sidebar chat is expanded to modal",
-              "name": "forge-ai-sidebar-chat-expand"
-            },
-            {
-              "description": "Fired when the sidebar chat is collapsed from modal",
-              "name": "forge-ai-sidebar-chat-collapse"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Indicates whether the sidebar chat is open.",
-              "fieldName": "open"
-            },
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Controls whether the chat is displayed in an expanded modal state.\nWhen true, the chat content will be shown in a fullscreen modal.\nWhen false, the chat will be displayed in the sidebar.",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-sidebar-chat",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiSidebarChatComponentTagName",
-          "declaration": {
-            "name": "AiSidebarChatComponentTagName",
-            "module": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiSidebarChatComponent",
-          "declaration": {
-            "name": "AiSidebarChatComponent",
-            "module": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiSidebarChatComponent",
-            "module": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "declarations": [
         {
@@ -3407,6 +4053,268 @@
           "declaration": {
             "name": "AiSuggestionsComponent",
             "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiSidebarChatComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-sidebar-chat'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiSidebarChatComponent",
+          "slots": [
+            {
+              "description": "Slot for custom header title content (default: \"AI Assistant\")",
+              "name": "header-title"
+            },
+            {
+              "description": "Slot for custom empty state heading",
+              "name": "empty-state-heading"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Indicates whether the sidebar chat is open.",
+              "attribute": "open"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Controls whether the chat is displayed in an expanded modal state.\nWhen true, the chat content will be shown in a fullscreen modal.\nWhen false, the chat will be displayed in the sidebar.",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "adapter",
+              "type": {
+                "text": "AiChatbotAdapter"
+              },
+              "privacy": "public",
+              "description": "Required. The adapter for communication with the AI service"
+            },
+            {
+              "kind": "field",
+              "name": "tools",
+              "type": {
+                "text": "ToolDefinition[]"
+              },
+              "privacy": "public",
+              "description": "Optional client-side tools for the agent to execute"
+            },
+            {
+              "kind": "field",
+              "name": "threadId",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "description": "Optional thread ID for conversation continuity",
+              "attribute": "thread-id"
+            },
+            {
+              "kind": "field",
+              "name": "enableFileUpload",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Enable file upload functionality (default: false)",
+              "attribute": "enable-file-upload"
+            },
+            {
+              "kind": "field",
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "'Ask a question...'",
+              "description": "Placeholder text for input (default: \"Ask a question...\")",
+              "attribute": "placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "Suggestion[]"
+              },
+              "privacy": "public",
+              "description": "Optional suggestions for empty state"
+            },
+            {
+              "kind": "method",
+              "name": "show",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Opens the sidebar chat."
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the sidebar chat."
+            },
+            {
+              "kind": "method",
+              "name": "toggle",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Toggles the sidebar chat open state."
+            },
+            {
+              "kind": "method",
+              "name": "expand",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Expands the chat to fullscreen modal."
+            },
+            {
+              "kind": "method",
+              "name": "collapse",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Collapses the chat from fullscreen modal back to sidebar."
+            }
+          ],
+          "events": [
+            {
+              "description": "Fired when the sidebar chat is opened",
+              "name": "forge-ai-sidebar-chat-open"
+            },
+            {
+              "description": "Fired when the sidebar chat is closed",
+              "name": "forge-ai-sidebar-chat-close"
+            },
+            {
+              "description": "Fired when the sidebar chat is expanded to modal",
+              "name": "forge-ai-sidebar-chat-expand"
+            },
+            {
+              "description": "Fired when the sidebar chat is collapsed from modal",
+              "name": "forge-ai-sidebar-chat-collapse"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Indicates whether the sidebar chat is open.",
+              "fieldName": "open"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Controls whether the chat is displayed in an expanded modal state.\nWhen true, the chat content will be shown in a fullscreen modal.\nWhen false, the chat will be displayed in the sidebar.",
+              "fieldName": "expanded"
+            },
+            {
+              "name": "thread-id",
+              "type": {
+                "text": "string"
+              },
+              "description": "Optional thread ID for conversation continuity",
+              "fieldName": "threadId"
+            },
+            {
+              "name": "enable-file-upload",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Enable file upload functionality (default: false)",
+              "fieldName": "enableFileUpload"
+            },
+            {
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Ask a question...'",
+              "description": "Placeholder text for input (default: \"Ask a question...\")",
+              "fieldName": "placeholder"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-sidebar-chat",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiSidebarChatComponentTagName",
+          "declaration": {
+            "name": "AiSidebarChatComponentTagName",
+            "module": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiSidebarChatComponent",
+          "declaration": {
+            "name": "AiSidebarChatComponent",
+            "module": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiSidebarChatComponent",
+            "module": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts"
           }
         }
       ]
@@ -4071,6 +4979,232 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/controllers/tool-execution-controller.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Reactive controller for managing tool execution state",
+          "name": "ToolExecutionController",
+          "members": [
+            {
+              "kind": "method",
+              "name": "hostConnected",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "hostDisconnected",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "startTool",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "ToolCall"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "toolCallId",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "messageId",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "toolName",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Starts a new tool call"
+            },
+            {
+              "kind": "method",
+              "name": "updateToolArgs",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "toolCallId",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "argsChunk",
+                  "optional": true,
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "args",
+                  "optional": true,
+                  "type": {
+                    "text": "Record<string, unknown>"
+                  }
+                }
+              ],
+              "description": "Updates tool arguments (streaming)"
+            },
+            {
+              "kind": "method",
+              "name": "finalizeTool",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "toolCallId",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Finalizes tool arguments and triggers execution"
+            },
+            {
+              "kind": "method",
+              "name": "completeTool",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "toolCallId",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "result",
+                  "type": {
+                    "text": "unknown"
+                  }
+                }
+              ],
+              "description": "Marks a tool call as complete with result"
+            },
+            {
+              "kind": "method",
+              "name": "failTool",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "toolCallId",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "error",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Marks a tool call as failed"
+            },
+            {
+              "kind": "method",
+              "name": "getTool",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "ToolCall | undefined"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "toolCallId",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Gets a tool call by ID"
+            },
+            {
+              "kind": "method",
+              "name": "getToolsArray",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "ToolCall[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "messageId",
+                  "optional": true,
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Gets all tool calls as an array, optionally filtered by message ID"
+            },
+            {
+              "kind": "method",
+              "name": "clear",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Clears all tool calls"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ToolExecutionController",
+          "declaration": {
+            "name": "ToolExecutionController",
+            "module": "src/lib/ai-chatbot/controllers/tool-execution-controller.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
       "declarations": [
         {
@@ -4362,171 +5496,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/core/popover/popover.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ForgeAiPopoverComponent",
-          "cssProperties": [
-            {
-              "description": "The maximum width of the popover.",
-              "name": "--ai-popover-max-width"
-            },
-            {
-              "description": "The maximum height of the popover.",
-              "name": "--ai-popover-max-height"
-            },
-            {
-              "description": "The minimum width of the popover.",
-              "name": "--ai-popover-min-width"
-            },
-            {
-              "description": "The minimum height of the popover.",
-              "name": "--ai-popover-min-height"
-            }
-          ],
-          "slots": [
-            {
-              "description": "The default slot for popover content.",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "privacy": "public",
-              "default": "null",
-              "description": "The anchor element to position the popover relative to.",
-              "attribute": "anchor"
-            },
-            {
-              "kind": "field",
-              "name": "placement",
-              "type": {
-                "text": "PopoverPlacement"
-              },
-              "privacy": "public",
-              "default": "'bottom-start'",
-              "description": "The placement of the popover relative to the anchor.",
-              "attribute": "placement"
-            },
-            {
-              "kind": "field",
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the popover should flip to the opposite side when there's no space.",
-              "attribute": "flip"
-            },
-            {
-              "kind": "field",
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the popover should shift to stay in view.",
-              "attribute": "shift"
-            },
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the popover is open.",
-              "attribute": "open",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "default": "null",
-              "description": "The anchor element to position the popover relative to.",
-              "fieldName": "anchor"
-            },
-            {
-              "name": "placement",
-              "type": {
-                "text": "PopoverPlacement"
-              },
-              "default": "'bottom-start'",
-              "description": "The placement of the popover relative to the anchor.",
-              "fieldName": "placement"
-            },
-            {
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the popover should flip to the opposite side when there's no space.",
-              "fieldName": "flip"
-            },
-            {
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the popover should shift to stay in view.",
-              "fieldName": "shift"
-            },
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the popover is open.",
-              "fieldName": "open"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "summary": "A popover component that provides styled overlay functionality.",
-          "tagName": "forge-ai-popover",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ForgeAiPopoverComponent",
-          "declaration": {
-            "name": "ForgeAiPopoverComponent",
-            "module": "src/lib/core/popover/popover.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "name": "forge-ai-popover",
-          "declaration": {
-            "name": "ForgeAiPopoverComponent",
-            "module": "src/lib/core/popover/popover.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/core/tooltip/tooltip.ts",
       "declarations": [
         {
@@ -4754,41 +5723,202 @@
           }
         }
       ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/core/popover/popover.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ForgeAiPopoverComponent",
+          "cssProperties": [
+            {
+              "description": "The maximum width of the popover.",
+              "name": "--ai-popover-max-width"
+            },
+            {
+              "description": "The maximum height of the popover.",
+              "name": "--ai-popover-max-height"
+            },
+            {
+              "description": "The minimum width of the popover.",
+              "name": "--ai-popover-min-width"
+            },
+            {
+              "description": "The minimum height of the popover.",
+              "name": "--ai-popover-min-height"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The default slot for popover content.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "privacy": "public",
+              "default": "null",
+              "description": "The anchor element to position the popover relative to.",
+              "attribute": "anchor"
+            },
+            {
+              "kind": "field",
+              "name": "placement",
+              "type": {
+                "text": "PopoverPlacement"
+              },
+              "privacy": "public",
+              "default": "'bottom-start'",
+              "description": "The placement of the popover relative to the anchor.",
+              "attribute": "placement"
+            },
+            {
+              "kind": "field",
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the popover should flip to the opposite side when there's no space.",
+              "attribute": "flip"
+            },
+            {
+              "kind": "field",
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the popover should shift to stay in view.",
+              "attribute": "shift"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the popover is open.",
+              "attribute": "open",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The anchor element to position the popover relative to.",
+              "fieldName": "anchor"
+            },
+            {
+              "name": "placement",
+              "type": {
+                "text": "PopoverPlacement"
+              },
+              "default": "'bottom-start'",
+              "description": "The placement of the popover relative to the anchor.",
+              "fieldName": "placement"
+            },
+            {
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popover should flip to the opposite side when there's no space.",
+              "fieldName": "flip"
+            },
+            {
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popover should shift to stay in view.",
+              "fieldName": "shift"
+            },
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popover is open.",
+              "fieldName": "open"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "summary": "A popover component that provides styled overlay functionality.",
+          "tagName": "forge-ai-popover",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ForgeAiPopoverComponent",
+          "declaration": {
+            "name": "ForgeAiPopoverComponent",
+            "module": "src/lib/core/popover/popover.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "forge-ai-popover",
+          "declaration": {
+            "name": "ForgeAiPopoverComponent",
+            "module": "src/lib/core/popover/popover.ts"
+          }
+        }
+      ]
     }
   ],
-  "branchName": "main",
+  "branchName": "chatbot",
   "forgeTypes": {
     "ForgeAiActionsToolbarActionEventData": {
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
-      "lineNumber": 16
+      "lineNumber": 17
     },
     "AiActionsToolbarAction": {
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
-      "lineNumber": 20
+      "lineNumber": 21
     },
     "AiActionsToolbarComponent": {
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
-      "lineNumber": 29
-    },
-    "AiArtifactComponent": {
-      "path": "src/lib/ai-artifact/ai-artifact.ts",
-      "lineNumber": 23
+      "lineNumber": 30
     },
     "AiButtonComponent": {
       "path": "src/lib/ai-button/ai-button.ts",
       "lineNumber": 22
     },
+    "AiArtifactComponent": {
+      "path": "src/lib/ai-artifact/ai-artifact.ts",
+      "lineNumber": 23
+    },
     "AiChainOfThoughtComponent": {
       "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
       "lineNumber": 17
     },
-    "AiDialogComponent": {
-      "path": "src/lib/ai-dialog/ai-dialog.ts",
-      "lineNumber": 35
-    },
     "AiChatInterfaceComponent": {
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
-      "lineNumber": 25
+      "lineNumber": 24
     },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
@@ -4797,6 +5927,98 @@
     "AiChatHeaderComponent": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 47
+    },
+    "AgUiAdapterConfig": {
+      "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
+      "lineNumber": 4
+    },
+    "AiChatbotToolCallComponent": {
+      "path": "src/lib/ai-chatbot/ai-chatbot-tool-call.ts",
+      "lineNumber": 20
+    },
+    "ForgeAiChatbotMessageEventData": {
+      "path": "src/lib/ai-chatbot/ai-chatbot.ts",
+      "lineNumber": 59
+    },
+    "ForgeAiChatbotToolCallEventData": {
+      "path": "src/lib/ai-chatbot/ai-chatbot.ts",
+      "lineNumber": 63
+    },
+    "ForgeAiChatbotErrorEventData": {
+      "path": "src/lib/ai-chatbot/ai-chatbot.ts",
+      "lineNumber": 70
+    },
+    "AiChatbotComponent": {
+      "path": "src/lib/ai-chatbot/ai-chatbot.ts",
+      "lineNumber": 101
+    },
+    "ChatbotContext": {
+      "path": "src/lib/ai-chatbot/context.ts",
+      "lineNumber": 4
+    },
+    "ToolDefinition": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 5
+    },
+    "ChatMessage": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 15
+    },
+    "ToolCall": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 25
+    },
+    "FileAttachment": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 35
+    },
+    "CoreMessage": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 40
+    },
+    "ContextItem": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 50
+    },
+    "RunAgentInput": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 55
+    },
+    "AgUiEventType": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 63
+    },
+    "AgUiEvent": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 72
+    },
+    "ResponseEventType": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 86
+    },
+    "ResponseEvent": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 87
+    },
+    "AdapterMessageInput": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 88
+    },
+    "ContextEntry": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 89
+    },
+    "MessageInput": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 94
+    },
+    "AiChatbotAdapter": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 103
+    },
+    "AiDialogComponent": {
+      "path": "src/lib/ai-dialog/ai-dialog.ts",
+      "lineNumber": 35
     },
     "ForgeAiDropdownMenuItemGroupComponent": {
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu-item-group.ts",
@@ -4860,11 +6082,15 @@
     },
     "AiEmbeddedChatComponent": {
       "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
-      "lineNumber": 39
+      "lineNumber": 49
     },
     "AiEmptyStateComponent": {
       "path": "src/lib/ai-empty-state/ai-empty-state.ts",
-      "lineNumber": 21
+      "lineNumber": 23
+    },
+    "AiErrorMessageComponent": {
+      "path": "src/lib/ai-error-message/ai-error-message.ts",
+      "lineNumber": 22
     },
     "AiFabComponent": {
       "path": "src/lib/ai-fab/ai-fab.ts",
@@ -4884,7 +6110,7 @@
     },
     "AiFloatingChatComponent": {
       "path": "src/lib/ai-floating-chat/ai-floating-chat.ts",
-      "lineNumber": 41
+      "lineNumber": 50
     },
     "AiGradientContainerVariant": {
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
@@ -4926,25 +6152,13 @@
       "path": "src/lib/ai-reasoning-header/ai-reasoning-header.ts",
       "lineNumber": 22
     },
-    "AiResponseMessageActionType": {
-      "path": "src/lib/ai-response-message/ai-response-message.ts",
-      "lineNumber": 18
-    },
-    "ForgeAiResponseMessageActionEventData": {
-      "path": "src/lib/ai-response-message/ai-response-message.ts",
-      "lineNumber": 20
-    },
     "AiResponseMessageComponent": {
       "path": "src/lib/ai-response-message/ai-response-message.ts",
-      "lineNumber": 31
+      "lineNumber": 33
     },
     "AiSidebarComponent": {
       "path": "src/lib/ai-sidebar/ai-sidebar.ts",
       "lineNumber": 28
-    },
-    "AiSidebarChatComponent": {
-      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
-      "lineNumber": 45
     },
     "Suggestion": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
@@ -4961,6 +6175,10 @@
     "AiSuggestionsComponent": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 39
+    },
+    "AiSidebarChatComponent": {
+      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
+      "lineNumber": 54
     },
     "AiThinkingIndicatorComponent": {
       "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
@@ -5038,6 +6256,14 @@
       "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
       "lineNumber": 24
     },
+    "ToolExecutionCallbacks": {
+      "path": "src/lib/ai-chatbot/controllers/tool-execution-controller.ts",
+      "lineNumber": 4
+    },
+    "ToolExecutionController": {
+      "path": "src/lib/ai-chatbot/controllers/tool-execution-controller.ts",
+      "lineNumber": 12
+    },
     "PromptButtonComponent": {
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
       "lineNumber": 17
@@ -5054,14 +6280,6 @@
       "path": "src/lib/core/overlay/overlay.ts",
       "lineNumber": 41
     },
-    "PopoverPlacement": {
-      "path": "src/lib/core/popover/popover.ts",
-      "lineNumber": 22
-    },
-    "ForgeAiPopoverComponent": {
-      "path": "src/lib/core/popover/popover.ts",
-      "lineNumber": 40
-    },
     "TooltipPlacement": {
       "path": "src/lib/core/tooltip/tooltip.ts",
       "lineNumber": 24
@@ -5073,6 +6291,14 @@
     "ForgeAiTooltipComponent": {
       "path": "src/lib/core/tooltip/tooltip.ts",
       "lineNumber": 42
+    },
+    "PopoverPlacement": {
+      "path": "src/lib/core/popover/popover.ts",
+      "lineNumber": 22
+    },
+    "ForgeAiPopoverComponent": {
+      "path": "src/lib/core/popover/popover.ts",
+      "lineNumber": 40
     }
   }
 }

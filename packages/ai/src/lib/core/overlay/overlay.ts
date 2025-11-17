@@ -145,6 +145,7 @@ export class ForgeAiOverlayComponent extends LitElement {
     try {
       const result: ComputePositionReturn = await computePosition(this.anchor, this._overlayElement, {
         placement: this.placement,
+        strategy: 'fixed',
         middleware
       });
 

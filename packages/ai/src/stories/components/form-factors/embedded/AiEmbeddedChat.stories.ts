@@ -3,9 +3,7 @@ import { html } from 'lit';
 import { action } from 'storybook/actions';
 
 import '$lib/ai-embedded-chat';
-import '$lib/ai-user-message';
-import '$lib/ai-response-message';
-import '$lib/ai-suggestions';
+import { createMockAdapter } from '../../../utils/mock-adapter';
 
 const component = 'forge-ai-embedded-chat';
 
@@ -13,6 +11,10 @@ const meta = {
   title: 'AI Components/Form Factors/Embedded',
   component,
   argTypes: {
+    adapter: {
+      control: false,
+      description: 'The adapter for communication with the AI service'
+    },
     expanded: {
       control: { type: 'boolean' },
       description: 'Controls whether the modal view is open when expanded'
@@ -21,27 +23,54 @@ const meta = {
       control: { type: 'select' },
       options: ['low', 'medium', 'high'],
       description: 'Controls the gradient variant applied to the container'
+    },
+    enableFileUpload: {
+      control: { type: 'boolean' },
+      description: 'Enable file upload functionality'
+    },
+    placeholder: {
+      control: 'text',
+      description: 'Placeholder text for input'
     }
   },
   args: {
     expanded: false,
-    gradientVariant: 'medium'
+    gradientVariant: 'medium',
+    enableFileUpload: false,
+    placeholder: 'Ask a question...'
   },
   render: args => {
+    const adapter = createMockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
     return html`
-      <forge-ai-embedded-chat
-        ?expanded=${args.expanded}
-        gradient-variant=${args.gradientVariant}
-        @forge-ai-embedded-chat-expand=${action('expand')}
-        @forge-ai-embedded-chat-collapse=${action('collapse')}>
-        <forge-ai-user-message>
-          Hello! Can you help me understand how to use TypeScript generics?
-        </forge-ai-user-message>
-        <forge-ai-response-message>
-          I'd be happy to help you understand TypeScript generics! Generics allow you to create reusable components that
-          can work with different types while maintaining type safety.
-        </forge-ai-response-message>
-      </forge-ai-embedded-chat>
+      <div style="max-width: 800px; margin: 0 auto;">
+        <h2>AI Embedded Chat Demo</h2>
+        <p>This form factor embeds ai-chatbot within ai-gradient-container for inline page usage.</p>
+        <p>Try sending messages or clicking the expand button to view in fullscreen modal.</p>
+
+        <forge-ai-embedded-chat
+          .adapter=${adapter}
+          ?expanded=${args.expanded}
+          gradient-variant=${args.gradientVariant}
+          ?enable-file-upload=${args.enableFileUpload}
+          placeholder=${args.placeholder}
+          @forge-ai-embedded-chat-expand=${action('forge-ai-embedded-chat-expand')}
+          @forge-ai-embedded-chat-collapse=${action('forge-ai-embedded-chat-collapse')}
+          @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+          @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
+          @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+          @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+          @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}
+          @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
+          @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
+          @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}>
+        </forge-ai-embedded-chat>
+      </div>
     `;
   }
 } satisfies Meta;

@@ -27,6 +27,15 @@ When true, the chat content will be shown in a fullscreen modal.
 When false, the chat will be displayed in the sidebar. */
   expanded?: boolean;
 
+  /** Enable file upload functionality (default: false) */
+  enableFileUpload?: boolean;
+
+  /** Optional thread ID for conversation continuity */
+  threadId?: ForgeAiSidebarChatElement["threadId"];
+
+  /** Placeholder text for input (default: "Ask a question...") */
+  placeholder?: ForgeAiSidebarChatElement["placeholder"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -47,6 +56,15 @@ When false, the chat will be displayed in the sidebar. */
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
+
+  /** Required. The adapter for communication with the AI service */
+  adapter?: ForgeAiSidebarChatElement["adapter"];
+
+  /** Optional client-side tools for the agent to execute */
+  tools?: ForgeAiSidebarChatElement["tools"];
+
+  /** Optional suggestions for empty state */
+  suggestions?: ForgeAiSidebarChatElement["suggestions"];
 
   /** Fired when the sidebar chat is opened */
   onForgeAiSidebarChatOpen?: (event: CustomEvent) => void;
@@ -80,8 +98,7 @@ When false, the chat will be displayed in the sidebar. */
  * - **collapse(): _void_** - Collapses the chat from fullscreen modal back to sidebar.
  *
  * ### **Slots:**
- *  - _default_ - Default slot for messages (ai-user-message, ai-response-message components)
- * - **suggestions** - Slot for AI suggestions component
- * - **prompt** - Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.
+ *  - **header-title** - Slot for custom header title content (default: "AI Assistant")
+ * - **empty-state-heading** - Slot for custom empty state heading
  */
 export const ForgeAiSidebarChat: React.ForwardRefExoticComponent<ForgeAiSidebarChatProps>;

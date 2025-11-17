@@ -13,11 +13,8 @@ import {
 } from '@tylertech/tyler-icons';
 
 import '$lib/ai-sidebar-chat';
-import '$lib/ai-user-message';
-import '$lib/ai-response-message';
-import '$lib/ai-suggestions';
 import '$lib/ai-button';
-import '$lib/ai-prompt';
+import { createMockAdapter } from '../../../utils/mock-adapter';
 
 import {
   defineScaffoldComponent,
@@ -49,6 +46,10 @@ const meta = {
   title: 'AI Components/Form Factors/Sidebar',
   component,
   argTypes: {
+    adapter: {
+      control: false,
+      description: 'The adapter for communication with the AI service'
+    },
     open: {
       control: { type: 'boolean' },
       description: 'Controls whether the sidebar chat is open'
@@ -56,45 +57,49 @@ const meta = {
     expanded: {
       control: { type: 'boolean' },
       description: 'Controls whether the chat is displayed in an expanded modal state'
+    },
+    enableFileUpload: {
+      control: { type: 'boolean' },
+      description: 'Enable file upload functionality'
+    },
+    placeholder: {
+      control: 'text',
+      description: 'Placeholder text for input'
     }
   },
   args: {
     open: true,
-    expanded: false
+    expanded: false,
+    enableFileUpload: false,
+    placeholder: 'Ask a question...'
   },
   render: args => {
-    const handleOpen = action('forge-ai-sidebar-chat-open');
-    const handleClose = action('forge-ai-sidebar-chat-close');
-    const handleExpand = action('forge-ai-sidebar-chat-expand');
-    const handleCollapse = action('forge-ai-sidebar-chat-collapse');
+    const adapter = createMockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
 
     const sidebarChat = html`
       <forge-ai-sidebar-chat
+        .adapter=${adapter}
         ?open=${args.open}
         ?expanded=${args.expanded}
-        @forge-ai-sidebar-chat-open=${handleOpen}
-        @forge-ai-sidebar-chat-close=${handleClose}
-        @forge-ai-sidebar-chat-expand=${handleExpand}
-        @forge-ai-sidebar-chat-collapse=${handleCollapse}>
-        <forge-ai-user-message>
-          Hello! Can you help me understand the analytics data I'm seeing in my dashboard?
-        </forge-ai-user-message>
-        <forge-ai-response-message>
-          I'd be happy to help you understand your analytics data! I can see you're looking at your dashboard with
-          various metrics and activity reports. What specific aspects would you like me to explain? I can help with: -
-          Interpreting trends and patterns - Explaining key performance indicators - Suggesting areas for improvement -
-          Answering questions about specific data points
-        </forge-ai-response-message>
-        <forge-ai-user-message> What should I focus on first when reviewing my dashboard? </forge-ai-user-message>
-        <forge-ai-response-message>
-          Great question! Here's a recommended approach for dashboard review: 1. **Start with key metrics** - Look at
-          your primary KPIs first 2. **Check for anomalies** - Notice any unusual spikes or drops 3. **Review time
-          trends** - Compare current data to historical patterns 4. **Identify opportunities** - Look for areas showing
-          positive growth 5. **Address concerns** - Investigate any declining metrics Would you like me to walk through
-          any of these areas with your current data?
-        </forge-ai-response-message>
-
-        <forge-ai-prompt slot="prompt"></forge-ai-prompt>
+        ?enable-file-upload=${args.enableFileUpload}
+        placeholder=${args.placeholder}
+        @forge-ai-sidebar-chat-open=${action('forge-ai-sidebar-chat-open')}
+        @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}
+        @forge-ai-sidebar-chat-expand=${action('forge-ai-sidebar-chat-expand')}
+        @forge-ai-sidebar-chat-collapse=${action('forge-ai-sidebar-chat-collapse')}
+        @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+        @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
+        @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+        @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+        @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}
+        @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
+        @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
+        @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}>
       </forge-ai-sidebar-chat>
     `;
 
@@ -117,14 +122,13 @@ const meta = {
         <main slot="body" style="padding: 24px;">
           <forge-card>
             <p>Demo of the AI Sidebar Chat component within a typical application layout.</p>
-            <p>This is a structured form factor component that combines ai-sidebar and ai-chat-interface.</p>
-            <p>The sidebar chat automatically handles composition and includes a minimize button in the header.</p>
+            <p>This form factor combines ai-sidebar, ai-modal, and ai-chatbot for sidebar-based chat.</p>
+            <p>Try sending messages, expanding to modal, or closing the sidebar.</p>
+            <p>Click "Ask AI Assistant" button in the toolbar to toggle the sidebar.</p>
           </forge-card>
         </main>
 
-        ${args.position === 'left'
-          ? html`<div slot="body-left">${sidebarChat}</div>`
-          : html`<div slot="body-right">${sidebarChat}</div>`}
+        <div slot="body-right">${sidebarChat}</div>
       </forge-scaffold>
     `;
   }

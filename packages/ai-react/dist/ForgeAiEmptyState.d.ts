@@ -47,7 +47,9 @@ export interface ForgeAiEmptyStateProps
  *
  *
  * ### **Slots:**
- *  - _default_ - The custom welcome message content.
+ *  - **icon** - The custom icon/graphic to display.
+ * - **heading** - The custom heading/title to display.
+ * - **body** - The custom body message content.
  * - **actions** - The actions or suggestions to display below the message.
  */
 export const ForgeAiEmptyState: React.ForwardRefExoticComponent<ForgeAiEmptyStateProps>;

@@ -13,12 +13,35 @@
   position: relative;
 }
 
-.ai-message-container {
-  margin-inline-end: var(--forge-spacing-xxlarge, 48px);
+.toolbar-container {
+  position: absolute;
+  top: calc(100% + #{forge-spacing.variable(xxsmall)});
+  left: 0;
+  transition:
+    opacity 200ms ease-in-out,
+    transform 200ms ease-in-out;
 }
 
-.toolbar-container {
-  padding: #{forge-spacing.variable(xsmall)};
+// Hide toolbar by default (complete) and force hide when not complete
+:host([complete]) .toolbar-container,
+:host(:not([complete])) .toolbar-container {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+// Show toolbar on hover, focus, or when last message
+:host([complete]:hover) .toolbar-container,
+:host([complete]) .toolbar-container:focus-within,
+:host([complete]:last-of-type) .toolbar-container {
+  opacity: 1;
+  transform: translateY(-4px);
+  pointer-events: auto;
+}
+
+// Toolbar can use more space when last message
+:host([complete]:last-of-type) .toolbar-container {
+  transform: translateY(0);
 }
 
 // Text content styles

@@ -1,0 +1,27 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.thinking-indicator {
+  margin-block-start: #{forge-spacing.variable(xsmall)};
+}
+
+.status-indicator {
+  margin-inline-start: #{forge-spacing.variable(xsmall)};
+
+  &--error {
+    color: #{forge-theme.variable(error)};
+  }
+}
+
+.tool-calls-container {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(xsmall)};
+  margin-block-start: #{forge-spacing.variable(xsmall)};
+}

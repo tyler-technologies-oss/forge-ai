@@ -19,6 +19,9 @@ export interface ForgeAiResponseMessageProps
     | "onFocus"
     | "onBlur"
   > {
+  /** Whether the message is complete. Toolbar only shows when true. */
+  complete?: boolean;
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -40,9 +43,24 @@ export interface ForgeAiResponseMessageProps
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
-  /** Fired when an action button is clicked. */
-  onForgeAiResponseMessageAction?: (
-    event: CustomEvent<CustomEvent<ForgeAiResponseMessageActionEventData>>,
+  /** Fired when copy action is clicked. */
+  onForgeAiResponseMessageCopy?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
+  /** Fired when refresh action is clicked. */
+  onForgeAiResponseMessageRefresh?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
+  /** Fired when thumbs-up action is clicked. */
+  onForgeAiResponseMessageThumbsUp?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
+  /** Fired when thumbs-down action is clicked. */
+  onForgeAiResponseMessageThumbsDown?: (
+    event: CustomEvent<CustomEvent<void>>,
   ) => void;
 }
 
@@ -52,6 +70,9 @@ export interface ForgeAiResponseMessageProps
  *
  *
  * ### **Events:**
- *  - **forge-ai-response-message-action** - Fired when an action button is clicked.
+ *  - **forge-ai-response-message-copy** - Fired when copy action is clicked.
+ * - **forge-ai-response-message-refresh** - Fired when refresh action is clicked.
+ * - **forge-ai-response-message-thumbs-up** - Fired when thumbs-up action is clicked.
+ * - **forge-ai-response-message-thumbs-down** - Fired when thumbs-down action is clicked.
  */
 export const ForgeAiResponseMessage: React.ForwardRefExoticComponent<ForgeAiResponseMessageProps>;
