@@ -3,7 +3,7 @@ import { html } from 'lit';
 import { action } from 'storybook/actions';
 
 import '$lib/ai-embedded-chat';
-import { createMockAdapter } from '../../../utils/mock-adapter';
+import { MockAdapter } from '../../../utils/mock-adapter';
 
 const component = 'forge-ai-embedded-chat';
 
@@ -40,7 +40,7 @@ const meta = {
     placeholder: 'Ask a question...'
   },
   render: args => {
-    const adapter = createMockAdapter({
+    const adapter = new MockAdapter({
       simulateStreaming: true,
       simulateTools: false,
       streamingDelay: 50,

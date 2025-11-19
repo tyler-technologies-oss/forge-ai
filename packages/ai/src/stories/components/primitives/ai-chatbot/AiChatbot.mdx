@@ -24,13 +24,13 @@ The AI Chatbot component provides a complete, self-contained chat interface that
 ## Basic Usage
 
 ```typescript
-import { createAgUiAdapter } from '@tylertech/forge-ai';
+import { AgUiAdapter, generateId } from '@tylertech/forge-ai';
 
-const adapter = createAgUiAdapter({
+const adapter = new AgUiAdapter({
   baseUrl: 'https://api.example.com',
   agentId: 'your-agent-id',
   credentials: 'include'
-});
+}, generateId('thread'));
 
 const chatbot = document.createElement('forge-ai-chatbot');
 chatbot.adapter = adapter;
@@ -70,42 +70,62 @@ chatbot.addEventListener('forge-ai-chatbot-tool-call', async e => {
 
 ## Creating a Custom Adapter
 
-Implement the `AiChatbotAdapter` interface for custom protocols:
+Extend the `AiChatbotAdapterBase` class for custom protocols:
 
 ```typescript
-interface AiChatbotAdapter {
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-  sendMessage(input: RunAgentInput): void;
-  onEvent(callback: (event: AgUiEvent) => void): void;
-  abort(): void;
+import { AiChatbotAdapterBase, type ChatMessage, type FileAttachment } from '@tylertech/forge-ai';
+
+class CustomAdapter extends AiChatbotAdapterBase {
+  public async connect(): Promise<void> {
+    // Initialize connection
+    this.updateState({ isConnected: true });
+  }
+
+  public async disconnect(): Promise<void> {
+    // Clean up connection
+    this.updateState({ isConnected: false });
+  }
+
+  public sendMessage(messages: ChatMessage[], attachments?: FileAttachment[]): void {
+    // Send message and emit events back
+    this.updateState({ isRunning: true });
+
+    const messageId = 'msg-' + Date.now();
+
+    // Start message
+    this.emitMessageStart(messageId);
+
+    // Stream content
+    this.emitMessageDelta(messageId, 'Hello');
+    this.emitMessageDelta(messageId, ' World');
+
+    // End message
+    this.emitMessageEnd(messageId);
+    this.updateState({ isRunning: false });
+  }
+
+  public sendToolResult(toolCallId: string, result: unknown): void {
+    // Handle tool result response
+  }
+
+  public abort(): void {
+    // Cancel ongoing requests
+    this.updateState({ isRunning: false });
+  }
 }
 
-const customAdapter: AiChatbotAdapter = {
-  async connect() {
-    // Initialize connection
-  },
-
-  async disconnect() {
-    // Clean up connection
-  },
-
-  sendMessage(input) {
-    // Send message and stream events back
-    this.eventCallback({ type: 'TEXT_MESSAGE_START', messageId: 'msg1' });
-    this.eventCallback({ type: 'TEXT_MESSAGE_CHUNK', delta: 'Hello' });
-    this.eventCallback({ type: 'TEXT_MESSAGE_END', messageId: 'msg1' });
-  },
-
-  onEvent(callback) {
-    this.eventCallback = callback;
-  },
-
-  abort() {
-    // Cancel ongoing requests
-  }
-};
+// Usage
+const adapter = new CustomAdapter();
 ```
+
+### Protected Methods for Subclasses
+
+- `emitMessageStart(messageId: string)`: Signal start of new message
+- `emitMessageDelta(messageId: string, delta: string)`: Stream content chunk
+- `emitMessageEnd(messageId: string)`: Signal message complete
+- `emitToolCall(event: ToolCallEvent)`: Request tool execution
+- `emitError(message: string)`: Signal error occurred
+- `updateState(updates: Partial<AdapterState>)`: Update connection/running state
 
 ## Keyboard Shortcuts
 

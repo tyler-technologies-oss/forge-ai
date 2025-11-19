@@ -14,7 +14,7 @@ import {
 
 import '$lib/ai-sidebar-chat';
 import '$lib/ai-button';
-import { createMockAdapter } from '../../../utils/mock-adapter';
+import { MockAdapter } from '../../../utils/mock-adapter';
 
 import {
   defineScaffoldComponent,
@@ -74,7 +74,7 @@ const meta = {
     placeholder: 'Ask a question...'
   },
   render: args => {
-    const adapter = createMockAdapter({
+    const adapter = new MockAdapter({
       simulateStreaming: true,
       simulateTools: false,
       streamingDelay: 50,

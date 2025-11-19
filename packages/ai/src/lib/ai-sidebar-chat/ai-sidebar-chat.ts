@@ -5,7 +5,7 @@ import { when } from 'lit/directives/when.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AiSidebarComponent } from '../ai-sidebar';
 import type { AiModalComponent } from '../ai-modal';
-import type { AiChatbotAdapter, ToolDefinition, Suggestion } from '../ai-chatbot';
+import type { AiChatbotAdapterBase, ToolDefinition, Suggestion } from '../ai-chatbot';
 import '../ai-sidebar';
 import '../ai-chatbot';
 import '../ai-modal';
@@ -44,9 +44,8 @@ export const AiSidebarChatComponentTagName: keyof HTMLElementTagNameMap = 'forge
  * this component only manages positioning and expand/collapse state.
  * All chatbot events (message-sent, message-received, tool-call, error, clear, info, connected, disconnected) bubble through unchanged.
  *
- * @property {AiChatbotAdapter} adapter - Required. The adapter for communication with the AI service
+ * @property {AiChatbotAdapterBase} adapter - Required. The adapter for communication with the AI service
  * @property {ToolDefinition[]} tools - Optional client-side tools for the agent to execute
- * @property {string} threadId - Optional thread ID for conversation continuity
  * @property {boolean} enableFileUpload - Enable file upload functionality (default: false)
  * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
  * @property {Suggestion[]} suggestions - Optional suggestions for empty state
@@ -70,7 +69,7 @@ export class AiSidebarChatComponent extends LitElement {
   public expanded = false;
 
   @property({ attribute: false })
-  public adapter?: AiChatbotAdapter;
+  public adapter?: AiChatbotAdapterBase;
 
   @property({ attribute: false })
   public tools?: ToolDefinition[];

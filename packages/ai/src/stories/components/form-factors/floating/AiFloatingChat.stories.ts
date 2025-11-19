@@ -4,8 +4,7 @@ import { action } from 'storybook/actions';
 
 import '$lib/ai-floating-chat';
 import '$lib/ai-fab';
-import type { Suggestion } from '$lib/ai-chatbot';
-import { createMockAdapter } from '../../../utils/mock-adapter';
+import { MockAdapter } from '../../../utils/mock-adapter';
 
 const component = 'forge-ai-floating-chat';
 
@@ -41,7 +40,7 @@ const meta = {
     placeholder: 'Ask a question...'
   },
   render: args => {
-    const adapter = createMockAdapter({
+    const adapter = new MockAdapter({
       simulateStreaming: true,
       simulateTools: false,
       streamingDelay: 50,

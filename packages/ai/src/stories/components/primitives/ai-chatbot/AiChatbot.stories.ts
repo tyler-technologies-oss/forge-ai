@@ -5,9 +5,8 @@ import { action } from 'storybook/actions';
 import '$lib/ai-chatbot';
 import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
-import { type ToolDefinition, type Suggestion, type AiChatbotComponent } from '$lib/ai-chatbot';
-import { createMockAdapter } from '../../../utils/mock-adapter';
-import { createRef, ref } from 'lit/directives/ref.js';
+import { type ToolDefinition, type Suggestion } from '$lib/ai-chatbot';
+import { MockAdapter } from '../../../utils/mock-adapter';
 
 const component = 'forge-ai-chatbot';
 
@@ -55,7 +54,7 @@ const meta = {
     enableReactions: false
   },
   render: (args: any) => {
-    const adapter = createMockAdapter({
+    const adapter = new MockAdapter({
       simulateStreaming: true,
       simulateTools: false,
       streamingDelay: 50,
@@ -108,7 +107,7 @@ export const Demo: Story = {};
 
 export const WithSuggestions: Story = {
   render: (args: any) => {
-    const adapter = createMockAdapter({
+    const adapter = new MockAdapter({
       simulateStreaming: true,
       simulateTools: false,
       streamingDelay: 50,
@@ -142,7 +141,7 @@ export const WithSuggestions: Story = {
 
 export const WithTools: Story = {
   render: (args: any) => {
-    const adapter = createMockAdapter({
+    const adapter = new MockAdapter({
       simulateStreaming: true,
       simulateTools: true,
       streamingDelay: 50,

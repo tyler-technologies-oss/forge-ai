@@ -193,6 +193,7 @@ src/lib/[component-name]/
 - If you are building a feature that could potentially be generic enough to be used by multiple components, consider building it as a separate utility function or mixin in the `utils/` folder so it can be reused across components, or if it needs to integrate with the Lit lifecycle, consider building it as Lit reactive controller.
 - Always prefer modern JavaScript/TypeScript features and syntax, like optional chaining, nullish coalescing, arrow functions, template literals, etc.
 - Prefer using the "config object" pattern for methods and functions that take multiple parameters, especially when some are optional. This improves readability and makes it easier to add parameters in the future without breaking existing calls.
+- Do not update test unless told to do so.
 
 ### Conditional Content Pattern
 

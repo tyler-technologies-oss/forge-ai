@@ -3,7 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AiDialogComponent } from '../ai-dialog';
-import type { AiChatbotAdapter, ToolDefinition, Suggestion } from '../ai-chatbot';
+import type { AiChatbotAdapterBase, ToolDefinition, Suggestion } from '../ai-chatbot';
 import '../ai-dialog';
 import '../ai-chatbot';
 
@@ -40,9 +40,8 @@ export const AiFloatingChatComponentTagName: keyof HTMLElementTagNameMap = 'forg
  * The chatbot component handles all chat UI, this component only manages positioning and expand/minimize state.
  * All chatbot events (message-sent, message-received, tool-call, error, clear, info, connected, disconnected) bubble through unchanged.
  *
- * @property {AiChatbotAdapter} adapter - Required. The adapter for communication with the AI service
+ * @property {AiChatbotAdapterBase} adapter - Required. The adapter for communication with the AI service
  * @property {ToolDefinition[]} tools - Optional client-side tools for the agent to execute
- * @property {string} threadId - Optional thread ID for conversation continuity
  * @property {boolean} enableFileUpload - Enable file upload functionality (default: false)
  * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
  * @property {Suggestion[]} suggestions - Optional suggestions for empty state
@@ -66,7 +65,7 @@ export class AiFloatingChatComponent extends LitElement {
   public expanded = false;
 
   @property({ attribute: false })
-  public adapter?: AiChatbotAdapter;
+  public adapter?: AiChatbotAdapterBase;
 
   @property({ attribute: false })
   public tools?: ToolDefinition[];

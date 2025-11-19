@@ -4,7 +4,7 @@ import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AiModalComponent } from '../ai-modal';
-import type { AiChatbotAdapter, ToolDefinition, Suggestion } from '../ai-chatbot';
+import type { AiChatbotAdapterBase, ToolDefinition, Suggestion } from '../ai-chatbot';
 import '../ai-modal';
 import '../ai-chatbot';
 import '../ai-gradient-container';
@@ -38,9 +38,8 @@ export const AiEmbeddedChatComponentTagName: keyof HTMLElementTagNameMap = 'forg
  * is displayed in a fullscreen modal. The chatbot component handles all chat UI.
  * All chatbot events (message-sent, message-received, tool-call, error, clear, info, connected, disconnected) bubble through unchanged.
  *
- * @property {AiChatbotAdapter} adapter - Required. The adapter for communication with the AI service
+ * @property {AiChatbotAdapterBase} adapter - Required. The adapter for communication with the AI service
  * @property {ToolDefinition[]} tools - Optional client-side tools for the agent to execute
- * @property {string} threadId - Optional thread ID for conversation continuity
  * @property {boolean} enableFileUpload - Enable file upload functionality (default: false)
  * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
  * @property {Suggestion[]} suggestions - Optional suggestions for empty state
@@ -63,7 +62,7 @@ export class AiEmbeddedChatComponent extends LitElement {
   public gradientVariant: 'low' | 'medium' | 'high' = 'medium';
 
   @property({ attribute: false })
-  public adapter?: AiChatbotAdapter;
+  public adapter?: AiChatbotAdapterBase;
 
   @property({ attribute: false })
   public tools?: ToolDefinition[];

@@ -22,17 +22,16 @@ import type { ForgeAiFilePickerChangeEventData } from '../ai-file-picker';
 import type { Suggestion, ForgeAiSuggestionsEventData } from '../ai-suggestions';
 
 import { chatbotContext, type ChatbotContext } from './context.js';
-import type {
-  AiChatbotAdapter,
-  ChatMessage,
-  ToolDefinition,
-  ResponseEvent,
-  MessageInput,
-  CoreMessage,
-  ToolCall,
-  FileAttachment
-} from './types.js';
-import { ToolExecutionController } from './controllers/tool-execution-controller.js';
+import {
+  AiChatbotAdapterBase,
+  type MessageStartEvent,
+  type MessageDeltaEvent,
+  type MessageEndEvent,
+  type ToolCallEvent,
+  type ErrorEvent,
+  type AdapterState
+} from './adapter-base.js';
+import type { ChatMessage, ToolDefinition, ToolCall, FileAttachment } from './types.js';
 import { generateId, renderMarkdown } from './utils.js';
 
 import styles from './ai-chatbot.scss?inline';
@@ -103,13 +102,10 @@ export class AiChatbotComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   @property({ attribute: false })
-  public adapter?: AiChatbotAdapter;
+  public adapter?: AiChatbotAdapterBase;
 
   @property({ attribute: false })
   public tools?: ToolDefinition[];
-
-  @property({ attribute: 'thread-id' })
-  public threadId?: string;
 
   @property({ type: Boolean, attribute: 'enable-file-upload' })
   public enableFileUpload = false;
@@ -143,43 +139,12 @@ export class AiChatbotComponent extends LitElement {
     isStreaming: false
   };
 
-  #currentMessageId: string | null = null;
   #pendingAttachments: FileAttachment[] = [];
   #chatInterfaceRef: Ref<AiChatInterfaceComponent> = createRef();
-
-  // Tool execution controller
-  #toolController = new ToolExecutionController(this, {
-    onToolUpdate: () => {
-      const messages = this._contextValue.messages.map(msg => {
-        const toolCalls = this.#toolController.getToolsArray(msg.id);
-        if (toolCalls.length > 0) {
-          return { ...msg, toolCalls };
-        }
-        return msg;
-      });
-      this.#updateContext({ messages });
-    },
-    onToolExecute: (toolCall: ToolCall) => {
-      this.#dispatchEvent({
-        type: 'forge-ai-chatbot-tool-call',
-        detail: {
-          toolCallId: toolCall.id,
-          toolName: toolCall.name,
-          arguments: toolCall.args,
-          respond: async (result: unknown) => {
-            await this.#sendToolResult(toolCall.id, result);
-          }
-        }
-      });
-    }
-  });
+  #toolCalls = new Map<string, ToolCall>();
 
   public override connectedCallback(): void {
     super.connectedCallback();
-
-    if (!this.threadId) {
-      this.threadId = generateId('thread');
-    }
 
     if (this.adapter) {
       this.#setupAdapter();
@@ -195,7 +160,7 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleKeyDown = (evt: KeyboardEvent): void => {
-    if (evt.key === 'Escape' && this._contextValue.isStreaming) {
+    if (evt.key === 'Escape' && this.adapter?.getState().isRunning) {
       this.abort();
     }
   };
@@ -215,9 +180,19 @@ export class AiChatbotComponent extends LitElement {
       return;
     }
 
+    if (this.tools) {
+      this.adapter.registerTools(this.tools);
+    }
+
     await this.adapter.connect();
-    this.adapter.onEvent(this.#handleAdapterEvent.bind(this));
-    this.#updateContext({ isConnected: true });
+
+    this.adapter.onMessageStart(this.#handleMessageStart.bind(this));
+    this.adapter.onMessageDelta(this.#handleMessageDelta.bind(this));
+    this.adapter.onMessageEnd(this.#handleMessageEnd.bind(this));
+    this.adapter.onToolCall(this.#handleToolCall.bind(this));
+    this.adapter.onError(this.#handleError.bind(this));
+    this.adapter.onStateChange(this.#handleStateChange.bind(this));
+
     this.#dispatchEvent({ type: 'forge-ai-chatbot-connected' });
   }
 
@@ -227,42 +202,14 @@ export class AiChatbotComponent extends LitElement {
       for (const tool of this.tools) {
         toolsMap.set(tool.name, tool);
       }
+      this.adapter?.registerTools(this.tools);
     }
     this.#updateContext({ tools: toolsMap });
   }
 
-  /**
-   * Handles adapter events
-   */
-  #handleAdapterEvent(event: ResponseEvent): void {
-    switch (event.type) {
-      case 'TEXT_MESSAGE_START':
-        return this.#handleMessageStart(event.messageId || '');
-      case 'TEXT_MESSAGE_CHUNK':
-      case 'TEXT_MESSAGE_CONTENT':
-        return this.#handleMessageChunk(event.messageId || '', event.delta || '');
-      case 'TEXT_MESSAGE_END':
-        return this.#handleMessageEnd(event.messageId || '');
-      case 'TOOL_CALL_START':
-        return this.#handleToolStart(event.toolCallId || '', event.toolCallName || event.toolName || '');
-      case 'TOOL_CALL_ARGS':
-        return this.#handleToolArgs(event.toolCallId || '', event.delta, event.args);
-      case 'TOOL_CALL_END':
-        return this.#handleToolEnd(event.toolCallId || '');
-      case 'RUN_STARTED':
-      case 'RUN_FINISHED':
-        return;
-      case 'RUN_ERROR':
-      case 'error':
-        return this.#handleError(event.error || '');
-    }
-  }
-
-  #handleMessageStart(messageId: string): void {
-    this.#currentMessageId = messageId;
-
+  #handleMessageStart(event: MessageStartEvent): void {
     const message: ChatMessage = {
-      id: messageId,
+      id: event.messageId,
       role: 'assistant',
       content: '',
       timestamp: Date.now(),
@@ -270,75 +217,86 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#addMessage(message);
+    this.#scrollAfterUpdate();
   }
 
-  #handleMessageChunk(messageId: string, content: string): void {
-    if (!this.#currentMessageId) {
-      this.#handleMessageStart(messageId);
+  #handleMessageDelta(event: MessageDeltaEvent): void {
+    const message = this.#getMessage(event.messageId);
+    if (!message) {
+      this.#handleMessageStart({ messageId: event.messageId });
     }
 
-    if (this.#currentMessageId !== messageId) {
-      return;
-    }
-
-    this.#appendToMessage(messageId, content);
+    this.#appendToMessage(event.messageId, event.delta);
     this.#chatInterfaceRef.value?.scrollToBottom();
   }
 
-  #handleMessageEnd(messageId: string): void {
-    if (!this.#currentMessageId || this.#currentMessageId !== messageId) {
-      return;
-    }
+  #handleMessageEnd(event: MessageEndEvent): void {
+    this.#updateMessageStatus(event.messageId, 'complete');
 
-    this.#updateMessageStatus(messageId, 'complete');
-
-    const message = this.#getMessage(messageId);
+    const message = this.#getMessage(event.messageId);
     if (message) {
       this.#dispatchEvent({ type: 'forge-ai-chatbot-message-received', detail: { message } });
     }
-
-    this.#currentMessageId = null;
-    this.#updateContext({ isStreaming: false });
   }
 
-  #handleError(error: string): void {
+  #handleToolCall(event: ToolCallEvent): void {
+    const message = this.#getMessage(event.messageId);
+    if (!message) {
+      this.#handleMessageStart({ messageId: event.messageId });
+    }
+
+    const toolCall: ToolCall = {
+      id: event.id,
+      messageId: event.messageId,
+      name: event.name,
+      args: event.args,
+      status: 'executing'
+    };
+
+    this.#toolCalls.set(event.id, toolCall);
+    this.#updateMessageToolCalls(event.messageId, [toolCall]);
+    this.#scrollAfterUpdate();
+
+    this.#dispatchEvent({
+      type: 'forge-ai-chatbot-tool-call',
+      detail: {
+        toolCallId: event.id,
+        toolName: event.name,
+        arguments: event.args,
+        respond: async (result: unknown) => {
+          await this.#sendToolResult(event.id, result);
+        }
+      }
+    });
+  }
+
+  #handleError(event: ErrorEvent): void {
     const errorMessage: ChatMessage = {
       id: generateId('msg'),
       role: 'assistant',
-      content: error,
+      content: event.message,
       timestamp: Date.now(),
       status: 'error'
     };
 
     this.#addMessage(errorMessage);
-    this.#updateContext({ isStreaming: false });
-    this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error } });
+    this.#scrollAfterUpdate();
+    this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: event.message } });
   }
 
-  #handleToolStart(toolCallId: string, toolName: string): void {
-    if (!this.#currentMessageId) {
-      return;
-    }
-
-    const toolCall = this.#toolController.startTool(toolCallId, this.#currentMessageId, toolName);
-    this.#updateMessageToolCalls(this.#currentMessageId, [toolCall]);
-  }
-
-  #handleToolArgs(toolCallId: string, argsChunk?: string, args?: Record<string, unknown>): void {
-    this.#toolController.updateToolArgs(toolCallId, argsChunk, args);
-  }
-
-  #handleToolEnd(toolCallId: string): void {
-    this.#toolController.finalizeTool(toolCallId);
+  #handleStateChange(state: AdapterState): void {
+    this.#updateContext({ isConnected: state.isConnected, isStreaming: state.isRunning });
   }
 
   async #sendToolResult(toolCallId: string, result: unknown): Promise<void> {
-    const toolCall = this.#toolController.getTool(toolCallId);
-    if (!toolCall || !this.threadId || !this.adapter) {
+    const toolCall = this.#toolCalls.get(toolCallId);
+    if (!toolCall || !this.adapter) {
       return;
     }
 
-    this.#toolController.completeTool(toolCallId, result);
+    toolCall.result = result;
+    toolCall.status = 'complete';
+    this.#toolCalls.set(toolCallId, toolCall);
 
     const toolMessage: ChatMessage = {
       id: generateId('tool'),
@@ -349,21 +307,14 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#addMessage(toolMessage);
-
-    const input: MessageInput = {
-      threadId: this.threadId,
-      messages: this.#buildMessagesForRequest(),
-      tools: this.tools
-    };
-
-    this.#updateContext({ isStreaming: true });
-    this.adapter.sendMessage(input);
+    this.#scrollAfterUpdate();
+    this.adapter.sendToolResult(toolCallId, result);
   }
 
   #updateMessageToolCalls(messageId: string, toolCalls: ToolCall[]): void {
     const messages = this._contextValue.messages.map(msg => {
       if (msg.id === messageId) {
-        return { ...msg, toolCalls };
+        return { ...msg, toolCalls: [...(msg.toolCalls || []), ...toolCalls] };
       }
       return msg;
     });
@@ -372,7 +323,7 @@ export class AiChatbotComponent extends LitElement {
 
   #handleSend(evt: CustomEvent<ForgeAiPromptSendEventData>): void {
     const message = evt.detail.value;
-    if (!message.trim() || !this.adapter || !this.threadId) {
+    if (!message.trim() || !this.adapter) {
       return;
     }
 
@@ -386,25 +337,17 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#addMessage(userMessage);
+    this.#scrollAfterUpdate();
     this.#dispatchEvent({ type: 'forge-ai-chatbot-message-sent', detail: { message: userMessage } });
+
+    const attachments = [...this.#pendingAttachments];
     this.#pendingAttachments = [];
 
-    const input: MessageInput = {
-      threadId: this.threadId,
-      messages: this.#buildMessagesForRequest(),
-      tools: this.tools
-    };
-
-    this.adapter.sendMessage(input);
-    this.#updateContext({ isStreaming: true });
+    this.adapter.sendMessage(this._contextValue.messages, attachments);
   }
 
   #handleStop(): void {
     this.adapter?.abort();
-    if (this.#currentMessageId) {
-      this.#updateMessageStatus(this.#currentMessageId, 'complete');
-    }
-    this.#currentMessageId = null;
     this.#updateContext({ isStreaming: false });
   }
 
@@ -422,11 +365,10 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleRefresh(assistantMessageIndex: number): void {
-    if (!this.threadId || !this.adapter) {
+    if (!this.adapter) {
       return;
     }
 
-    // Find the user message that triggered this response
     let userMessageIndex = -1;
     for (let i = assistantMessageIndex - 1; i >= 0; i--) {
       if (this._contextValue.messages[i].role === 'user') {
@@ -439,19 +381,10 @@ export class AiChatbotComponent extends LitElement {
       return;
     }
 
-    // Remove the current assistant message
     const messages = this._contextValue.messages.filter((_, index) => index !== assistantMessageIndex);
     this.#updateContext({ messages });
 
-    // Resend the user message to generate a new response
-    const input: MessageInput = {
-      threadId: this.threadId,
-      messages: this.#buildMessagesForRequest(),
-      tools: this.tools
-    };
-
-    this.adapter.sendMessage(input);
-    this.#updateContext({ isStreaming: true });
+    this.adapter.sendMessage(messages);
   }
 
   #handleThumbsUp(messageId: string): void {
@@ -475,6 +408,11 @@ export class AiChatbotComponent extends LitElement {
     this.sendMessage(evt.detail.text);
   }
 
+  async #scrollAfterUpdate(): Promise<void> {
+    await this.updateComplete;
+    this.#chatInterfaceRef.value?.scrollToBottom();
+  }
+
   #handleHeaderExpand(): void {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-expand' });
   }
@@ -495,15 +433,6 @@ export class AiChatbotComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-info' });
   }
 
-  #buildMessagesForRequest(): CoreMessage[] {
-    return this._contextValue.messages
-      .filter(msg => msg.role === 'user' || msg.role === 'tool')
-      .map(msg => ({
-        id: msg.id,
-        role: msg.role,
-        content: msg.content
-      }));
-  }
 
   #addMessage(message: ChatMessage): void {
     const messages = [...this._contextValue.messages, message];
@@ -531,8 +460,7 @@ export class AiChatbotComponent extends LitElement {
    */
   public clearMessages(): void {
     this.#updateContext({ messages: [] });
-    this.#toolController.clear();
-    this.#currentMessageId = null;
+    this.#toolCalls.clear();
   }
 
   /**
@@ -557,7 +485,7 @@ export class AiChatbotComponent extends LitElement {
    * @param attachments - Optional file attachments
    */
   public sendMessage(content: string, attachments?: FileAttachment[]): void {
-    if (!content.trim() || !this.adapter || !this.threadId) {
+    if (!content.trim() || !this.adapter) {
       return;
     }
 
@@ -571,16 +499,10 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#addMessage(userMessage);
+    this.#scrollAfterUpdate();
     this.#dispatchEvent({ type: 'forge-ai-chatbot-message-sent', detail: { message: userMessage } });
 
-    const input: MessageInput = {
-      threadId: this.threadId,
-      messages: this.#buildMessagesForRequest(),
-      tools: this.tools
-    };
-
-    this.adapter.sendMessage(input);
-    this.#updateContext({ isStreaming: true });
+    this.adapter.sendMessage(this._contextValue.messages, attachments);
   }
 
   /**
@@ -612,19 +534,21 @@ export class AiChatbotComponent extends LitElement {
     `;
   }
 
-  #renderStatusIndicator(msg: ChatMessage): TemplateResult | typeof nothing {
-    if (msg.status !== 'streaming') {
+  get #thinkingIndicator(): TemplateResult | typeof nothing {
+    if (!this._contextValue.isStreaming) {
       return nothing;
     }
 
-    // Only show if message has no content and no tool calls
-    if (!msg.content && (!msg.toolCalls || msg.toolCalls.length === 0)) {
-      return html`<div class="thinking-indicator">
-        <forge-ai-thinking-indicator class="status-indicator"></forge-ai-thinking-indicator>
-      </div>`;
+    const lastMessage = this._contextValue.messages[this._contextValue.messages.length - 1];
+    const hasAssistantResponse = lastMessage?.role === 'assistant';
+
+    if (hasAssistantResponse) {
+      return nothing;
     }
 
-    return nothing;
+    return html`<div class="thinking-indicator">
+      <forge-ai-thinking-indicator class="status-indicator"></forge-ai-thinking-indicator>
+    </div>`;
   }
 
   #renderToolCalls(toolCalls?: ToolCall[]): TemplateResult | typeof nothing {
@@ -681,7 +605,9 @@ export class AiChatbotComponent extends LitElement {
   }
 
   get #messages(): TemplateResult[] {
-    return this._contextValue.messages.map((msg, index) => {
+    return this._contextValue.messages
+      .filter(msg => msg.role !== 'tool')
+      .map((msg, index) => {
       if (msg.role === 'user') {
         return html`
           <forge-ai-user-message>
@@ -702,7 +628,7 @@ export class AiChatbotComponent extends LitElement {
             msg.content?.trim().length > 0,
             () => html`
               <forge-ai-response-message
-                .complete=${msg.status === 'complete'}
+                ?complete=${msg.status === 'complete'}
                 ?enable-reactions=${this.enableReactions}
                 @forge-ai-response-message-copy=${() => this.#handleCopy(index)}
                 @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
@@ -712,7 +638,6 @@ export class AiChatbotComponent extends LitElement {
               </forge-ai-response-message>
             `
           )}
-          ${this.#renderStatusIndicator(msg)}
         `;
       }
     });
@@ -738,7 +663,7 @@ export class AiChatbotComponent extends LitElement {
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
           <slot name="header-title" slot="title">AI Assistant</slot>
         </forge-ai-chat-header>
-        ${this.#emptyState} ${this.#messages} ${this.#promptSlot}
+        ${this.#emptyState} ${this.#messages} ${this.#thinkingIndicator} ${this.#promptSlot}
       </forge-ai-chat-interface>
     `;
   }
