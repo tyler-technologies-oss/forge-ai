@@ -66,10 +66,10 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
   #toolCalls = new Map<string, ToolCallState>();
   #threadId: string;
 
-  constructor(config: AgUiAdapterConfig, threadId: string) {
+  constructor(config: AgUiAdapterConfig, threadId?: string) {
     super();
     this.#config = config;
-    this.#threadId = threadId;
+    this.#threadId = threadId ?? generateId('thread');
   }
 
   public get threadId(): string {
@@ -246,7 +246,11 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
         this._handleToolEnd(event.toolCallId || '');
         break;
       case 'RUN_STARTED':
+        this._updateState({ isRunning: true });
+        break;
       case 'RUN_FINISHED':
+        this._updateState({ isRunning: false });
+        this._emitRunFinished();
         break;
       case 'RUN_ERROR':
       case 'error':

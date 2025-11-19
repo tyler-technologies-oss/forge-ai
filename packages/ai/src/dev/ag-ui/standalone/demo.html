@@ -3,102 +3,135 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AG-UI Adapter - Standalone Usage Demos</title>
+    <title>AI-Powered Form Demos</title>
+    <link rel="stylesheet" href="https://cdn.forge.tylertech.com/v1/css/tyler-font.css" />
     <link rel="stylesheet" href="./styles.scss" />
+    <script>
+      window.TylerForgeGlobalConfiguration = {
+        'forge-field': {
+          labelPosition: 'block-start'
+        }
+      };
+    </script>
   </head>
   <body>
-    <div class="container">
-      <h1>AG-UI Adapter - Standalone Usage Demos</h1>
-      <p class="subtitle">
-        Demonstrates using AgUiConversation and ToolRegistry for simplified standalone adapter usage
-      </p>
+    <forge-scaffold>
+      <forge-app-bar slot="header" theme-mode="scoped" title-text="AI Form Demos">
+        <forge-icon name="forge_logo" slot="logo"></forge-icon>
+      </forge-app-bar>
 
-      <div class="config">
-        <h2>
-          Configuration
-          <span id="stateConnected" class="state-indicator" style="display: none">Connected</span>
-          <span id="stateRunning" class="state-indicator" style="display: none">Processing...</span>
-        </h2>
-        <div class="config-grid">
-          <div>
-            <label for="baseUrl">Base URL:</label>
-            <input
-              type="text"
-              id="baseUrl"
-              value="http://localhost:3001/api/agents"
-              placeholder="http://localhost:3001/api/agents" />
+      <forge-toolbar slot="body-header" auto-height>
+        <forge-tab-bar id="tabBar" clustered active-tab="0">
+          <forge-tab value="extractor">Form Data Extractor</forge-tab>
+          <forge-tab value="smart-complete">Smart Completion</forge-tab>
+        </forge-tab-bar>
+      </forge-toolbar>
+
+      <main slot="body">
+        <forge-card id="tabContent">
+          <!-- Form Data Extractor -->
+          <div id="extractor-tab" class="tab-panel">
+            <h2 class="forge-typography--heading4">Form Data Extractor</h2>
+            <p class="forge-typography--subheading2 description">
+              Paste unstructured text and watch AI auto-fill the form fields
+            </p>
+
+            <forge-stack>
+              <forge-text-field>
+                <label for="extractorInput">Input Text</label>
+                <textarea id="extractorInput" rows="4">
+  Hey, I'm Sarah Johnson from Acme Corp. You can reach me at sarah.johnson@acme.com or call 555-0123.
+  Ship the order to 742 Evergreen Terrace, Springfield, IL 62701.
+  Invoice to the same address, attention: Accounts Payable Department.</textarea
+                >
+              </forge-text-field>
+
+              <div class="actions">
+                <forge-ai-button id="extractorBtn">
+                  <span>Extract & Fill Form</span>
+                  <forge-circular-progress id="extractorProgress" style="display: none;"></forge-circular-progress>
+              </div>
+
+              <div class="form-section">
+                <forge-text-field>
+                  <label for="extractor-name">Full Name</label>
+                  <input type="text" id="extractor-name" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-company">Company</label>
+                  <input type="text" id="extractor-company" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-email">Email</label>
+                  <input type="email" id="extractor-email" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-phone">Phone</label>
+                  <input type="tel" id="extractor-phone" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-address">Street Address</label>
+                  <input type="text" id="extractor-address" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-city">City</label>
+                  <input type="text" id="extractor-city" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-state">State</label>
+                  <input type="text" id="extractor-state" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-zip">ZIP</label>
+                  <input type="text" id="extractor-zip" />
+                </forge-text-field>
+              </div>
+            </forge-stack>
           </div>
-          <div>
-            <label for="agentId">Agent ID:</label>
-            <input
-              type="text"
-              id="agentId"
-              value="agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c"
-              placeholder="agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c" />
+
+          <!-- Smart Form Completion -->
+          <div id="smart-complete-tab" class="tab-panel" style="display: none">
+            <h2 class="forge-typography--heading4">Smart Form Completion</h2>
+            <p class="forge-typography--subheading2 description">
+              Start filling out the form and let AI suggest the rest
+            </p>
+
+            <div class="form-section">
+              <forge-text-field>
+                <label for="sc-company">Company Name</label>
+                <input type="text" id="sc-company" value="Tyler Technologies" />
+              </forge-text-field>
+              <div class="actions">
+                <forge-ai-button id="scBtn">
+                  <span>AI: Complete This Form</span>
+                  <forge-circular-progress slot="end" id="scProgress" style="display: none;"></forge-circular-progress>
+                </forge-ai-button>
+              </div>
+              <forge-text-field>
+                <label for="sc-industry">Industry</label>
+                <input type="text" id="sc-industry" />
+              </forge-text-field>
+              <forge-text-field>
+                <label for="sc-headquarters">Headquarters</label>
+                <input type="text" id="sc-headquarters" />
+              </forge-text-field>
+              <forge-text-field>
+                <label for="sc-website">Website</label>
+                <input type="url" id="sc-website" />
+              </forge-text-field>
+              <forge-text-field>
+                <label for="sc-employees">Employee Count</label>
+                <input type="text" id="sc-employees" />
+              </forge-text-field>
+              <forge-text-field>
+                <label for="sc-founded">Founded Year</label>
+                <input type="text" id="sc-founded" />
+              </forge-text-field>
+            </div>
           </div>
-        </div>
-        <button id="initBtn">Initialize Conversation</button>
-        <button id="exportBtn" class="secondary" disabled>Export Conversation</button>
-        <button id="importBtn" class="secondary" disabled>Import Conversation</button>
-      </div>
-
-      <div id="status"></div>
-
-      <div class="demos">
-        <div class="demo">
-          <h3>Demo 1: Code Snippet Explainer</h3>
-          <textarea id="codeInput" placeholder="Paste code here...">
-function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
-}</textarea
-          >
-          <div class="demo-actions">
-            <button id="explainBtn" disabled>Explain Code</button>
-          </div>
-          <div id="codeResponse" class="response"></div>
-        </div>
-
-        <div class="demo">
-          <h3>Demo 2: Invoice Data Extractor</h3>
-          <textarea id="invoiceInput">
-INVOICE #INV-2024-1234
-
-Bill To:
-Acme Corporation
-123 Business St
-New York, NY 10001
-
-Invoice Date: January 15, 2024
-Due Date: February 14, 2024
-
-Items:
-- Web Development Services (40 hrs @ $150/hr): $6,000.00
-- UI/UX Design (20 hrs @ $125/hr): $2,500.00
-- Project Management: $1,500.00
-
-Subtotal: $10,000.00
-Tax (8.5%): $850.00
-Total Due: $10,850.00
-
-Payment Terms: Net 30
-Payment Methods: Wire Transfer, Check</textarea
-          >
-          <div class="demo-actions">
-            <button id="extractBtn" disabled>Extract Data</button>
-            <button id="loadAnotherBtn" class="secondary" disabled>Load Another Invoice</button>
-          </div>
-          <div id="invoiceResponse" class="response"></div>
-        </div>
-      </div>
-
-      <div class="history">
-        <h3>Message History (AgUiConversation)</h3>
-        <div id="historyContent" class="history-content">
-          <p style="color: #999; font-style: italic">Initialize conversation to start...</p>
-        </div>
-      </div>
-    </div>
+        </forge-card>
+      </main>
+    </forge-scaffold>
 
     <script type="module" src="./main.ts"></script>
   </body>

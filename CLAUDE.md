@@ -194,6 +194,7 @@ src/lib/[component-name]/
 - Always prefer modern JavaScript/TypeScript features and syntax, like optional chaining, nullish coalescing, arrow functions, template literals, etc.
 - Prefer using the "config object" pattern for methods and functions that take multiple parameters, especially when some are optional. This improves readability and makes it easier to add parameters in the future without breaking existing calls.
 - Do not update test unless told to do so.
+- Always use braces around if statements, even for single-line blocks.
 
 ### Conditional Content Pattern
 

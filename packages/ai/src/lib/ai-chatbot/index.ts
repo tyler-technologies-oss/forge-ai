@@ -27,13 +27,8 @@ export type { ChatbotContext } from './context.js';
 // AG-UI adapter
 export { AgUiAdapter, type AgUiAdapterConfig } from './ag-ui-adapter.js';
 
-// AG-UI conversation helper
-export {
-  AgUiConversation,
-  type SerializedConversation,
-  type MessageUpdateCallback,
-  type ToolRequestCallback
-} from './ag-ui-conversation.js';
+// AI task client
+export { AiTaskClient, type AiTaskClientConfig } from './ai-task-client.js';
 
 // Tool registry
 export { ToolRegistry, type ToolHandler } from './tool-registry.js';

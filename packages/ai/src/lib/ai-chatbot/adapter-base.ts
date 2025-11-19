@@ -38,7 +38,8 @@ export abstract class AiChatbotAdapterBase {
     onMessageEnd: null as ((event: MessageEndEvent) => void) | null,
     onToolCall: null as ((event: ToolCallEvent) => void) | null,
     onError: null as ((event: ErrorEvent) => void) | null,
-    onStateChange: null as ((state: AdapterState) => void) | null
+    onStateChange: null as ((state: AdapterState) => void) | null,
+    onRunFinished: null as (() => void) | null
   };
 
   public abstract connect(): Promise<void>;
@@ -83,6 +84,10 @@ export abstract class AiChatbotAdapterBase {
     this._callbacks.onStateChange = callback;
   }
 
+  public onRunFinished(callback: () => void): void {
+    this._callbacks.onRunFinished = callback;
+  }
+
   protected _emitMessageStart(messageId: string): void {
     this._callbacks.onMessageStart?.({ messageId });
   }
@@ -101,6 +106,10 @@ export abstract class AiChatbotAdapterBase {
 
   protected _emitError(message: string): void {
     this._callbacks.onError?.({ message });
+  }
+
+  protected _emitRunFinished(): void {
+    this._callbacks.onRunFinished?.();
   }
 
   protected _updateState(updates: Partial<AdapterState>): void {
