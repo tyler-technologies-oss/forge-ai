@@ -63,10 +63,14 @@ interface RunAgentInput {
 type AgUiEventType =
   | 'TEXT_MESSAGE_START'
   | 'TEXT_MESSAGE_CHUNK'
+  | 'TEXT_MESSAGE_CONTENT'
   | 'TEXT_MESSAGE_END'
   | 'TOOL_CALL_START'
   | 'TOOL_CALL_ARGS'
   | 'TOOL_CALL_END'
+  | 'RUN_STARTED'
+  | 'RUN_FINISHED'
+  | 'RUN_ERROR'
   | 'error';
 
 interface AgUiEvent {
@@ -75,6 +79,7 @@ interface AgUiEvent {
   messageId?: string;
   toolCallId?: string;
   toolName?: string;
+  toolCallName?: string;
   args?: Record<string, unknown>;
   error?: string;
 }

@@ -92,7 +92,18 @@
           "kind": "class",
           "description": "",
           "name": "AiActionsToolbarComponent",
-          "members": [],
+          "members": [
+            {
+              "kind": "field",
+              "name": "enableReactions",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "enable-reactions"
+            }
+          ],
           "events": [
             {
               "type": {
@@ -100,6 +111,23 @@
               },
               "description": "Fired when an action button is clicked. The detail contains the action type.",
               "name": "forge-ai-actions-toolbar-action"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiActionsToolbarFeedbackEventData>"
+              },
+              "description": "Fired when feedback is submitted. The detail contains the action and optional feedback text.",
+              "name": "forge-ai-actions-toolbar-feedback"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "enable-reactions",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "enableReactions"
             }
           ],
           "superclass": {
@@ -290,81 +318,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChainOfThoughtComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chain-of-thought'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChainOfThoughtComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "attribute": "expanded",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chain-of-thought",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponentTagName",
-          "declaration": {
-            "name": "AiChainOfThoughtComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponent",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
       "declarations": [
         {
@@ -440,6 +393,81 @@
           "declaration": {
             "name": "AiChatInterfaceComponent",
             "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChainOfThoughtComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chain-of-thought'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChainOfThoughtComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chain-of-thought",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponentTagName",
+          "declaration": {
+            "name": "AiChainOfThoughtComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponent",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
           }
         }
       ]
@@ -828,6 +856,16 @@
               "attribute": "minimize-icon"
             },
             {
+              "kind": "field",
+              "name": "enableReactions",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "enable-reactions"
+            },
+            {
               "kind": "method",
               "name": "clearMessages",
               "privacy": "public",
@@ -1036,6 +1074,14 @@
               },
               "default": "'default'",
               "fieldName": "minimizeIcon"
+            },
+            {
+              "name": "enable-reactions",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "enableReactions"
             }
           ],
           "superclass": {
@@ -3754,6 +3800,16 @@
               "description": "Whether the message is complete. Toolbar only shows when true.",
               "attribute": "complete",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "enableReactions",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "enable-reactions"
             }
           ],
           "events": [
@@ -3795,6 +3851,14 @@
               "default": "false",
               "description": "Whether the message is complete. Toolbar only shows when true.",
               "fieldName": "complete"
+            },
+            {
+              "name": "enable-reactions",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "enableReactions"
             }
           ],
           "superclass": {
@@ -3950,109 +4014,6 @@
           "declaration": {
             "name": "AiSidebarComponent",
             "module": "src/lib/ai-sidebar/ai-sidebar.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-suggestions/ai-suggestions.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiSuggestionsComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-suggestions'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiSuggestionsComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "suggestions",
-              "type": {
-                "text": "Suggestion[]"
-              },
-              "privacy": "public",
-              "default": "[]",
-              "description": "Array of suggestion objects to display"
-            },
-            {
-              "kind": "field",
-              "name": "variant",
-              "type": {
-                "text": "AiSuggestionsVariant"
-              },
-              "privacy": "public",
-              "default": "'inline'",
-              "description": "Display variant for suggestions layout",
-              "attribute": "variant"
-            }
-          ],
-          "events": [
-            {
-              "type": {
-                "text": "CustomEvent<ForgeAiSuggestionsEventData>"
-              },
-              "description": "Fired when a suggestion is selected.",
-              "name": "forge-ai-suggestions-select"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "variant",
-              "type": {
-                "text": "AiSuggestionsVariant"
-              },
-              "default": "'inline'",
-              "description": "Display variant for suggestions layout",
-              "fieldName": "variant"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-suggestions",
-          "customElement": true,
-          "states": [
-            {
-              "name": "inline",
-              "description": "The suggestions are displayed inline."
-            },
-            {
-              "name": "block",
-              "description": "The suggestions are displayed as blocks."
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiSuggestionsComponentTagName",
-          "declaration": {
-            "name": "AiSuggestionsComponentTagName",
-            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiSuggestionsComponent",
-          "declaration": {
-            "name": "AiSuggestionsComponent",
-            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiSuggestionsComponent",
-            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
           }
         }
       ]
@@ -4321,6 +4282,109 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-suggestions/ai-suggestions.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiSuggestionsComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-suggestions'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiSuggestionsComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "Suggestion[]"
+              },
+              "privacy": "public",
+              "default": "[]",
+              "description": "Array of suggestion objects to display"
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "AiSuggestionsVariant"
+              },
+              "privacy": "public",
+              "default": "'inline'",
+              "description": "Display variant for suggestions layout",
+              "attribute": "variant"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiSuggestionsEventData>"
+              },
+              "description": "Fired when a suggestion is selected.",
+              "name": "forge-ai-suggestions-select"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "AiSuggestionsVariant"
+              },
+              "default": "'inline'",
+              "description": "Display variant for suggestions layout",
+              "fieldName": "variant"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-suggestions",
+          "customElement": true,
+          "states": [
+            {
+              "name": "inline",
+              "description": "The suggestions are displayed inline."
+            },
+            {
+              "name": "block",
+              "description": "The suggestions are displayed as blocks."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiSuggestionsComponentTagName",
+          "declaration": {
+            "name": "AiSuggestionsComponentTagName",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiSuggestionsComponent",
+          "declaration": {
+            "name": "AiSuggestionsComponent",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiSuggestionsComponent",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
       "declarations": [
         {
@@ -4521,66 +4585,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-voice-input/ai-voice-input.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiVoiceInputComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-voice-input'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiVoiceInputComponent",
-          "members": [],
-          "events": [
-            {
-              "name": "forge-ai-voice-input-result",
-              "type": {
-                "text": "CustomEvent<AiVoiceInputResultEvent>"
-              },
-              "description": "Fired when speech recognition produces a result. The event detail contains the transcript and confidence score of the recognized speech."
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-voice-input",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiVoiceInputComponentTagName",
-          "declaration": {
-            "name": "AiVoiceInputComponentTagName",
-            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiVoiceInputComponent",
-          "declaration": {
-            "name": "AiVoiceInputComponent",
-            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiVoiceInputComponent",
-            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/core/drag-controller.ts",
       "declarations": [
         {
@@ -4672,6 +4676,66 @@
           "declaration": {
             "name": "DragController",
             "module": "src/lib/core/drag-controller.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-voice-input/ai-voice-input.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiVoiceInputComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-voice-input'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiVoiceInputComponent",
+          "members": [],
+          "events": [
+            {
+              "name": "forge-ai-voice-input-result",
+              "type": {
+                "text": "CustomEvent<AiVoiceInputResultEvent>"
+              },
+              "description": "Fired when speech recognition produces a result. The event detail contains the transcript and confidence score of the recognized speech."
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-voice-input",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiVoiceInputComponentTagName",
+          "declaration": {
+            "name": "AiVoiceInputComponentTagName",
+            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiVoiceInputComponent",
+          "declaration": {
+            "name": "AiVoiceInputComponent",
+            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiVoiceInputComponent",
+            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
           }
         }
       ]
@@ -5417,6 +5481,17 @@
               "description": "Whether the overlay is open.",
               "attribute": "open",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "arrowElement",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "public",
+              "default": "null",
+              "description": "The arrow element to position relative to the overlay.",
+              "attribute": "arrowElement"
             }
           ],
           "attributes": [
@@ -5464,6 +5539,15 @@
               "default": "false",
               "description": "Whether the overlay is open.",
               "fieldName": "open"
+            },
+            {
+              "name": "arrowElement",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "default": "null",
+              "description": "The arrow element to position relative to the overlay.",
+              "fieldName": "arrowElement"
             }
           ],
           "superclass": {
@@ -5812,6 +5896,17 @@
               "description": "Whether the popover is open.",
               "attribute": "open",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "arrow",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to show an arrow pointing to the anchor element.",
+              "attribute": "arrow"
             }
           ],
           "attributes": [
@@ -5859,6 +5954,15 @@
               "default": "false",
               "description": "Whether the popover is open.",
               "fieldName": "open"
+            },
+            {
+              "name": "arrow",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to show an arrow pointing to the anchor element.",
+              "fieldName": "arrow"
             }
           ],
           "superclass": {
@@ -5894,15 +5998,23 @@
   "forgeTypes": {
     "ForgeAiActionsToolbarActionEventData": {
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
-      "lineNumber": 17
+      "lineNumber": 20
+    },
+    "ForgeAiActionsToolbarFeedbackEventData": {
+      "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
+      "lineNumber": 24
     },
     "AiActionsToolbarAction": {
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
-      "lineNumber": 21
+      "lineNumber": 29
+    },
+    "PopoverView": {
+      "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
+      "lineNumber": 30
     },
     "AiActionsToolbarComponent": {
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
-      "lineNumber": 30
+      "lineNumber": 40
     },
     "AiButtonComponent": {
       "path": "src/lib/ai-button/ai-button.ts",
@@ -5912,13 +6024,13 @@
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "lineNumber": 23
     },
-    "AiChainOfThoughtComponent": {
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "lineNumber": 17
-    },
     "AiChatInterfaceComponent": {
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
       "lineNumber": 24
+    },
+    "AiChainOfThoughtComponent": {
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "lineNumber": 17
     },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
@@ -6160,6 +6272,10 @@
       "path": "src/lib/ai-sidebar/ai-sidebar.ts",
       "lineNumber": 28
     },
+    "AiSidebarChatComponent": {
+      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
+      "lineNumber": 54
+    },
     "Suggestion": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 17
@@ -6175,10 +6291,6 @@
     "AiSuggestionsComponent": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 39
-    },
-    "AiSidebarChatComponent": {
-      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
-      "lineNumber": 54
     },
     "AiThinkingIndicatorComponent": {
       "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
@@ -6199,6 +6311,14 @@
     "AiUserMessageComponent": {
       "path": "src/lib/ai-user-message/ai-user-message.ts",
       "lineNumber": 17
+    },
+    "DragControllerOptions": {
+      "path": "src/lib/core/drag-controller.ts",
+      "lineNumber": 4
+    },
+    "DragController": {
+      "path": "src/lib/core/drag-controller.ts",
+      "lineNumber": 21
     },
     "SpeechRecognitionAlternative": {
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
@@ -6227,14 +6347,6 @@
     "AiVoiceInputComponent": {
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
       "lineNumber": 74
-    },
-    "DragControllerOptions": {
-      "path": "src/lib/core/drag-controller.ts",
-      "lineNumber": 4
-    },
-    "DragController": {
-      "path": "src/lib/core/drag-controller.ts",
-      "lineNumber": 21
     },
     "ThoughtBaseComponent": {
       "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",
@@ -6274,11 +6386,11 @@
     },
     "OverlayPlacement": {
       "path": "src/lib/core/overlay/overlay.ts",
-      "lineNumber": 29
+      "lineNumber": 30
     },
     "ForgeAiOverlayComponent": {
       "path": "src/lib/core/overlay/overlay.ts",
-      "lineNumber": 41
+      "lineNumber": 42
     },
     "TooltipPlacement": {
       "path": "src/lib/core/tooltip/tooltip.ts",

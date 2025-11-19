@@ -1,8 +1,11 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
+import type { ForgeAiPopoverComponent } from '../core/popover/popover.js';
 
 import '../core/tooltip/tooltip.js';
+import '../core/popover/popover.js';
+
 import styles from './ai-actions-toolbar.scss?inline';
 
 declare global {
@@ -12,11 +15,17 @@ declare global {
 
   interface HTMLElementEventMap {
     'forge-ai-actions-toolbar-action': CustomEvent<ForgeAiActionsToolbarActionEventData>;
+    'forge-ai-actions-toolbar-feedback': CustomEvent<ForgeAiActionsToolbarFeedbackEventData>;
   }
 }
 
 export interface ForgeAiActionsToolbarActionEventData {
   action: AiActionsToolbarAction;
+}
+
+export interface ForgeAiActionsToolbarFeedbackEventData {
+  action: 'positive' | 'negative';
+  feedback?: string;
 }
 
 export type AiActionsToolbarAction = 'refresh' | 'copy' | 'thumbs-up' | 'thumbs-down';
@@ -27,6 +36,7 @@ export const AiActionsToolbarComponentTagName: keyof HTMLElementTagNameMap = 'fo
  * @tag forge-ai-actions-toolbar
  *
  * @event {CustomEvent<ForgeAiActionsToolbarActionEventData>} forge-ai-actions-toolbar-action - Fired when an action button is clicked. The detail contains the action type.
+ * @event {CustomEvent<ForgeAiActionsToolbarFeedbackEventData>} forge-ai-actions-toolbar-feedback - Fired when feedback is submitted. The detail contains the action and optional feedback text.
  */
 @customElement(AiActionsToolbarComponentTagName)
 export class AiActionsToolbarComponent extends LitElement {
@@ -35,7 +45,24 @@ export class AiActionsToolbarComponent extends LitElement {
   @property({ type: Boolean, attribute: 'enable-reactions' })
   public enableReactions = false;
 
-  /** Emits the action event with the specified action type */
+  @state()
+  private _thumbsUpActive = false;
+
+  @state()
+  private _thumbsDownActive = false;
+
+  @state()
+  private _popoverOpen = false;
+
+  @query('#thumbs-down-btn')
+  private _thumbsDownButton!: HTMLButtonElement;
+
+  @query('forge-ai-popover')
+  private _thumbsDownPopover!: ForgeAiPopoverComponent;
+
+  @query('textarea')
+  private _thumbsDownFeedbackTextarea?: HTMLTextAreaElement;
+
   private _emitActionEvent(action: AiActionsToolbarAction): void {
     const event = new CustomEvent<ForgeAiActionsToolbarActionEventData>('forge-ai-actions-toolbar-action', {
       detail: { action }
@@ -43,58 +70,194 @@ export class AiActionsToolbarComponent extends LitElement {
     this.dispatchEvent(event);
   }
 
+  private _emitFeedbackEvent(action: 'positive' | 'negative', feedback?: string): void {
+    const event = new CustomEvent<ForgeAiActionsToolbarFeedbackEventData>('forge-ai-actions-toolbar-feedback', {
+      detail: { action, feedback },
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  private _handleThumbsUp(): void {
+    this._thumbsUpActive = true;
+    this._thumbsDownActive = false;
+    if (this._thumbsDownPopover) {
+      this._thumbsDownPopover.open = false;
+    }
+    this._emitFeedbackEvent('positive');
+  }
+
+  private async _handleThumbsDown(): Promise<void> {
+    if (this._thumbsDownPopover) {
+      const willOpen = !this._thumbsDownPopover.open;
+      if (willOpen) {
+        await this.updateComplete;
+        this._thumbsDownPopover.anchor = this._thumbsDownButton;
+      }
+      this._thumbsDownPopover.open = willOpen;
+      if (this._thumbsDownFeedbackTextarea && !this._popoverOpen) {
+        this._thumbsDownFeedbackTextarea.value = '';
+      }
+    }
+    this._thumbsUpActive = false;
+  }
+
+  private _handleThumbsDownBlur(evt: FocusEvent): void {
+    setTimeout(() => {
+      const popoverElement = this._thumbsDownPopover;
+      const relatedTarget = evt.relatedTarget as Node | null;
+
+      if (popoverElement && this._popoverOpen) {
+        const popoverContainsFocus = relatedTarget && popoverElement.shadowRoot?.contains(relatedTarget);
+        if (!popoverContainsFocus && relatedTarget !== this._thumbsDownButton) {
+          popoverElement.open = false;
+        }
+      }
+    }, 0);
+  }
+
+  private _handlePopoverFocusOut(evt: FocusEvent): void {
+    setTimeout(() => {
+      const relatedTarget = evt.relatedTarget as Node | null;
+      const popoverElement = this._thumbsDownPopover;
+
+      if (popoverElement && this._popoverOpen) {
+        const focusedButton = relatedTarget === this._thumbsDownButton;
+        const focusInPopover = relatedTarget && popoverElement.shadowRoot?.contains(relatedTarget);
+
+        if (!focusedButton && !focusInPopover) {
+          popoverElement.open = false;
+        }
+      }
+    }, 0);
+  }
+
+  private _handleFeedbackSubmit(): void {
+    const feedbackText = this._thumbsDownFeedbackTextarea?.value || '';
+    this._emitFeedbackEvent('negative', feedbackText);
+    this._thumbsDownActive = true;
+    if (this._thumbsDownPopover) {
+      this._thumbsDownPopover.open = false;
+    }
+  }
+
+  private _handleFeedbackCancel(): void {
+    if (this._thumbsDownPopover) {
+      this._thumbsDownPopover.open = false;
+    }
+  }
+
+  private _handlePopoverToggle(evt: CustomEvent): void {
+    this._popoverOpen = evt.detail.open;
+  }
+
+  private get _refreshButtonTemplate(): TemplateResult {
+    return html`
+      <button
+        id="refresh-btn"
+        aria-label="Refresh"
+        class="forge-icon-button forge-icon-button--small"
+        @click=${() => this._emitActionEvent('refresh')}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 0 0-8 8 8 8 0 0 0 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z" />
+        </svg>
+      </button>
+      <forge-ai-tooltip for="refresh-btn" placement="bottom">Resend</forge-ai-tooltip>
+    `;
+  }
+
+  private get _copyButtonTemplate(): TemplateResult {
+    return html`
+      <button
+        id="copy-btn"
+        aria-label="Copy content"
+        class="forge-icon-button forge-icon-button--small"
+        @click=${() => this._emitActionEvent('copy')}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12z" />
+        </svg>
+      </button>
+      <forge-ai-tooltip for="copy-btn" placement="bottom">Copy</forge-ai-tooltip>
+    `;
+  }
+
+  private get _thumbsUpButtonTemplate(): TemplateResult {
+    return html`
+      <button
+        id="thumbs-up-btn"
+        aria-label="Thumbs up"
+        class="forge-icon-button forge-icon-button--small ${this._thumbsUpActive ? 'is-active-positive' : ''}"
+        @click=${this._handleThumbsUp}>
+        ${this._thumbsUpActive
+          ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M23 10a2 2 0 0 0-2-2h-6.32l.96-4.57c.02-.1.03-.21.03-.32 0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.58C7.22 7.95 7 8.45 7 9v10a2 2 0 0 0 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73zM1 21h4V9H1z" />
+            </svg>`
+          : html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M5 9v12H1V9zm4 12a2 2 0 0 1-2-2V9c0-.55.22-1.05.59-1.41L14.17 1l1.06 1.06c.27.27.44.64.44 1.05l-.03.32L14.69 8H21a2 2 0 0 1 2 2v2c0 .26-.05.5-.14.73l-3.02 7.05C19.54 20.5 18.83 21 18 21zm0-2h9.03L21 12v-2h-8.79l1.13-5.32L9 9.03z" />
+            </svg>`}
+      </button>
+      <forge-ai-tooltip for="thumbs-up-btn" placement="bottom">Thumbs up</forge-ai-tooltip>
+    `;
+  }
+
+  private get _thumbsDownButtonTemplate(): TemplateResult {
+    return html`
+      <button
+        id="thumbs-down-btn"
+        aria-label="Thumbs down"
+        class="forge-icon-button forge-icon-button--small ${this._thumbsDownActive || this._popoverOpen
+          ? 'is-active-negative'
+          : ''}"
+        @click=${this._handleThumbsDown}
+        @blur=${this._handleThumbsDownBlur}>
+        ${this._thumbsDownActive || this._popoverOpen
+          ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M19 15h4V3h-4m-4 0H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2a2 2 0 0 0 2 2h6.31l-.95 4.57c-.02.1-.03.2-.03.31 0 .42.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5a2 2 0 0 0-2-2" />
+            </svg>`
+          : html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M19 15V3h4v12zM15 3a2 2 0 0 1 2 2v10c0 .55-.22 1.05-.59 1.41L9.83 23l-1.06-1.06c-.27-.27-.44-.64-.44-1.06l.03-.31.95-4.57H3a2 2 0 0 1-2-2v-2c0-.26.05-.5.14-.73l3.02-7.05C4.46 3.5 5.17 3 6 3zm0 2H5.97L3 12v2h8.78l-1.13 5.32L15 14.97z" />
+            </svg>`}
+      </button>
+      <forge-ai-tooltip for="thumbs-down-btn" placement="bottom">Thumbs down</forge-ai-tooltip>
+      <forge-ai-popover
+        .anchor=${this._thumbsDownButton ?? null}
+        placement="bottom"
+        .shift=${true}
+        arrow
+        @ai-popover-toggle=${this._handlePopoverToggle}
+        @focusout=${this._handlePopoverFocusOut}>
+        ${this._feedbackFormTemplate}
+      </forge-ai-popover>
+    `;
+  }
+
+  private get _feedbackFormTemplate(): TemplateResult {
+    return html`
+      <div class="popover-content">
+        <div class="popover-header">Leave feedback for this response</div>
+        <div class="forge-field">
+          <textarea placeholder="Enter your feedback..."></textarea>
+        </div>
+        <div class="popover-actions">
+          <button class="forge-button forge-button--outlined" @click=${this._handleFeedbackCancel}>Cancel</button>
+          <button class="forge-button forge-button--filled" @click=${this._handleFeedbackSubmit}>Submit</button>
+        </div>
+      </div>
+    `;
+  }
+
   public override render(): TemplateResult {
     return html`
       <div class="actions-toolbar">
-        <button
-          id="refresh-btn"
-          aria-label="Refresh"
-          class="forge-icon-button forge-icon-button--small"
-          @click=${() => this._emitActionEvent('refresh')}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-              d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 0 0-8 8 8 8 0 0 0 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z" />
-          </svg>
-        </button>
-        <forge-ai-tooltip for="refresh-btn" placement="bottom">Resend</forge-ai-tooltip>
-        <button
-          id="copy-btn"
-          aria-label="Copy content"
-          class="forge-icon-button forge-icon-button--small"
-          @click=${() => this._emitActionEvent('copy')}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-              d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12z" />
-          </svg>
-        </button>
-        <forge-ai-tooltip for="copy-btn" placement="bottom">Copy</forge-ai-tooltip>
-        ${when(
-          this.enableReactions,
-          () => html`
-            <button
-              id="thumbs-up-btn"
-              aria-label="Thumbs up"
-              class="forge-icon-button forge-icon-button--small"
-              @click=${() => this._emitActionEvent('thumbs-up')}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M5 9v12H1V9zm4 12a2 2 0 0 1-2-2V9c0-.55.22-1.05.59-1.41L14.17 1l1.06 1.06c.27.27.44.64.44 1.05l-.03.32L14.69 8H21a2 2 0 0 1 2 2v2c0 .26-.05.5-.14.73l-3.02 7.05C19.54 20.5 18.83 21 18 21zm0-2h9.03L21 12v-2h-8.79l1.13-5.32L9 9.03z" />
-              </svg>
-            </button>
-            <forge-ai-tooltip for="thumbs-up-btn" placement="bottom">Thumbs up</forge-ai-tooltip>
-            <button
-              id="thumbs-down-btn"
-              aria-label="Thumbs down"
-              class="forge-icon-button forge-icon-button--small"
-              @click=${() => this._emitActionEvent('thumbs-down')}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M19 15V3h4v12zM15 3a2 2 0 0 1 2 2v10c0 .55-.22 1.05-.59 1.41L9.83 23l-1.06-1.06c-.27-.27-.44-.64-.44-1.06l.03-.31.95-4.57H3a2 2 0 0 1-2-2v-2c0-.26.05-.5.14-.73l3.02-7.05C4.46 3.5 5.17 3 6 3zm0 2H5.97L3 12v2h8.78l-1.13 5.32L15 14.97z" />
-              </svg>
-            </button>
-            <forge-ai-tooltip for="thumbs-down-btn" placement="bottom">Thumbs down</forge-ai-tooltip>
-          `
-        )}
+        ${this._refreshButtonTemplate} ${this._copyButtonTemplate}
+        ${when(this.enableReactions, () => html`${this._thumbsUpButtonTemplate} ${this._thumbsDownButtonTemplate}`)}
       </div>
     `;
   }

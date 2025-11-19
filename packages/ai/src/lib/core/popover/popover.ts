@@ -1,5 +1,5 @@
 import { LitElement, html, type TemplateResult, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 import { type OverlayPlacement } from '../overlay/overlay.js';
 import '../overlay/overlay.js';
 
@@ -27,8 +27,6 @@ export type PopoverPlacement = OverlayPlacement;
  * @description
  * This component wraps the base overlay component with popover-specific styling
  * including animations, shadows, and rounded corners.
- *
- * @since 1.2.0
  *
  * @cssprop --ai-popover-max-width - The maximum width of the popover.
  * @cssprop --ai-popover-max-height - The maximum height of the popover.
@@ -71,6 +69,15 @@ export class ForgeAiPopoverComponent extends LitElement {
   @property({ type: Boolean, reflect: true })
   public open = false;
 
+  /**
+   * Whether to show an arrow pointing to the anchor element.
+   */
+  @property({ type: Boolean })
+  public arrow = false;
+
+  @query('.ai-popover__arrow')
+  private _arrowElement?: HTMLElement;
+
   private _onOverlayToggle = (event: CustomEvent): void => {
     this.open = event.detail.open;
 
@@ -92,8 +99,10 @@ export class ForgeAiPopoverComponent extends LitElement {
         .flip=${this.flip}
         .shift=${this.shift}
         .open=${this.open}
+        .arrowElement=${this.arrow ? this._arrowElement : null}
         @ai-overlay-toggle=${this._onOverlayToggle}>
         <div class="ai-popover">
+          ${this.arrow ? html`<div class="ai-popover__arrow"></div>` : null}
           <slot></slot>
         </div>
       </forge-ai-overlay>

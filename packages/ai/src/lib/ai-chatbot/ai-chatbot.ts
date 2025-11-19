@@ -239,15 +239,20 @@ export class AiChatbotComponent extends LitElement {
       case 'TEXT_MESSAGE_START':
         return this.#handleMessageStart(event.messageId || '');
       case 'TEXT_MESSAGE_CHUNK':
+      case 'TEXT_MESSAGE_CONTENT':
         return this.#handleMessageChunk(event.messageId || '', event.delta || '');
       case 'TEXT_MESSAGE_END':
         return this.#handleMessageEnd(event.messageId || '');
       case 'TOOL_CALL_START':
-        return this.#handleToolStart(event.toolCallId || '', event.toolName || '');
+        return this.#handleToolStart(event.toolCallId || '', event.toolCallName || event.toolName || '');
       case 'TOOL_CALL_ARGS':
         return this.#handleToolArgs(event.toolCallId || '', event.delta, event.args);
       case 'TOOL_CALL_END':
         return this.#handleToolEnd(event.toolCallId || '');
+      case 'RUN_STARTED':
+      case 'RUN_FINISHED':
+        return;
+      case 'RUN_ERROR':
       case 'error':
         return this.#handleError(event.error || '');
     }
@@ -268,7 +273,11 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleMessageChunk(messageId: string, content: string): void {
-    if (!this.#currentMessageId || this.#currentMessageId !== messageId) {
+    if (!this.#currentMessageId) {
+      this.#handleMessageStart(messageId);
+    }
+
+    if (this.#currentMessageId !== messageId) {
       return;
     }
 
@@ -331,18 +340,23 @@ export class AiChatbotComponent extends LitElement {
 
     this.#toolController.completeTool(toolCallId, result);
 
-    const toolMessage: CoreMessage = {
+    const toolMessage: ChatMessage = {
       id: generateId('tool'),
       role: 'tool',
-      content: JSON.stringify(result)
+      content: JSON.stringify(result),
+      timestamp: Date.now(),
+      status: 'complete'
     };
+
+    this.#addMessage(toolMessage);
 
     const input: MessageInput = {
       threadId: this.threadId,
-      messages: [...this.#buildMessagesForRequest(), toolMessage],
+      messages: this.#buildMessagesForRequest(),
       tools: this.tools
     };
 
+    this.#updateContext({ isStreaming: true });
     this.adapter.sendMessage(input);
   }
 
@@ -482,11 +496,13 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #buildMessagesForRequest(): CoreMessage[] {
-    return this._contextValue.messages.map(msg => ({
-      id: msg.id,
-      role: msg.role,
-      content: msg.content
-    }));
+    return this._contextValue.messages
+      .filter(msg => msg.role === 'user' || msg.role === 'tool')
+      .map(msg => ({
+        id: msg.id,
+        role: msg.role,
+        content: msg.content
+      }));
   }
 
   #addMessage(message: ChatMessage): void {

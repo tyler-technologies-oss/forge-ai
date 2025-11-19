@@ -1,5 +1,8 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '@tylertech/forge/dist/button/forge-button';
+@use '@tylertech/forge/dist/field/forge-field';
 
 :host {
   display: block;
@@ -13,4 +16,34 @@
 
 .forge-icon-button {
   --forge-icon-button-color: var(--forge-theme-text-medium);
+
+  &.is-active-positive {
+    color: var(--forge-theme-success);
+    background-color: var(--forge-theme-success-container);
+  }
+
+  &.is-active-negative {
+    --forge-icon-button-color: var(--forge-theme-error);
+    background-color: var(--forge-theme-error-container);
+  }
+}
+
+/* Popover Styles */
+
+.popover-content {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(medium)};
+  padding: #{forge-spacing.variable(medium)};
+  min-width: 320px;
+}
+
+.popover-header {
+  @include forge-typography.style(heading1);
+}
+
+.popover-actions {
+  display: flex;
+  gap: #{forge-spacing.variable(small)};
+  justify-content: flex-end;
 }
