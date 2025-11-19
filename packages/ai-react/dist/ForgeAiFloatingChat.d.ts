@@ -30,7 +30,7 @@ When false, the chat will be positioned at the bottom-right corner with a fixed 
   /** Enable file upload functionality (default: false) */
   enableFileUpload?: boolean;
 
-  /** Optional thread ID for conversation continuity */
+  /** undefined */
   threadId?: ForgeAiFloatingChatElement["threadId"];
 
   /** Placeholder text for input (default: "Ask a question...") */

@@ -28,7 +28,7 @@ export interface ForgeAiEmbeddedChatProps
   /** Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium') */
   gradientVariant?: ForgeAiEmbeddedChatElement["gradientVariant"];
 
-  /** Optional thread ID for conversation continuity */
+  /** undefined */
   threadId?: ForgeAiEmbeddedChatElement["threadId"];
 
   /** Placeholder text for input (default: "Ask a question...") */

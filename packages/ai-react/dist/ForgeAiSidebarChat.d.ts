@@ -30,7 +30,7 @@ When false, the chat will be displayed in the sidebar. */
   /** Enable file upload functionality (default: false) */
   enableFileUpload?: boolean;
 
-  /** Optional thread ID for conversation continuity */
+  /** undefined */
   threadId?: ForgeAiSidebarChatElement["threadId"];
 
   /** Placeholder text for input (default: "Ask a question...") */

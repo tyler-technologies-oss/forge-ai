@@ -28,6 +28,9 @@ export interface ForgeAiPopoverProps
   /** Whether the popover is open. */
   open?: boolean;
 
+  /** Whether to show an arrow pointing to the anchor element. */
+  arrow?: boolean;
+
   /** The anchor element to position the popover relative to. */
   anchor?: ForgeAiPopoverElement["anchor"];
 

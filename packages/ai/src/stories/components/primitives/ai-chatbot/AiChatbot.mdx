@@ -26,11 +26,14 @@ The AI Chatbot component provides a complete, self-contained chat interface that
 ```typescript
 import { AgUiAdapter, generateId } from '@tylertech/forge-ai';
 
-const adapter = new AgUiAdapter({
-  baseUrl: 'https://api.example.com',
-  agentId: 'your-agent-id',
-  credentials: 'include'
-}, generateId('thread'));
+const adapter = new AgUiAdapter(
+  {
+    baseUrl: 'https://api.example.com',
+    agentId: 'your-agent-id',
+    credentials: 'include'
+  },
+  generateId('thread')
+);
 
 const chatbot = document.createElement('forge-ai-chatbot');
 chatbot.adapter = adapter;

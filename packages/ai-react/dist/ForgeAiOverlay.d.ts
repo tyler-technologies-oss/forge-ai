@@ -34,6 +34,9 @@ export interface ForgeAiOverlayProps
   /** The placement of the overlay relative to the anchor. */
   placement?: ForgeAiOverlayElement["placement"];
 
+  /** The arrow element to position relative to the overlay. */
+  arrowElement?: ForgeAiOverlayElement["arrowElement"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 

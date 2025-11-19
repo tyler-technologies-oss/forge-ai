@@ -19,6 +19,9 @@ export interface ForgeAiActionsToolbarProps
     | "onFocus"
     | "onBlur"
   > {
+  /** undefined */
+  enableReactions?: boolean;
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -44,6 +47,11 @@ export interface ForgeAiActionsToolbarProps
   onForgeAiActionsToolbarAction?: (
     event: CustomEvent<CustomEvent<ForgeAiActionsToolbarActionEventData>>,
   ) => void;
+
+  /** Fired when feedback is submitted. The detail contains the action and optional feedback text. */
+  onForgeAiActionsToolbarFeedback?: (
+    event: CustomEvent<CustomEvent<ForgeAiActionsToolbarFeedbackEventData>>,
+  ) => void;
 }
 
 /**
@@ -53,5 +61,6 @@ export interface ForgeAiActionsToolbarProps
  *
  * ### **Events:**
  *  - **forge-ai-actions-toolbar-action** - Fired when an action button is clicked. The detail contains the action type.
+ * - **forge-ai-actions-toolbar-feedback** - Fired when feedback is submitted. The detail contains the action and optional feedback text.
  */
 export const ForgeAiActionsToolbar: React.ForwardRefExoticComponent<ForgeAiActionsToolbarProps>;

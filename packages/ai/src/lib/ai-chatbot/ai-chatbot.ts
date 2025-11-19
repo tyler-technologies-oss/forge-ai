@@ -2,7 +2,7 @@ import { LitElement, html, unsafeCSS, type PropertyValues, type TemplateResult, 
 import { customElement, property } from 'lit/decorators.js';
 import { provide } from '@lit/context';
 import { when } from 'lit/directives/when.js';
-import { createRef, ref, type Ref } from 'lit/directives/ref.js';
+import { createRef, ref } from 'lit/directives/ref.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import '../ai-chat-interface';
@@ -140,7 +140,7 @@ export class AiChatbotComponent extends LitElement {
   };
 
   #pendingAttachments: FileAttachment[] = [];
-  #chatInterfaceRef: Ref<AiChatInterfaceComponent> = createRef();
+  #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #toolCalls = new Map<string, ToolCall>();
 
   public override connectedCallback(): void {
@@ -433,7 +433,6 @@ export class AiChatbotComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-info' });
   }
 
-
   #addMessage(message: ChatMessage): void {
     const messages = [...this._contextValue.messages, message];
     this.#updateContext({ messages });
@@ -608,39 +607,39 @@ export class AiChatbotComponent extends LitElement {
     return this._contextValue.messages
       .filter(msg => msg.role !== 'tool')
       .map((msg, index) => {
-      if (msg.role === 'user') {
-        return html`
-          <forge-ai-user-message>
-            ${unsafeHTML(renderMarkdown(msg.content))} ${this.#renderAttachments(msg.attachments)}
-          </forge-ai-user-message>
-        `;
-      } else if (msg.status === 'error') {
-        return html`
-          <forge-ai-error-message>
-            <span slot="title">Error</span>
-            ${unsafeHTML(renderMarkdown(msg.content))}
-          </forge-ai-error-message>
-        `;
-      } else {
-        return html`
-          ${this.#renderToolCalls(msg.toolCalls)}
-          ${when(
-            msg.content?.trim().length > 0,
-            () => html`
-              <forge-ai-response-message
-                ?complete=${msg.status === 'complete'}
-                ?enable-reactions=${this.enableReactions}
-                @forge-ai-response-message-copy=${() => this.#handleCopy(index)}
-                @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
-                @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
-                @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
-                ${unsafeHTML(renderMarkdown(msg.content))}
-              </forge-ai-response-message>
-            `
-          )}
-        `;
-      }
-    });
+        if (msg.role === 'user') {
+          return html`
+            <forge-ai-user-message>
+              ${unsafeHTML(renderMarkdown(msg.content))} ${this.#renderAttachments(msg.attachments)}
+            </forge-ai-user-message>
+          `;
+        } else if (msg.status === 'error') {
+          return html`
+            <forge-ai-error-message>
+              <span slot="title">Error</span>
+              ${unsafeHTML(renderMarkdown(msg.content))}
+            </forge-ai-error-message>
+          `;
+        } else {
+          return html`
+            ${this.#renderToolCalls(msg.toolCalls)}
+            ${when(
+              msg.content?.trim().length > 0,
+              () => html`
+                <forge-ai-response-message
+                  ?complete=${msg.status === 'complete'}
+                  ?enable-reactions=${this.enableReactions}
+                  @forge-ai-response-message-copy=${() => this.#handleCopy(index)}
+                  @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
+                  @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
+                  @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
+                  ${unsafeHTML(renderMarkdown(msg.content))}
+                </forge-ai-response-message>
+              `
+            )}
+          `;
+        }
+      });
   }
 
   public override render(): TemplateResult {

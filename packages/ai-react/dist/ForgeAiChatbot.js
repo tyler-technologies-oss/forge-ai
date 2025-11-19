@@ -9,7 +9,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     showExpandButton,
     showMinimizeButton,
     expanded,
-    threadId,
+    enableReactions,
     placeholder,
     minimizeIcon,
     ...filteredProps
@@ -67,7 +67,6 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
-      "thread-id": props.threadId || props["thread-id"],
       placeholder: props.placeholder,
       "minimize-icon": props.minimizeIcon || props["minimize-icon"],
       class: props.className,
@@ -79,6 +78,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       "show-expand-button": props.showExpandButton ? true : undefined,
       "show-minimize-button": props.showMinimizeButton ? true : undefined,
       expanded: props.expanded ? true : undefined,
+      "enable-reactions": props.enableReactions ? true : undefined,
       style: { ...props.style },
     },
     props.children,

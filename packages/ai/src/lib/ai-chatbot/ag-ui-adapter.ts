@@ -233,7 +233,11 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
         this._handleMessageEnd(event.messageId || '');
         break;
       case 'TOOL_CALL_START':
-        this._handleToolStart(event.toolCallId || '', event.messageId || '', event.toolName || event.toolCallName || '');
+        this._handleToolStart(
+          event.toolCallId || '',
+          event.messageId || '',
+          event.toolName || event.toolCallName || ''
+        );
         break;
       case 'TOOL_CALL_ARGS':
         this._handleToolArgs(event.toolCallId || '', event.delta, event.args);

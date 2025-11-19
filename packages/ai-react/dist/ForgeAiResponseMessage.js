@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiResponseMessage = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { complete, ...filteredProps } = props;
+  const { complete, enableReactions, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -46,6 +46,7 @@ export const ForgeAiResponseMessage = forwardRef((props, forwardedRef) => {
       part: props.part,
       tabindex: props.tabIndex,
       complete: props.complete ? true : undefined,
+      "enable-reactions": props.enableReactions ? true : undefined,
       style: { ...props.style },
     },
     props.children,

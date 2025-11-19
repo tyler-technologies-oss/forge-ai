@@ -32,7 +32,7 @@ export interface ForgeAiChatbotProps
   expanded?: boolean;
 
   /** undefined */
-  threadId?: ForgeAiChatbotElement["threadId"];
+  enableReactions?: boolean;
 
   /** undefined */
   placeholder?: ForgeAiChatbotElement["placeholder"];
