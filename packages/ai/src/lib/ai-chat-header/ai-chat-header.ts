@@ -84,6 +84,7 @@ export class AiChatHeaderComponent extends LitElement {
         <div class="end">
           <forge-ai-dropdown-menu
             variant="icon-button"
+            popover-placement="bottom-end"
             selection-mode="none"
             @forge-ai-dropdown-menu-change=${this.#handleDropdownChange}>
             <svg

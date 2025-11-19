@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AG-UI Adapter - Standalone Usage Demos</title>
+    <link rel="stylesheet" href="./styles.scss" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>AG-UI Adapter - Standalone Usage Demos</h1>
+      <p class="subtitle">
+        Demonstrates using AgUiConversation and ToolRegistry for simplified standalone adapter usage
+      </p>
+
+      <div class="config">
+        <h2>
+          Configuration
+          <span id="stateConnected" class="state-indicator" style="display: none">Connected</span>
+          <span id="stateRunning" class="state-indicator" style="display: none">Processing...</span>
+        </h2>
+        <div class="config-grid">
+          <div>
+            <label for="baseUrl">Base URL:</label>
+            <input
+              type="text"
+              id="baseUrl"
+              value="http://localhost:3001/api/agents"
+              placeholder="http://localhost:3001/api/agents" />
+          </div>
+          <div>
+            <label for="agentId">Agent ID:</label>
+            <input
+              type="text"
+              id="agentId"
+              value="agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c"
+              placeholder="agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c" />
+          </div>
+        </div>
+        <button id="initBtn">Initialize Conversation</button>
+        <button id="exportBtn" class="secondary" disabled>Export Conversation</button>
+        <button id="importBtn" class="secondary" disabled>Import Conversation</button>
+      </div>
+
+      <div id="status"></div>
+
+      <div class="demos">
+        <div class="demo">
+          <h3>Demo 1: Code Snippet Explainer</h3>
+          <textarea id="codeInput" placeholder="Paste code here...">
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}</textarea
+          >
+          <div class="demo-actions">
+            <button id="explainBtn" disabled>Explain Code</button>
+          </div>
+          <div id="codeResponse" class="response"></div>
+        </div>
+
+        <div class="demo">
+          <h3>Demo 2: Invoice Data Extractor</h3>
+          <textarea id="invoiceInput">
+INVOICE #INV-2024-1234
+
+Bill To:
+Acme Corporation
+123 Business St
+New York, NY 10001
+
+Invoice Date: January 15, 2024
+Due Date: February 14, 2024
+
+Items:
+- Web Development Services (40 hrs @ $150/hr): $6,000.00
+- UI/UX Design (20 hrs @ $125/hr): $2,500.00
+- Project Management: $1,500.00
+
+Subtotal: $10,000.00
+Tax (8.5%): $850.00
+Total Due: $10,850.00
+
+Payment Terms: Net 30
+Payment Methods: Wire Transfer, Check</textarea
+          >
+          <div class="demo-actions">
+            <button id="extractBtn" disabled>Extract Data</button>
+            <button id="loadAnotherBtn" class="secondary" disabled>Load Another Invoice</button>
+          </div>
+          <div id="invoiceResponse" class="response"></div>
+        </div>
+      </div>
+
+      <div class="history">
+        <h3>Message History (AgUiConversation)</h3>
+        <div id="historyContent" class="history-content">
+          <p style="color: #999; font-style: italic">Initialize conversation to start...</p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

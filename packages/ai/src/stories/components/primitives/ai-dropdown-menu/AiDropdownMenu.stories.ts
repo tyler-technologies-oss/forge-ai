@@ -36,6 +36,11 @@ const meta = {
     disabled: {
       control: 'boolean',
       description: 'Whether the dropdown menu is disabled'
+    },
+    popoverPlacement: {
+      control: 'select',
+      options: ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'right', 'right-start', 'right-end'],
+      description: 'The placement of the popover relative to the trigger button'
     }
   },
   args: {
@@ -43,7 +48,8 @@ const meta = {
     variant: 'button',
     selectionMode: 'none',
     text: 'Choose model...',
-    disabled: false
+    disabled: false,
+    popoverPlacement: 'bottom-start'
   },
   render: (args: any) => {
     return html`
@@ -51,6 +57,7 @@ const meta = {
         .open=${args.open}
         variant=${args.variant}
         selection-mode=${args.selectionMode}
+        popover-placement=${args.popoverPlacement}
         ?disabled=${args.disabled}
         @forge-ai-dropdown-menu-change=${(evt: CustomEvent) => changeAction(evt.detail)}>
         ${args.variant === 'icon-button'
@@ -111,6 +118,7 @@ export const WithGroups: Story = {
         .open=${args.open}
         variant=${args.variant}
         selection-mode=${args.selectionMode}
+        popover-placement=${args.popoverPlacement}
         ?disabled=${args.disabled}
         @forge-ai-dropdown-menu-change=${(evt: CustomEvent) => changeAction(evt.detail)}>
         <span slot="header">Models</span>

@@ -1,0 +1,59 @@
+@use '@tylertech/forge/dist/forge-core';
+@use '@tylertech/forge/dist/forge';
+
+:not(:defined) {
+  visibility: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+main {
+  padding: var(--forge-spacing-medium);
+  display: flex;
+  flex-direction: column;
+  max-width: 1440px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: var(--forge-spacing-medium);
+  min-height: 0;
+}
+
+forge-card {
+  h2 {
+    margin: 0;
+  }
+}
+
+.right-sidebar {
+  min-height: 0;
+}
+
+.event-stream-card {
+  height: 100%;
+  overflow: hidden;
+}
+
+.event-data-popover {
+  padding: var(--forge-spacing-medium);
+  max-width: 400px;
+  max-height: 400px;
+  overflow: auto;
+
+  pre {
+    margin: 0;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+}
+
+.chatbot-card {
+  --forge-card-padding: 0;
+  min-height: 0;
+}

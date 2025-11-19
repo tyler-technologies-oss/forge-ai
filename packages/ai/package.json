@@ -39,7 +39,7 @@
     "url": "git+https://github.com/tyler-technologies-oss/forge-ai.git"
   },
   "scripts": {
-    "dev": "vite -c vite.config.mts",
+    "dev": "vite src/dev",
     "start": "pnpm run storybook",
     "prebuild": "rimraf dist",
     "build": "pnpm run lint && vite build && pnpm run cem",

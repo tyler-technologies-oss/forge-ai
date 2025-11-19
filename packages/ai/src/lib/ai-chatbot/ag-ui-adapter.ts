@@ -72,6 +72,24 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     this.#threadId = threadId;
   }
 
+  public get threadId(): string {
+    return this.#threadId;
+  }
+
+  public static async create(
+    config: AgUiAdapterConfig & { tools?: ToolDefinition[]; threadId?: string }
+  ): Promise<AgUiAdapter> {
+    const { tools, threadId, ...adapterConfig } = config;
+    const adapter = new AgUiAdapter(adapterConfig, threadId ?? generateId('thread'));
+
+    if (tools) {
+      adapter.registerTools(tools);
+    }
+
+    await adapter.connect();
+    return adapter;
+  }
+
   public async connect(): Promise<void> {
     this._updateState({ isConnected: true });
   }
