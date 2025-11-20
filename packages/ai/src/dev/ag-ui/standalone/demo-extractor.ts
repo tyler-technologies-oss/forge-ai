@@ -1,4 +1,4 @@
-import { AiTaskClient, AgUiAdapter, type ToolRegistry, type ToolDefinition, type ToolHandler, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
+import { AiPromptExecutor, AgUiAdapter, type ToolRegistry, type ToolDefinition, type ToolHandler, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
 
 interface ExtractedFormData {
   name?: string;
@@ -105,7 +105,7 @@ Use the fillContactForm tool to populate the form with the extracted data.`;
 
     try {
       const adapter = new AgUiAdapter(config);
-      await AiTaskClient.execute({ adapter, toolRegistry, prompt });
+      await AiPromptExecutor.execute({ adapter, toolRegistry, prompt });
     } catch (error) {
       showToast(`Extraction failed: ${(error as Error).message}`);
     } finally {

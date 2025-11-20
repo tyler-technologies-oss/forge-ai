@@ -14,7 +14,7 @@ export interface ToolDefinition {
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant' | 'tool';
+  role: 'user' | 'assistant' | 'system' | 'tool';
   content: string;
   timestamp: number;
   status: 'pending' | 'streaming' | 'complete' | 'error';

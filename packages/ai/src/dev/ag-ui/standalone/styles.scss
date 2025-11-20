@@ -46,3 +46,51 @@ forge-tab-bar {
 forge-circular-progress {
   --forge-circular-progress-size: 24px;
 }
+
+.technical-content {
+  .term {
+    font-weight: 500;
+    color: var(--forge-theme-primary);
+  }
+
+  forge-icon-button {
+    margin-inline-start: var(--forge-spacing-x-small);
+    vertical-align: middle;
+
+    forge-circular-progress {
+      --forge-circular-progress-size: 16px;
+    }
+  }
+
+  p {
+    margin-block-end: var(--forge-spacing-medium);
+  }
+
+  forge-popover {
+    h2 {
+      margin-inline-start: var(--forge-spacing-medium);
+      margin-block-start: var(--forge-spacing-medium);
+      display: flex;
+      gap: var(--forge-spacing-small);
+      align-items: center;
+    }
+
+    .popover-content {
+      padding: var(--forge-spacing-medium);
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+
+      .explanation-text {
+        line-height: 1.6;
+        color: var(--forge-theme-text-high);
+        margin-block-end: var(--forge-spacing-small);
+      }
+
+      .close-btn {
+        margin-block-start: var(--forge-spacing-small);
+        align-self: flex-end;
+      }
+    }
+  }
+}

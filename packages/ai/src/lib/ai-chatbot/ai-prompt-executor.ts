@@ -1,52 +1,48 @@
 import type { AiChatbotAdapterBase } from './adapter-base.js';
-import type { ChatMessage } from './types.js';
+import type { ChatMessage, ToolCall } from './types.js';
 import { generateId } from './utils.js';
 import { ToolRegistry } from './tool-registry.js';
 
-export interface AiTaskClientConfig {
+export interface AiPromptExecutorConfig {
   adapter: AiChatbotAdapterBase;
-  toolRegistry: ToolRegistry;
   prompt: string;
+  toolRegistry?: ToolRegistry;
+  onStart?: (messageId: string) => void;
+  onDelta?: (delta: string) => void;
+  onComplete?: (message: ChatMessage) => void;
 }
 
-export class AiTaskClient {
+export interface AiPromptExecutorResult {
+  message: ChatMessage;
+  toolCalls: ToolCall[];
+  success: boolean;
+}
+
+export class AiPromptExecutor {
   private constructor() {}
 
-  public static async execute(config: AiTaskClientConfig): Promise<ChatMessage>;
-  public static async execute(
-    adapter: AiChatbotAdapterBase,
-    toolRegistry: ToolRegistry,
-    prompt: string
-  ): Promise<ChatMessage>;
-  public static async execute(
-    adapterOrConfig: AiChatbotAdapterBase | AiTaskClientConfig,
-    toolRegistry?: ToolRegistry,
-    prompt?: string
-  ): Promise<ChatMessage> {
-    const { adapter, toolRegistry: registry, prompt: taskPrompt } =
-      'adapter' in adapterOrConfig
-        ? adapterOrConfig
-        : { adapter: adapterOrConfig, toolRegistry, prompt };
+  public static async execute(config: AiPromptExecutorConfig): Promise<AiPromptExecutorResult> {
+    const { adapter, toolRegistry, prompt, onStart, onDelta, onComplete } = config;
 
-    if (!registry || !taskPrompt) {
-      throw new Error('toolRegistry and prompt are required');
-    }
     if (!adapter.getState().isConnected) {
       await adapter.connect();
     }
 
-    adapter.registerTools(registry.getDefinitions());
+    if (toolRegistry) {
+      adapter.registerTools(toolRegistry.getDefinitions());
+    }
 
     const userMessage: ChatMessage = {
       id: generateId('msg'),
       role: 'user',
-      content: taskPrompt,
+      content: prompt,
       timestamp: Date.now(),
       status: 'complete'
     };
 
-    return new Promise<ChatMessage>((resolve, reject) => {
+    return new Promise<AiPromptExecutorResult>((resolve, reject) => {
       let currentAssistantMessage: Partial<ChatMessage> | null = null;
+      const toolCalls: ToolCall[] = [];
       let resolved = false;
 
       const finishHandler = (): void => {
@@ -61,7 +57,13 @@ export class AiTaskClient {
             status: 'complete'
           } as ChatMessage;
 
-          resolve(finalMessage);
+          onComplete?.(finalMessage);
+
+          resolve({
+            message: finalMessage,
+            toolCalls,
+            success: true
+          });
         }
       };
 
@@ -70,6 +72,7 @@ export class AiTaskClient {
           return;
         }
         resolved = true;
+
         reject(new Error(event.message));
       };
 
@@ -81,11 +84,14 @@ export class AiTaskClient {
           timestamp: Date.now(),
           status: 'streaming'
         };
+
+        onStart?.(event.messageId);
       };
 
       const messageDeltaHandler = (event: { delta: string }): void => {
         if (currentAssistantMessage) {
           currentAssistantMessage.content = (currentAssistantMessage.content ?? '') + event.delta;
+          onDelta?.(event.delta);
         }
       };
 
@@ -97,15 +103,30 @@ export class AiTaskClient {
       adapter.onToolCall(async event => {
         let result: unknown;
 
-        if (registry.has(event.name)) {
+        const toolCall: ToolCall = {
+          id: event.id,
+          messageId: currentAssistantMessage?.id ?? '',
+          name: event.name,
+          args: event.args,
+          status: 'executing'
+        };
+        toolCalls.push(toolCall);
+
+        if (toolRegistry?.has(event.name)) {
           try {
-            result = await registry.execute(event);
+            result = await toolRegistry.execute(event);
+            toolCall.status = 'complete';
+            toolCall.result = result;
           } catch (error) {
             const err = error as Error;
             result = { error: err.message };
+            toolCall.status = 'error';
+            toolCall.result = result;
           }
         } else {
           result = { error: `No handler for tool: ${event.name}` };
+          toolCall.status = 'error';
+          toolCall.result = result;
         }
 
         adapter.sendToolResult(event.id, result);

@@ -24,6 +24,7 @@
         <forge-tab-bar id="tabBar" clustered active-tab="0">
           <forge-tab value="extractor">Form Data Extractor</forge-tab>
           <forge-tab value="smart-complete">Smart Completion</forge-tab>
+          <forge-tab value="explainer">AI Explainer</forge-tab>
         </forge-tab-bar>
       </forge-toolbar>
 
@@ -127,6 +128,108 @@
                 <label for="sc-founded">Founded Year</label>
                 <input type="text" id="sc-founded" />
               </forge-text-field>
+            </div>
+          </div>
+
+          <!-- AI Explainer -->
+          <div id="explainer-tab" class="tab-panel" style="display: none">
+            <h2 class="forge-typography--heading4">AI Explainer</h2>
+            <p class="forge-typography--subheading2 description">
+              Click AI buttons next to technical terms to get simple explanations
+            </p>
+
+            <div class="technical-content">
+              <p class="forge-typography--body1">
+                Our microservices architecture utilizes an
+                <span class="term">API Gateway</span>
+                <forge-icon-button variant="outlined" id="api-gateway-btn" density="small" theme="tertiary" aria-label="Explain API Gateway" data-term="API Gateway">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                to manage and route incoming requests. Authentication is handled through
+                <span class="term">OAuth 2.0</span>
+                <forge-icon-button variant="outlined" id="oauth-btn" density="small" theme="tertiary" aria-label="Explain OAuth 2.0" data-term="OAuth 2.0">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                with
+                <span class="term">JWT</span>
+                <forge-icon-button variant="outlined" id="jwt-btn" density="small" theme="tertiary" aria-label="Explain JWT" data-term="JWT">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                tokens for secure session management.
+              </p>
+              <p class="forge-typography--body1">
+                The application layer communicates with our data services using
+                <span class="term">GraphQL</span>
+                <forge-icon-button variant="outlined" id="graphql-btn" density="small" theme="tertiary" aria-label="Explain GraphQL" data-term="GraphQL">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                queries, while the infrastructure runs on
+                <span class="term">Kubernetes</span>
+                <forge-icon-button variant="outlined" id="kubernetes-btn" density="small" theme="tertiary" aria-label="Explain Kubernetes" data-term="Kubernetes">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                clusters for scalability and resilience.
+              </p>
+
+              <forge-popover persistent trigger-type="manual" trigger-type="manual" arrow id="api-gateway-popover" anchor="api-gateway-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="filled">Close</forge-button>
+                </div>
+              </forge-popover>
+
+              <forge-popover persistent trigger-type="manual" arrow id="oauth-popover" anchor="oauth-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="filled">Close</forge-button>
+                </div>
+              </forge-popover>
+
+              <forge-popover persistent trigger-type="manual" arrow id="jwt-popover" anchor="jwt-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="filled">Close</forge-button>
+                </div>
+              </forge-popover>
+
+              <forge-popover persistent trigger-type="manual" arrow id="graphql-popover" anchor="graphql-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="filled">Close</forge-button>
+                </div>
+              </forge-popover>
+
+              <forge-popover persistent trigger-type="manual" arrow id="kubernetes-popover" anchor="kubernetes-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="text">Close</forge-button>
+                </div>
+              </forge-popover>
             </div>
           </div>
         </forge-card>

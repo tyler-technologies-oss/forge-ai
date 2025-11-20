@@ -308,7 +308,8 @@ export class AiChatbotComponent extends LitElement {
 
     this.#addMessage(toolMessage);
     this.#scrollAfterUpdate();
-    this.adapter.sendToolResult(toolCallId, result);
+
+    this.adapter.sendMessage(this._contextValue.messages);
   }
 
   #updateMessageToolCalls(messageId: string, toolCalls: ToolCall[]): void {
@@ -323,7 +324,7 @@ export class AiChatbotComponent extends LitElement {
 
   #handleSend(evt: CustomEvent<ForgeAiPromptSendEventData>): void {
     const message = evt.detail.value;
-    if (!message.trim() || !this.adapter) {
+    if (!message.trim() || !this.adapter || this._contextValue.isStreaming) {
       return;
     }
 
@@ -332,7 +333,7 @@ export class AiChatbotComponent extends LitElement {
       role: 'user',
       content: message,
       timestamp: evt.detail.date.getTime(),
-      status: 'complete',
+      status: 'pending',
       attachments: [...this.#pendingAttachments]
     };
 
@@ -343,7 +344,14 @@ export class AiChatbotComponent extends LitElement {
     const attachments = [...this.#pendingAttachments];
     this.#pendingAttachments = [];
 
-    this.adapter.sendMessage(this._contextValue.messages, attachments);
+    try {
+      this.adapter.sendMessage(this._contextValue.messages, attachments);
+      this.#updateMessageStatus(userMessage.id, 'complete');
+    } catch (error) {
+      this.#updateMessageStatus(userMessage.id, 'error');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
+      this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: errorMessage } });
+    }
   }
 
   #handleStop(): void {
@@ -484,7 +492,7 @@ export class AiChatbotComponent extends LitElement {
    * @param attachments - Optional file attachments
    */
   public sendMessage(content: string, attachments?: FileAttachment[]): void {
-    if (!content.trim() || !this.adapter) {
+    if (!content.trim() || !this.adapter || this._contextValue.isStreaming) {
       return;
     }
 
@@ -493,7 +501,7 @@ export class AiChatbotComponent extends LitElement {
       role: 'user',
       content,
       timestamp: Date.now(),
-      status: 'complete',
+      status: 'pending',
       attachments: attachments || []
     };
 
@@ -501,7 +509,14 @@ export class AiChatbotComponent extends LitElement {
     this.#scrollAfterUpdate();
     this.#dispatchEvent({ type: 'forge-ai-chatbot-message-sent', detail: { message: userMessage } });
 
-    this.adapter.sendMessage(this._contextValue.messages, attachments);
+    try {
+      this.adapter.sendMessage(this._contextValue.messages, attachments);
+      this.#updateMessageStatus(userMessage.id, 'complete');
+    } catch (error) {
+      this.#updateMessageStatus(userMessage.id, 'error');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
+      this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: errorMessage } });
+    }
   }
 
   /**
@@ -539,9 +554,9 @@ export class AiChatbotComponent extends LitElement {
     }
 
     const lastMessage = this._contextValue.messages[this._contextValue.messages.length - 1];
-    const hasAssistantResponse = lastMessage?.role === 'assistant';
+    const hasAssistantContent = lastMessage?.role === 'assistant' && lastMessage.content.trim().length > 0;
 
-    if (hasAssistantResponse) {
+    if (hasAssistantContent) {
       return nothing;
     }
 

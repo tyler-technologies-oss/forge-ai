@@ -19,6 +19,7 @@ interface CoreMessage {
   id: string;
   role: 'user' | 'assistant' | 'system' | 'tool';
   content: string;
+  attachments?: Array<{ filename: string; mimeType: string; data: string }>;
 }
 
 interface AgUiRequestInput {
@@ -46,6 +47,7 @@ interface AgUiEvent {
   type: AgUiEventType;
   delta?: string;
   messageId?: string;
+  parentMessageId?: string;
   toolCallId?: string;
   toolName?: string;
   toolCallName?: string;
@@ -62,7 +64,7 @@ interface ToolCallState {
 export class AgUiAdapter extends AiChatbotAdapterBase {
   #config: AgUiAdapterConfig;
   #abortController: AbortController | null = null;
-  #currentMessageId: string | null = null;
+  #activeMessageIds = new Set<string>();
   #toolCalls = new Map<string, ToolCallState>();
   #threadId: string;
 
@@ -101,13 +103,21 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
 
   public sendMessage(messages: ChatMessage[], attachments?: FileAttachment[]): void {
     this.#abortController = new AbortController();
-    this._updateState({ isRunning: true });
 
-    const input = this._buildRequest(messages, attachments);
+    this._buildRequestAndExecute(messages, attachments);
+  }
+
+  protected async _buildRequestAndExecute(messages: ChatMessage[], attachments?: FileAttachment[]): Promise<void> {
+    const input = await this._buildRequest(messages, attachments);
     this._executeRequest(input);
   }
 
   public sendToolResult(_toolCallId: string, result: unknown): void {
+    // Note: This is a placeholder implementation that sends only the tool result message.
+    // The chatbot component will have already added the tool message to its context,
+    // and will call sendMessage with the full history through the adapter.
+    // This method exists to satisfy the abstract interface but is not the primary path
+    // unless used on its own.
     const toolMessage: ChatMessage = {
       id: generateId('tool'),
       role: 'tool',
@@ -122,15 +132,18 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
   public abort(): void {
     this.#abortController?.abort();
     this.#abortController = null;
+    this.#toolCalls.clear();
+    this.#activeMessageIds.clear();
     this._updateState({ isRunning: false });
   }
 
-  protected _buildRequest(messages: ChatMessage[], _attachments?: FileAttachment[]): AgUiRequestInput {
+  protected async _buildRequest(messages: ChatMessage[], attachments?: FileAttachment[]): Promise<AgUiRequestInput> {
     const context = this.#config.context ? this._transformContext(this.#config.context) : undefined;
+    const transformedMessages = await this._transformMessages(messages, attachments);
     return {
       runId: generateId('run'),
       threadId: this.#threadId,
-      messages: this._transformMessages(messages),
+      messages: transformedMessages,
       context,
       tools: this._tools
     };
@@ -143,10 +156,49 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     }));
   }
 
-  protected _transformMessages(messages: ChatMessage[]): CoreMessage[] {
-    return messages
-      .filter(msg => msg.role === 'user' || msg.role === 'tool')
-      .map(msg => ({ id: msg.id, role: msg.role, content: msg.content }));
+  protected async _transformMessages(
+    messages: ChatMessage[],
+    pendingAttachments?: FileAttachment[]
+  ): Promise<CoreMessage[]> {
+    const filtered = messages.filter(
+      msg => msg.role === 'user' || msg.role === 'assistant' || msg.role === 'system' || msg.role === 'tool'
+    );
+
+    return Promise.all(
+      filtered.map(async (msg, index) => {
+        const coreMsg: CoreMessage = { id: msg.id, role: msg.role, content: msg.content };
+
+        const attachmentsToAdd =
+          index === filtered.length - 1 && pendingAttachments
+            ? [...(msg.attachments || []), ...pendingAttachments]
+            : msg.attachments;
+
+        if (attachmentsToAdd && attachmentsToAdd.length > 0) {
+          coreMsg.attachments = await Promise.all(
+            attachmentsToAdd.map(async att => ({
+              filename: att.file.name,
+              mimeType: att.file.type,
+              data: await this._convertFileToBase64(att.file)
+            }))
+          );
+        }
+
+        return coreMsg;
+      })
+    );
+  }
+
+  protected async _convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
   }
 
   protected async _executeRequest(input: AgUiRequestInput): Promise<void> {
@@ -156,12 +208,14 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
       ...(this.#config.headers || {})
     };
 
+    let response: Response | undefined;
+
     try {
       if (!this.#abortController) {
         throw new Error('AbortController not initialized');
       }
 
-      const response = await fetch(url, {
+      response = await fetch(url, {
         method: 'POST',
         headers,
         credentials: this.#config.credentials || 'include',
@@ -170,7 +224,16 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        let errorDetail = response.statusText;
+        try {
+          const errorBody = await response.text();
+          if (errorBody) {
+            errorDetail = errorBody;
+          }
+        } catch {
+          // Use statusText if body read fails
+        }
+        throw new Error(`HTTP ${response.status}: ${errorDetail}`);
       }
 
       if (!response.body) {
@@ -192,23 +255,63 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     const reader = body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let currentEvent: { event?: string; data: string[]; id?: string; retry?: number } = { data: [] };
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
 
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split(/\r?\n/);
+        buffer = lines.pop() || '';
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          this._handleEventLine(line.slice(6));
+        for (const line of lines) {
+          if (line.trim() === '') {
+            if (currentEvent.data.length > 0) {
+              this._handleSSEEvent(currentEvent);
+              currentEvent = { data: [] };
+            }
+            continue;
+          }
+
+          const colonIndex = line.indexOf(':');
+          if (colonIndex === -1) {
+            continue;
+          }
+
+          const field = line.slice(0, colonIndex).trim();
+          const fieldValue = line.slice(colonIndex + 1).trimStart();
+
+          switch (field) {
+            case 'event':
+              currentEvent.event = fieldValue;
+              break;
+            case 'data':
+              currentEvent.data.push(fieldValue);
+              break;
+            case 'id':
+              currentEvent.id = fieldValue;
+              break;
+            case 'retry':
+              currentEvent.retry = parseInt(fieldValue, 10);
+              break;
+          }
         }
       }
+    } finally {
+      reader.releaseLock();
     }
+  }
+
+  protected _handleSSEEvent(event: { event?: string; data: string[]; id?: string; retry?: number }): void {
+    const data = event.data.join('\n');
+    if (!data) {
+      return;
+    }
+    this._handleEventLine(data);
   }
 
   protected _handleEventLine(data: string): void {
@@ -216,39 +319,63 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
       const event = JSON.parse(data) as AgUiEvent;
       this._handleProtocolEvent(event);
     } catch (e) {
-      console.error('Failed to parse SSE event:', e, data);
+      const errorMsg = `Failed to parse SSE event: ${(e as Error).message}`;
+      this._emitError(errorMsg);
     }
   }
 
   protected _handleProtocolEvent(event: AgUiEvent): void {
     switch (event.type) {
       case 'TEXT_MESSAGE_START':
-        this._handleMessageStart(event.messageId || '');
+        if (!event.messageId) {
+          this._emitError('TEXT_MESSAGE_START event missing messageId');
+          return;
+        }
+        this._handleMessageStart(event.messageId);
         break;
       case 'TEXT_MESSAGE_CHUNK':
       case 'TEXT_MESSAGE_CONTENT':
-        this._handleMessageChunk(event.messageId || '', event.delta || '');
+        if (!event.messageId) {
+          this._emitError('TEXT_MESSAGE_CHUNK/CONTENT event missing messageId');
+          return;
+        }
+        this._handleMessageChunk(event.messageId, event.delta || '');
         break;
       case 'TEXT_MESSAGE_END':
-        this._handleMessageEnd(event.messageId || '');
+        if (!event.messageId) {
+          this._emitError('TEXT_MESSAGE_END event missing messageId');
+          return;
+        }
+        this._handleMessageEnd(event.messageId);
         break;
-      case 'TOOL_CALL_START':
-        this._handleToolStart(
-          event.toolCallId || '',
-          event.messageId || '',
-          event.toolName || event.toolCallName || ''
-        );
+      case 'TOOL_CALL_START': {
+        const messageId = event.parentMessageId || event.messageId;
+        if (!event.toolCallId || !messageId) {
+          this._emitError('TOOL_CALL_START event missing toolCallId or parentMessageId/messageId');
+          return;
+        }
+        this._handleToolStart(event.toolCallId, messageId, event.toolName || event.toolCallName || '');
         break;
+      }
       case 'TOOL_CALL_ARGS':
-        this._handleToolArgs(event.toolCallId || '', event.delta, event.args);
+        if (!event.toolCallId) {
+          this._emitError('TOOL_CALL_ARGS event missing toolCallId');
+          return;
+        }
+        this._handleToolArgs(event.toolCallId, event.delta, event.args);
         break;
       case 'TOOL_CALL_END':
-        this._handleToolEnd(event.toolCallId || '');
+        if (!event.toolCallId) {
+          this._emitError('TOOL_CALL_END event missing toolCallId');
+          return;
+        }
+        this._handleToolEnd(event.toolCallId);
         break;
       case 'RUN_STARTED':
         this._updateState({ isRunning: true });
         break;
       case 'RUN_FINISHED':
+        this.#toolCalls.clear();
         this._updateState({ isRunning: false });
         this._emitRunFinished();
         break;
@@ -260,12 +387,12 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
   }
 
   protected _handleMessageStart(messageId: string): void {
-    this.#currentMessageId = messageId;
+    this.#activeMessageIds.add(messageId);
     this._emitMessageStart(messageId);
   }
 
   protected _handleMessageChunk(messageId: string, delta: string): void {
-    if (!this.#currentMessageId) {
+    if (!this.#activeMessageIds.has(messageId)) {
       this._handleMessageStart(messageId);
     }
     this._emitMessageDelta(messageId, delta);
@@ -273,20 +400,22 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
 
   protected _handleMessageEnd(messageId: string): void {
     this._emitMessageEnd(messageId);
-    this.#currentMessageId = null;
+    this.#activeMessageIds.delete(messageId);
   }
 
   protected _handleToolStart(toolCallId: string, messageId: string, toolName: string): void {
     this.#toolCalls.set(toolCallId, { messageId, name: toolName, argsBuffer: '' });
   }
 
-  protected _handleToolArgs(toolCallId: string, argsChunk?: string, _args?: Record<string, unknown>): void {
+  protected _handleToolArgs(toolCallId: string, argsChunk?: string, args?: Record<string, unknown>): void {
     const toolCall = this.#toolCalls.get(toolCallId);
     if (!toolCall) {
       return;
     }
 
-    if (argsChunk) {
+    if (args) {
+      toolCall.argsBuffer = JSON.stringify(args);
+    } else if (argsChunk) {
       toolCall.argsBuffer += argsChunk;
     }
   }
@@ -301,7 +430,20 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     try {
       args = JSON.parse(toolCall.argsBuffer);
     } catch (e) {
-      console.error('Failed to parse tool args:', e);
+      const errorMsg = `Failed to parse tool args for ${toolCall.name}: ${(e as Error).message}`;
+      this._emitError(errorMsg);
+      this.#toolCalls.delete(toolCallId);
+      return;
+    }
+
+    const toolDef = this._tools?.find(t => t.name === toolCall.name);
+    if (toolDef) {
+      const validationError = this._validateToolArgs(toolCall.name, args, toolDef);
+      if (validationError) {
+        this._emitError(validationError);
+        this.#toolCalls.delete(toolCallId);
+        return;
+      }
     }
 
     const event: ToolCallEvent = {
@@ -313,5 +455,21 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
 
     this._emitToolCall(event);
     this.#toolCalls.delete(toolCallId);
+  }
+
+  protected _validateToolArgs(toolName: string, args: Record<string, unknown>, toolDef: ToolDefinition): string | null {
+    const { parameters } = toolDef;
+    if (!parameters || parameters.type !== 'object') {
+      return null;
+    }
+
+    const required = parameters.required || [];
+    for (const field of required) {
+      if (!(field in args)) {
+        return `Tool ${toolName} missing required parameter: ${field}`;
+      }
+    }
+
+    return null;
   }
 }
