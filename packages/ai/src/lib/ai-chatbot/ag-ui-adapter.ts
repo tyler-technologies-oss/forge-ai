@@ -375,6 +375,10 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
         this._updateState({ isRunning: true });
         break;
       case 'RUN_FINISHED':
+        // Finalize any active messages before marking run as complete
+        this.#activeMessageIds.forEach(messageId => {
+          this._handleMessageEnd(messageId);
+        });
         this.#toolCalls.clear();
         this._updateState({ isRunning: false });
         this._emitRunFinished();
@@ -393,6 +397,12 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
 
   protected _handleMessageChunk(messageId: string, delta: string): void {
     if (!this.#activeMessageIds.has(messageId)) {
+      // Finalize any other active messages before starting a new one
+      this.#activeMessageIds.forEach(activeId => {
+        if (activeId !== messageId) {
+          this._handleMessageEnd(activeId);
+        }
+      });
       this._handleMessageStart(messageId);
     }
     this._emitMessageDelta(messageId, delta);
