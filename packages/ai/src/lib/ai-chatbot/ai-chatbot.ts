@@ -4,23 +4,10 @@ import { provide } from '@lit/context';
 import { when } from 'lit/directives/when.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-
-import '../ai-chat-interface';
-import '../ai-prompt';
-import '../ai-file-picker';
-import '../ai-user-message';
-import '../ai-response-message';
-import '../ai-thinking-indicator';
-import '../ai-empty-state';
-import '../ai-suggestions';
-import '../ai-chat-header';
-import '../ai-error-message';
-import './ai-chatbot-tool-call.js';
 import type { AiChatInterfaceComponent } from '../ai-chat-interface';
 import type { ForgeAiPromptSendEventData } from '../ai-prompt';
 import type { ForgeAiFilePickerChangeEventData } from '../ai-file-picker';
 import type { Suggestion, ForgeAiSuggestionsEventData } from '../ai-suggestions';
-
 import { chatbotContext, type ChatbotContext } from './context.js';
 import {
   AiChatbotAdapterBase,
@@ -33,6 +20,18 @@ import {
 } from './adapter-base.js';
 import type { ChatMessage, ToolDefinition, ToolCall, FileAttachment } from './types.js';
 import { generateId, renderMarkdown } from './utils.js';
+
+import '../ai-chat-interface';
+import '../ai-prompt';
+import '../ai-file-picker';
+import '../ai-user-message';
+import '../ai-response-message';
+import '../ai-thinking-indicator';
+import '../ai-empty-state';
+import '../ai-suggestions';
+import '../ai-chat-header';
+import '../ai-error-message';
+import './ai-chatbot-tool-call.js';
 
 import styles from './ai-chatbot.scss?inline';
 
