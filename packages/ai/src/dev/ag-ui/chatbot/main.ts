@@ -2,6 +2,7 @@ import { tylIconForgeLogo, tylIconInfoOutline } from '@tylertech/tyler-icons';
 import {
   AgUiAdapter,
   generateId,
+  createToolRenderer,
   type AiChatbotComponent,
   type ForgeAiChatbotToolCallEventData,
   type ToolDefinition
@@ -18,6 +19,8 @@ import {
   defineScaffoldComponent,
   IconRegistry
 } from '@tylertech/forge';
+
+import './recipe-card.js';
 
 defineScaffoldComponent();
 defineAppBarComponent();
@@ -89,7 +92,62 @@ const tools: ToolDefinition[] = [
         particleCount: { type: 'number', description: 'Number of particles (default: 100)' },
         spread: { type: 'number', description: 'Spread angle in degrees (default: 70)' }
       }
-    }
+    },
+    renderer: createToolRenderer({
+      render: toolCall => {
+        const container = document.createElement('div');
+        container.style.padding = '16px';
+        container.style.backgroundColor = 'var(--forge-theme-surface-container)';
+        container.style.borderRadius = '8px';
+        container.style.marginBlockStart = '8px';
+
+        const args = toolCall.args as ConfettiArgs;
+        const result = toolCall.result as { success: boolean; message: string };
+
+        container.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px; margin-block-end: 8px;">
+            <span style="font-size: 24px;">🎉</span>
+            <strong>Confetti Animation</strong>
+          </div>
+          <div style="font-size: 14px; color: var(--forge-theme-on-surface-variant);">
+            <div>Particles: ${args?.particleCount || 100}</div>
+            <div>Spread: ${args?.spread || 100}°</div>
+            <div style="margin-block-start: 8px; color: var(--forge-theme-success);">${result?.message || 'Success!'}</div>
+          </div>
+        `;
+
+        return container;
+      }
+    })
+  },
+  {
+    name: 'displayRecipe',
+    description:
+      'Display a recipe in a formatted card with ingredients and instructions. Use this tool when you want to present recipe information in a visually structured way.',
+    parameters: {
+      type: 'object' as const,
+      properties: {
+        title: { type: 'string', description: 'Recipe name' },
+        description: { type: 'string', description: 'Brief description of the dish' },
+        prepTime: { type: 'string', description: 'Preparation time (e.g., "15 minutes")' },
+        cookTime: { type: 'string', description: 'Cooking time (e.g., "30 minutes")' },
+        servings: { type: 'number', description: 'Number of servings' },
+        ingredients: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'List of ingredients with quantities'
+        },
+        instructions: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Step-by-step cooking instructions'
+        }
+      },
+      required: ['title', 'prepTime', 'cookTime', 'servings', 'ingredients', 'instructions']
+    },
+    renderer: createToolRenderer({
+      elementTag: 'recipe-card'
+    })
   }
 ];
 
@@ -184,7 +242,8 @@ chatbot.adapter = adapter;
 chatbot.tools = tools;
 chatbot.suggestions = [
   { text: 'What can you help me with?', value: 'What can you help me with?' },
-  { text: 'Show me confetti!', value: 'Show me confetti!' }
+  { text: 'Show me confetti!', value: 'Show me confetti!' },
+  { text: 'Show me a recipe for chocolate chip cookies', value: 'Show me a recipe for chocolate chip cookies' }
 ];
 
 chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<ForgeAiChatbotToolCallEventData>) => {
@@ -202,5 +261,11 @@ chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<For
       success: true,
       message: `Confetti shown with ${confettiArgs?.particleCount || 100} particles!`
     });
+  }
+
+  if (toolName === 'displayRecipe') {
+    // Renderer tool - call respond() to complete and trigger renderer
+    // Result not sent to LLM, component reads from toolCall.args
+    await respond();
   }
 });

@@ -1,6 +1,7 @@
-import { LitElement, html, unsafeCSS, type TemplateResult, nothing } from 'lit';
+import { LitElement, html, unsafeCSS, type TemplateResult, nothing, type PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import type { ToolCall } from './types.js';
+import { createRef, ref } from 'lit/directives/ref.js';
+import type { ToolCall, ToolDefinition } from './types.js';
 
 import '../ai-artifact';
 
@@ -24,8 +25,14 @@ export class AiChatbotToolCallComponent extends LitElement {
   @property({ attribute: false })
   public toolCall!: ToolCall;
 
+  @property({ attribute: false })
+  public toolDefinition?: ToolDefinition;
+
   @state()
   private _expanded = false;
+
+  #customRendererRef = createRef<HTMLDivElement>();
+  #renderedElement?: HTMLElement | DocumentFragment;
 
   #toggleExpanded(): void {
     this._expanded = !this._expanded;
@@ -87,6 +94,48 @@ export class AiChatbotToolCallComponent extends LitElement {
         `;
   }
 
+  get #customRenderer(): TemplateResult | typeof nothing {
+    const renderer = this.toolDefinition?.renderer;
+    if (!renderer || this.toolCall.status !== 'complete') {
+      return nothing;
+    }
+
+    if (renderer.useSlot) {
+      return html`<slot name="tool-render-${this.toolCall.id}"></slot>`;
+    }
+
+    if (renderer.elementTag || renderer.render) {
+      return html`<div ${ref(this.#customRendererRef)}></div>`;
+    }
+
+    return nothing;
+  }
+
+  public override updated(changedProperties: PropertyValues<this>): void {
+    super.updated(changedProperties);
+
+    if (changedProperties.has('toolCall') || changedProperties.has('toolDefinition')) {
+      const renderer = this.toolDefinition?.renderer;
+      const container = this.#customRendererRef.value;
+
+      if (container && this.toolCall.status === 'complete') {
+        if (this.#renderedElement && container.contains(this.#renderedElement as Node)) {
+          container.removeChild(this.#renderedElement as Node);
+        }
+
+        if (renderer?.elementTag) {
+          const element = document.createElement(renderer.elementTag) as HTMLElement & { toolCall: ToolCall };
+          element.toolCall = this.toolCall;
+          this.#renderedElement = element;
+          container.appendChild(element);
+        } else if (renderer?.render) {
+          this.#renderedElement = renderer.render(this.toolCall);
+          container.appendChild(this.#renderedElement as Node);
+        }
+      }
+    }
+  }
+
   get #details(): TemplateResult | typeof nothing {
     if (!this._expanded) {
       return nothing;
@@ -138,6 +187,7 @@ export class AiChatbotToolCallComponent extends LitElement {
         </div>
         ${this.#details}
       </forge-ai-artifact>
+      ${this.#customRenderer}
     `;
   }
 }

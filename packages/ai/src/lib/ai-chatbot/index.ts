@@ -2,6 +2,8 @@ export { AiChatbotComponent, AiChatbotComponentTagName } from './ai-chatbot.js';
 export type {
   ForgeAiChatbotMessageEventData,
   ForgeAiChatbotToolCallEventData,
+  ForgeAiChatbotToolRenderEventData,
+  ForgeAiChatbotToolRenderCleanupEventData,
   ForgeAiChatbotErrorEventData
 } from './ai-chatbot.js';
 export { AiChatbotToolCallComponent, AiChatbotToolCallComponentTagName } from './ai-chatbot-tool-call.js';
@@ -19,7 +21,7 @@ export {
 } from './adapter-base.js';
 
 // Chatbot types
-export type { ChatMessage, ToolDefinition, ToolCall, FileAttachment } from './types.js';
+export type { ChatMessage, ToolDefinition, ToolCall, ToolRenderer, FileAttachment } from './types.js';
 
 // Chatbot context
 export type { ChatbotContext } from './context.js';
@@ -32,6 +34,9 @@ export { AiPromptExecutor, type AiPromptExecutorConfig, type AiPromptExecutorRes
 
 // Tool registry
 export { ToolRegistry, type ToolHandler } from './tool-registry.js';
+
+// Tool renderer helper
+export { createToolRenderer, type CreateToolRendererConfig } from './create-tool-renderer.js';
 
 // Utilities
 export { generateId, renderMarkdown } from './utils.js';

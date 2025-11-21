@@ -40,6 +40,10 @@ export class ToolRegistry {
     return [...this.#definitions];
   }
 
+  public getDefinition(toolName: string): ToolDefinition | undefined {
+    return this.#definitions.find(def => def.name === toolName);
+  }
+
   public clear(): void {
     this.#handlers.clear();
     this.#definitions = [];

@@ -1,0 +1,54 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+
+:host {
+  display: block;
+  margin-block-start: #{forge-spacing.variable(small)};
+}
+
+.recipe-description {
+  padding-inline: #{forge-spacing.variable(medium)};
+  padding-block-end: #{forge-spacing.variable(medium)};
+  color: #{forge-theme.variable(text-medium)};
+}
+
+.recipe-meta {
+  display: flex;
+  gap: #{forge-spacing.variable(medium)};
+  padding-inline: #{forge-spacing.variable(medium)};
+  padding-block-end: #{forge-spacing.variable(medium)};
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
+  color: #{forge-theme.variable(text-medium)};
+}
+
+.meta-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.recipe-section {
+  padding-inline: #{forge-spacing.variable(medium)};
+  padding-block-end: #{forge-spacing.variable(medium)};
+}
+
+.section-title {
+  margin-block-end: #{forge-spacing.variable(small)};
+}
+
+forge-list {
+  margin-block-start: 0;
+}
+
+.instructions-list {
+  margin: 0;
+  padding-inline-start: #{forge-spacing.variable(medium)};
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(small)};
+}

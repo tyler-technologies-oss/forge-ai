@@ -19,7 +19,7 @@ import {
   type ErrorEvent,
   type AdapterState
 } from './adapter-base.js';
-import type { ChatMessage, ToolDefinition, ToolCall, FileAttachment, UploadedFileMetadata } from './types.js';
+import type { ChatMessage, MessageItem, ToolDefinition, ToolCall, FileAttachment, UploadedFileMetadata } from './types.js';
 import { generateId, renderMarkdown } from './utils.js';
 
 import '../ai-chat-interface';
@@ -48,6 +48,8 @@ declare global {
     'forge-ai-chatbot-message-sent': CustomEvent<ForgeAiChatbotMessageEventData>;
     'forge-ai-chatbot-message-received': CustomEvent<ForgeAiChatbotMessageEventData>;
     'forge-ai-chatbot-tool-call': CustomEvent<ForgeAiChatbotToolCallEventData>;
+    'forge-ai-chatbot-tool-render': CustomEvent<ForgeAiChatbotToolRenderEventData>;
+    'forge-ai-chatbot-tool-render-cleanup': CustomEvent<ForgeAiChatbotToolRenderCleanupEventData>;
     'forge-ai-chatbot-error': CustomEvent<ForgeAiChatbotErrorEventData>;
     'forge-ai-chatbot-expand': CustomEvent<void>;
     'forge-ai-chatbot-minimize': CustomEvent<void>;
@@ -64,7 +66,16 @@ export interface ForgeAiChatbotToolCallEventData {
   toolCallId: string;
   toolName: string;
   arguments: Record<string, unknown>;
-  respond: (result: unknown) => Promise<void>;
+  respond: (result?: unknown) => Promise<void>;
+}
+
+export interface ForgeAiChatbotToolRenderEventData {
+  toolCall: ToolCall;
+  slotName: string;
+}
+
+export interface ForgeAiChatbotToolRenderCleanupEventData {
+  slotNames: string[];
 }
 
 export interface ForgeAiChatbotErrorEventData {
@@ -134,7 +145,7 @@ export class AiChatbotComponent extends LitElement {
 
   @provide({ context: chatbotContext })
   private _contextValue: ChatbotContext = {
-    messages: [],
+    messageItems: [],
     tools: new Map(),
     isConnected: false,
     isStreaming: false,
@@ -273,7 +284,7 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#toolCalls.set(event.id, toolCall);
-    this.#updateMessageToolCalls(event.messageId, [toolCall]);
+    this.#addMessageItem({ type: 'toolCall', data: toolCall });
     this.#scrollAfterUpdate();
 
     this.#dispatchEvent({
@@ -317,28 +328,31 @@ export class AiChatbotComponent extends LitElement {
     toolCall.status = 'complete';
     this.#toolCalls.set(toolCallId, toolCall);
 
-    const toolMessage: ChatMessage = {
-      id: generateId('tool'),
-      role: 'tool',
-      content: JSON.stringify(result),
-      timestamp: Date.now(),
-      status: 'complete'
-    };
+    const toolDefinition = this._contextValue.tools.get(toolCall.name);
+    if (toolDefinition?.renderer?.useSlot) {
+      const slotName = `tool-render-${toolCallId}`;
+      this.#dispatchEvent({
+        type: 'forge-ai-chatbot-tool-render',
+        detail: { toolCall, slotName }
+      });
+    }
 
-    this.#addMessage(toolMessage);
-    this.#scrollAfterUpdate();
+    // Only send result to LLM if tool has no renderer (executor tools)
+    // Renderer tools don't send results back to LLM to avoid confusing it
+    if (!toolDefinition?.renderer) {
+      const toolMessage: ChatMessage = {
+        id: generateId('tool'),
+        role: 'tool',
+        content: JSON.stringify(result),
+        timestamp: Date.now(),
+        status: 'complete'
+      };
 
-    this.adapter.sendMessage(this._contextValue.messages);
-  }
+      this.#addMessage(toolMessage);
+      this.#scrollAfterUpdate();
 
-  #updateMessageToolCalls(messageId: string, toolCalls: ToolCall[]): void {
-    const messages = this._contextValue.messages.map(msg => {
-      if (msg.id === messageId) {
-        return { ...msg, toolCalls: [...(msg.toolCalls || []), ...toolCalls] };
-      }
-      return msg;
-    });
-    this.#updateContext({ messages });
+      this.adapter.sendMessage(this.getMessages());
+    }
   }
 
   async #handleSend(evt: CustomEvent<ForgeAiPromptSendEventData>): Promise<void> {
@@ -389,7 +403,7 @@ export class AiChatbotComponent extends LitElement {
     this.#fileMap.clear();
 
     try {
-      this.adapter.sendMessage(this._contextValue.messages);
+      this.adapter.sendMessage(this.getMessages());
       this.#updateMessageStatus(userMessage.id, 'complete');
     } catch (error) {
       this.#updateMessageStatus(userMessage.id, 'error');
@@ -403,27 +417,28 @@ export class AiChatbotComponent extends LitElement {
     this.#updateContext({ isStreaming: false });
   }
 
-  async #handleCopy(assistantMessageIndex: number): Promise<void> {
-    const message = this._contextValue.messages[assistantMessageIndex];
-    if (!message) {
+  async #handleCopy(messageItemIndex: number): Promise<void> {
+    const item = this._contextValue.messageItems[messageItemIndex];
+    if (!item || item.type !== 'message') {
       return;
     }
 
     try {
-      await navigator.clipboard.writeText(message.content);
+      await navigator.clipboard.writeText(item.data.content);
     } catch {
       // Silent fail
     }
   }
 
-  #handleRefresh(assistantMessageIndex: number): void {
+  #handleRefresh(messageItemIndex: number): void {
     if (!this.adapter) {
       return;
     }
 
     let userMessageIndex = -1;
-    for (let i = assistantMessageIndex - 1; i >= 0; i--) {
-      if (this._contextValue.messages[i].role === 'user') {
+    for (let i = messageItemIndex - 1; i >= 0; i--) {
+      const item = this._contextValue.messageItems[i];
+      if (item.type === 'message' && item.data.role === 'user') {
         userMessageIndex = i;
         break;
       }
@@ -433,10 +448,10 @@ export class AiChatbotComponent extends LitElement {
       return;
     }
 
-    const messages = this._contextValue.messages.filter((_, index) => index !== assistantMessageIndex);
-    this.#updateContext({ messages });
+    const messageItems = this._contextValue.messageItems.filter((_, index) => index !== messageItemIndex);
+    this.#updateContext({ messageItems });
 
-    this.adapter.sendMessage(messages);
+    this.adapter.sendMessage(this.getMessages());
   }
 
   #handleThumbsUp(messageId: string): void {
@@ -529,32 +544,62 @@ export class AiChatbotComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-info' });
   }
 
+  #addMessageItem(item: MessageItem): void {
+    const messageItems = [...this._contextValue.messageItems, item];
+    this.#updateContext({ messageItems });
+  }
+
   #addMessage(message: ChatMessage): void {
-    const messages = [...this._contextValue.messages, message];
-    this.#updateContext({ messages });
+    this.#addMessageItem({ type: 'message', data: message });
   }
 
   #appendToMessage(id: string, content: string): void {
-    const messages = this._contextValue.messages.map(msg =>
-      msg.id === id ? { ...msg, content: msg.content + content } : msg
-    );
-    this.#updateContext({ messages });
+    const messageItems = this._contextValue.messageItems.map(item => {
+      if (item.type === 'message' && item.data.id === id) {
+        return { ...item, data: { ...item.data, content: item.data.content + content } };
+      }
+      return item;
+    });
+    this.#updateContext({ messageItems });
   }
 
   #getMessage(id: string): ChatMessage | undefined {
-    return this._contextValue.messages.find(msg => msg.id === id);
+    const item = this._contextValue.messageItems.find(
+      i => i.type === 'message' && i.data.id === id
+    );
+    return item?.type === 'message' ? item.data : undefined;
   }
 
   #updateMessageStatus(id: string, status: ChatMessage['status']): void {
-    const messages = this._contextValue.messages.map(msg => (msg.id === id ? { ...msg, status } : msg));
-    this.#updateContext({ messages });
+    const messageItems = this._contextValue.messageItems.map(item => {
+      if (item.type === 'message' && item.data.id === id) {
+        return { ...item, data: { ...item.data, status } };
+      }
+      return item;
+    });
+    this.#updateContext({ messageItems });
   }
 
   /**
    * Clears all messages from the chat history.
    */
   public clearMessages(): void {
-    this.#updateContext({ messages: [] });
+    const slotNames: string[] = [];
+    for (const [toolCallId, toolCall] of this.#toolCalls) {
+      const toolDefinition = this._contextValue.tools.get(toolCall.name);
+      if (toolDefinition?.renderer?.useSlot) {
+        slotNames.push(`tool-render-${toolCallId}`);
+      }
+    }
+
+    if (slotNames.length > 0) {
+      this.#dispatchEvent({
+        type: 'forge-ai-chatbot-tool-render-cleanup',
+        detail: { slotNames }
+      });
+    }
+
+    this.#updateContext({ messageItems: [] });
     this.#toolCalls.clear();
     this.#fileMap.clear();
     this.#pendingAttachments = [];
@@ -565,7 +610,25 @@ export class AiChatbotComponent extends LitElement {
    * @returns Array of chat messages
    */
   public getMessages(): ChatMessage[] {
-    return [...this._contextValue.messages];
+    const messages: ChatMessage[] = [];
+    let currentMessage: ChatMessage | null = null;
+
+    for (const item of this._contextValue.messageItems) {
+      if (item.type === 'message') {
+        if (currentMessage) {
+          messages.push(currentMessage);
+        }
+        currentMessage = { ...item.data, toolCalls: [] };
+      } else if (item.type === 'toolCall' && currentMessage?.id === item.data.messageId) {
+        currentMessage.toolCalls = [...(currentMessage.toolCalls || []), item.data];
+      }
+    }
+
+    if (currentMessage) {
+      messages.push(currentMessage);
+    }
+
+    return messages;
   }
 
   /**
@@ -573,7 +636,20 @@ export class AiChatbotComponent extends LitElement {
    * @param messages - Array of chat messages to set
    */
   public setMessages(messages: ChatMessage[]): void {
-    this.#updateContext({ messages: [...messages] });
+    const messageItems: MessageItem[] = [];
+
+    for (const msg of messages) {
+      messageItems.push({ type: 'message', data: { ...msg, toolCalls: undefined } });
+
+      if (msg.toolCalls) {
+        for (const toolCall of msg.toolCalls) {
+          messageItems.push({ type: 'toolCall', data: toolCall });
+          this.#toolCalls.set(toolCall.id, toolCall);
+        }
+      }
+    }
+
+    this.#updateContext({ messageItems });
   }
 
   /**
@@ -638,7 +714,7 @@ export class AiChatbotComponent extends LitElement {
     this.#fileMap.clear();
 
     try {
-      this.adapter.sendMessage(this._contextValue.messages);
+      this.adapter.sendMessage(this.getMessages());
       this.#updateMessageStatus(userMessage.id, 'complete');
     } catch (error) {
       this.#updateMessageStatus(userMessage.id, 'error');
@@ -667,7 +743,7 @@ export class AiChatbotComponent extends LitElement {
             .filename=${attachment.filename}
             .size=${attachment.size}
             .mimeType=${attachment.mimeType}
-            .thumbnail=${attachment.thumbnail}
+            .thumbnail=${attachment.thumbnail ?? ''}
             ?uploading=${attachment.uploading}
             .progress=${attachment.progress}
             removable
@@ -711,8 +787,11 @@ export class AiChatbotComponent extends LitElement {
       return nothing;
     }
 
-    const lastMessage = this._contextValue.messages[this._contextValue.messages.length - 1];
-    const hasAssistantContent = lastMessage?.role === 'assistant' && lastMessage.content.trim().length > 0;
+    const lastItem = this._contextValue.messageItems[this._contextValue.messageItems.length - 1];
+    const hasAssistantContent =
+      lastItem?.type === 'message' &&
+      lastItem.data.role === 'assistant' &&
+      lastItem.data.content.trim().length > 0;
 
     if (hasAssistantContent) {
       return nothing;
@@ -723,22 +802,15 @@ export class AiChatbotComponent extends LitElement {
     </div>`;
   }
 
-  #renderToolCalls(toolCalls?: ToolCall[]): TemplateResult | typeof nothing {
-    if (!toolCalls || toolCalls.length === 0) {
-      return nothing;
-    }
-
-    return html`
-      <div class="tool-calls-container">
-        ${toolCalls.map(
-          toolCall => html` <forge-ai-chatbot-tool-call .toolCall=${toolCall}></forge-ai-chatbot-tool-call> `
-        )}
-      </div>
-    `;
+  #renderToolCall(toolCall: ToolCall): TemplateResult {
+    const toolDefinition = this._contextValue.tools.get(toolCall.name);
+    return html`<forge-ai-chatbot-tool-call
+      .toolCall=${toolCall}
+      .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
   }
 
   get #emptyState(): TemplateResult | typeof nothing {
-    if (this._contextValue.messages.length > 0) {
+    if (this._contextValue.messageItems.length > 0) {
       return nothing;
     }
 
@@ -750,16 +822,21 @@ export class AiChatbotComponent extends LitElement {
         <forge-ai-suggestions
           slot="actions"
           variant="block"
-          .suggestions=${this.suggestions}
+          .suggestions=${this.suggestions ?? []}
           @forge-ai-suggestions-select=${this.#handleSuggestionSelect}></forge-ai-suggestions>
       </forge-ai-empty-state>
     `;
   }
 
   get #messages(): TemplateResult[] {
-    return this._contextValue.messages
-      .filter(msg => msg.role !== 'tool')
-      .map((msg, index) => {
+    return this._contextValue.messageItems
+      .filter(item => item.type === 'message' ? item.data.role !== 'tool' : true)
+      .map((item, index) => {
+        if (item.type === 'toolCall') {
+          return this.#renderToolCall(item.data);
+        }
+
+        const msg = item.data;
         if (msg.role === 'user') {
           return html` <forge-ai-user-message> ${unsafeHTML(renderMarkdown(msg.content))} </forge-ai-user-message> `;
         } else if (msg.status === 'error') {
@@ -770,23 +847,20 @@ export class AiChatbotComponent extends LitElement {
             </forge-ai-error-message>
           `;
         } else {
-          return html`
-            ${this.#renderToolCalls(msg.toolCalls)}
-            ${when(
-              msg.content?.trim().length > 0,
-              () => html`
-                <forge-ai-response-message
-                  ?complete=${msg.status === 'complete'}
-                  ?enable-reactions=${this.enableReactions}
-                  @forge-ai-response-message-copy=${() => this.#handleCopy(index)}
-                  @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
-                  @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
-                  @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
-                  ${unsafeHTML(renderMarkdown(msg.content))}
-                </forge-ai-response-message>
-              `
-            )}
-          `;
+          return when(
+            msg.content?.trim().length > 0,
+            () => html`
+              <forge-ai-response-message
+                ?complete=${msg.status === 'complete'}
+                ?enable-reactions=${this.enableReactions}
+                @forge-ai-response-message-copy=${() => this.#handleCopy(index)}
+                @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
+                @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
+                @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
+                ${unsafeHTML(renderMarkdown(msg.content))}
+              </forge-ai-response-message>
+            `
+          );
         }
       });
   }

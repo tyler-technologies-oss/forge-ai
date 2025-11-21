@@ -1,8 +1,8 @@
 import { createContext } from '@lit/context';
-import type { ChatMessage, ToolDefinition } from './types';
+import type { MessageItem, ToolDefinition } from './types';
 
 export interface ChatbotContext {
-  messages: ChatMessage[];
+  messageItems: MessageItem[];
   tools: Map<string, ToolDefinition>;
   isConnected: boolean;
   isStreaming: boolean;

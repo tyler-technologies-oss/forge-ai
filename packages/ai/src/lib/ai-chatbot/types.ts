@@ -2,6 +2,12 @@
  * Generic chatbot types - protocol agnostic
  */
 
+export interface ToolRenderer {
+  elementTag?: string;
+  render?: (toolCall: ToolCall) => HTMLElement | DocumentFragment;
+  useSlot?: boolean;
+}
+
 export interface ToolDefinition {
   name: string;
   description: string;
@@ -10,6 +16,7 @@ export interface ToolDefinition {
     properties: Record<string, unknown>;
     required?: string[];
   };
+  renderer?: ToolRenderer;
 }
 
 export interface ChatMessage {
@@ -50,3 +57,7 @@ export interface UploadedFileMetadata {
   fileSize: number;
   uploadedAt: string;
 }
+
+export type MessageItem =
+  | { type: 'message'; data: ChatMessage }
+  | { type: 'toolCall'; data: ToolCall };
