@@ -20,6 +20,7 @@ export interface ChatMessage {
   status: 'pending' | 'streaming' | 'complete' | 'error';
   toolCalls?: ToolCall[];
   attachments?: FileAttachment[];
+  uploadedFiles?: UploadedFileMetadata[];
 }
 
 export interface ToolCall {
@@ -32,6 +33,20 @@ export interface ToolCall {
 }
 
 export interface FileAttachment {
-  file: File;
+  id: string;
+  filename: string;
+  size: number;
+  mimeType: string;
   timestamp: number;
+  thumbnail?: string;
+  uploading?: boolean;
+  progress?: number;
+}
+
+export interface UploadedFileMetadata {
+  fileId: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  uploadedAt: string;
 }

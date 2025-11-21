@@ -237,75 +237,172 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "path": "src/lib/ai-attachment/ai-attachment.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "AiChainOfThoughtComponentTagName",
+          "name": "AiAttachmentComponentTagName",
           "type": {
             "text": "keyof HTMLElementTagNameMap"
           },
-          "default": "'forge-ai-chain-of-thought'"
+          "default": "'forge-ai-attachment'"
         },
         {
           "kind": "class",
           "description": "",
-          "name": "AiChainOfThoughtComponent",
+          "name": "AiAttachmentComponent",
+          "cssProperties": [
+            {
+              "description": "Background color of the attachment",
+              "name": "--forge-ai-attachment-background"
+            },
+            {
+              "description": "Border color of the attachment",
+              "name": "--forge-ai-attachment-border-color"
+            },
+            {
+              "description": "Padding inside the attachment",
+              "name": "--forge-ai-attachment-padding"
+            },
+            {
+              "description": "Gap between elements",
+              "name": "--forge-ai-attachment-gap"
+            }
+          ],
           "members": [
             {
               "kind": "field",
-              "name": "expanded",
+              "name": "filename",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "''",
+              "attribute": "filename"
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "public",
+              "default": "0",
+              "attribute": "size"
+            },
+            {
+              "kind": "field",
+              "name": "mimeType",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "''",
+              "attribute": "mime-type"
+            },
+            {
+              "kind": "field",
+              "name": "thumbnail",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "''",
+              "attribute": "thumbnail"
+            },
+            {
+              "kind": "field",
+              "name": "removable",
               "type": {
                 "text": "boolean"
               },
               "privacy": "public",
               "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "attribute": "expanded",
-              "reflects": true
+              "attribute": "removable"
+            }
+          ],
+          "events": [
+            {
+              "name": "forge-ai-attachment-remove",
+              "type": {
+                "text": "CustomEvent<ForgeAiAttachmentRemoveEventData>"
+              },
+              "description": "Fired when the remove button is clicked"
             }
           ],
           "attributes": [
             {
-              "name": "expanded",
+              "name": "filename",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "filename"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "fieldName": "size"
+            },
+            {
+              "name": "mime-type",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "mimeType"
+            },
+            {
+              "name": "thumbnail",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "thumbnail"
+            },
+            {
+              "name": "removable",
               "type": {
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "fieldName": "expanded"
+              "fieldName": "removable"
             }
           ],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "forge-ai-chain-of-thought",
-          "customElement": true
+          "tagName": "forge-ai-attachment",
+          "customElement": true,
+          "summary": "Displays file attachment information with optional thumbnail and removal capability."
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "AiChainOfThoughtComponentTagName",
+          "name": "AiAttachmentComponentTagName",
           "declaration": {
-            "name": "AiChainOfThoughtComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+            "name": "AiAttachmentComponentTagName",
+            "module": "src/lib/ai-attachment/ai-attachment.ts"
           }
         },
         {
           "kind": "js",
-          "name": "AiChainOfThoughtComponent",
+          "name": "AiAttachmentComponent",
           "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+            "name": "AiAttachmentComponent",
+            "module": "src/lib/ai-attachment/ai-attachment.ts"
           }
         },
         {
           "kind": "custom-element-definition",
           "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+            "name": "AiAttachmentComponent",
+            "module": "src/lib/ai-attachment/ai-attachment.ts"
           }
         }
       ]
@@ -639,6 +736,81 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChainOfThoughtComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chain-of-thought'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChainOfThoughtComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chain-of-thought",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponentTagName",
+          "declaration": {
+            "name": "AiChainOfThoughtComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponent",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-chatbot/adapter-base.ts",
       "declarations": [
         {
@@ -646,6 +818,14 @@
           "description": "",
           "name": "AiChatbotAdapterBase",
           "members": [
+            {
+              "kind": "field",
+              "name": "fileUploadCallback",
+              "type": {
+                "text": "FileUploadCallback | undefined"
+              },
+              "privacy": "public"
+            },
             {
               "kind": "method",
               "name": "connect",
@@ -680,13 +860,6 @@
                   "name": "messages",
                   "type": {
                     "text": "ChatMessage[]"
-                  }
-                },
-                {
-                  "name": "attachments",
-                  "optional": true,
-                  "type": {
-                    "text": "FileAttachment[]"
                   }
                 }
               ]
@@ -739,6 +912,24 @@
                   "name": "tools",
                   "type": {
                     "text": "ToolDefinition[]"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "setFileUploadCallback",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "FileUploadCallback"
                   }
                 }
               ]
@@ -983,13 +1174,6 @@
                   "type": {
                     "text": "ChatMessage[]"
                   }
-                },
-                {
-                  "name": "attachments",
-                  "optional": true,
-                  "type": {
-                    "text": "FileAttachment[]"
-                  }
                 }
               ],
               "inheritedFrom": {
@@ -1040,6 +1224,18 @@
               }
             },
             {
+              "kind": "field",
+              "name": "fileUploadCallback",
+              "type": {
+                "text": "FileUploadCallback | undefined"
+              },
+              "privacy": "public",
+              "inheritedFrom": {
+                "name": "AiChatbotAdapterBase",
+                "module": "src/lib/ai-chatbot/adapter-base.ts"
+              }
+            },
+            {
               "kind": "method",
               "name": "registerTools",
               "privacy": "public",
@@ -1053,6 +1249,28 @@
                   "name": "tools",
                   "type": {
                     "text": "ToolDefinition[]"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AiChatbotAdapterBase",
+                "module": "src/lib/ai-chatbot/adapter-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "setFileUploadCallback",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "FileUploadCallback"
                   }
                 }
               ],
@@ -1494,7 +1712,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Promise<void>"
                 }
               },
               "parameters": [
@@ -1506,12 +1724,12 @@
                   "description": "The message content to send"
                 },
                 {
-                  "name": "attachments",
+                  "name": "files",
                   "optional": true,
                   "type": {
-                    "text": "FileAttachment[]"
+                    "text": "File[]"
                   },
-                  "description": "Optional file attachments"
+                  "description": "Optional file objects to attach"
                 }
               ],
               "description": "Programmatically sends a message as the user."
@@ -1665,6 +1883,14 @@
           "tagName": "forge-ai-chatbot",
           "customElement": true,
           "summary": "A complete, self-contained AI chatbot component that implements the AG-UI protocol using an adapter pattern."
+        },
+        {
+          "kind": "variable",
+          "name": "uploadedFiles",
+          "type": {
+            "text": "UploadedFileMetadata[]"
+          },
+          "default": "[]"
         }
       ],
       "exports": [
@@ -3403,6 +3629,38 @@
               "default": "false",
               "description": "Whether to allow multiple file selection.",
               "attribute": "multiple"
+            },
+            {
+              "kind": "field",
+              "name": "maxSize",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "public",
+              "default": "10485760",
+              "description": "Maximum file size in bytes. Default is 10MB.",
+              "attribute": "max-size"
+            },
+            {
+              "kind": "field",
+              "name": "selectedFiles",
+              "type": {
+                "text": "string[]"
+              },
+              "privacy": "public",
+              "default": "[]",
+              "description": "Array of currently selected file names for duplicate checking."
+            },
+            {
+              "kind": "field",
+              "name": "generateThumbnails",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "true",
+              "description": "Whether to generate thumbnails for image files.",
+              "attribute": "generate-thumbnails"
             }
           ],
           "events": [
@@ -3412,6 +3670,12 @@
                 "text": "CustomEvent<ForgeAiFilePickerChangeEventData>"
               },
               "description": "Fired when a file is selected via click or drag & drop. The event detail contains the selected file and timestamp."
+            },
+            {
+              "name": "forge-ai-file-picker-error",
+              "type": {
+                "text": "CustomEvent"
+              }
             }
           ],
           "attributes": [
@@ -3450,6 +3714,24 @@
               "default": "false",
               "description": "Whether to allow multiple file selection.",
               "fieldName": "multiple"
+            },
+            {
+              "name": "max-size",
+              "type": {
+                "text": "number"
+              },
+              "default": "10485760",
+              "description": "Maximum file size in bytes. Default is 10MB.",
+              "fieldName": "maxSize"
+            },
+            {
+              "name": "generate-thumbnails",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether to generate thumbnails for image files.",
+              "fieldName": "generateThumbnails"
             }
           ],
           "superclass": {
@@ -3742,6 +4024,90 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-icon/ai-icon.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiIconComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-icon'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiIconComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "outline",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to display the icon with an outline",
+              "attribute": "outline"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "outline",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to display the icon with an outline",
+              "fieldName": "outline"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-icon",
+          "customElement": true,
+          "states": [
+            {
+              "name": "no-border",
+              "description": "The icon is displayed without a border."
+            },
+            {
+              "name": "border",
+              "description": "The icon is displayed with a border."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiIconComponentTagName",
+          "declaration": {
+            "name": "AiIconComponentTagName",
+            "module": "src/lib/ai-icon/ai-icon.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiIconComponent",
+          "declaration": {
+            "name": "AiIconComponent",
+            "module": "src/lib/ai-icon/ai-icon.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiIconComponent",
+            "module": "src/lib/ai-icon/ai-icon.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
       "declarations": [
         {
@@ -3964,90 +4330,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-icon/ai-icon.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiIconComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-icon'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiIconComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "outline",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether to display the icon with an outline",
-              "attribute": "outline"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "outline",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether to display the icon with an outline",
-              "fieldName": "outline"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-icon",
-          "customElement": true,
-          "states": [
-            {
-              "name": "no-border",
-              "description": "The icon is displayed without a border."
-            },
-            {
-              "name": "border",
-              "description": "The icon is displayed with a border."
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiIconComponentTagName",
-          "declaration": {
-            "name": "AiIconComponentTagName",
-            "module": "src/lib/ai-icon/ai-icon.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiIconComponent",
-          "declaration": {
-            "name": "AiIconComponent",
-            "module": "src/lib/ai-icon/ai-icon.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiIconComponent",
-            "module": "src/lib/ai-icon/ai-icon.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-prompt/ai-prompt.ts",
       "declarations": [
         {
@@ -4066,6 +4348,10 @@
             {
               "description": "Slot for action components that are hidden in inline mode (voice input, file picker, model selectors, web search, etc.)",
               "name": "actions"
+            },
+            {
+              "description": "Slot for displaying pending file attachments above the input field.",
+              "name": "attachments"
             }
           ],
           "members": [
@@ -5612,78 +5898,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ThoughtImageComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thought-image'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ThoughtImageComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "step",
-              "type": {
-                "text": "number | undefined"
-              },
-              "privacy": "public",
-              "description": "The step number for this thought image",
-              "attribute": "step"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "step",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "The step number for this thought image",
-              "fieldName": "step"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thought-image",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ThoughtImageComponentTagName",
-          "declaration": {
-            "name": "ThoughtImageComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ThoughtImageComponent",
-          "declaration": {
-            "name": "ThoughtImageComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ThoughtImageComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
       "declarations": [
         {
@@ -5770,6 +5984,78 @@
           "declaration": {
             "name": "ThoughtSearchResultComponent",
             "module": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ThoughtImageComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thought-image'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ThoughtImageComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "step",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The step number for this thought image",
+              "attribute": "step"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "step",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The step number for this thought image",
+              "fieldName": "step"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thought-image",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ThoughtImageComponentTagName",
+          "declaration": {
+            "name": "ThoughtImageComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ThoughtImageComponent",
+          "declaration": {
+            "name": "ThoughtImageComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "ThoughtImageComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
           }
         }
       ]
@@ -6523,9 +6809,13 @@
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "lineNumber": 23
     },
-    "AiChainOfThoughtComponent": {
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "lineNumber": 17
+    "ForgeAiAttachmentRemoveEventData": {
+      "path": "src/lib/ai-attachment/ai-attachment.ts",
+      "lineNumber": 19
+    },
+    "AiAttachmentComponent": {
+      "path": "src/lib/ai-attachment/ai-attachment.ts",
+      "lineNumber": 41
     },
     "AiButtonComponent": {
       "path": "src/lib/ai-button/ai-button.ts",
@@ -6543,33 +6833,41 @@
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
       "lineNumber": 24
     },
-    "MessageStartEvent": {
+    "AiChainOfThoughtComponent": {
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "lineNumber": 17
+    },
+    "FileUploadCallback": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
       "lineNumber": 3
     },
+    "MessageStartEvent": {
+      "path": "src/lib/ai-chatbot/adapter-base.ts",
+      "lineNumber": 5
+    },
     "MessageDeltaEvent": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 7
+      "lineNumber": 9
     },
     "MessageEndEvent": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 12
+      "lineNumber": 14
     },
     "ToolCallEvent": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 16
+      "lineNumber": 18
     },
     "AdapterState": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 23
+      "lineNumber": 25
     },
     "ErrorEvent": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 28
+      "lineNumber": 30
     },
     "AiChatbotAdapterBase": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 32
+      "lineNumber": 34
     },
     "AgUiAdapterConfig": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
@@ -6609,19 +6907,19 @@
     },
     "ForgeAiChatbotMessageEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 58
+      "lineNumber": 59
     },
     "ForgeAiChatbotToolCallEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 62
+      "lineNumber": 63
     },
     "ForgeAiChatbotErrorEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 69
+      "lineNumber": 70
     },
     "AiChatbotComponent": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 100
+      "lineNumber": 101
     },
     "AiPromptExecutorConfig": {
       "path": "src/lib/ai-chatbot/ai-prompt-executor.ts",
@@ -6657,11 +6955,15 @@
     },
     "ToolCall": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 25
+      "lineNumber": 26
     },
     "FileAttachment": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 34
+      "lineNumber": 35
+    },
+    "UploadedFileMetadata": {
+      "path": "src/lib/ai-chatbot/types.ts",
+      "lineNumber": 44
     },
     "AiDialogComponent": {
       "path": "src/lib/ai-dialog/ai-dialog.ts",
@@ -6745,19 +7047,27 @@
     },
     "ForgeAiFilePickerChangeEventData": {
       "path": "src/lib/ai-file-picker/ai-file-picker.ts",
-      "lineNumber": 21
+      "lineNumber": 22
+    },
+    "ForgeAiFilePickerErrorEventData": {
+      "path": "src/lib/ai-file-picker/ai-file-picker.ts",
+      "lineNumber": 34
     },
     "AiFilePickerVariant": {
       "path": "src/lib/ai-file-picker/ai-file-picker.ts",
-      "lineNumber": 28
+      "lineNumber": 43
     },
     "AiFilePickerComponent": {
       "path": "src/lib/ai-file-picker/ai-file-picker.ts",
-      "lineNumber": 56
+      "lineNumber": 71
     },
     "AiFloatingChatComponent": {
       "path": "src/lib/ai-floating-chat/ai-floating-chat.ts",
       "lineNumber": 49
+    },
+    "AiIconComponent": {
+      "path": "src/lib/ai-icon/ai-icon.ts",
+      "lineNumber": 23
     },
     "AiGradientContainerVariant": {
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
@@ -6770,10 +7080,6 @@
     "AiModalComponent": {
       "path": "src/lib/ai-modal/ai-modal.ts",
       "lineNumber": 30
-    },
-    "AiIconComponent": {
-      "path": "src/lib/ai-icon/ai-icon.ts",
-      "lineNumber": 23
     },
     "ForgeAiPromptSendEventData": {
       "path": "src/lib/ai-prompt/ai-prompt.ts",
@@ -6789,7 +7095,7 @@
     },
     "AiPromptComponent": {
       "path": "src/lib/ai-prompt/ai-prompt.ts",
-      "lineNumber": 48
+      "lineNumber": 49
     },
     "AiReasoningComponent": {
       "path": "src/lib/ai-reasoning/ai-reasoning.ts",
@@ -6891,10 +7197,6 @@
       "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
       "lineNumber": 18
     },
-    "ThoughtImageComponent": {
-      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
-      "lineNumber": 19
-    },
     "Source": {
       "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
       "lineNumber": 14
@@ -6902,6 +7204,10 @@
     "ThoughtSearchResultComponent": {
       "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
       "lineNumber": 24
+    },
+    "ThoughtImageComponent": {
+      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
+      "lineNumber": 19
     },
     "PromptButtonComponent": {
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",

@@ -46,12 +46,15 @@
     height: 52px;
     overflow-x: auto;
   }
-}
 
-// .forge-icon-button img,
-// .forge-icon-button svg {
-//   fill: #{forge-theme.variable(text-medium)};
-// }
+  .attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: #{forge-spacing.variable(medium)};
+    padding: #{forge-spacing.variable(medium)};
+    padding-block-end: 0;
+  }
+}
 
 ::slotted([slot='actions']:not(:last-child)) {
   margin-inline-end: #{forge-spacing.variable(small)};

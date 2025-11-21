@@ -93,6 +93,8 @@ const tools: ToolDefinition[] = [
   }
 ];
 
+const threadId = generateId('thread');
+
 const adapter = new AgUiAdapter(
   {
     baseUrl: BASE_URL,
@@ -104,8 +106,72 @@ const adapter = new AgUiAdapter(
       timestamp: new Date().toISOString()
     }
   },
-  generateId('thread')
+  threadId
 );
+
+adapter.setFileUploadCallback(async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${BASE_URL}/${AGENT_ID}/threads/${threadId}/upload`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    throw new Error(`Upload failed: ${response.statusText}`);
+  }
+
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = JSON.parse(line.slice(6));
+
+        if (data.type === 'progress') {
+          document.dispatchEvent(
+            new CustomEvent('file-upload-progress', {
+              detail: {
+                fileName: file.name,
+                progress: data.progress,
+                message: data.message
+              }
+            })
+          );
+        }
+
+        if (data.type === 'complete') {
+          return {
+            fileId: data.file.file_id,
+            fileName: data.file.file_metadata.fileName,
+            fileType: data.file.file_metadata.fileType,
+            fileSize: data.file.file_metadata.fileSize,
+            uploadedAt: data.file.file_metadata.uploadedAt
+          };
+        }
+
+        if (data.type === 'error') {
+          throw new Error(data.error);
+        }
+      }
+    }
+  }
+
+  throw new Error('Upload failed: No response');
+});
 
 // Hook into raw protocol events by overriding the protected method
 const originalHandleProtocolEvent = (adapter as any)._handleProtocolEvent.bind(adapter);

@@ -6,6 +6,7 @@ export interface ChatbotContext {
   tools: Map<string, ToolDefinition>;
   isConnected: boolean;
   isStreaming: boolean;
+  isUploading: boolean;
 }
 
 export const chatbotContext = createContext<ChatbotContext>('chatbot');

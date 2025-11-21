@@ -1,4 +1,6 @@
-import type { ChatMessage, FileAttachment, ToolDefinition } from './types.js';
+import type { ChatMessage, ToolDefinition, UploadedFileMetadata } from './types.js';
+
+export type FileUploadCallback = (file: File) => Promise<UploadedFileMetadata>;
 
 export interface MessageStartEvent {
   messageId: string;
@@ -32,6 +34,7 @@ export interface ErrorEvent {
 export abstract class AiChatbotAdapterBase {
   protected _state: AdapterState = { isConnected: false, isRunning: false };
   protected _tools: ToolDefinition[] = [];
+  public fileUploadCallback?: FileUploadCallback;
   protected _callbacks = {
     onMessageStart: null as ((event: MessageStartEvent) => void) | null,
     onMessageDelta: null as ((event: MessageDeltaEvent) => void) | null,
@@ -44,12 +47,16 @@ export abstract class AiChatbotAdapterBase {
 
   public abstract connect(): Promise<void>;
   public abstract disconnect(): Promise<void>;
-  public abstract sendMessage(messages: ChatMessage[], attachments?: FileAttachment[]): void;
+  public abstract sendMessage(messages: ChatMessage[]): void;
   public abstract sendToolResult(toolCallId: string, result: unknown): void;
   public abstract abort(): void;
 
   public registerTools(tools: ToolDefinition[]): void {
     this._tools = tools;
+  }
+
+  public setFileUploadCallback(callback: FileUploadCallback): void {
+    this.fileUploadCallback = callback;
   }
 
   public getTools(): ToolDefinition[] {

@@ -1,5 +1,5 @@
 import { AiChatbotAdapterBase, type ToolCallEvent } from './adapter-base.js';
-import type { ChatMessage, FileAttachment, ToolDefinition } from './types.js';
+import type { ChatMessage, ToolDefinition } from './types.js';
 import { generateId } from './utils.js';
 
 export interface AgUiAdapterConfig {
@@ -19,7 +19,7 @@ interface CoreMessage {
   id: string;
   role: 'user' | 'assistant' | 'system' | 'tool';
   content: string;
-  attachments?: Array<{ filename: string; mimeType: string; data: string }>;
+  fileIds?: string[];
 }
 
 interface AgUiRequestInput {
@@ -101,14 +101,14 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     this._updateState({ isConnected: false });
   }
 
-  public sendMessage(messages: ChatMessage[], attachments?: FileAttachment[]): void {
+  public sendMessage(messages: ChatMessage[]): void {
     this.#abortController = new AbortController();
 
-    this._buildRequestAndExecute(messages, attachments);
+    this._buildRequestAndExecute(messages);
   }
 
-  protected async _buildRequestAndExecute(messages: ChatMessage[], attachments?: FileAttachment[]): Promise<void> {
-    const input = await this._buildRequest(messages, attachments);
+  protected async _buildRequestAndExecute(messages: ChatMessage[]): Promise<void> {
+    const input = await this._buildRequest(messages);
     this._executeRequest(input);
   }
 
@@ -137,9 +137,9 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     this._updateState({ isRunning: false });
   }
 
-  protected async _buildRequest(messages: ChatMessage[], attachments?: FileAttachment[]): Promise<AgUiRequestInput> {
+  protected async _buildRequest(messages: ChatMessage[]): Promise<AgUiRequestInput> {
     const context = this.#config.context ? this._transformContext(this.#config.context) : undefined;
-    const transformedMessages = await this._transformMessages(messages, attachments);
+    const transformedMessages = this._transformMessages(messages);
     return {
       runId: generateId('run'),
       threadId: this.#threadId,
@@ -156,48 +156,19 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     }));
   }
 
-  protected async _transformMessages(
-    messages: ChatMessage[],
-    pendingAttachments?: FileAttachment[]
-  ): Promise<CoreMessage[]> {
+  protected _transformMessages(messages: ChatMessage[]): CoreMessage[] {
     const filtered = messages.filter(
       msg => msg.role === 'user' || msg.role === 'assistant' || msg.role === 'system' || msg.role === 'tool'
     );
 
-    return Promise.all(
-      filtered.map(async (msg, index) => {
-        const coreMsg: CoreMessage = { id: msg.id, role: msg.role, content: msg.content };
+    return filtered.map((msg) => {
+      const coreMsg: CoreMessage = { id: msg.id, role: msg.role, content: msg.content };
 
-        const attachmentsToAdd =
-          index === filtered.length - 1 && pendingAttachments
-            ? [...(msg.attachments || []), ...pendingAttachments]
-            : msg.attachments;
+      if (msg.uploadedFiles && msg.uploadedFiles.length > 0) {
+        coreMsg.fileIds = msg.uploadedFiles.map(f => f.fileId);
+      }
 
-        if (attachmentsToAdd && attachmentsToAdd.length > 0) {
-          coreMsg.attachments = await Promise.all(
-            attachmentsToAdd.map(async att => ({
-              filename: att.file.name,
-              mimeType: att.file.type,
-              data: await this._convertFileToBase64(att.file)
-            }))
-          );
-        }
-
-        return coreMsg;
-      })
-    );
-  }
-
-  protected async _convertFileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        const base64 = result.split(',')[1];
-        resolve(base64);
-      };
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
+      return coreMsg;
     });
   }
 

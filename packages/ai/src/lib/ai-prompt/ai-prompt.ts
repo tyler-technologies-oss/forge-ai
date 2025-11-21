@@ -36,6 +36,7 @@ export const AiPromptComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-p
  * @tag forge-ai-prompt
  *
  * @slot actions - Slot for action components that are hidden in inline mode (voice input, file picker, model selectors, web search, etc.)
+ * @slot attachments - Slot for displaying pending file attachments above the input field.
  *
  * @state inline - The prompt is in inline layout mode with actions hidden.
  * @state stacked - The prompt is in stacked layout mode with actions displayed below the input.
@@ -84,6 +85,9 @@ export class AiPromptComponent extends LitElement {
   @queryAssignedNodes({ slot: 'actions', flatten: true })
   private _actionsSlottedNodes!: Node[];
 
+  @queryAssignedNodes({ slot: 'attachments', flatten: true })
+  private _attachmentsSlottedNodes!: Node[];
+
   @query('#chat-input')
   private _inputElement!: HTMLTextAreaElement;
 
@@ -113,6 +117,7 @@ export class AiPromptComponent extends LitElement {
   }
 
   readonly #actionsSlot = html`<slot name="actions" @slotchange=${this.#handleSlotChange}></slot>`;
+  readonly #attachmentsSlot = html`<slot name="attachments" @slotchange=${this.#handleSlotChange}></slot>`;
 
   get #shouldShowStopButton(): boolean {
     return this.running && !this.value.trim();
@@ -127,13 +132,23 @@ export class AiPromptComponent extends LitElement {
         <hr class="forge-divider" />
         <div class="actions">${this.#actionsSlot}</div>
       `,
-      () => html`${this.#actionsSlot}` // Always render slot for detection
+      () => html`${this.#actionsSlot}`
+    );
+  }
+
+  get #conditionalAttachments(): TemplateResult | typeof nothing {
+    const hasAttachments = this._attachmentsSlottedNodes.length > 0;
+
+    return when(
+      hasAttachments,
+      () => html`<div class="attachments">${this.#attachmentsSlot}</div>`,
+      () => html`${this.#attachmentsSlot}`
     );
   }
 
   #handleSlotChange(evt: Event): void {
     const slotName = (evt.target as HTMLSlotElement).name;
-    if (slotName === 'actions') {
+    if (['actions', 'attachments'].includes(slotName)) {
       this.requestUpdate();
     }
   }
@@ -228,6 +243,7 @@ export class AiPromptComponent extends LitElement {
     return html`
       <div class="input-container">
         <div class="forge-card">
+          ${this.#conditionalAttachments}
           <div class="forge-field">
             <textarea
               id="chat-input"

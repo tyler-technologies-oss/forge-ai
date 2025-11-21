@@ -1,0 +1,60 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '@tylertech/forge/dist/card/forge-card';
+
+:host {
+  display: inline-block;
+}
+
+.attachment {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+}
+
+.remove-button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+}
+
+.file-icon {
+  color: #{forge-theme.variable(text-medium)};
+  height: 48px;
+  width: 48px;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: #{forge-spacing.variable(xxsmall)};
+}
+
+.uploading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.progress-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #{forge-theme.variable(surface-container-high)};
+  border-radius: #{forge-spacing.variable(xxsmall)};
+  opacity: 0.95;
+}
+
+.progress-text {
+  @include forge-typography.style(label1, medium);
+  color: #{forge-theme.variable(primary)};
+  font-weight: 600;
+}
