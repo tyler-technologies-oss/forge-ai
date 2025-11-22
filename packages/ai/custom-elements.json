@@ -166,6 +166,233 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-artifact/ai-artifact.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiArtifactComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-artifact'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiArtifactComponent",
+          "cssProperties": [
+            {
+              "description": "Surface color override for the toolbar (defaults to transparent)",
+              "name": "--forge-theme-surface"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Content for the start (left) side of the toolbar, typically used for titles or headings",
+              "name": "start"
+            },
+            {
+              "description": "Action buttons for the end (right) side of the toolbar",
+              "name": "actions"
+            },
+            {
+              "description": "Main content area below the toolbar",
+              "name": ""
+            }
+          ],
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-artifact",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiArtifactComponentTagName",
+          "declaration": {
+            "name": "AiArtifactComponentTagName",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiArtifactComponent",
+          "declaration": {
+            "name": "AiArtifactComponent",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiArtifactComponent",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-button/ai-button.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiButtonComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-button'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiButtonComponent",
+          "slots": [
+            {
+              "description": "Default slot for button content",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-button",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiButtonComponentTagName",
+          "declaration": {
+            "name": "AiButtonComponentTagName",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiButtonComponent",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChainOfThoughtComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chain-of-thought'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChainOfThoughtComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chain-of-thought",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponentTagName",
+          "declaration": {
+            "name": "AiChainOfThoughtComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponent",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "declarations": [
         {
@@ -372,158 +599,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-artifact/ai-artifact.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiArtifactComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-artifact'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiArtifactComponent",
-          "cssProperties": [
-            {
-              "description": "Surface color override for the toolbar (defaults to transparent)",
-              "name": "--forge-theme-surface"
-            }
-          ],
-          "slots": [
-            {
-              "description": "Content for the start (left) side of the toolbar, typically used for titles or headings",
-              "name": "start"
-            },
-            {
-              "description": "Action buttons for the end (right) side of the toolbar",
-              "name": "actions"
-            },
-            {
-              "description": "Main content area below the toolbar",
-              "name": ""
-            }
-          ],
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-artifact",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiArtifactComponentTagName",
-          "declaration": {
-            "name": "AiArtifactComponentTagName",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiArtifactComponent",
-          "declaration": {
-            "name": "AiArtifactComponent",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiArtifactComponent",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-button/ai-button.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiButtonComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-button'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiButtonComponent",
-          "slots": [
-            {
-              "description": "Default slot for button content",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "attribute": "disabled",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "fieldName": "disabled"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-button",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiButtonComponentTagName",
-          "declaration": {
-            "name": "AiButtonComponentTagName",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiButtonComponent",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "declarations": [
         {
@@ -683,81 +758,6 @@
           "declaration": {
             "name": "AiChatHeaderComponent",
             "module": "src/lib/ai-chat-header/ai-chat-header.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChainOfThoughtComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chain-of-thought'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChainOfThoughtComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "attribute": "expanded",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chain-of-thought",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponentTagName",
-          "declaration": {
-            "name": "AiChainOfThoughtComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponent",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
           }
         }
       ]
@@ -5497,58 +5497,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiThinkingIndicatorComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thinking-indicator'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiThinkingIndicatorComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thinking-indicator",
-          "customElement": true,
-          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiThinkingIndicatorComponentTagName",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponentTagName",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiThinkingIndicatorComponent",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-threads/ai-threads.ts",
       "declarations": [
         {
@@ -5640,6 +5588,58 @@
           "declaration": {
             "name": "AiThreadsComponent",
             "module": "src/lib/ai-threads/ai-threads.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thinking-indicator'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiThinkingIndicatorComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thinking-indicator",
+          "customElement": true,
+          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponentTagName",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponent",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
           }
         }
       ]
@@ -6281,191 +6281,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/core/overlay/overlay.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ForgeAiOverlayComponent",
-          "cssProperties": [
-            {
-              "description": "The maximum width of the overlay.",
-              "name": "--ai-overlay-max-width"
-            },
-            {
-              "description": "The maximum height of the overlay.",
-              "name": "--ai-overlay-max-height"
-            },
-            {
-              "description": "The minimum width of the overlay.",
-              "name": "--ai-overlay-min-width"
-            },
-            {
-              "description": "The minimum height of the overlay.",
-              "name": "--ai-overlay-min-height"
-            }
-          ],
-          "slots": [
-            {
-              "description": "The default slot for overlay content.",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "privacy": "public",
-              "default": "null",
-              "description": "The anchor element to position the overlay relative to.",
-              "attribute": "anchor"
-            },
-            {
-              "kind": "field",
-              "name": "placement",
-              "type": {
-                "text": "OverlayPlacement"
-              },
-              "privacy": "public",
-              "default": "'bottom-start'",
-              "description": "The placement of the overlay relative to the anchor.",
-              "attribute": "placement"
-            },
-            {
-              "kind": "field",
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "true",
-              "description": "Whether the overlay should flip to the opposite side when there's no space.",
-              "attribute": "flip"
-            },
-            {
-              "kind": "field",
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the overlay should shift to stay in view.",
-              "attribute": "shift"
-            },
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the overlay is open.",
-              "attribute": "open",
-              "reflects": true
-            },
-            {
-              "kind": "field",
-              "name": "arrowElement",
-              "type": {
-                "text": "HTMLElement | null"
-              },
-              "privacy": "public",
-              "default": "null",
-              "description": "The arrow element to position relative to the overlay.",
-              "attribute": "arrowElement"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "default": "null",
-              "description": "The anchor element to position the overlay relative to.",
-              "fieldName": "anchor"
-            },
-            {
-              "name": "placement",
-              "type": {
-                "text": "OverlayPlacement"
-              },
-              "default": "'bottom-start'",
-              "description": "The placement of the overlay relative to the anchor.",
-              "fieldName": "placement"
-            },
-            {
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "true",
-              "description": "Whether the overlay should flip to the opposite side when there's no space.",
-              "fieldName": "flip"
-            },
-            {
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the overlay should shift to stay in view.",
-              "fieldName": "shift"
-            },
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the overlay is open.",
-              "fieldName": "open"
-            },
-            {
-              "name": "arrowElement",
-              "type": {
-                "text": "HTMLElement | null"
-              },
-              "default": "null",
-              "description": "The arrow element to position relative to the overlay.",
-              "fieldName": "arrowElement"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "summary": "A low-level overlay component for internal use within AI components.",
-          "tagName": "forge-ai-overlay",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ForgeAiOverlayComponent",
-          "declaration": {
-            "name": "ForgeAiOverlayComponent",
-            "module": "src/lib/core/overlay/overlay.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "name": "forge-ai-overlay",
-          "declaration": {
-            "name": "ForgeAiOverlayComponent",
-            "module": "src/lib/core/overlay/overlay.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/core/popover/popover.ts",
       "declarations": [
         {
@@ -6645,6 +6460,191 @@
           "declaration": {
             "name": "ForgeAiPopoverComponent",
             "module": "src/lib/core/popover/popover.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/core/overlay/overlay.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ForgeAiOverlayComponent",
+          "cssProperties": [
+            {
+              "description": "The maximum width of the overlay.",
+              "name": "--ai-overlay-max-width"
+            },
+            {
+              "description": "The maximum height of the overlay.",
+              "name": "--ai-overlay-max-height"
+            },
+            {
+              "description": "The minimum width of the overlay.",
+              "name": "--ai-overlay-min-width"
+            },
+            {
+              "description": "The minimum height of the overlay.",
+              "name": "--ai-overlay-min-height"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The default slot for overlay content.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "privacy": "public",
+              "default": "null",
+              "description": "The anchor element to position the overlay relative to.",
+              "attribute": "anchor"
+            },
+            {
+              "kind": "field",
+              "name": "placement",
+              "type": {
+                "text": "OverlayPlacement"
+              },
+              "privacy": "public",
+              "default": "'bottom-start'",
+              "description": "The placement of the overlay relative to the anchor.",
+              "attribute": "placement"
+            },
+            {
+              "kind": "field",
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "true",
+              "description": "Whether the overlay should flip to the opposite side when there's no space.",
+              "attribute": "flip"
+            },
+            {
+              "kind": "field",
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the overlay should shift to stay in view.",
+              "attribute": "shift"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the overlay is open.",
+              "attribute": "open",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "arrowElement",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "public",
+              "default": "null",
+              "description": "The arrow element to position relative to the overlay.",
+              "attribute": "arrowElement"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The anchor element to position the overlay relative to.",
+              "fieldName": "anchor"
+            },
+            {
+              "name": "placement",
+              "type": {
+                "text": "OverlayPlacement"
+              },
+              "default": "'bottom-start'",
+              "description": "The placement of the overlay relative to the anchor.",
+              "fieldName": "placement"
+            },
+            {
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether the overlay should flip to the opposite side when there's no space.",
+              "fieldName": "flip"
+            },
+            {
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the overlay should shift to stay in view.",
+              "fieldName": "shift"
+            },
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the overlay is open.",
+              "fieldName": "open"
+            },
+            {
+              "name": "arrowElement",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "default": "null",
+              "description": "The arrow element to position relative to the overlay.",
+              "fieldName": "arrowElement"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "summary": "A low-level overlay component for internal use within AI components.",
+          "tagName": "forge-ai-overlay",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ForgeAiOverlayComponent",
+          "declaration": {
+            "name": "ForgeAiOverlayComponent",
+            "module": "src/lib/core/overlay/overlay.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "forge-ai-overlay",
+          "declaration": {
+            "name": "ForgeAiOverlayComponent",
+            "module": "src/lib/core/overlay/overlay.ts"
           }
         }
       ]
@@ -6898,14 +6898,6 @@
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
       "lineNumber": 41
     },
-    "ForgeAiAttachmentRemoveEventData": {
-      "path": "src/lib/ai-attachment/ai-attachment.ts",
-      "lineNumber": 19
-    },
-    "AiAttachmentComponent": {
-      "path": "src/lib/ai-attachment/ai-attachment.ts",
-      "lineNumber": 41
-    },
     "AiArtifactComponent": {
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "lineNumber": 23
@@ -6914,6 +6906,18 @@
       "path": "src/lib/ai-button/ai-button.ts",
       "lineNumber": 22
     },
+    "AiChainOfThoughtComponent": {
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "lineNumber": 17
+    },
+    "ForgeAiAttachmentRemoveEventData": {
+      "path": "src/lib/ai-attachment/ai-attachment.ts",
+      "lineNumber": 19
+    },
+    "AiAttachmentComponent": {
+      "path": "src/lib/ai-attachment/ai-attachment.ts",
+      "lineNumber": 41
+    },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 28
@@ -6921,10 +6925,6 @@
     "AiChatHeaderComponent": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 47
-    },
-    "AiChainOfThoughtComponent": {
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "lineNumber": 17
     },
     "AiChatInterfaceComponent": {
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
@@ -7254,10 +7254,6 @@
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 39
     },
-    "AiThinkingIndicatorComponent": {
-      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
-      "lineNumber": 24
-    },
     "Thread": {
       "path": "src/lib/ai-threads/ai-threads.ts",
       "lineNumber": 19
@@ -7269,6 +7265,10 @@
     "AiThreadsComponent": {
       "path": "src/lib/ai-threads/ai-threads.ts",
       "lineNumber": 40
+    },
+    "AiThinkingIndicatorComponent": {
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "lineNumber": 24
     },
     "AiUserMessageComponent": {
       "path": "src/lib/ai-user-message/ai-user-message.ts",
@@ -7338,14 +7338,6 @@
       "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
       "lineNumber": 17
     },
-    "OverlayPlacement": {
-      "path": "src/lib/core/overlay/overlay.ts",
-      "lineNumber": 30
-    },
-    "ForgeAiOverlayComponent": {
-      "path": "src/lib/core/overlay/overlay.ts",
-      "lineNumber": 42
-    },
     "PopoverPlacement": {
       "path": "src/lib/core/popover/popover.ts",
       "lineNumber": 22
@@ -7353,6 +7345,14 @@
     "ForgeAiPopoverComponent": {
       "path": "src/lib/core/popover/popover.ts",
       "lineNumber": 38
+    },
+    "OverlayPlacement": {
+      "path": "src/lib/core/overlay/overlay.ts",
+      "lineNumber": 30
+    },
+    "ForgeAiOverlayComponent": {
+      "path": "src/lib/core/overlay/overlay.ts",
+      "lineNumber": 42
     },
     "TooltipPlacement": {
       "path": "src/lib/core/tooltip/tooltip.ts",

@@ -1,0 +1,8 @@
+.coverage/
+.turbo/
+dist/
+node_modules/
+CONTRIBUTING.md
+CHANGELOG.md
+README.md
+.gitignore

@@ -1,0 +1,54 @@
+{
+  "name": "@tylertech/forge-ai-sdk",
+  "version": "0.1.0",
+  "description": "Bootstrap and SDK for embedding Tyler Forge AI chatbot components",
+  "type": "module",
+  "main": "./dist/sdk.js",
+  "types": "./dist/sdk.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/sdk.js",
+      "types": "./dist/sdk.d.ts"
+    },
+    "./bootstrap": {
+      "import": "./dist/bootstrap.js",
+      "types": "./dist/bootstrap.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "sri": "node scripts/sri-generator.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [
+    "ai",
+    "chatbot",
+    "embed",
+    "sdk",
+    "tyler",
+    "forge"
+  ],
+  "author": "Tyler Technologies",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@tylertech/forge-ai": "workspace:"
+  },
+  "devDependencies": {
+    "@repo/prettier-config": "workspace:",
+    "@tylertech/forge": "catalog:",
+    "@tylertech/tyler-icons": "catalog:",
+    "@types/node": "^24.10.1",
+    "eslint": "catalog:",
+    "terser": "5.44.1",
+    "typescript": "~5.9.3",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
+  }
+}

@@ -29,6 +29,15 @@
       "persistent": true,
       "cache": false
     },
+    "@tylertech/forge-ai-sdk#build": {
+      "dependsOn": ["@tylertech/forge-ai#build"],
+      "outputs": ["dist/**"]
+    },
+    "@tylertech/forge-ai-sdk#dev": {
+      "dependsOn": ["@tylertech/forge-ai#build"],
+      "persistent": true,
+      "cache": false
+    },
     "storybook": {
       "persistent": true,
       "cache": false

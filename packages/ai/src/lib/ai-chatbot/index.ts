@@ -21,7 +21,14 @@ export {
 } from './adapter-base.js';
 
 // Chatbot types
-export type { ChatMessage, ToolDefinition, ToolCall, ToolRenderer, FileAttachment } from './types.js';
+export type {
+  ChatMessage,
+  ToolDefinition,
+  ToolCall,
+  ToolRenderer,
+  FileAttachment,
+  UploadedFileMetadata
+} from './types.js';
 
 // Chatbot context
 export type { ChatbotContext } from './context.js';

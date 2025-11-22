@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.forge.tylertech.com/v1/css/tyler-font.css" />
+    <title>SDK Demo - Tyler Forge AI SDK</title>
+    <style>
+      @import '@tylertech/forge/dist/forge-core.css';
+      @import '@tylertech/forge/dist/forge.css';
+
+      :not(:defined) {
+        visibility: hidden;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      main {
+        padding: var(--forge-spacing-medium);
+        display: flex;
+        flex-direction: column;
+        gap: var(--forge-spacing-medium);
+      }
+
+      forge-card h2 {
+        margin: 0;
+      }
+
+      forge-card p {
+        margin-block-start: 0;
+        margin-block-end: var(--forge-spacing-small);
+      }
+
+      .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--forge-spacing-small);
+      }
+
+      #sidebar-container {
+        height: 600px;
+        border: 2px dashed var(--forge-theme-outline);
+        border-radius: var(--forge-shape-medium);
+        margin-block-start: var(--forge-spacing-medium);
+      }
+
+      pre {
+        background: var(--forge-theme-surface-container-minimum);
+        padding: var(--forge-spacing-medium);
+        border-radius: var(--forge-shape-medium);
+        overflow-x: auto;
+        margin: 0;
+      }
+
+      code {
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <forge-scaffold>
+      <forge-app-bar slot="header" theme-mode="scoped" title-text="SDK Demo - Tyler Forge AI SDK">
+        <forge-icon name="forge_logo" slot="logo"></forge-icon>
+      </forge-app-bar>
+
+      <main slot="body">
+        <forge-card>
+          <h2 class="forge-typography--heading4">Floating Chat</h2>
+          <p>Programmatically initialize a floating chat dialog.</p>
+          <div class="button-group">
+            <forge-button id="init-floating" variant="raised">Initialize Floating Chat</forge-button>
+            <forge-button id="show-floating" variant="outlined" disabled>Show</forge-button>
+            <forge-button id="close-floating" variant="outlined" disabled>Close</forge-button>
+            <forge-button id="toggle-floating" variant="outlined" disabled>Toggle</forge-button>
+          </div>
+        </forge-card>
+
+        <forge-card>
+          <h2 class="forge-typography--heading4">Sidebar Chat</h2>
+          <p>Initialize sidebar chat in a container element.</p>
+          <div class="button-group">
+            <forge-button id="init-sidebar" variant="raised">Initialize Sidebar Chat</forge-button>
+            <forge-button id="show-sidebar" variant="outlined" disabled>Show</forge-button>
+            <forge-button id="close-sidebar" variant="outlined" disabled>Close</forge-button>
+          </div>
+          <div id="sidebar-container"></div>
+        </forge-card>
+
+        <forge-card>
+          <h2 class="forge-typography--heading4">API Methods</h2>
+          <pre><code>const api = await initChatbot({ ... });
+
+// Control visibility
+api.show();
+api.close();
+api.toggle();
+
+// Send messages
+await api.sendMessage('Hello!');
+
+// Message history
+const messages = api.getMessages();
+api.clearMessages();
+
+// Advanced usage
+api.adapter  // AgUiAdapter instance
+api.executor // AiPromptExecutor class
+api.element  // HTMLElement reference
+
+// Cleanup
+api.destroy();</code></pre>
+        </forge-card>
+      </main>
+    </forge-scaffold>
+
+    <script type="module">
+      import {
+        defineScaffoldComponent,
+        defineAppBarComponent,
+        defineCardComponent,
+        defineIconComponent,
+        defineButtonComponent,
+        IconRegistry
+      } from '@tylertech/forge';
+      import { tylIconForgeLogo } from '@tylertech/tyler-icons';
+      import { initChatbot } from '../dist/sdk.js';
+
+      defineScaffoldComponent();
+      defineAppBarComponent();
+      defineCardComponent();
+      defineIconComponent();
+      defineButtonComponent();
+      IconRegistry.define(tylIconForgeLogo);
+
+      let floatingApi = null;
+      let sidebarApi = null;
+
+      document.getElementById('init-floating').onclick = async () => {
+        try {
+          floatingApi = await initChatbot({
+            agentId: 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c',
+            baseUrl: 'http://localhost:3001',
+            chatViewType: 'floating',
+            onReady: api => console.log('Floating chat ready!', api)
+          });
+
+          document.getElementById('show-floating').disabled = false;
+          document.getElementById('close-floating').disabled = false;
+          document.getElementById('toggle-floating').disabled = false;
+          document.getElementById('init-floating').disabled = true;
+        } catch (error) {
+          console.error('Failed to initialize floating chat:', error);
+        }
+      };
+
+      document.getElementById('show-floating').onclick = () => floatingApi?.show();
+      document.getElementById('close-floating').onclick = () => floatingApi?.close();
+      document.getElementById('toggle-floating').onclick = () => floatingApi?.toggle();
+
+      document.getElementById('init-sidebar').onclick = async () => {
+        try {
+          sidebarApi = await initChatbot({
+            agentId: 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c',
+            baseUrl: 'http://localhost:3001',
+            chatViewType: 'sidebar',
+            mountPoint: '#sidebar-container',
+            onReady: api => console.log('Sidebar chat ready!', api)
+          });
+
+          document.getElementById('show-sidebar').disabled = false;
+          document.getElementById('close-sidebar').disabled = false;
+          document.getElementById('init-sidebar').disabled = true;
+        } catch (error) {
+          console.error('Failed to initialize sidebar chat:', error);
+        }
+      };
+
+      document.getElementById('show-sidebar').onclick = () => sidebarApi?.show();
+      document.getElementById('close-sidebar').onclick = () => sidebarApi?.close();
+    </script>
+  </body>
+</html>
