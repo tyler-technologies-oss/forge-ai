@@ -36,8 +36,8 @@ export type { ChatbotContext } from './context.js';
 // AG-UI adapter
 export { AgUiAdapter, type AgUiAdapterConfig } from './ag-ui-adapter.js';
 
-// AI prompt executor
-export { AiPromptExecutor, type AiPromptExecutorConfig, type AiPromptExecutorResult } from './ai-prompt-executor.js';
+// AI prompt runner
+export { AiPromptRunner, type AiPromptRunnerConfig, type AiPromptRunnerResult } from './ai-prompt-runner.js';
 
 // Tool registry
 export { ToolRegistry, type ToolHandler } from './tool-registry.js';

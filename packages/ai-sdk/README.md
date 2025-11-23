@@ -56,9 +56,9 @@ const messages = api.getMessages();
 api.clearMessages();
 
 // Advanced usage
-api.adapter;  // AgUiAdapter instance
-api.executor; // AiPromptExecutor class
-api.element;  // HTMLElement reference
+api.adapter;      // AgUiAdapter instance
+api.promptRunner; // AiPromptRunner class
+api.element;      // HTMLElement reference
 
 // Cleanup
 api.destroy();
@@ -166,7 +166,7 @@ interface ChatbotAPI {
   clearMessages(): void;                           // Clear chat history
   getMessages(): ChatMessage[];                    // Get message history
   adapter: AgUiAdapter;                            // Adapter instance
-  executor: typeof AiPromptExecutor;              // Executor class
+  promptRunner: typeof AiPromptRunner;            // Prompt runner class
   element: HTMLElement;                            // Component element
   destroy(): void;                                 // Cleanup and remove
 }

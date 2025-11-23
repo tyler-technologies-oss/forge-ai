@@ -17,7 +17,7 @@ export async function loadComponent(config: ChatbotConfig, agentConfig: AgentUIC
 }
 
 async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
-  const [_, { AgUiAdapter, AiPromptExecutor }] = await Promise.all([
+  const [_, { AgUiAdapter, AiPromptRunner }] = await Promise.all([
     import('@tylertech/forge-ai/ai-floating-chat'),
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
@@ -42,7 +42,7 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
   document.body.appendChild(element);
   element.open = true;
 
-  return createAPI(element, adapter, AiPromptExecutor);
+  return createAPI(element, adapter, AiPromptRunner);
 }
 
 async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
@@ -57,7 +57,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
     throw new Error(`Mount point not found: ${config.mountPoint}`);
   }
 
-  const [_, { AgUiAdapter, AiPromptExecutor }] = await Promise.all([
+  const [_, { AgUiAdapter, AiPromptRunner }] = await Promise.all([
     import('@tylertech/forge-ai/ai-sidebar-chat'),
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
@@ -82,7 +82,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
   mountElement.appendChild(element);
   element.open = true;
 
-  return createAPI(element, adapter, AiPromptExecutor);
+  return createAPI(element, adapter, AiPromptRunner);
 }
 
 async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
@@ -97,7 +97,7 @@ async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfi
     throw new Error(`Mount point not found: ${config.mountPoint}`);
   }
 
-  const [_, { AgUiAdapter, AiPromptExecutor }] = await Promise.all([
+  const [_, { AgUiAdapter, AiPromptRunner }] = await Promise.all([
     import('@tylertech/forge-ai/ai-threads'),
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
@@ -119,10 +119,10 @@ async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfi
 
   mountElement.appendChild(element);
 
-  return createAPI(element, adapter, AiPromptExecutor);
+  return createAPI(element, adapter, AiPromptRunner);
 }
 
-function createAPI(element: HTMLElement, adapter: any, executor: any): ChatbotAPI {
+function createAPI(element: HTMLElement, adapter: any, promptRunner: any): ChatbotAPI {
   return {
     show() {
       if ('show' in element && typeof element.show === 'function') {
@@ -165,7 +165,7 @@ function createAPI(element: HTMLElement, adapter: any, executor: any): ChatbotAP
       return [];
     },
     adapter,
-    executor,
+    promptRunner,
     element,
     destroy() {
       adapter.disconnect();

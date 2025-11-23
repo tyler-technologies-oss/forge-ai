@@ -1,4 +1,4 @@
-import { AiPromptExecutor, AgUiAdapter, type ToolRegistry, type ToolDefinition, type ToolHandler, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
+import { AiPromptRunner, AgUiAdapter, type ToolRegistry, type ToolDefinition, type ToolHandler, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
 
 interface CompanyFormData {
   industry?: string;
@@ -78,7 +78,7 @@ Use the fillCompanyForm tool to populate the form with company information.`;
 
     try {
       const adapter = new AgUiAdapter(config);
-      await AiPromptExecutor.execute({ adapter, toolRegistry, prompt });
+      await AiPromptRunner.run({ adapter, toolRegistry, prompt });
     } catch (error) {
       showToast(`Completion failed: ${(error as Error).message}`);
     } finally {

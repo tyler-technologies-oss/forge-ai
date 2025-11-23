@@ -14,4 +14,4 @@ export type {
   UploadedFileMetadata
 } from './types.js';
 
-export { AgUiAdapter, AiPromptExecutor } from '@tylertech/forge-ai/ai-chatbot';
+export { AgUiAdapter, AiPromptRunner } from '@tylertech/forge-ai/ai-chatbot';

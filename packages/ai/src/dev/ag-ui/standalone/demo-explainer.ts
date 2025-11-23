@@ -1,4 +1,4 @@
-import { AiPromptExecutor, AgUiAdapter, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
+import { AiPromptRunner, AgUiAdapter, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
 
 type ShowToastFn = (message: string, theme?: 'error' | 'success' | 'warning' | 'info') => void;
 
@@ -36,7 +36,7 @@ export function initExplainerDemo(config: AgUiAdapterConfig, showToast: ShowToas
 
       try {
         const adapter = new AgUiAdapter(config);
-        const result = await AiPromptExecutor.execute({ adapter, prompt });
+        const result = await AiPromptRunner.run({ adapter, prompt });
 
         textEl.textContent = result.message.content;
         hasContent = true;

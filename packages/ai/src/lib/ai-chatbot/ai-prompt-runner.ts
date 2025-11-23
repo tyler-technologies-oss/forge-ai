@@ -3,7 +3,7 @@ import type { ChatMessage, ToolCall } from './types.js';
 import { generateId } from './utils.js';
 import { ToolRegistry } from './tool-registry.js';
 
-export interface AiPromptExecutorConfig {
+export interface AiPromptRunnerConfig {
   adapter: AiChatbotAdapterBase;
   prompt: string;
   toolRegistry?: ToolRegistry;
@@ -12,16 +12,16 @@ export interface AiPromptExecutorConfig {
   onComplete?: (message: ChatMessage) => void;
 }
 
-export interface AiPromptExecutorResult {
+export interface AiPromptRunnerResult {
   message: ChatMessage;
   toolCalls: ToolCall[];
   success: boolean;
 }
 
-export class AiPromptExecutor {
+export class AiPromptRunner {
   private constructor() {}
 
-  public static async execute(config: AiPromptExecutorConfig): Promise<AiPromptExecutorResult> {
+  public static async run(config: AiPromptRunnerConfig): Promise<AiPromptRunnerResult> {
     const { adapter, toolRegistry, prompt, onStart, onDelta, onComplete } = config;
 
     if (!adapter.getState().isConnected) {
@@ -40,7 +40,7 @@ export class AiPromptExecutor {
       status: 'complete'
     };
 
-    return new Promise<AiPromptExecutorResult>((resolve, reject) => {
+    return new Promise<AiPromptRunnerResult>((resolve, reject) => {
       let currentAssistantMessage: Partial<ChatMessage> | null = null;
       const toolCalls: ToolCall[] = [];
       let resolved = false;

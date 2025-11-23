@@ -4,7 +4,7 @@ import type {
   Suggestion,
   UploadedFileMetadata,
   AgUiAdapter,
-  AiPromptExecutor
+  AiPromptRunner
 } from '@tylertech/forge-ai/ai-chatbot';
 
 export interface ChatbotConfig {
@@ -28,7 +28,7 @@ export interface ChatbotAPI {
   clearMessages(): void;
   getMessages(): ChatMessage[];
   adapter: AgUiAdapter;
-  executor: typeof AiPromptExecutor;
+  promptRunner: typeof AiPromptRunner;
   element: HTMLElement;
   destroy(): void;
 }
