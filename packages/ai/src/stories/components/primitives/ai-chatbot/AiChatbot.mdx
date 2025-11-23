@@ -28,8 +28,7 @@ import { AgUiAdapter, generateId } from '@tylertech/forge-ai';
 
 const adapter = new AgUiAdapter(
   {
-    baseUrl: 'https://api.example.com',
-    agentId: 'your-agent-id',
+    url: 'https://api.example.com/api/agents/your-agent-id',
     credentials: 'include'
   },
   generateId('thread')

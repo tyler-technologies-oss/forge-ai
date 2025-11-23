@@ -35,7 +35,7 @@ export function initExplainerDemo(config: AgUiAdapterConfig, showToast: ShowToas
       const prompt = `Explain the term "${term}" in simple terms for someone who may not be familiar with it. Keep the explanation concise (2-3 sentences) and practical.`;
 
       try {
-        const adapter = new AgUiAdapter(config);
+        const adapter = new AgUiAdapter({ ...config });
         const result = await AiPromptRunner.run({ adapter, prompt });
 
         textEl.textContent = result.message.content;

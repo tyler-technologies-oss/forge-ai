@@ -1,10 +1,13 @@
 import { AiChatbotAdapterBase, type ToolCallEvent } from './adapter-base.js';
 import type { ChatMessage, ToolDefinition } from './types.js';
 import { generateId } from './utils.js';
+import type { TransportLayer } from './transport-layer.js';
+import { SSETransport } from './sse-transport.js';
+import { WebSocketTransport } from './websocket-transport.js';
 
 export interface AgUiAdapterConfig {
-  baseUrl: string;
-  agentId: string;
+  url: string;
+  transport?: 'sse' | 'websocket';
   context?: Record<string, unknown>;
   credentials?: RequestCredentials;
   headers?: Record<string, string>;
@@ -63,7 +66,7 @@ interface ToolCallState {
 
 export class AgUiAdapter extends AiChatbotAdapterBase {
   #config: AgUiAdapterConfig;
-  #abortController: AbortController | null = null;
+  #transport: TransportLayer;
   #activeMessageIds = new Set<string>();
   #toolCalls = new Map<string, ToolCallState>();
   #threadId: string;
@@ -72,6 +75,19 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     super();
     this.#config = config;
     this.#threadId = threadId ?? generateId('thread');
+
+    const transportConfig = {
+      url: config.url,
+      credentials: config.credentials,
+      headers: config.headers
+    };
+
+    this.#transport = config.transport === 'websocket'
+      ? new WebSocketTransport(transportConfig)
+      : new SSETransport(transportConfig);
+
+    this.#transport.onData(data => this.#handleEventLine(data));
+    this.#transport.onError(error => this._emitError(error.message));
   }
 
   public get threadId(): string {
@@ -97,23 +113,23 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
   }
 
   public async connect(): Promise<void> {
+    await this.#transport.connect();
     this._updateState({ isConnected: true });
   }
 
   public async disconnect(): Promise<void> {
     this.abort();
+    this.#transport.disconnect();
     this._updateState({ isConnected: false });
   }
 
   public sendMessage(messages: ChatMessage[]): void {
-    this.#abortController = new AbortController();
-
     this._buildRequestAndExecute(messages);
   }
 
   protected async _buildRequestAndExecute(messages: ChatMessage[]): Promise<void> {
     const input = await this._buildRequest(messages);
-    this._executeRequest(input);
+    this.#transport.send(input);
   }
 
   public sendToolResult(_toolCallId: string, result: unknown): void {
@@ -134,8 +150,7 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
   }
 
   public abort(): void {
-    this.#abortController?.abort();
-    this.#abortController = null;
+    this.#transport.abort();
     this.#toolCalls.clear();
     this.#activeMessageIds.clear();
     this._updateState({ isRunning: false });
@@ -176,120 +191,7 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     });
   }
 
-  protected async _executeRequest(input: AgUiRequestInput): Promise<void> {
-    const url = `${this.#config.baseUrl}/${this.#config.agentId}/ag-ui`;
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...(this.#config.headers || {})
-    };
-
-    let response: Response | undefined;
-
-    try {
-      if (!this.#abortController) {
-        throw new Error('AbortController not initialized');
-      }
-
-      response = await fetch(url, {
-        method: 'POST',
-        headers,
-        credentials: this.#config.credentials || 'include',
-        body: JSON.stringify(input),
-        signal: this.#abortController.signal
-      });
-
-      if (!response.ok) {
-        let errorDetail = response.statusText;
-        try {
-          const errorBody = await response.text();
-          if (errorBody) {
-            errorDetail = errorBody;
-          }
-        } catch {
-          // Use statusText if body read fails
-        }
-        throw new Error(`HTTP ${response.status}: ${errorDetail}`);
-      }
-
-      if (!response.body) {
-        throw new Error('Response body is null');
-      }
-
-      await this._processResponseStream(response.body);
-    } catch (error: unknown) {
-      const err = error as { name?: string; message?: string };
-      if (err.name !== 'AbortError') {
-        this._emitError(err.message || 'Unknown error occurred');
-      }
-    } finally {
-      this._updateState({ isRunning: false });
-    }
-  }
-
-  protected async _processResponseStream(body: ReadableStream<Uint8Array>): Promise<void> {
-    const reader = body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let currentEvent: { event?: string; data: string[]; id?: string; retry?: number } = { data: [] };
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split(/\r?\n/);
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.trim() === '') {
-            if (currentEvent.data.length > 0) {
-              this._handleSSEEvent(currentEvent);
-              currentEvent = { data: [] };
-            }
-            continue;
-          }
-
-          const colonIndex = line.indexOf(':');
-          if (colonIndex === -1) {
-            continue;
-          }
-
-          const field = line.slice(0, colonIndex).trim();
-          const fieldValue = line.slice(colonIndex + 1).trimStart();
-
-          switch (field) {
-            case 'event':
-              currentEvent.event = fieldValue;
-              break;
-            case 'data':
-              currentEvent.data.push(fieldValue);
-              break;
-            case 'id':
-              currentEvent.id = fieldValue;
-              break;
-            case 'retry':
-              currentEvent.retry = parseInt(fieldValue, 10);
-              break;
-          }
-        }
-      }
-    } finally {
-      reader.releaseLock();
-    }
-  }
-
-  protected _handleSSEEvent(event: { event?: string; data: string[]; id?: string; retry?: number }): void {
-    const data = event.data.join('\n');
-    if (!data) {
-      return;
-    }
-    this._handleEventLine(data);
-  }
-
-  protected _handleEventLine(data: string): void {
+  #handleEventLine(data: string): void {
     try {
       const event = JSON.parse(data) as AgUiEvent;
       this._handleProtocolEvent(event);

@@ -77,7 +77,7 @@ export function initSmartCompleteDemo(
 Use the fillCompanyForm tool to populate the form with company information.`;
 
     try {
-      const adapter = new AgUiAdapter(config);
+      const adapter = new AgUiAdapter({ ...config });
       await AiPromptRunner.run({ adapter, toolRegistry, prompt });
     } catch (error) {
       showToast(`Completion failed: ${(error as Error).message}`);

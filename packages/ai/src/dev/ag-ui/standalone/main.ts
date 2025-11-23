@@ -42,8 +42,7 @@ const AGENT_ID = 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c';
 const toolRegistry = new ToolRegistry();
 
 const config: AgUiAdapterConfig = {
-  baseUrl: BASE_URL,
-  agentId: AGENT_ID,
+  url: `${BASE_URL}/${AGENT_ID}/ag-ui`,
   credentials: 'include',
   context: {
     purpose: 'ai-form-demos',

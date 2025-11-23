@@ -44,9 +44,11 @@ export class AiPromptRunner {
       let currentAssistantMessage: Partial<ChatMessage> | null = null;
       const toolCalls: ToolCall[] = [];
       let resolved = false;
+      const pendingToolExecutions = new Set<Promise<void>>();
+      let runFinished = false;
 
-      const finishHandler = (): void => {
-        if (resolved) {
+      const tryFinish = (): void => {
+        if (resolved || !runFinished || pendingToolExecutions.size > 0) {
           return;
         }
         resolved = true;
@@ -65,6 +67,11 @@ export class AiPromptRunner {
             success: true
           });
         }
+      };
+
+      const finishHandler = (): void => {
+        runFinished = true;
+        tryFinish();
       };
 
       const errorHandler = (event: { message: string }): void => {
@@ -101,35 +108,43 @@ export class AiPromptRunner {
       adapter.onError(errorHandler);
 
       adapter.onToolCall(async event => {
-        let result: unknown;
+        const execution = (async (): Promise<void> => {
+          let result: unknown;
 
-        const toolCall: ToolCall = {
-          id: event.id,
-          messageId: currentAssistantMessage?.id ?? '',
-          name: event.name,
-          args: event.args,
-          status: 'executing'
-        };
-        toolCalls.push(toolCall);
+          const toolCall: ToolCall = {
+            id: event.id,
+            messageId: currentAssistantMessage?.id ?? '',
+            name: event.name,
+            args: event.args,
+            status: 'executing'
+          };
+          toolCalls.push(toolCall);
 
-        if (toolRegistry?.has(event.name)) {
-          try {
-            result = await toolRegistry.execute(event);
-            toolCall.status = 'complete';
-            toolCall.result = result;
-          } catch (error) {
-            const err = error as Error;
-            result = { error: err.message };
+          if (toolRegistry?.has(event.name)) {
+            try {
+              result = await toolRegistry.execute(event);
+              toolCall.status = 'complete';
+              toolCall.result = result;
+            } catch (error) {
+              const err = error as Error;
+              result = { error: err.message };
+              toolCall.status = 'error';
+              toolCall.result = result;
+            }
+          } else {
+            result = { error: `No handler for tool: ${event.name}` };
             toolCall.status = 'error';
             toolCall.result = result;
           }
-        } else {
-          result = { error: `No handler for tool: ${event.name}` };
-          toolCall.status = 'error';
-          toolCall.result = result;
-        }
 
-        adapter.sendToolResult(event.id, result);
+          adapter.sendToolResult(event.id, result);
+        })();
+
+        pendingToolExecutions.add(execution);
+        execution.finally(() => {
+          pendingToolExecutions.delete(execution);
+          tryFinish();
+        });
       });
 
       adapter.sendMessage([userMessage]);

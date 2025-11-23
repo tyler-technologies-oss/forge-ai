@@ -92,33 +92,33 @@ const tools: ToolDefinition[] = [
         particleCount: { type: 'number', description: 'Number of particles (default: 100)' },
         spread: { type: 'number', description: 'Spread angle in degrees (default: 70)' }
       }
-    },
-    renderer: createToolRenderer({
-      render: toolCall => {
-        const container = document.createElement('div');
-        container.style.padding = '16px';
-        container.style.backgroundColor = 'var(--forge-theme-surface-container)';
-        container.style.borderRadius = '8px';
-        container.style.marginBlockStart = '8px';
+    }
+    // renderer: createToolRenderer({
+    //   render: toolCall => {
+    //     const container = document.createElement('div');
+    //     container.style.padding = '16px';
+    //     container.style.backgroundColor = 'var(--forge-theme-surface-container)';
+    //     container.style.borderRadius = '8px';
+    //     container.style.marginBlockStart = '8px';
 
-        const args = toolCall.args as ConfettiArgs;
-        const result = toolCall.result as { success: boolean; message: string };
+    //     const args = toolCall.args as ConfettiArgs;
+    //     const result = toolCall.result as { success: boolean; message: string };
 
-        container.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 8px; margin-block-end: 8px;">
-            <span style="font-size: 24px;">🎉</span>
-            <strong>Confetti Animation</strong>
-          </div>
-          <div style="font-size: 14px; color: var(--forge-theme-on-surface-variant);">
-            <div>Particles: ${args?.particleCount || 100}</div>
-            <div>Spread: ${args?.spread || 100}°</div>
-            <div style="margin-block-start: 8px; color: var(--forge-theme-success);">${result?.message || 'Success!'}</div>
-          </div>
-        `;
+    //     container.innerHTML = `
+    //       <div style="display: flex; align-items: center; gap: 8px; margin-block-end: 8px;">
+    //         <span style="font-size: 24px;">🎉</span>
+    //         <strong>Confetti Animation</strong>
+    //       </div>
+    //       <div style="font-size: 14px; color: var(--forge-theme-on-surface-variant);">
+    //         <div>Particles: ${args?.particleCount || 100}</div>
+    //         <div>Spread: ${args?.spread || 100}°</div>
+    //         <div style="margin-block-start: 8px; color: var(--forge-theme-success);">${result?.message || 'Success!'}</div>
+    //       </div>
+    //     `;
 
-        return container;
-      }
-    })
+    //     return container;
+    //   }
+    // })
   },
   {
     name: 'displayRecipe',
@@ -155,8 +155,7 @@ const threadId = generateId('thread');
 
 const adapter = new AgUiAdapter(
   {
-    baseUrl: BASE_URL,
-    agentId: AGENT_ID,
+    url: `${BASE_URL}/${AGENT_ID}/ag-ui`,
     credentials: 'include',
     context: {
       pageUrl: window.location.href,

@@ -107,11 +107,11 @@ The included `AgUiAdapter` implements the AG-UI protocol:
 
 ```typescript
 interface AgUiAdapterConfig {
-  baseUrl: string; // Base URL for API
-  agentId: string; // Agent identifier
+  url: string; // Full URL to agent endpoint
+  transport?: 'sse' | 'websocket'; // Transport type (default: 'sse')
   context?: Record<string, unknown>; // Optional context data
-  credentials?: RequestCredentials; // Fetch credentials mode
-  headers?: Record<string, string>; // Additional headers
+  credentials?: RequestCredentials; // Fetch credentials mode (SSE only)
+  headers?: Record<string, string>; // Additional headers (SSE only)
 }
 ```
 
@@ -124,9 +124,9 @@ await adapter.connect();
 
 // Factory method (recommended)
 const adapter = await AgUiAdapter.create({
-  baseUrl: 'https://api.example.com',
-  agentId: 'my-agent',
-  threadId: 'thread-123',  // Optional, auto-generated if not provided
+  url: 'https://api.example.com/api/agents/my-agent',
+  transport: 'sse',         // Optional, defaults to 'sse'
+  threadId: 'thread-123',   // Optional, auto-generated if not provided
   tools: [...],             // Optional
   context: {                // Optional
     userId: '123',
@@ -135,9 +135,29 @@ const adapter = await AgUiAdapter.create({
 });
 ```
 
+**Transport Types:**
+
+The adapter supports two transport mechanisms:
+
+- **SSE (Server-Sent Events)**: Default transport, uses HTTP with streaming response
+- **WebSocket**: Bidirectional transport for real-time communication
+
+```typescript
+// SSE (default)
+const adapter = new AgUiAdapter({
+  url: 'https://api.example.com/api/agents/my-agent'
+});
+
+// WebSocket
+const adapter = new AgUiAdapter({
+  url: 'wss://api.example.com/api/agents/my-agent/ws',
+  transport: 'websocket'
+});
+```
+
 **Protocol Events:**
 
-The adapter processes these AG-UI SSE events:
+The adapter processes these AG-UI protocol events:
 
 - `TEXT_MESSAGE_START` → `onMessageStart`
 - `TEXT_MESSAGE_CHUNK` / `TEXT_MESSAGE_CONTENT` → `onMessageDelta`
@@ -158,8 +178,7 @@ const chatbot = document.querySelector('forge-ai-chatbot');
 
 // Create and configure adapter
 const adapter = await AgUiAdapter.create({
-  baseUrl: 'https://api.example.com',
-  agentId: 'my-assistant',
+  url: 'https://api.example.com/api/agents/my-assistant',
   context: {
     userId: getCurrentUserId(),
     pageUrl: window.location.href
@@ -513,8 +532,7 @@ const threadId = sessionStorage.getItem('chatbot-thread-id') || generateId('thre
 
 // 2. Create adapter with the thread ID
 const adapter = await AgUiAdapter.create({
-  baseUrl: 'https://api.example.com',
-  agentId: 'my-agent',
+  url: 'https://api.example.com/api/agents/my-agent',
   threadId // Pass the persisted thread ID
 });
 
@@ -566,8 +584,7 @@ class ChatbotManager {
 
     // Create adapter
     this.adapter = await AgUiAdapter.create({
-      baseUrl: CONFIG.apiUrl,
-      agentId: CONFIG.agentId,
+      url: `${CONFIG.apiUrl}/api/agents/${CONFIG.agentId}`,
       threadId: this.loadThreadId(),
       tools: this.registry.getDefinitions(),
       context: { userId: getUserId() }

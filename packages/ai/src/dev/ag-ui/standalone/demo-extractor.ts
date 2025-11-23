@@ -104,7 +104,7 @@ ${text}
 Use the fillContactForm tool to populate the form with the extracted data.`;
 
     try {
-      const adapter = new AgUiAdapter(config);
+      const adapter = new AgUiAdapter({ ...config });
       await AiPromptRunner.run({ adapter, toolRegistry, prompt });
     } catch (error) {
       showToast(`Extraction failed: ${(error as Error).message}`);

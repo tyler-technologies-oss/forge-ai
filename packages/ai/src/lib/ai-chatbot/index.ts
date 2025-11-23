@@ -33,6 +33,11 @@ export type {
 // Chatbot context
 export type { ChatbotContext } from './context.js';
 
+// Transport layer
+export type { TransportLayer, TransportConfig } from './transport-layer.js';
+export { SSETransport } from './sse-transport.js';
+export { WebSocketTransport } from './websocket-transport.js';
+
 // AG-UI adapter
 export { AgUiAdapter, type AgUiAdapterConfig } from './ag-ui-adapter.js';
 

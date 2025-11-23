@@ -36,7 +36,7 @@ import { initChatbot } from '@tylertech/forge-ai-sdk';
 
 const api = await initChatbot({
   agentId: 'your-agent-id',
-  baseUrl: 'https://api.example.com',
+  baseUrl: 'https://api.example.com/api/agents',
   chatViewType: 'floating',
   onReady: (api) => {
     console.log('Chatbot ready!', api);
@@ -78,7 +78,7 @@ api.destroy();
 
     const api = await initChatbot({
       agentId: 'your-agent-id',
-      baseUrl: 'https://api.example.com',
+      baseUrl: 'https://api.example.com/api/agents',
       chatViewType: 'floating'
     });
 
@@ -116,7 +116,7 @@ Absolute positioned dialog in bottom-right corner. Ideal for support widgets.
 ```typescript
 await initChatbot({
   agentId: 'agent-123',
-  baseUrl: 'https://api.example.com',
+  baseUrl: 'https://api.example.com/api/agents',
   chatViewType: 'floating'
 });
 ```
@@ -128,7 +128,7 @@ Embedded in a container element. Ideal for in-app assistance.
 ```typescript
 await initChatbot({
   agentId: 'agent-123',
-  baseUrl: 'https://api.example.com',
+  baseUrl: 'https://api.example.com/api/agents',
   chatViewType: 'sidebar',
   mountPoint: '#chat-sidebar'
 });
@@ -141,7 +141,7 @@ Multi-conversation thread list. Ideal for persistent chat history.
 ```typescript
 await initChatbot({
   agentId: 'agent-123',
-  baseUrl: 'https://api.example.com',
+  baseUrl: 'https://api.example.com/api/agents',
   chatViewType: 'threads',
   mountPoint: '#threads-container'
 });
@@ -181,8 +181,7 @@ import { AgUiAdapter } from '@tylertech/forge-ai-sdk';
 import '@tylertech/forge-ai/ai-chatbot';
 
 const adapter = new AgUiAdapter({
-  baseUrl: 'https://api.example.com',
-  agentId: 'agent-123'
+  url: 'https://api.example.com/api/agents/agent-123'
 });
 await adapter.connect();
 
@@ -222,7 +221,7 @@ Provide a custom file upload handler:
 ```typescript
 await initChatbot({
   agentId: 'agent-123',
-  baseUrl: 'https://api.example.com',
+  baseUrl: 'https://api.example.com/api/agents',
   fileUploadHandler: async (file) => {
     const formData = new FormData();
     formData.append('file', file);
