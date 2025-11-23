@@ -213,3 +213,73 @@ export const WithTools: Story = {
     `;
   }
 };
+
+export const WithPersistence: Story = {
+  render: (args: any) => {
+    const STORAGE_KEY = 'ai-chatbot-thread-state';
+
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const suggestions = [
+      { text: 'What is TypeScript?', value: 'typescript' },
+      { text: 'Explain web components', value: 'webcomponents' },
+      { text: 'How do I use localStorage?', value: 'localstorage' }
+    ] as Suggestion[];
+
+    setTimeout(() => {
+      const chatbot = document.querySelector('forge-ai-chatbot') as any;
+      if (!chatbot) return;
+
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          chatbot.setThreadState(state);
+        } catch (error) {
+          console.error('Failed to restore thread state:', error);
+        }
+      }
+
+      chatbot.addEventListener('forge-ai-chatbot-message-received', () => {
+        const state = chatbot.getThreadState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      });
+
+      chatbot.addEventListener('forge-ai-chatbot-message-sent', () => {
+        const state = chatbot.getThreadState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      });
+
+      chatbot.addEventListener('forge-ai-chatbot-clear', () => {
+        localStorage.removeItem(STORAGE_KEY);
+      });
+    }, 0);
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Thread Persistence Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Chat messages are automatically saved to localStorage. Refresh the page to see the conversation restored.
+            Use the clear button in the header to reset.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .suggestions=${suggestions}
+          placeholder=${args.placeholder}
+          show-minimize-button
+          @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+          @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+          @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
+          <span slot="header-title">Persistent Chat</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};

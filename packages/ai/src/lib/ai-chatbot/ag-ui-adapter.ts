@@ -78,6 +78,10 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     return this.#threadId;
   }
 
+  public set threadId(value: string) {
+    this.#threadId = value;
+  }
+
   public static async create(
     config: AgUiAdapterConfig & { tools?: ToolDefinition[]; threadId?: string }
   ): Promise<AgUiAdapter> {

@@ -45,5 +45,9 @@ export { ToolRegistry, type ToolHandler } from './tool-registry.js';
 // Tool renderer helper
 export { createToolRenderer, type CreateToolRendererConfig } from './create-tool-renderer.js';
 
+// Controllers and managers
+export { MessageStateController, type MessageStateControllerConfig } from './message-state-controller.js';
+export { FileUploadManager, type FileUploadManagerConfig } from './file-upload-manager.js';
+
 // Utilities
 export { generateId, renderMarkdown } from './utils.js';

@@ -195,6 +195,9 @@ src/lib/[component-name]/
 - Prefer using the "config object" pattern for methods and functions that take multiple parameters, especially when some are optional. This improves readability and makes it easier to add parameters in the future without breaking existing calls.
 - Do not update test unless told to do so.
 - Always use braces around if statements, even for single-line blocks.
+- Use the `#` syntax for private properties that do not have Lit decorators applied.
+- Always use `public`, `private`, and `protected` keywords for class members.
+- Always add return types to methods and functions.
 
 ### Conditional Content Pattern
 

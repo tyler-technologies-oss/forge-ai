@@ -61,3 +61,9 @@ export interface UploadedFileMetadata {
 export type MessageItem =
   | { type: 'message'; data: ChatMessage }
   | { type: 'toolCall'; data: ToolCall };
+
+export interface ThreadState {
+  threadId?: string;
+  messages: ChatMessage[];
+  timestamp?: number;
+}

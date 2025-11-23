@@ -51,6 +51,9 @@ export abstract class AiChatbotAdapterBase {
   public abstract sendToolResult(toolCallId: string, result: unknown): void;
   public abstract abort(): void;
 
+  public abstract get threadId(): string;
+  public abstract set threadId(value: string);
+
   public registerTools(tools: ToolDefinition[]): void {
     this._tools = tools;
   }

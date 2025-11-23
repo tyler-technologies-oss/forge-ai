@@ -27,15 +27,10 @@ export class AiEmptyStateComponent extends LitElement {
   @queryAssignedNodes({ slot: 'icon', flatten: true })
   private _iconSlotNodes!: Node[];
 
-  @queryAssignedNodes({ slot: 'heading', flatten: true })
-  private _headingSlotNodes!: Node[];
-
   @queryAssignedNodes({ slot: 'body', flatten: true })
   private _bodySlotNodes!: Node[];
 
   readonly #iconSlot = html`<slot name="icon" @slotchange=${this.#handleSlotChange}></slot>`;
-
-  readonly #headingSlot = html`<slot name="heading" @slotchange=${this.#handleSlotChange}></slot>`;
 
   readonly #bodySlot = html`<slot name="body" @slotchange=${this.#handleSlotChange}></slot>`;
 
@@ -124,15 +119,6 @@ export class AiEmptyStateComponent extends LitElement {
     );
   }
 
-  get #headingContent(): TemplateResult {
-    const hasCustomHeading = this._headingSlotNodes.length > 0;
-    return when(
-      hasCustomHeading,
-      () => this.#headingSlot,
-      () => this.#headingSlot
-    );
-  }
-
   get #bodyContent(): TemplateResult {
     const hasCustomBody = this._bodySlotNodes.length > 0;
     return when(
@@ -144,7 +130,7 @@ export class AiEmptyStateComponent extends LitElement {
 
   #handleSlotChange(evt: Event): void {
     const slotName = (evt.target as HTMLSlotElement).name || 'default';
-    if (['icon', 'heading', 'body'].includes(slotName)) {
+    if (['icon', 'body'].includes(slotName)) {
       this.requestUpdate();
     }
   }
@@ -153,7 +139,9 @@ export class AiEmptyStateComponent extends LitElement {
     return html` <div class="forge-page-state">
       <div class="welcome-container">
         ${this.#iconContent}
-        <div class="heading">${this.#headingContent}</div>
+        <div class="heading">
+          <slot name="heading"></slot>
+        </div>
         <div class="forge-page-state__message message">${this.#bodyContent}</div>
         <slot name="actions"></slot>
       </div>
