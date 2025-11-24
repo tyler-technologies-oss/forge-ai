@@ -245,6 +245,14 @@ chatbot.suggestions = [
   { text: 'Show me a recipe for chocolate chip cookies', value: 'Show me a recipe for chocolate chip cookies' }
 ];
 
+chatbot.addEventListener('forge-ai-chatbot-message-sent', (e: CustomEvent) => {
+  addEventToStream('USER_MESSAGE', e.detail.message);
+});
+
+chatbot.addEventListener('forge-ai-chatbot-message-received', (e: CustomEvent) => {
+  addEventToStream('ASSISTANT_MESSAGE', e.detail.message);
+});
+
 chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<ForgeAiChatbotToolCallEventData>) => {
   const { toolName, arguments: args, respond } = e.detail;
   console.log('🔧 Tool call:', { toolName, args });

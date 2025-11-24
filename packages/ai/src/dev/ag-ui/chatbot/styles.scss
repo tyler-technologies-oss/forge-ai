@@ -57,3 +57,59 @@ forge-card {
   --forge-card-padding: 0;
   min-height: 0;
 }
+
+.user_message,
+.assistant_message,
+.text_message_start,
+.text_message_chunk,
+.text_message_content,
+.text_message_end,
+.tool_call_start,
+.tool_call_args,
+.tool_call_end,
+.run_started,
+.run_finished,
+.run_error,
+.error {
+  display: inline-block;
+  padding: var(--forge-spacing-xxsmall) var(--forge-spacing-small);
+  border-radius: var(--forge-shape-small);
+  font-weight: 500;
+}
+
+.user_message {
+  background-color: var(--forge-theme-primary-container-low);
+  color: var(--forge-theme-primary);
+}
+
+.assistant_message {
+  background-color: var(--forge-theme-secondary-container-low);
+  color: var(--forge-theme-secondary);
+}
+
+.text_message_start,
+.text_message_chunk,
+.text_message_content,
+.text_message_end {
+  background-color: var(--forge-theme-info-container-low);
+  color: var(--forge-theme-info);
+}
+
+.tool_call_start,
+.tool_call_args,
+.tool_call_end {
+  background-color: var(--forge-theme-tertiary-container-low);
+  color: var(--forge-theme-tertiary);
+}
+
+.run_started,
+.run_finished {
+  background-color: var(--forge-theme-success-container-low);
+  color: var(--forge-theme-success);
+}
+
+.run_error,
+.error {
+  background-color: var(--forge-theme-error-container-low);
+  color: var(--forge-theme-error);
+}
