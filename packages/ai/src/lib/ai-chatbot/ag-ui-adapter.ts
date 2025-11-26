@@ -75,6 +75,10 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
   }
 
   public sendMessage(messages: ChatMessage[]): void {
+    if (!this._state.isConnected) {
+      throw new Error('Adapter not connected. Call connect() first.');
+    }
+
     const transformedMessages = this.#transformMessages(messages);
     const context = this.#config.context ? this.#transformContext(this.#config.context) : undefined;
 
@@ -100,119 +104,186 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
 
   public abort(): void {
     this.#agent.abortRun();
-    this.#toolCalls.clear();
-    this.#textBuffers.clear();
-    this._updateState({ isRunning: false });
+    this.#clearRunState();
   }
 
   #setupSubscriber(): void {
     const subscriber: AgentSubscriber = {
-      onRunInitialized: () => {
-        this._updateState({ isRunning: true });
-        this._emitRunStarted();
-      },
-      onTextMessageStartEvent: ({ event }) => {
-        this._emitMessageStart(event.messageId);
-      },
-      onTextMessageContentEvent: ({ textMessageBuffer, event }) => {
-        const previousBuffer = this.#textBuffers.get(event.messageId) ?? '';
-        const delta = textMessageBuffer.slice(previousBuffer.length);
-        this.#textBuffers.set(event.messageId, textMessageBuffer);
-        this._emitMessageDelta(event.messageId, delta);
-      },
-      onTextMessageEndEvent: ({ textMessageBuffer, event }) => {
-        // Emit any remaining delta that wasn't sent yet
-        const previousBuffer = this.#textBuffers.get(event.messageId) ?? '';
-        const finalDelta = textMessageBuffer.slice(previousBuffer.length);
-
-        if (finalDelta.length > 0) {
-          this._emitMessageDelta(event.messageId, finalDelta);
-        }
-
-        this.#textBuffers.delete(event.messageId);
-        this._emitMessageEnd(event.messageId);
-      },
-      onToolCallStartEvent: ({ event }) => {
-        const toolCallState = {
-          messageId: event.parentMessageId || '',
-          name: event.toolCallName,
-          argsBuffer: ''
-        };
-        this.#toolCalls.set(event.toolCallId, toolCallState);
-
-        this._emitToolCallStart({
-          id: event.toolCallId,
-          messageId: toolCallState.messageId,
-          name: toolCallState.name
-        });
-      },
-      onToolCallArgsEvent: ({ event, partialToolCallArgs, toolCallBuffer }) => {
-        const toolCall = this.#toolCalls.get(event.toolCallId);
-        if (!toolCall) {
-          return;
-        }
-
-        if (partialToolCallArgs && Object.keys(partialToolCallArgs).length > 0) {
-          toolCall.argsBuffer = JSON.stringify(partialToolCallArgs);
-        } else {
-          toolCall.argsBuffer = toolCallBuffer;
-        }
-
-        this._emitToolCallArgs({
-          id: event.toolCallId,
-          messageId: toolCall.messageId,
-          name: toolCall.name,
-          argsBuffer: toolCall.argsBuffer,
-          partialArgs: partialToolCallArgs
-        });
-      },
-      onToolCallEndEvent: ({ event, toolCallArgs }) => {
-        const toolCall = this.#toolCalls.get(event.toolCallId);
-        if (!toolCall) {
-          return;
-        }
-
-        const args = toolCallArgs || {};
-
-        const toolDef = this._tools?.find(t => t.name === toolCall.name);
-        if (toolDef) {
-          const validationError = this.#validateToolArgs(toolCall.name, args, toolDef);
-          if (validationError) {
-            this._emitError(validationError);
-            this.#toolCalls.delete(event.toolCallId);
-            return;
-          }
-        }
-
-        const toolCallEvent = {
-          id: event.toolCallId,
-          messageId: toolCall.messageId,
-          name: toolCall.name,
-          args
-        };
-
-        this._emitToolCallEnd(toolCallEvent);
-        this._emitToolCall(toolCallEvent);
-        this.#toolCalls.delete(event.toolCallId);
-      },
-      onRunFinishedEvent: () => {
-        this.#toolCalls.clear();
-        this._updateState({ isRunning: false });
-        this._emitRunFinished();
-      },
-      onRunErrorEvent: ({ event }) => {
-        this._emitError(event.message || 'Unknown error');
-        this._updateState({ isRunning: false });
-      },
-      onRunFailed: () => {
-        this.#toolCalls.clear();
-        this.#textBuffers.clear();
-        this._emitError('An unknown error occurred. Please try again.');
-        this._updateState({ isRunning: false });
-      }
+      onRunInitialized: this.#handleRunInitialized.bind(this),
+      onTextMessageStartEvent: this.#handleTextMessageStart.bind(this),
+      onTextMessageContentEvent: this.#handleTextMessageContent.bind(this),
+      onTextMessageEndEvent: this.#handleTextMessageEnd.bind(this),
+      onToolCallStartEvent: this.#handleToolCallStart.bind(this),
+      onToolCallArgsEvent: this.#handleToolCallArgs.bind(this),
+      onToolCallEndEvent: this.#handleToolCallEnd.bind(this),
+      onRunFinishedEvent: this.#handleRunFinished.bind(this),
+      onRunErrorEvent: this.#handleRunError.bind(this),
+      onRunFailed: this.#handleRunFailed.bind(this)
     };
 
     this.#agent.subscribe(subscriber);
+  }
+
+  #handleRunInitialized(): void {
+    this._updateState({ isRunning: true });
+    this._emitRunStarted();
+  }
+
+  #handleTextMessageStart({ event }: { event: { messageId: string } }): void {
+    this._emitMessageStart(event.messageId);
+  }
+
+  #handleTextMessageContent({
+    textMessageBuffer,
+    event
+  }: {
+    textMessageBuffer: string;
+    event: { messageId: string };
+  }): void {
+    this.#processTextDelta(event.messageId, textMessageBuffer, false);
+  }
+
+  #handleTextMessageEnd({
+    textMessageBuffer,
+    event
+  }: {
+    textMessageBuffer: string;
+    event: { messageId: string };
+  }): void {
+    this.#processTextDelta(event.messageId, textMessageBuffer, true);
+    this._emitMessageEnd(event.messageId);
+  }
+
+  #handleToolCallStart({
+    event
+  }: {
+    event: { toolCallId: string; parentMessageId?: string; toolCallName: string };
+  }): void {
+    const toolCallState = {
+      messageId: event.parentMessageId || '',
+      name: event.toolCallName,
+      argsBuffer: ''
+    };
+    this.#toolCalls.set(event.toolCallId, toolCallState);
+
+    this._emitToolCallStart({
+      id: event.toolCallId,
+      messageId: toolCallState.messageId,
+      name: toolCallState.name
+    });
+  }
+
+  #handleToolCallArgs({
+    event,
+    partialToolCallArgs,
+    toolCallBuffer
+  }: {
+    event: { toolCallId: string };
+    partialToolCallArgs?: Record<string, unknown>;
+    toolCallBuffer: string;
+  }): void {
+    const toolCall = this.#getToolCallOrWarn(event.toolCallId);
+    if (!toolCall) {
+      return;
+    }
+
+    if (partialToolCallArgs && Object.keys(partialToolCallArgs).length) {
+      toolCall.argsBuffer = JSON.stringify(partialToolCallArgs);
+    } else {
+      toolCall.argsBuffer = toolCallBuffer;
+    }
+
+    this._emitToolCallArgs({
+      id: event.toolCallId,
+      messageId: toolCall.messageId,
+      name: toolCall.name,
+      argsBuffer: toolCall.argsBuffer,
+      partialArgs: partialToolCallArgs
+    });
+  }
+
+  #handleToolCallEnd({
+    event,
+    toolCallArgs
+  }: {
+    event: { toolCallId: string };
+    toolCallArgs?: Record<string, unknown>;
+  }): void {
+    const toolCall = this.#getToolCallOrWarn(event.toolCallId);
+    if (!toolCall) {
+      return;
+    }
+
+    const args = toolCallArgs || {};
+
+    const toolDef = this.#findToolDefinition(toolCall.name);
+    if (toolDef) {
+      const validationError = this.#validateToolArgs(toolCall.name, args, toolDef);
+      if (validationError) {
+        this._emitError(validationError);
+        this.#toolCalls.delete(event.toolCallId);
+        return;
+      }
+    }
+
+    const toolCallEvent = {
+      id: event.toolCallId,
+      messageId: toolCall.messageId,
+      name: toolCall.name,
+      args
+    };
+
+    this._emitToolCallEnd(toolCallEvent);
+    this._emitToolCall(toolCallEvent);
+    this.#toolCalls.delete(event.toolCallId);
+  }
+
+  #handleRunFinished(): void {
+    this.#clearRunState();
+    this._emitRunFinished();
+  }
+
+  #handleRunError({ event }: { event: { message?: string } }): void {
+    this._emitError(event.message || 'Unknown error');
+    this._updateState({ isRunning: false });
+  }
+
+  #handleRunFailed(): void {
+    this.#clearRunState();
+    this._emitError('An unknown error occurred. Please try again.');
+  }
+
+  #processTextDelta(messageId: string, buffer: string, isFinal: boolean): void {
+    const previousBuffer = this.#textBuffers.get(messageId) ?? '';
+    const delta = buffer.slice(previousBuffer.length);
+
+    if (delta.length) {
+      this._emitMessageDelta(messageId, delta);
+    }
+
+    if (isFinal) {
+      this.#textBuffers.delete(messageId);
+    } else {
+      this.#textBuffers.set(messageId, buffer);
+    }
+  }
+
+  #getToolCallOrWarn(toolCallId: string): ToolCallState | null {
+    const toolCall = this.#toolCalls.get(toolCallId);
+    if (!toolCall) {
+      console.warn(`Tool call ${toolCallId} not found in state`);
+    }
+    return toolCall ?? null;
+  }
+
+  #findToolDefinition(name: string): ToolDefinition | undefined {
+    return this._tools?.find(t => t.name === name);
+  }
+
+  #clearRunState(): void {
+    this.#toolCalls.clear();
+    this.#textBuffers.clear();
+    this._updateState({ isRunning: false });
   }
 
   #transformContext(context: Record<string, unknown>): Context[] {
@@ -233,7 +304,7 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
               role: 'user',
               content: this.#createInputContent(msg.content)
             };
-            if (msg.uploadedFiles && msg.uploadedFiles.length > 0) {
+            if (msg.uploadedFiles?.length) {
               userMsg.fileIds = msg.uploadedFiles.map(f => f.fileId);
             }
             return userMsg;
