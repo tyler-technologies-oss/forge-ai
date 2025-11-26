@@ -24,7 +24,6 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
 
   const adapter = new AgUiAdapter({
     url: `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`,
-    credentials: config.credentials,
     headers: config.headers
   });
 
@@ -63,7 +62,6 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
 
   const adapter = new AgUiAdapter({
     url: `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`,
-    credentials: config.credentials,
     headers: config.headers
   });
 
@@ -102,7 +100,6 @@ async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfi
 
   const adapter = new AgUiAdapter({
     url: `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`,
-    credentials: config.credentials,
     headers: config.headers
   });
 

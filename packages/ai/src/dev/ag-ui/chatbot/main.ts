@@ -59,7 +59,7 @@ function addEventToStream(type: string, data: unknown): void {
   const popover = document.createElement('forge-popover');
   popover.id = popoverId;
   popover.placement = 'bottom-end';
-  popover.anchorElement = listItem.querySelector(`#${eventId}`) as HTMLElement;
+  popover.anchor = eventId;
   popover.innerHTML = `
     <div class="event-data-popover">
       <pre>${JSON.stringify(data, null, 2)}</pre>
@@ -70,11 +70,11 @@ function addEventToStream(type: string, data: unknown): void {
 
   eventStreamEl.appendChild(listItem);
 
-  if (eventStreamEl.children.length > 200) {
+  if (eventStreamEl.children.length > 1000) {
     eventStreamEl.removeChild(eventStreamEl.firstChild as Node);
   }
 
-  eventStreamEl.scrollTo({ top: eventStreamEl.scrollHeight, behavior: 'smooth' });
+  eventStreamEl.scrollTo({ top: eventStreamEl.scrollHeight });
 }
 
 interface ConfettiArgs {
@@ -156,7 +156,6 @@ const threadId = generateId('thread');
 const adapter = new AgUiAdapter(
   {
     url: `${BASE_URL}/${AGENT_ID}/ag-ui`,
-    credentials: 'include',
     context: {
       pageUrl: window.location.href,
       userAgent: navigator.userAgent,
@@ -230,12 +229,18 @@ adapter.setFileUploadCallback(async (file: File) => {
   throw new Error('Upload failed: No response');
 });
 
-// Hook into raw protocol events by overriding the protected method
-const originalHandleProtocolEvent = (adapter as any)._handleProtocolEvent.bind(adapter);
-(adapter as any)._handleProtocolEvent = function (event: any) {
-  addEventToStream(event.type, event);
-  return originalHandleProtocolEvent(event);
-};
+// Track SDK events via subscriber
+adapter.onRunStarted(() => addEventToStream('RUN_STARTED', { isRunning: true }));
+adapter.onRunFinished(() => addEventToStream('RUN_FINISHED', { isRunning: false }));
+adapter.onMessageStart(event => addEventToStream('TEXT_MESSAGE_START', event));
+adapter.onMessageDelta(event => addEventToStream('TEXT_MESSAGE_CONTENT', event));
+adapter.onMessageEnd(event => addEventToStream('TEXT_MESSAGE_END', event));
+adapter.onToolCall(event => addEventToStream('TOOL_CALL', event));
+adapter.onToolCallStart(event => addEventToStream('TOOL_CALL_START', event));
+adapter.onToolCallArgs(event => addEventToStream('TOOL_CALL_ARGS', event));
+adapter.onToolCallEnd(event => addEventToStream('TOOL_CALL_END', event));
+adapter.onError(event => addEventToStream('ERROR', event));
+adapter.onStateChange(state => addEventToStream('STATE_CHANGE', state));
 
 chatbot.adapter = adapter;
 chatbot.tools = tools;
@@ -266,13 +271,11 @@ chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<For
 
     await respond({
       success: true,
-      message: `Confetti shown with ${confettiArgs?.particleCount || 100} particles!`
+      args
     });
   }
 
   if (toolName === 'displayRecipe') {
-    // Renderer tool - call respond() to complete and trigger renderer
-    // Result not sent to LLM, component reads from toolCall.args
-    await respond();
+    await respond({ success: true, args });
   }
 });

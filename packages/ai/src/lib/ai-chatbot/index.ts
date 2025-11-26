@@ -16,6 +16,9 @@ export {
   type MessageDeltaEvent,
   type MessageEndEvent,
   type ToolCallEvent,
+  type ToolCallStartEvent,
+  type ToolCallArgsEvent,
+  type ToolCallEndEvent,
   type AdapterState,
   type ErrorEvent
 } from './adapter-base.js';
@@ -32,11 +35,6 @@ export type {
 
 // Chatbot context
 export type { ChatbotContext } from './context.js';
-
-// Transport layer
-export type { TransportLayer, TransportConfig } from './transport-layer.js';
-export { SSETransport } from './sse-transport.js';
-export { WebSocketTransport } from './websocket-transport.js';
 
 // AG-UI adapter
 export { AgUiAdapter, type AgUiAdapterConfig } from './ag-ui-adapter.js';

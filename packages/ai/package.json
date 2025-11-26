@@ -63,6 +63,8 @@
     "plop": "plop"
   },
   "dependencies": {
+    "@ag-ui/client": "^0.0.41",
+    "@ag-ui/core": "^0.0.41",
     "@floating-ui/dom": "^1.7.4",
     "@lit/context": "^1.1.6",
     "@tylertech/tyler-icons": "catalog:",

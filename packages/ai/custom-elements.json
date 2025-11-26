@@ -166,6 +166,77 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-artifact/ai-artifact.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiArtifactComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-artifact'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiArtifactComponent",
+          "cssProperties": [
+            {
+              "description": "Surface color override for the toolbar (defaults to transparent)",
+              "name": "--forge-theme-surface"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Content for the start (left) side of the toolbar, typically used for titles or headings",
+              "name": "start"
+            },
+            {
+              "description": "Action buttons for the end (right) side of the toolbar",
+              "name": "actions"
+            },
+            {
+              "description": "Main content area below the toolbar",
+              "name": ""
+            }
+          ],
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-artifact",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiArtifactComponentTagName",
+          "declaration": {
+            "name": "AiArtifactComponentTagName",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiArtifactComponent",
+          "declaration": {
+            "name": "AiArtifactComponent",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiArtifactComponent",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "declarations": [
         {
@@ -366,77 +437,6 @@
           "declaration": {
             "name": "AiAttachmentComponent",
             "module": "src/lib/ai-attachment/ai-attachment.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-artifact/ai-artifact.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiArtifactComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-artifact'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiArtifactComponent",
-          "cssProperties": [
-            {
-              "description": "Surface color override for the toolbar (defaults to transparent)",
-              "name": "--forge-theme-surface"
-            }
-          ],
-          "slots": [
-            {
-              "description": "Content for the start (left) side of the toolbar, typically used for titles or headings",
-              "name": "start"
-            },
-            {
-              "description": "Action buttons for the end (right) side of the toolbar",
-              "name": "actions"
-            },
-            {
-              "description": "Main content area below the toolbar",
-              "name": ""
-            }
-          ],
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-artifact",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiArtifactComponentTagName",
-          "declaration": {
-            "name": "AiArtifactComponentTagName",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiArtifactComponent",
-          "declaration": {
-            "name": "AiArtifactComponent",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiArtifactComponent",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
           }
         }
       ]
@@ -998,6 +998,42 @@
             },
             {
               "kind": "method",
+              "name": "onRunStarted",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "onRunFinished",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
               "name": "onMessageStart",
               "privacy": "public",
               "return": {
@@ -1070,6 +1106,60 @@
             },
             {
               "kind": "method",
+              "name": "onToolCallStart",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallStartEvent) => void"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "onToolCallArgs",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallArgsEvent) => void"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "onToolCallEnd",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallEndEvent) => void"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
               "name": "onError",
               "privacy": "public",
               "return": {
@@ -1100,24 +1190,6 @@
                   "name": "callback",
                   "type": {
                     "text": "(state: AdapterState) => void"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "onRunFinished",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "() => void"
                   }
                 }
               ]
@@ -1237,7 +1309,7 @@
               },
               "parameters": [
                 {
-                  "name": "_toolCallId",
+                  "name": "toolCallId",
                   "type": {
                     "text": "string"
                   }
@@ -1354,6 +1426,50 @@
             },
             {
               "kind": "method",
+              "name": "onRunStarted",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AiChatbotAdapterBase",
+                "module": "src/lib/ai-chatbot/adapter-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onRunFinished",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AiChatbotAdapterBase",
+                "module": "src/lib/ai-chatbot/adapter-base.ts"
+              }
+            },
+            {
+              "kind": "method",
               "name": "onMessageStart",
               "privacy": "public",
               "return": {
@@ -1442,6 +1558,72 @@
             },
             {
               "kind": "method",
+              "name": "onToolCallStart",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallStartEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AiChatbotAdapterBase",
+                "module": "src/lib/ai-chatbot/adapter-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onToolCallArgs",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallArgsEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AiChatbotAdapterBase",
+                "module": "src/lib/ai-chatbot/adapter-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onToolCallEnd",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallEndEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AiChatbotAdapterBase",
+                "module": "src/lib/ai-chatbot/adapter-base.ts"
+              }
+            },
+            {
+              "kind": "method",
               "name": "onError",
               "privacy": "public",
               "return": {
@@ -1483,34 +1665,16 @@
                 "name": "AiChatbotAdapterBase",
                 "module": "src/lib/ai-chatbot/adapter-base.ts"
               }
-            },
-            {
-              "kind": "method",
-              "name": "onRunFinished",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "() => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
             }
           ],
           "superclass": {
             "name": "AiChatbotAdapterBase",
             "module": "/src/lib/ai-chatbot/adapter-base.js"
           }
+        },
+        {
+          "kind": "variable",
+          "name": "args"
         }
       ],
       "exports": [
@@ -2601,113 +2765,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chatbot/sse-transport.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "SSETransport",
-          "members": [
-            {
-              "kind": "method",
-              "name": "connect",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "disconnect",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "send",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "data",
-                  "type": {
-                    "text": "unknown"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "onData",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(data: string) => void"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "onError",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(error: Error) => void"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "abort",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "SSETransport",
-          "declaration": {
-            "name": "SSETransport",
-            "module": "src/lib/ai-chatbot/sse-transport.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-chatbot/tool-registry.ts",
       "declarations": [
         {
@@ -2829,12 +2886,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chatbot/transport-layer.ts",
-      "declarations": [],
-      "exports": []
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-chatbot/types.ts",
       "declarations": [],
       "exports": []
@@ -2895,113 +2946,6 @@
           "declaration": {
             "name": "renderMarkdown",
             "module": "src/lib/ai-chatbot/utils.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chatbot/websocket-transport.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "WebSocketTransport",
-          "members": [
-            {
-              "kind": "method",
-              "name": "connect",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "disconnect",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "send",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "data",
-                  "type": {
-                    "text": "unknown"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "onData",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(data: string) => void"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "onError",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(error: Error) => void"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "abort",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "WebSocketTransport",
-          "declaration": {
-            "name": "WebSocketTransport",
-            "module": "src/lib/ai-chatbot/websocket-transport.ts"
           }
         }
       ]
@@ -4880,90 +4824,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-icon/ai-icon.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiIconComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-icon'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiIconComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "outline",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether to display the icon with an outline",
-              "attribute": "outline"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "outline",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether to display the icon with an outline",
-              "fieldName": "outline"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-icon",
-          "customElement": true,
-          "states": [
-            {
-              "name": "no-border",
-              "description": "The icon is displayed without a border."
-            },
-            {
-              "name": "border",
-              "description": "The icon is displayed with a border."
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiIconComponentTagName",
-          "declaration": {
-            "name": "AiIconComponentTagName",
-            "module": "src/lib/ai-icon/ai-icon.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiIconComponent",
-          "declaration": {
-            "name": "AiIconComponent",
-            "module": "src/lib/ai-icon/ai-icon.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiIconComponent",
-            "module": "src/lib/ai-icon/ai-icon.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
       "declarations": [
         {
@@ -5052,6 +4912,90 @@
           "declaration": {
             "name": "AiGradientContainerComponent",
             "module": "src/lib/ai-gradient-container/ai-gradient-container.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-icon/ai-icon.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiIconComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-icon'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiIconComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "outline",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to display the icon with an outline",
+              "attribute": "outline"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "outline",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to display the icon with an outline",
+              "fieldName": "outline"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-icon",
+          "customElement": true,
+          "states": [
+            {
+              "name": "no-border",
+              "description": "The icon is displayed without a border."
+            },
+            {
+              "name": "border",
+              "description": "The icon is displayed with a border."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiIconComponentTagName",
+          "declaration": {
+            "name": "AiIconComponentTagName",
+            "module": "src/lib/ai-icon/ai-icon.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiIconComponent",
+          "declaration": {
+            "name": "AiIconComponent",
+            "module": "src/lib/ai-icon/ai-icon.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiIconComponent",
+            "module": "src/lib/ai-icon/ai-icon.ts"
           }
         }
       ]
@@ -5651,129 +5595,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-sidebar/ai-sidebar.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiSidebarComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-sidebar'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiSidebarComponent",
-          "slots": [
-            {
-              "description": "Default slot for sidebar content (typically ai-chat-interface)",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "true",
-              "description": "Indicates whether the sidebar is open.",
-              "attribute": "open"
-            },
-            {
-              "kind": "method",
-              "name": "show",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Opens the sidebar."
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Closes the sidebar."
-            },
-            {
-              "kind": "method",
-              "name": "toggle",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Toggles the sidebar open state."
-            }
-          ],
-          "events": [
-            {
-              "description": "Fired when the sidebar is opened",
-              "name": "forge-ai-sidebar-open"
-            },
-            {
-              "description": "Fired when the sidebar is closed",
-              "name": "forge-ai-sidebar-close"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "true",
-              "description": "Indicates whether the sidebar is open.",
-              "fieldName": "open"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-sidebar",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiSidebarComponentTagName",
-          "declaration": {
-            "name": "AiSidebarComponentTagName",
-            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiSidebarComponent",
-          "declaration": {
-            "name": "AiSidebarComponent",
-            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiSidebarComponent",
-            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-response-message/ai-response-message.ts",
       "declarations": [
         {
@@ -5897,155 +5718,123 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "path": "src/lib/ai-sidebar/ai-sidebar.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "AiThinkingIndicatorComponentTagName",
+          "name": "AiSidebarComponentTagName",
           "type": {
             "text": "keyof HTMLElementTagNameMap"
           },
-          "default": "'forge-ai-thinking-indicator'"
+          "default": "'forge-ai-sidebar'"
         },
         {
           "kind": "class",
           "description": "",
-          "name": "AiThinkingIndicatorComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thinking-indicator",
-          "customElement": true,
-          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiThinkingIndicatorComponentTagName",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponentTagName",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiThinkingIndicatorComponent",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-suggestions/ai-suggestions.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiSuggestionsComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-suggestions'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiSuggestionsComponent",
+          "name": "AiSidebarComponent",
+          "slots": [
+            {
+              "description": "Default slot for sidebar content (typically ai-chat-interface)",
+              "name": ""
+            }
+          ],
           "members": [
             {
               "kind": "field",
-              "name": "suggestions",
+              "name": "open",
               "type": {
-                "text": "Suggestion[]"
+                "text": "boolean"
               },
               "privacy": "public",
-              "default": "[]",
-              "description": "Array of suggestion objects to display"
+              "default": "true",
+              "description": "Indicates whether the sidebar is open.",
+              "attribute": "open"
             },
             {
-              "kind": "field",
-              "name": "variant",
-              "type": {
-                "text": "AiSuggestionsVariant"
-              },
+              "kind": "method",
+              "name": "show",
               "privacy": "public",
-              "default": "'inline'",
-              "description": "Display variant for suggestions layout",
-              "attribute": "variant"
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Opens the sidebar."
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the sidebar."
+            },
+            {
+              "kind": "method",
+              "name": "toggle",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Toggles the sidebar open state."
             }
           ],
           "events": [
             {
-              "type": {
-                "text": "CustomEvent<ForgeAiSuggestionsEventData>"
-              },
-              "description": "Fired when a suggestion is selected.",
-              "name": "forge-ai-suggestions-select"
+              "description": "Fired when the sidebar is opened",
+              "name": "forge-ai-sidebar-open"
+            },
+            {
+              "description": "Fired when the sidebar is closed",
+              "name": "forge-ai-sidebar-close"
             }
           ],
           "attributes": [
             {
-              "name": "variant",
+              "name": "open",
               "type": {
-                "text": "AiSuggestionsVariant"
+                "text": "boolean"
               },
-              "default": "'inline'",
-              "description": "Display variant for suggestions layout",
-              "fieldName": "variant"
+              "default": "true",
+              "description": "Indicates whether the sidebar is open.",
+              "fieldName": "open"
             }
           ],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "forge-ai-suggestions",
-          "customElement": true,
-          "states": [
-            {
-              "name": "inline",
-              "description": "The suggestions are displayed inline."
-            },
-            {
-              "name": "block",
-              "description": "The suggestions are displayed as blocks."
-            }
-          ]
+          "tagName": "forge-ai-sidebar",
+          "customElement": true
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "AiSuggestionsComponentTagName",
+          "name": "AiSidebarComponentTagName",
           "declaration": {
-            "name": "AiSuggestionsComponentTagName",
-            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+            "name": "AiSidebarComponentTagName",
+            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
           }
         },
         {
           "kind": "js",
-          "name": "AiSuggestionsComponent",
+          "name": "AiSidebarComponent",
           "declaration": {
-            "name": "AiSuggestionsComponent",
-            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+            "name": "AiSidebarComponent",
+            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
           }
         },
         {
           "kind": "custom-element-definition",
           "declaration": {
-            "name": "AiSuggestionsComponent",
-            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+            "name": "AiSidebarComponent",
+            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
           }
         }
       ]
@@ -6312,51 +6101,52 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-user-message/ai-user-message.ts",
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "AiUserMessageComponentTagName",
+          "name": "AiThinkingIndicatorComponentTagName",
           "type": {
             "text": "keyof HTMLElementTagNameMap"
           },
-          "default": "'forge-ai-user-message'"
+          "default": "'forge-ai-thinking-indicator'"
         },
         {
           "kind": "class",
           "description": "",
-          "name": "AiUserMessageComponent",
+          "name": "AiThinkingIndicatorComponent",
           "members": [],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "forge-ai-user-message",
-          "customElement": true
+          "tagName": "forge-ai-thinking-indicator",
+          "customElement": true,
+          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "AiUserMessageComponentTagName",
+          "name": "AiThinkingIndicatorComponentTagName",
           "declaration": {
-            "name": "AiUserMessageComponentTagName",
-            "module": "src/lib/ai-user-message/ai-user-message.ts"
+            "name": "AiThinkingIndicatorComponentTagName",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
           }
         },
         {
           "kind": "js",
-          "name": "AiUserMessageComponent",
+          "name": "AiThinkingIndicatorComponent",
           "declaration": {
-            "name": "AiUserMessageComponent",
-            "module": "src/lib/ai-user-message/ai-user-message.ts"
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
           }
         },
         {
           "kind": "custom-element-definition",
           "declaration": {
-            "name": "AiUserMessageComponent",
-            "module": "src/lib/ai-user-message/ai-user-message.ts"
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
           }
         }
       ]
@@ -6454,6 +6244,160 @@
           "declaration": {
             "name": "AiThreadsComponent",
             "module": "src/lib/ai-threads/ai-threads.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-user-message/ai-user-message.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiUserMessageComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-user-message'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiUserMessageComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-user-message",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiUserMessageComponentTagName",
+          "declaration": {
+            "name": "AiUserMessageComponentTagName",
+            "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiUserMessageComponent",
+          "declaration": {
+            "name": "AiUserMessageComponent",
+            "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiUserMessageComponent",
+            "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-suggestions/ai-suggestions.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiSuggestionsComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-suggestions'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiSuggestionsComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "Suggestion[]"
+              },
+              "privacy": "public",
+              "default": "[]",
+              "description": "Array of suggestion objects to display"
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "AiSuggestionsVariant"
+              },
+              "privacy": "public",
+              "default": "'inline'",
+              "description": "Display variant for suggestions layout",
+              "attribute": "variant"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiSuggestionsEventData>"
+              },
+              "description": "Fired when a suggestion is selected.",
+              "name": "forge-ai-suggestions-select"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "AiSuggestionsVariant"
+              },
+              "default": "'inline'",
+              "description": "Display variant for suggestions layout",
+              "fieldName": "variant"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-suggestions",
+          "customElement": true,
+          "states": [
+            {
+              "name": "inline",
+              "description": "The suggestions are displayed inline."
+            },
+            {
+              "name": "block",
+              "description": "The suggestions are displayed as blocks."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiSuggestionsComponentTagName",
+          "declaration": {
+            "name": "AiSuggestionsComponentTagName",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiSuggestionsComponent",
+          "declaration": {
+            "name": "AiSuggestionsComponent",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiSuggestionsComponent",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
           }
         }
       ]
@@ -7661,6 +7605,10 @@
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
       "lineNumber": 41
     },
+    "AiArtifactComponent": {
+      "path": "src/lib/ai-artifact/ai-artifact.ts",
+      "lineNumber": 23
+    },
     "ForgeAiAttachmentRemoveEventData": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 19
@@ -7668,10 +7616,6 @@
     "AiAttachmentComponent": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 41
-    },
-    "AiArtifactComponent": {
-      "path": "src/lib/ai-artifact/ai-artifact.ts",
-      "lineNumber": 23
     },
     "AiButtonComponent": {
       "path": "src/lib/ai-button/ai-button.ts",
@@ -7713,49 +7657,41 @@
       "path": "src/lib/ai-chatbot/adapter-base.ts",
       "lineNumber": 18
     },
-    "AdapterState": {
+    "ToolCallStartEvent": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
       "lineNumber": 25
     },
+    "ToolCallArgsEvent": {
+      "path": "src/lib/ai-chatbot/adapter-base.ts",
+      "lineNumber": 31
+    },
+    "ToolCallEndEvent": {
+      "path": "src/lib/ai-chatbot/adapter-base.ts",
+      "lineNumber": 39
+    },
+    "AdapterState": {
+      "path": "src/lib/ai-chatbot/adapter-base.ts",
+      "lineNumber": 46
+    },
     "ErrorEvent": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 30
+      "lineNumber": 51
     },
     "AiChatbotAdapterBase": {
       "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 34
+      "lineNumber": 55
     },
     "AgUiAdapterConfig": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 8
-    },
-    "ContextEntry": {
-      "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 16
-    },
-    "CoreMessage": {
-      "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 21
-    },
-    "AgUiRequestInput": {
-      "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 28
-    },
-    "AgUiEventType": {
-      "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 36
-    },
-    "AgUiEvent": {
-      "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 49
+      "lineNumber": 15
     },
     "ToolCallState": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 61
+      "lineNumber": 21
     },
     "AgUiAdapter": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 67
+      "lineNumber": 27
     },
     "AiChatbotToolCallComponent": {
       "path": "src/lib/ai-chatbot/ai-chatbot-tool-call.ts",
@@ -7763,27 +7699,27 @@
     },
     "ForgeAiChatbotMessageEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 63
+      "lineNumber": 70
     },
     "ForgeAiChatbotToolCallEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 67
+      "lineNumber": 74
     },
     "ForgeAiChatbotToolRenderEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 74
+      "lineNumber": 81
     },
     "ForgeAiChatbotToolRenderCleanupEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 79
+      "lineNumber": 86
     },
     "ForgeAiChatbotErrorEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 83
+      "lineNumber": 90
     },
     "AiChatbotComponent": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 114
+      "lineNumber": 121
     },
     "AiPromptRunnerConfig": {
       "path": "src/lib/ai-chatbot/ai-prompt-runner.ts",
@@ -7829,10 +7765,6 @@
       "path": "src/lib/ai-chatbot/message-state-controller.ts",
       "lineNumber": 22
     },
-    "SSETransport": {
-      "path": "src/lib/ai-chatbot/sse-transport.ts",
-      "lineNumber": 3
-    },
     "ToolHandler": {
       "path": "src/lib/ai-chatbot/tool-registry.ts",
       "lineNumber": 4
@@ -7841,49 +7773,37 @@
       "path": "src/lib/ai-chatbot/tool-registry.ts",
       "lineNumber": 8
     },
-    "TransportConfig": {
-      "path": "src/lib/ai-chatbot/transport-layer.ts",
-      "lineNumber": 1
-    },
-    "TransportLayer": {
-      "path": "src/lib/ai-chatbot/transport-layer.ts",
-      "lineNumber": 7
-    },
     "ToolRenderer": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 5
+      "lineNumber": 3
     },
     "ToolDefinition": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 11
+      "lineNumber": 9
     },
     "ChatMessage": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 22
+      "lineNumber": 13
     },
     "ToolCall": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 33
+      "lineNumber": 25
     },
     "FileAttachment": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 42
+      "lineNumber": 34
     },
     "UploadedFileMetadata": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 53
+      "lineNumber": 45
     },
     "MessageItem": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 61
+      "lineNumber": 53
     },
     "ThreadState": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 65
-    },
-    "WebSocketTransport": {
-      "path": "src/lib/ai-chatbot/websocket-transport.ts",
-      "lineNumber": 3
+      "lineNumber": 57
     },
     "AiDialogComponent": {
       "path": "src/lib/ai-dialog/ai-dialog.ts",
@@ -7985,10 +7905,6 @@
       "path": "src/lib/ai-floating-chat/ai-floating-chat.ts",
       "lineNumber": 49
     },
-    "AiIconComponent": {
-      "path": "src/lib/ai-icon/ai-icon.ts",
-      "lineNumber": 23
-    },
     "AiGradientContainerVariant": {
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
       "lineNumber": 13
@@ -7996,6 +7912,10 @@
     "AiGradientContainerComponent": {
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
       "lineNumber": 26
+    },
+    "AiIconComponent": {
+      "path": "src/lib/ai-icon/ai-icon.ts",
+      "lineNumber": 23
     },
     "AiModalComponent": {
       "path": "src/lib/ai-modal/ai-modal.ts",
@@ -8025,17 +7945,37 @@
       "path": "src/lib/ai-reasoning-header/ai-reasoning-header.ts",
       "lineNumber": 22
     },
-    "AiSidebarComponent": {
-      "path": "src/lib/ai-sidebar/ai-sidebar.ts",
-      "lineNumber": 28
-    },
     "AiResponseMessageComponent": {
       "path": "src/lib/ai-response-message/ai-response-message.ts",
       "lineNumber": 33
     },
+    "AiSidebarComponent": {
+      "path": "src/lib/ai-sidebar/ai-sidebar.ts",
+      "lineNumber": 28
+    },
+    "AiSidebarChatComponent": {
+      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
+      "lineNumber": 53
+    },
     "AiThinkingIndicatorComponent": {
       "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
       "lineNumber": 24
+    },
+    "Thread": {
+      "path": "src/lib/ai-threads/ai-threads.ts",
+      "lineNumber": 19
+    },
+    "ForgeAiThreadsSelectEventData": {
+      "path": "src/lib/ai-threads/ai-threads.ts",
+      "lineNumber": 26
+    },
+    "AiThreadsComponent": {
+      "path": "src/lib/ai-threads/ai-threads.ts",
+      "lineNumber": 40
+    },
+    "AiUserMessageComponent": {
+      "path": "src/lib/ai-user-message/ai-user-message.ts",
+      "lineNumber": 17
     },
     "Suggestion": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
@@ -8052,26 +7992,6 @@
     "AiSuggestionsComponent": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 39
-    },
-    "AiSidebarChatComponent": {
-      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
-      "lineNumber": 53
-    },
-    "AiUserMessageComponent": {
-      "path": "src/lib/ai-user-message/ai-user-message.ts",
-      "lineNumber": 17
-    },
-    "Thread": {
-      "path": "src/lib/ai-threads/ai-threads.ts",
-      "lineNumber": 19
-    },
-    "ForgeAiThreadsSelectEventData": {
-      "path": "src/lib/ai-threads/ai-threads.ts",
-      "lineNumber": 26
-    },
-    "AiThreadsComponent": {
-      "path": "src/lib/ai-threads/ai-threads.ts",
-      "lineNumber": 40
     },
     "SpeechRecognitionAlternative": {
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",

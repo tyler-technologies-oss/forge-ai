@@ -1,6 +1,4 @@
-/**
- * Generic chatbot types - protocol agnostic
- */
+import type { Tool as SDKTool } from '@ag-ui/core';
 
 export interface ToolRenderer {
   elementTag?: string;
@@ -8,14 +6,7 @@ export interface ToolRenderer {
   useSlot?: boolean;
 }
 
-export interface ToolDefinition {
-  name: string;
-  description: string;
-  parameters: {
-    type: 'object';
-    properties: Record<string, unknown>;
-    required?: string[];
-  };
+export interface ToolDefinition extends SDKTool {
   renderer?: ToolRenderer;
 }
 
@@ -28,6 +19,7 @@ export interface ChatMessage {
   toolCalls?: ToolCall[];
   attachments?: FileAttachment[];
   uploadedFiles?: UploadedFileMetadata[];
+  toolCallId?: string;
 }
 
 export interface ToolCall {

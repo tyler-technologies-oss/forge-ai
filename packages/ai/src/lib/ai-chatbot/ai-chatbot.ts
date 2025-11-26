@@ -21,7 +21,14 @@ import {
 import { chatbotContext, type ChatbotContext } from './context.js';
 import { FileUploadManager } from './file-upload-manager.js';
 import { MessageStateController } from './message-state-controller.js';
-import type { ChatMessage, FileAttachment, ThreadState, ToolCall, ToolDefinition, UploadedFileMetadata } from './types.js';
+import type {
+  ChatMessage,
+  FileAttachment,
+  ThreadState,
+  ToolCall,
+  ToolDefinition,
+  UploadedFileMetadata
+} from './types.js';
 import { generateId, renderMarkdown } from './utils.js';
 
 import '../ai-attachment';
@@ -393,24 +400,19 @@ export class AiChatbotComponent extends LitElement {
 
     this.#messageStateController.completeToolCall(toolCallId, result);
 
-    const toolDefinition = this._contextValue.tools.get(toolCall.name);
+    const toolMessage: ChatMessage = {
+      id: generateId('tool'),
+      role: 'tool',
+      content: JSON.stringify(result),
+      timestamp: Date.now(),
+      status: 'complete',
+      toolCallId
+    };
 
-    // Only send result to LLM if tool has no renderer (executor tools)
-    // Renderer tools don't send results back to LLM to avoid confusing it
-    if (!toolDefinition?.renderer) {
-      const toolMessage: ChatMessage = {
-        id: generateId('tool'),
-        role: 'tool',
-        content: JSON.stringify(result),
-        timestamp: Date.now(),
-        status: 'complete'
-      };
+    this.#messageStateController.addMessage(toolMessage);
+    this.#scrollAfterUpdate();
 
-      this.#messageStateController.addMessage(toolMessage);
-      this.#scrollAfterUpdate();
-
-      this.adapter.sendMessage(this.getMessages());
-    }
+    this.adapter.sendMessage(this.getMessages());
   }
 
   /**

@@ -70,7 +70,8 @@ forge-card {
 .run_started,
 .run_finished,
 .run_error,
-.error {
+.error,
+.state_change {
   display: inline-block;
   padding: var(--forge-spacing-xxsmall) var(--forge-spacing-small);
   border-radius: var(--forge-shape-small);
@@ -79,12 +80,12 @@ forge-card {
 
 .user_message {
   background-color: var(--forge-theme-primary-container-low);
-  color: var(--forge-theme-primary);
+  color: var(--forge-theme-on-primary-container-low);
 }
 
 .assistant_message {
   background-color: var(--forge-theme-secondary-container-low);
-  color: var(--forge-theme-secondary);
+  color: var(--forge-theme-on-secondary-container-low);
 }
 
 .text_message_start,
@@ -92,24 +93,29 @@ forge-card {
 .text_message_content,
 .text_message_end {
   background-color: var(--forge-theme-info-container-low);
-  color: var(--forge-theme-info);
+  color: var(--forge-theme-on-info-container-low);
 }
 
 .tool_call_start,
 .tool_call_args,
 .tool_call_end {
   background-color: var(--forge-theme-tertiary-container-low);
-  color: var(--forge-theme-tertiary);
+  color: var(--forge-theme-on-tertiary-container-low);
 }
 
 .run_started,
 .run_finished {
   background-color: var(--forge-theme-success-container-low);
-  color: var(--forge-theme-success);
+  color: var(--forge-theme-on-success-container-low);
 }
 
 .run_error,
 .error {
   background-color: var(--forge-theme-error-container-low);
-  color: var(--forge-theme-error);
+  color: var(--forge-theme-on-error-container-low);
+}
+
+.state_change {
+  background-color: var(--forge-theme-warning-container-low);
+  color: var(--forge-theme-on-warning-container-low);
 }
