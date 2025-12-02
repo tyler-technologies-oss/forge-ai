@@ -10,14 +10,18 @@ import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData 
 import type { ForgeAiPromptSendEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData, Suggestion } from '../ai-suggestions';
 import {
-  AiChatbotAdapterBase,
+  AgentAdapter,
   type AdapterState,
   type ErrorEvent,
   type MessageDeltaEvent,
   type MessageEndEvent,
   type MessageStartEvent,
-  type ToolCallEvent
-} from './adapter-base.js';
+  type ToolCallArgsEvent,
+  type ToolCallEndEvent,
+  type ToolCallEvent,
+  type ToolCallStartEvent,
+  type ToolResultEvent
+} from './agent-adapter.js';
 import { chatbotContext, type ChatbotContext } from './context.js';
 import { FileUploadManager } from './file-upload-manager.js';
 import { MessageStateController } from './message-state-controller.js';
@@ -57,8 +61,6 @@ declare global {
     'forge-ai-chatbot-message-sent': CustomEvent<ForgeAiChatbotMessageEventData>;
     'forge-ai-chatbot-message-received': CustomEvent<ForgeAiChatbotMessageEventData>;
     'forge-ai-chatbot-tool-call': CustomEvent<ForgeAiChatbotToolCallEventData>;
-    'forge-ai-chatbot-tool-render': CustomEvent<ForgeAiChatbotToolRenderEventData>;
-    'forge-ai-chatbot-tool-render-cleanup': CustomEvent<ForgeAiChatbotToolRenderCleanupEventData>;
     'forge-ai-chatbot-error': CustomEvent<ForgeAiChatbotErrorEventData>;
     'forge-ai-chatbot-expand': CustomEvent<void>;
     'forge-ai-chatbot-minimize': CustomEvent<void>;
@@ -76,15 +78,6 @@ export interface ForgeAiChatbotToolCallEventData {
   toolName: string;
   arguments: Record<string, unknown>;
   respond: (result?: unknown) => Promise<void>;
-}
-
-export interface ForgeAiChatbotToolRenderEventData {
-  toolCall: ToolCall;
-  slotName: string;
-}
-
-export interface ForgeAiChatbotToolRenderCleanupEventData {
-  slotNames: string[];
 }
 
 export interface ForgeAiChatbotErrorEventData {
@@ -123,10 +116,7 @@ export class AiChatbotComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   @property({ attribute: false })
-  public adapter?: AiChatbotAdapterBase;
-
-  @property({ attribute: false })
-  public tools?: ToolDefinition[];
+  public adapter?: AgentAdapter;
 
   @property({ type: Boolean, attribute: 'enable-file-upload' })
   public enableFileUpload = false;
@@ -170,18 +160,6 @@ export class AiChatbotComponent extends LitElement {
 
     this.#messageStateController = new MessageStateController(this, {
       tools: this._contextValue.tools,
-      onToolRenderSlot: (toolCall, slotName) => {
-        this.#dispatchEvent({
-          type: 'forge-ai-chatbot-tool-render',
-          detail: { toolCall, slotName }
-        });
-      },
-      onToolRenderCleanup: slotNames => {
-        this.#dispatchEvent({
-          type: 'forge-ai-chatbot-tool-render-cleanup',
-          detail: { slotNames }
-        });
-      },
       onStateChange: messageItems => {
         this.#updateContext({ messageItems });
       }
@@ -211,14 +189,12 @@ export class AiChatbotComponent extends LitElement {
     }
 
     document.addEventListener('keydown', this.#handleKeyDown);
-    document.addEventListener('file-upload-progress', this.#handleUploadProgress as EventListener);
   }
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.adapter?.disconnect();
     document.removeEventListener('keydown', this.#handleKeyDown);
-    document.removeEventListener('file-upload-progress', this.#handleUploadProgress as EventListener);
   }
 
   #handleKeyDown = (evt: KeyboardEvent): void => {
@@ -227,39 +203,15 @@ export class AiChatbotComponent extends LitElement {
     }
   };
 
-  #handleUploadProgress = (evt: CustomEvent<{ fileName: string; progress: number; message: string }>): void => {
-    const { fileName, progress } = evt.detail;
-    this.#fileUploadManager.updateProgress(fileName, progress);
-  };
-
   public override willUpdate(changedProperties: PropertyValues<this>): void {
     if (changedProperties.has('adapter') && this.adapter) {
       this.#setupAdapter();
     }
-
-    if (changedProperties.has('tools')) {
-      this.#updateToolsMap();
-    }
   }
 
-  /**
-   * Initializes the adapter and registers event handlers.
-   *
-   * Adapter event flow:
-   * 1. onMessageStart - Creates new assistant message with streaming status
-   * 2. onMessageDelta - Appends content chunks to streaming message
-   * 3. onToolCall - Registers tool execution request and dispatches to host
-   * 4. onMessageEnd - Marks message as complete and dispatches received event
-   * 5. onError - Creates error message and dispatches error event
-   * 6. onStateChange - Updates context with connection and streaming state
-   */
   async #setupAdapter(): Promise<void> {
     if (!this.adapter) {
       return;
-    }
-
-    if (this.tools) {
-      this.adapter.registerTools(this.tools);
     }
 
     await this.adapter.connect();
@@ -267,7 +219,11 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.onMessageStart(this.#handleMessageStart.bind(this));
     this.adapter.onMessageDelta(this.#handleMessageDelta.bind(this));
     this.adapter.onMessageEnd(this.#handleMessageEnd.bind(this));
+    this.adapter.onToolCallStart(this.#handleToolCallStart.bind(this));
+    this.adapter.onToolCallArgs(this.#handleToolCallArgs.bind(this));
+    this.adapter.onToolCallEnd(this.#handleToolCallEnd.bind(this));
     this.adapter.onToolCall(this.#handleToolCall.bind(this));
+    this.adapter.onToolResult(this.#handleToolResult.bind(this));
     this.adapter.onError(this.#handleError.bind(this));
     this.adapter.onStateChange(this.#handleStateChange.bind(this));
 
@@ -275,16 +231,16 @@ export class AiChatbotComponent extends LitElement {
       uploadCallback: this.adapter.fileUploadCallback
     });
 
+    this.#updateToolsMap();
+
     this.#dispatchEvent({ type: 'forge-ai-chatbot-connected' });
   }
 
   #updateToolsMap(): void {
     const toolsMap = new Map<string, ToolDefinition>();
-    if (this.tools) {
-      for (const tool of this.tools) {
-        toolsMap.set(tool.name, tool);
-      }
-      this.adapter?.registerTools(this.tools);
+    const tools = this.adapter?.getTools() ?? [];
+    for (const tool of tools) {
+      toolsMap.set(tool.name, tool);
     }
     this.#updateContext({ tools: toolsMap });
     this.#messageStateController?.updateConfig({ tools: toolsMap });
@@ -331,11 +287,10 @@ export class AiChatbotComponent extends LitElement {
   }
 
   /**
-   * Handles tool execution requests from the adapter.
-   * Creates a tool call record, adds it to message stream, and dispatches event to host.
-   * Host should execute the tool and call respond() callback with result.
+   * Handles the start of a tool call with streaming arguments.
+   * Creates a tool call in 'parsing' state to show immediate feedback.
    */
-  #handleToolCall(event: ToolCallEvent): void {
+  #handleToolCallStart(event: ToolCallStartEvent): void {
     const message = this.#messageStateController.getMessage(event.messageId);
     if (!message) {
       this.#handleMessageStart({ messageId: event.messageId });
@@ -345,12 +300,68 @@ export class AiChatbotComponent extends LitElement {
       id: event.id,
       messageId: event.messageId,
       name: event.name,
-      args: event.args,
-      status: 'executing'
+      args: {},
+      argsBuffer: '',
+      status: 'parsing'
     };
 
     this.#messageStateController.addToolCall(toolCall);
     this.#scrollAfterUpdate();
+  }
+
+  /**
+   * Handles streaming tool argument chunks.
+   * Updates the args buffer to show real-time parsing progress.
+   */
+  #handleToolCallArgs(event: ToolCallArgsEvent): void {
+    this.#messageStateController.updateToolCall(event.id, {
+      argsBuffer: event.argsBuffer,
+      args: event.partialArgs ?? {}
+    });
+    this.#chatInterfaceRef.value?.scrollToBottom();
+  }
+
+  /**
+   * Handles completion of tool call argument parsing.
+   * Updates tool call with final args and changes status to 'executing'.
+   */
+  #handleToolCallEnd(event: ToolCallEndEvent): void {
+    this.#messageStateController.updateToolCall(event.id, {
+      args: event.args,
+      argsBuffer: undefined,
+      status: 'executing'
+    });
+  }
+
+  /**
+   * Handles tool execution requests from the adapter.
+   * If tool call already exists (from granular events), updates it.
+   * Otherwise creates a new tool call record for adapters that skip granular events.
+   * Dispatches event to host for tool execution.
+   */
+  #handleToolCall(event: ToolCallEvent): void {
+    const message = this.#messageStateController.getMessage(event.messageId);
+    if (!message) {
+      this.#handleMessageStart({ messageId: event.messageId });
+    }
+
+    const existingToolCall = this.#messageStateController.getToolCall(event.id);
+    if (existingToolCall) {
+      this.#messageStateController.updateToolCall(event.id, {
+        args: event.args,
+        status: 'executing'
+      });
+    } else {
+      const toolCall: ToolCall = {
+        id: event.id,
+        messageId: event.messageId,
+        name: event.name,
+        args: event.args,
+        status: 'executing'
+      };
+      this.#messageStateController.addToolCall(toolCall);
+      this.#scrollAfterUpdate();
+    }
 
     this.#dispatchEvent({
       type: 'forge-ai-chatbot-tool-call',
@@ -383,15 +394,11 @@ export class AiChatbotComponent extends LitElement {
     this.#updateContext({ isConnected: state.isConnected, isStreaming: state.isRunning });
   }
 
-  /**
-   * Sends tool execution result back to the LLM.
-   *
-   * Tool result handling:
-   * - Executor tools (no renderer): Result sent to LLM as tool message
-   * - Renderer tools (has renderer): Result NOT sent to LLM, only rendered in UI
-   *   This prevents confusing the LLM with render slot content
-   * - Tool render slots are coordinated via forge-ai-chatbot-tool-render event
-   */
+  #handleToolResult(event: ToolResultEvent): void {
+    this.#messageStateController.addMessage(event.message);
+    this.#scrollAfterUpdate();
+  }
+
   async #sendToolResult(toolCallId: string, result: unknown): Promise<void> {
     const toolCall = this.#messageStateController.getToolCall(toolCallId);
     if (!toolCall || !this.adapter) {
@@ -399,41 +406,32 @@ export class AiChatbotComponent extends LitElement {
     }
 
     this.#messageStateController.completeToolCall(toolCallId, result);
-
-    const toolMessage: ChatMessage = {
-      id: generateId('tool'),
-      role: 'tool',
-      content: JSON.stringify(result),
-      timestamp: Date.now(),
-      status: 'complete',
-      toolCallId
-    };
-
-    this.#messageStateController.addMessage(toolMessage);
-    this.#scrollAfterUpdate();
-
-    this.adapter.sendMessage(this.getMessages());
+    this.adapter.sendToolResult(toolCallId, result);
   }
 
   /**
-   * Handles user message submission from the prompt component.
-   *
-   * File upload workflow (if files attached):
-   * 1. Upload files via FileUploadManager (with progress tracking)
-   * 2. Create user message with attachments and uploaded metadata
-   * 3. Send message to adapter with full history
-   * 4. Clear file state after successful send
+   * Sends a user message with optional attachments.
+   * Handles file uploads, message creation, and adapter communication.
    */
-  async #handleSend(evt: CustomEvent<ForgeAiPromptSendEventData>): Promise<void> {
-    const message = evt.detail.value;
-    if (!message.trim() || !this.adapter || this._contextValue.isStreaming || this.#fileUploadManager.isUploading) {
+  async #sendUserMessage(config: {
+    content: string;
+    timestamp?: number;
+    attachments?: FileAttachment[];
+    files?: File[];
+  }): Promise<void> {
+    if (
+      !config.content.trim() ||
+      !this.adapter ||
+      this._contextValue.isStreaming ||
+      this.#fileUploadManager.isUploading
+    ) {
       return;
     }
 
+    const attachments = config.attachments ?? [];
     let uploadedFiles: UploadedFileMetadata[] = [];
-    const pendingAttachments = [...this.#fileUploadManager.pendingAttachments];
 
-    if (pendingAttachments.length > 0) {
+    if (config.files && config.files.length > 0) {
       try {
         uploadedFiles = await this.#fileUploadManager.uploadFiles();
       } catch {
@@ -444,10 +442,10 @@ export class AiChatbotComponent extends LitElement {
     const userMessage: ChatMessage = {
       id: generateId('msg'),
       role: 'user',
-      content: message,
-      timestamp: evt.detail.date.getTime(),
+      content: config.content,
+      timestamp: config.timestamp ?? Date.now(),
       status: 'pending',
-      attachments: pendingAttachments,
+      attachments,
       uploadedFiles
     };
 
@@ -465,6 +463,19 @@ export class AiChatbotComponent extends LitElement {
       const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
       this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: errorMessage } });
     }
+  }
+
+  /**
+   * Handles user message submission from the prompt component.
+   */
+  async #handleSend(evt: CustomEvent<ForgeAiPromptSendEventData>): Promise<void> {
+    const pendingAttachments = [...this.#fileUploadManager.pendingAttachments];
+    await this.#sendUserMessage({
+      content: evt.detail.value,
+      timestamp: evt.detail.date.getTime(),
+      attachments: pendingAttachments,
+      files: pendingAttachments.length > 0 ? [] : undefined
+    });
   }
 
   #handleStop(): void {
@@ -607,10 +618,6 @@ export class AiChatbotComponent extends LitElement {
    * @param files - Optional file objects to attach
    */
   public async sendMessage(content: string, files?: File[]): Promise<void> {
-    if (!content.trim() || !this.adapter || this._contextValue.isStreaming || this.#fileUploadManager.isUploading) {
-      return;
-    }
-
     const attachments: FileAttachment[] = [];
     if (files) {
       for (const file of files) {
@@ -632,39 +639,11 @@ export class AiChatbotComponent extends LitElement {
       }
     }
 
-    let uploadedFiles: UploadedFileMetadata[] = [];
-    if (files && files.length > 0) {
-      try {
-        uploadedFiles = await this.#fileUploadManager.uploadFiles();
-      } catch {
-        return;
-      }
-    }
-
-    const userMessage: ChatMessage = {
-      id: generateId('msg'),
-      role: 'user',
+    await this.#sendUserMessage({
       content,
-      timestamp: Date.now(),
-      status: 'pending',
       attachments,
-      uploadedFiles
-    };
-
-    this.#messageStateController.addMessage(userMessage);
-    this.#scrollAfterUpdate();
-    this.#dispatchEvent({ type: 'forge-ai-chatbot-message-sent', detail: { message: userMessage } });
-
-    this.#fileUploadManager.consumeAttachments();
-
-    try {
-      this.adapter.sendMessage(this.getMessages());
-      this.#messageStateController.updateMessageStatus(userMessage.id, 'complete');
-    } catch (error) {
-      this.#messageStateController.updateMessageStatus(userMessage.id, 'error');
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
-      this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: errorMessage } });
-    }
+      files
+    });
   }
 
   /**
@@ -688,27 +667,9 @@ export class AiChatbotComponent extends LitElement {
 
   /**
    * Restores thread state from a serialized ThreadState object.
-   * Clears any existing tool render slots and restores messages and threadId.
    * @param state - ThreadState object to restore
    */
   public setThreadState(state: ThreadState): void {
-    const slotNames: string[] = [];
-    this._contextValue.messageItems.forEach(item => {
-      if (item.type === 'toolCall') {
-        const toolDef = this._contextValue.tools.get(item.data.name);
-        if (toolDef?.renderer?.useSlot) {
-          slotNames.push(`tool-${item.data.id}`);
-        }
-      }
-    });
-
-    if (slotNames.length > 0) {
-      this.#dispatchEvent({
-        type: 'forge-ai-chatbot-tool-render-cleanup',
-        detail: { slotNames }
-      });
-    }
-
     this.setMessages(state.messages);
 
     if (state.threadId && this.adapter) {

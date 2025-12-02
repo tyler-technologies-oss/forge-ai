@@ -1,10 +1,10 @@
-import type { AiChatbotAdapterBase } from './adapter-base.js';
+import type { AgentAdapter } from './agent-adapter.js';
 import type { ChatMessage, ToolCall } from './types.js';
 import { generateId } from './utils.js';
 import { ToolRegistry } from './tool-registry.js';
 
 export interface AiPromptRunnerConfig {
-  adapter: AiChatbotAdapterBase;
+  adapter: AgentAdapter;
   prompt: string;
   toolRegistry?: ToolRegistry;
   onStart?: (messageId: string) => void;
@@ -29,7 +29,7 @@ export class AiPromptRunner {
     }
 
     if (toolRegistry) {
-      adapter.registerTools(toolRegistry.getDefinitions());
+      adapter.setTools(toolRegistry.getDefinitions());
     }
 
     const userMessage: ChatMessage = {

@@ -20,8 +20,7 @@ function isElementConfig(config: CreateToolRendererConfig): config is CreateTool
 export function createToolRenderer(config: CreateToolRendererConfig): ToolRenderer {
   if (isElementConfig(config)) {
     const renderer: ToolRenderer = {
-      elementTag: config.elementTag,
-      useSlot: config.useSlot
+      elementTag: config.elementTag
     };
 
     if (config.transform) {
@@ -40,7 +39,6 @@ export function createToolRenderer(config: CreateToolRendererConfig): ToolRender
   }
 
   return {
-    render: config.render,
-    useSlot: config.useSlot
+    render: config.render
   };
 }

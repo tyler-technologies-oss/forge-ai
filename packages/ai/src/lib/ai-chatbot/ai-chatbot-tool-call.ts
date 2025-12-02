@@ -69,6 +69,8 @@ export class AiChatbotToolCallComponent extends LitElement {
     switch (this.toolCall.status) {
       case 'pending':
         return 'Pending';
+      case 'parsing':
+        return 'Parsing arguments';
       case 'executing':
         return 'Executing';
       case 'complete':
@@ -98,10 +100,6 @@ export class AiChatbotToolCallComponent extends LitElement {
     const renderer = this.toolDefinition?.renderer;
     if (!renderer || this.toolCall.status !== 'complete') {
       return nothing;
-    }
-
-    if (renderer.useSlot) {
-      return html`<slot name="tool-render-${this.toolCall.id}"></slot>`;
     }
 
     if (renderer.elementTag || renderer.render) {
@@ -141,19 +139,30 @@ export class AiChatbotToolCallComponent extends LitElement {
       return nothing;
     }
 
+    const hasArgs = Object.keys(this.toolCall.args).length > 0;
+    const hasArgsBuffer = this.toolCall.argsBuffer && this.toolCall.argsBuffer.length > 0;
+    const hasResult = this.toolCall.result !== undefined;
+
     return html`
       <div class="forge-expansion-panel ${this._expanded ? 'forge-expansion-panel--open' : ''}">
         <div class="forge-expansion-panel__content" id="tool-details">
           <div class="tool-details">
-            ${Object.keys(this.toolCall.args).length > 0
+            ${hasArgsBuffer
               ? html`
                   <div class="tool-section">
-                    <div class="section-label">Arguments:</div>
-                    <pre class="code-block">${JSON.stringify(this.toolCall.args, null, 2)}</pre>
+                    <div class="section-label">Arguments (streaming):</div>
+                    <pre class="code-block">${this.toolCall.argsBuffer}</pre>
                   </div>
                 `
-              : nothing}
-            ${this.toolCall.result !== undefined
+              : hasArgs
+                ? html`
+                    <div class="tool-section">
+                      <div class="section-label">Arguments:</div>
+                      <pre class="code-block">${JSON.stringify(this.toolCall.args, null, 2)}</pre>
+                    </div>
+                  `
+                : nothing}
+            ${hasResult
               ? html`
                   <div class="tool-section">
                     <div class="section-label">Result:</div>

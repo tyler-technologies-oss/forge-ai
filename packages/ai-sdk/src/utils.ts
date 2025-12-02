@@ -26,27 +26,3 @@ export function resolveMountPoint(mountPoint: string | HTMLElement): HTMLElement
   }
   return mountPoint;
 }
-
-export function showError(message: string): void {
-  const errorDiv = document.createElement('div');
-  errorDiv.style.cssText = `
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #f44336;
-    color: white;
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    z-index: 10000;
-    max-width: 400px;
-    font-family: system-ui, -apple-system, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-  `;
-  errorDiv.textContent = message;
-  document.body.appendChild(errorDiv);
-
-  setTimeout(() => errorDiv.remove(), 10000);
-}

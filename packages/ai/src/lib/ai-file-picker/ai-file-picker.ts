@@ -242,7 +242,7 @@ export class AiFilePickerComponent extends LitElement {
   async #generateThumbnail(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');

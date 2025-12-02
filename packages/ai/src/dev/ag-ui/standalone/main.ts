@@ -43,7 +43,6 @@ const toolRegistry = new ToolRegistry();
 
 const config: AgUiAdapterConfig = {
   url: `${BASE_URL}/${AGENT_ID}/ag-ui`,
-  credentials: 'include',
   context: {
     purpose: 'ai-form-demos',
     timestamp: new Date().toISOString()

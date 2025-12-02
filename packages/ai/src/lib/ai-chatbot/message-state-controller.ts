@@ -3,8 +3,6 @@ import type { ChatMessage, MessageItem, ToolCall, ToolDefinition } from './types
 
 export interface MessageStateControllerConfig {
   tools: Map<string, ToolDefinition>;
-  onToolRenderSlot: (toolCall: ToolCall, slotName: string) => void;
-  onToolRenderCleanup: (slotNames: string[]) => void;
   /** Called after any operation that modifies message state */
   onStateChange?: (messageItems: MessageItem[]) => void;
 }
@@ -16,19 +14,17 @@ export interface MessageStateControllerConfig {
  * - Maintains ordered list of messages and tool calls (messageItems)
  * - Tracks tool call state and lifecycle
  * - Provides CRUD operations for messages
- * - Handles tool render slot coordination
  * - Triggers host re-renders when state changes
  */
 export class MessageStateController implements ReactiveController {
-  private _host: ReactiveControllerHost;
-  private _config: MessageStateControllerConfig;
   private _messageItems: MessageItem[] = [];
   private _toolCalls = new Map<string, ToolCall>();
 
-  constructor(host: ReactiveControllerHost, config: MessageStateControllerConfig) {
-    this._host = host;
-    this._config = config;
-    host.addController(this);
+  constructor(
+    private _host: ReactiveControllerHost,
+    private _config: MessageStateControllerConfig
+  ) {
+    _host.addController(this);
   }
 
   public hostConnected(): void {}
@@ -119,20 +115,6 @@ export class MessageStateController implements ReactiveController {
   }
 
   public clearMessages(): void {
-    // Collect slot names for tool renders that need cleanup
-    const slotNames: string[] = [];
-    for (const [toolCallId, toolCall] of this._toolCalls) {
-      const toolDefinition = this._config.tools.get(toolCall.name);
-      if (toolDefinition?.renderer?.useSlot) {
-        slotNames.push(`tool-render-${toolCallId}`);
-      }
-    }
-
-    // Notify host to clean up slots
-    if (slotNames.length > 0) {
-      this._config.onToolRenderCleanup(slotNames);
-    }
-
     this._messageItems = [];
     this._toolCalls.clear();
     this.#notifyStateChange();
@@ -180,22 +162,9 @@ export class MessageStateController implements ReactiveController {
   }
 
   public completeToolCall(toolCallId: string, result: unknown): void {
-    const toolCall = this._toolCalls.get(toolCallId);
-    if (!toolCall) {
-      return;
-    }
-
-    // Update tool call with result
     this.updateToolCall(toolCallId, {
       result,
       status: 'complete'
     });
-
-    // Trigger slot rendering if tool uses slots
-    const toolDefinition = this._config.tools.get(toolCall.name);
-    if (toolDefinition?.renderer?.useSlot) {
-      const slotName = `tool-render-${toolCallId}`;
-      this._config.onToolRenderSlot(toolCall, slotName);
-    }
   }
 }

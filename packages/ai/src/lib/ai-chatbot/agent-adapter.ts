@@ -43,6 +43,12 @@ export interface ToolCallEndEvent {
   args: Record<string, unknown>;
 }
 
+export interface ToolResultEvent {
+  toolCallId: string;
+  result: unknown;
+  message: ChatMessage;
+}
+
 export interface AdapterState {
   isConnected: boolean;
   isRunning: boolean;
@@ -52,22 +58,23 @@ export interface ErrorEvent {
   message: string;
 }
 
-export abstract class AiChatbotAdapterBase {
+export abstract class AgentAdapter {
   protected _state: AdapterState = { isConnected: false, isRunning: false };
   protected _tools: ToolDefinition[] = [];
   public fileUploadCallback?: FileUploadCallback;
   protected _callbacks = {
-    onRunStarted: null as (() => void) | null,
-    onRunFinished: null as (() => void) | null,
-    onMessageStart: null as ((event: MessageStartEvent) => void) | null,
-    onMessageDelta: null as ((event: MessageDeltaEvent) => void) | null,
-    onMessageEnd: null as ((event: MessageEndEvent) => void) | null,
-    onToolCall: null as ((event: ToolCallEvent) => void) | null,
-    onToolCallStart: null as ((event: ToolCallStartEvent) => void) | null,
-    onToolCallArgs: null as ((event: ToolCallArgsEvent) => void) | null,
-    onToolCallEnd: null as ((event: ToolCallEndEvent) => void) | null,
-    onError: null as ((event: ErrorEvent) => void) | null,
-    onStateChange: null as ((state: AdapterState) => void) | null
+    onRunStarted: [] as (() => void)[],
+    onRunFinished: [] as (() => void)[],
+    onMessageStart: [] as ((event: MessageStartEvent) => void)[],
+    onMessageDelta: [] as ((event: MessageDeltaEvent) => void)[],
+    onMessageEnd: [] as ((event: MessageEndEvent) => void)[],
+    onToolCall: [] as ((event: ToolCallEvent) => void)[],
+    onToolCallStart: [] as ((event: ToolCallStartEvent) => void)[],
+    onToolCallArgs: [] as ((event: ToolCallArgsEvent) => void)[],
+    onToolCallEnd: [] as ((event: ToolCallEndEvent) => void)[],
+    onToolResult: [] as ((event: ToolResultEvent) => void)[],
+    onError: [] as ((event: ErrorEvent) => void)[],
+    onStateChange: [] as ((state: AdapterState) => void)[]
   };
 
   public abstract connect(): Promise<void>;
@@ -79,7 +86,7 @@ export abstract class AiChatbotAdapterBase {
   public abstract get threadId(): string;
   public abstract set threadId(value: string);
 
-  public registerTools(tools: ToolDefinition[]): void {
+  public setTools(tools: ToolDefinition[]): void {
     this._tools = tools;
   }
 
@@ -96,91 +103,107 @@ export abstract class AiChatbotAdapterBase {
   }
 
   public onRunStarted(callback: () => void): void {
-    this._callbacks.onRunStarted = callback;
+    this._callbacks.onRunStarted.push(callback);
   }
 
   public onRunFinished(callback: () => void): void {
-    this._callbacks.onRunFinished = callback;
+    this._callbacks.onRunFinished.push(callback);
   }
 
   public onMessageStart(callback: (event: MessageStartEvent) => void): void {
-    this._callbacks.onMessageStart = callback;
+    this._callbacks.onMessageStart.push(callback);
   }
 
   public onMessageDelta(callback: (event: MessageDeltaEvent) => void): void {
-    this._callbacks.onMessageDelta = callback;
+    this._callbacks.onMessageDelta.push(callback);
   }
 
   public onMessageEnd(callback: (event: MessageEndEvent) => void): void {
-    this._callbacks.onMessageEnd = callback;
+    this._callbacks.onMessageEnd.push(callback);
   }
 
   public onToolCall(callback: (event: ToolCallEvent) => void): void {
-    this._callbacks.onToolCall = callback;
+    this._callbacks.onToolCall.push(callback);
   }
 
   public onToolCallStart(callback: (event: ToolCallStartEvent) => void): void {
-    this._callbacks.onToolCallStart = callback;
+    this._callbacks.onToolCallStart.push(callback);
   }
 
   public onToolCallArgs(callback: (event: ToolCallArgsEvent) => void): void {
-    this._callbacks.onToolCallArgs = callback;
+    this._callbacks.onToolCallArgs.push(callback);
   }
 
   public onToolCallEnd(callback: (event: ToolCallEndEvent) => void): void {
-    this._callbacks.onToolCallEnd = callback;
+    this._callbacks.onToolCallEnd.push(callback);
+  }
+
+  public onToolResult(callback: (event: ToolResultEvent) => void): void {
+    this._callbacks.onToolResult.push(callback);
   }
 
   public onError(callback: (event: ErrorEvent) => void): void {
-    this._callbacks.onError = callback;
+    this._callbacks.onError.push(callback);
   }
 
   public onStateChange(callback: (state: AdapterState) => void): void {
-    this._callbacks.onStateChange = callback;
+    this._callbacks.onStateChange.push(callback);
+  }
+
+  protected _invokeCallbacks<T>(callbacks: Array<(event: T) => void>, event: T): void;
+  protected _invokeCallbacks(callbacks: Array<() => void>): void;
+  protected _invokeCallbacks<T>(callbacks: Array<((event: T) => void) | (() => void)>, event?: T): void {
+    for (const callback of callbacks) {
+      (callback as (event?: T) => void)(event);
+    }
   }
 
   protected _emitRunStarted(): void {
-    this._callbacks.onRunStarted?.();
+    this._invokeCallbacks(this._callbacks.onRunStarted);
   }
 
   protected _emitRunFinished(): void {
-    this._callbacks.onRunFinished?.();
+    this._invokeCallbacks(this._callbacks.onRunFinished);
   }
 
   protected _emitMessageStart(messageId: string): void {
-    this._callbacks.onMessageStart?.({ messageId });
+    this._invokeCallbacks(this._callbacks.onMessageStart, { messageId });
   }
 
   protected _emitMessageDelta(messageId: string, delta: string): void {
-    this._callbacks.onMessageDelta?.({ messageId, delta });
+    this._invokeCallbacks(this._callbacks.onMessageDelta, { messageId, delta });
   }
 
   protected _emitMessageEnd(messageId: string): void {
-    this._callbacks.onMessageEnd?.({ messageId });
+    this._invokeCallbacks(this._callbacks.onMessageEnd, { messageId });
   }
 
   protected _emitToolCall(event: ToolCallEvent): void {
-    this._callbacks.onToolCall?.(event);
+    this._invokeCallbacks(this._callbacks.onToolCall, event);
   }
 
   protected _emitToolCallStart(event: ToolCallStartEvent): void {
-    this._callbacks.onToolCallStart?.(event);
+    this._invokeCallbacks(this._callbacks.onToolCallStart, event);
   }
 
   protected _emitToolCallArgs(event: ToolCallArgsEvent): void {
-    this._callbacks.onToolCallArgs?.(event);
+    this._invokeCallbacks(this._callbacks.onToolCallArgs, event);
   }
 
   protected _emitToolCallEnd(event: ToolCallEndEvent): void {
-    this._callbacks.onToolCallEnd?.(event);
+    this._invokeCallbacks(this._callbacks.onToolCallEnd, event);
+  }
+
+  protected _emitToolResult(event: ToolResultEvent): void {
+    this._invokeCallbacks(this._callbacks.onToolResult, event);
   }
 
   protected _emitError(message: string): void {
-    this._callbacks.onError?.({ message });
+    this._invokeCallbacks(this._callbacks.onError, { message });
   }
 
   protected _updateState(updates: Partial<AdapterState>): void {
     this._state = { ...this._state, ...updates };
-    this._callbacks.onStateChange?.(this.getState());
+    this._invokeCallbacks(this._callbacks.onStateChange, this.getState());
   }
 }

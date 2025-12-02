@@ -141,13 +141,6 @@ export const WithSuggestions: Story = {
 
 export const WithTools: Story = {
   render: (args: any) => {
-    const adapter = new MockAdapter({
-      simulateStreaming: true,
-      simulateTools: true,
-      streamingDelay: 50,
-      responseDelay: 500
-    });
-
     const tools: ToolDefinition[] = [
       {
         name: 'getCurrentWeather',
@@ -179,6 +172,14 @@ export const WithTools: Story = {
       }
     ];
 
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: true,
+      streamingDelay: 50,
+      responseDelay: 500,
+      tools
+    });
+
     const onToolCall = (e: CustomEvent) => {
       action('forge-ai-chatbot-tool-call')(e.detail);
 
@@ -202,11 +203,7 @@ export const WithTools: Story = {
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
-        <forge-ai-chatbot
-          .adapter=${adapter}
-          .tools=${tools}
-          placeholder=${args.placeholder}
-          @forge-ai-chatbot-tool-call=${onToolCall}>
+        <forge-ai-chatbot .adapter=${adapter} placeholder=${args.placeholder} @forge-ai-chatbot-tool-call=${onToolCall}>
           <span slot="header-title">AI Assistant with Tools</span>
         </forge-ai-chatbot>
       </div>

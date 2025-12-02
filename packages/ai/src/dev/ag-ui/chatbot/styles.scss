@@ -64,9 +64,11 @@ forge-card {
 .text_message_chunk,
 .text_message_content,
 .text_message_end,
+.tool_call,
 .tool_call_start,
 .tool_call_args,
 .tool_call_end,
+.tool_result,
 .run_started,
 .run_finished,
 .run_error,
@@ -96,9 +98,11 @@ forge-card {
   color: var(--forge-theme-on-info-container-low);
 }
 
+.tool_call,
 .tool_call_start,
 .tool_call_args,
-.tool_call_end {
+.tool_call_end,
+.tool_result {
   background-color: var(--forge-theme-tertiary-container-low);
   color: var(--forge-theme-on-tertiary-container-low);
 }

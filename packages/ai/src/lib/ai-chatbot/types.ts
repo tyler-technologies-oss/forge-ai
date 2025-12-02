@@ -3,7 +3,6 @@ import type { Tool as SDKTool } from '@ag-ui/core';
 export interface ToolRenderer {
   elementTag?: string;
   render?: (toolCall: ToolCall) => HTMLElement | DocumentFragment;
-  useSlot?: boolean;
 }
 
 export interface ToolDefinition extends SDKTool {
@@ -27,8 +26,9 @@ export interface ToolCall {
   messageId: string;
   name: string;
   args: Record<string, unknown>;
+  argsBuffer?: string;
   result?: unknown;
-  status: 'pending' | 'executing' | 'complete' | 'error';
+  status: 'pending' | 'parsing' | 'executing' | 'complete' | 'error';
 }
 
 export interface FileAttachment {
@@ -50,9 +50,7 @@ export interface UploadedFileMetadata {
   uploadedAt: string;
 }
 
-export type MessageItem =
-  | { type: 'message'; data: ChatMessage }
-  | { type: 'toolCall'; data: ToolCall };
+export type MessageItem = { type: 'message'; data: ChatMessage } | { type: 'toolCall'; data: ToolCall };
 
 export interface ThreadState {
   threadId?: string;

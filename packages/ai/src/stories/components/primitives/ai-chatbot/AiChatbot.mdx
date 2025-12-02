@@ -72,12 +72,12 @@ chatbot.addEventListener('forge-ai-chatbot-tool-call', async e => {
 
 ## Creating a Custom Adapter
 
-Extend the `AiChatbotAdapterBase` class for custom protocols:
+Extend the `AgentAdapter` class for custom protocols:
 
 ```typescript
-import { AiChatbotAdapterBase, type ChatMessage, type FileAttachment } from '@tylertech/forge-ai';
+import { AgentAdapter, type ChatMessage, type FileAttachment } from '@tylertech/forge-ai';
 
-class CustomAdapter extends AiChatbotAdapterBase {
+class CustomAdapter extends AgentAdapter {
   public async connect(): Promise<void> {
     // Initialize connection
     this.updateState({ isConnected: true });

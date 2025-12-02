@@ -443,87 +443,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-button/ai-button.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiButtonComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-button'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiButtonComponent",
-          "slots": [
-            {
-              "description": "Default slot for button content",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "attribute": "disabled",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "fieldName": "disabled"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-button",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiButtonComponentTagName",
-          "declaration": {
-            "name": "AiButtonComponentTagName",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiButtonComponent",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
       "declarations": [
         {
@@ -599,81 +518,81 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
+      "path": "src/lib/ai-button/ai-button.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "AiChatInterfaceComponentTagName",
+          "name": "AiButtonComponentTagName",
           "type": {
             "text": "keyof HTMLElementTagNameMap"
           },
-          "default": "'forge-ai-chat-interface'"
+          "default": "'forge-ai-button'"
         },
         {
           "kind": "class",
           "description": "",
-          "name": "AiChatInterfaceComponent",
+          "name": "AiButtonComponent",
           "slots": [
             {
-              "description": "Default slot for messages",
+              "description": "Default slot for button content",
               "name": ""
-            },
-            {
-              "description": "Slot for AI chat header component",
-              "name": "header"
-            },
-            {
-              "description": "Slot for AI suggestions component",
-              "name": "suggestions"
-            },
-            {
-              "description": "Slot for AI prompt component",
-              "name": "prompt"
             }
           ],
           "members": [
             {
-              "kind": "method",
-              "name": "scrollToBottom",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
               },
-              "description": "Scrolls the messages container to the bottom with smooth animation"
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "fieldName": "disabled"
             }
           ],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "forge-ai-chat-interface",
+          "tagName": "forge-ai-button",
           "customElement": true
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "AiChatInterfaceComponentTagName",
+          "name": "AiButtonComponentTagName",
           "declaration": {
-            "name": "AiChatInterfaceComponentTagName",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+            "name": "AiButtonComponentTagName",
+            "module": "src/lib/ai-button/ai-button.ts"
           }
         },
         {
           "kind": "js",
-          "name": "AiChatInterfaceComponent",
+          "name": "AiButtonComponent",
           "declaration": {
-            "name": "AiChatInterfaceComponent",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
           }
         },
         {
           "kind": "custom-element-definition",
           "declaration": {
-            "name": "AiChatInterfaceComponent",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
           }
         }
       ]
@@ -845,12 +764,595 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
+      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChatInterfaceComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chat-interface'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChatInterfaceComponent",
+          "slots": [
+            {
+              "description": "Default slot for messages",
+              "name": ""
+            },
+            {
+              "description": "Slot for AI chat header component",
+              "name": "header"
+            },
+            {
+              "description": "Slot for AI suggestions component",
+              "name": "suggestions"
+            },
+            {
+              "description": "Slot for AI prompt component",
+              "name": "prompt"
+            }
+          ],
+          "members": [
+            {
+              "kind": "method",
+              "name": "scrollToBottom",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Scrolls the messages container to the bottom with smooth animation"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chat-interface",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChatInterfaceComponentTagName",
+          "declaration": {
+            "name": "AiChatInterfaceComponentTagName",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChatInterfaceComponent",
+          "declaration": {
+            "name": "AiChatInterfaceComponent",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChatInterfaceComponent",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
       "declarations": [
         {
           "kind": "class",
           "description": "",
-          "name": "AiChatbotAdapterBase",
+          "name": "AgUiAdapter",
+          "members": [
+            {
+              "kind": "field",
+              "name": "threadId",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "create",
+              "privacy": "public",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "Promise<AgUiAdapter>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "text": "AgUiAdapterConfig & { threadId?: string }"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "connect",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "disconnect",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "sendMessage",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "messages",
+                  "type": {
+                    "text": "ChatMessage[]"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "sendToolResult",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "toolCallId",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "result",
+                  "type": {
+                    "text": "unknown"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "abort",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "fileUploadCallback",
+              "type": {
+                "text": "FileUploadCallback | undefined"
+              },
+              "privacy": "public",
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "setTools",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "tools",
+                  "type": {
+                    "text": "ToolDefinition[]"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "setFileUploadCallback",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "FileUploadCallback"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getTools",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "ToolDefinition[]"
+                }
+              },
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getState",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "AdapterState"
+                }
+              },
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onRunStarted",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onRunFinished",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onMessageStart",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: MessageStartEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onMessageDelta",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: MessageDeltaEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onMessageEnd",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: MessageEndEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onToolCall",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onToolCallStart",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallStartEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onToolCallArgs",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallArgsEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onToolCallEnd",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolCallEndEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onToolResult",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolResultEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onError",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ErrorEvent) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "onStateChange",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(state: AdapterState) => void"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "AgentAdapter",
+                "module": "src/lib/ai-chatbot/agent-adapter.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "AgentAdapter",
+            "module": "/src/lib/ai-chatbot/agent-adapter.js"
+          }
+        },
+        {
+          "kind": "variable",
+          "name": "args"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AgUiAdapter",
+          "declaration": {
+            "name": "AgUiAdapter",
+            "module": "src/lib/ai-chatbot/ag-ui-adapter.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AgentAdapter",
           "members": [
             {
               "kind": "field",
@@ -942,7 +1444,7 @@
             },
             {
               "kind": "method",
-              "name": "registerTools",
+              "name": "setTools",
               "privacy": "public",
               "return": {
                 "type": {
@@ -1154,6 +1656,24 @@
                   "name": "callback",
                   "type": {
                     "text": "(event: ToolCallEndEvent) => void"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "onToolResult",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "callback",
+                  "type": {
+                    "text": "(event: ToolResultEvent) => void"
                   }
                 }
               ]
@@ -1200,490 +1720,10 @@
       "exports": [
         {
           "kind": "js",
-          "name": "AiChatbotAdapterBase",
+          "name": "AgentAdapter",
           "declaration": {
-            "name": "AiChatbotAdapterBase",
-            "module": "src/lib/ai-chatbot/adapter-base.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AgUiAdapter",
-          "members": [
-            {
-              "kind": "field",
-              "name": "threadId",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "public",
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "create",
-              "privacy": "public",
-              "static": true,
-              "return": {
-                "type": {
-                  "text": "Promise<AgUiAdapter>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "config",
-                  "type": {
-                    "text": "AgUiAdapterConfig & { tools?: ToolDefinition[]; threadId?: string }"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "connect",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "disconnect",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "sendMessage",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "messages",
-                  "type": {
-                    "text": "ChatMessage[]"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "sendToolResult",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "toolCallId",
-                  "type": {
-                    "text": "string"
-                  }
-                },
-                {
-                  "name": "result",
-                  "type": {
-                    "text": "unknown"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "abort",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "fileUploadCallback",
-              "type": {
-                "text": "FileUploadCallback | undefined"
-              },
-              "privacy": "public",
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "registerTools",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "tools",
-                  "type": {
-                    "text": "ToolDefinition[]"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "setFileUploadCallback",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "FileUploadCallback"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "getTools",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "ToolDefinition[]"
-                }
-              },
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "getState",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "AdapterState"
-                }
-              },
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onRunStarted",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "() => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onRunFinished",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "() => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onMessageStart",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(event: MessageStartEvent) => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onMessageDelta",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(event: MessageDeltaEvent) => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onMessageEnd",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(event: MessageEndEvent) => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onToolCall",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(event: ToolCallEvent) => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onToolCallStart",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(event: ToolCallStartEvent) => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onToolCallArgs",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(event: ToolCallArgsEvent) => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onToolCallEnd",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(event: ToolCallEndEvent) => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onError",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(event: ErrorEvent) => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "onStateChange",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "callback",
-                  "type": {
-                    "text": "(state: AdapterState) => void"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "AiChatbotAdapterBase",
-                "module": "src/lib/ai-chatbot/adapter-base.ts"
-              }
-            }
-          ],
-          "superclass": {
-            "name": "AiChatbotAdapterBase",
-            "module": "/src/lib/ai-chatbot/adapter-base.js"
-          }
-        },
-        {
-          "kind": "variable",
-          "name": "args"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AgUiAdapter",
-          "declaration": {
-            "name": "AgUiAdapter",
-            "module": "src/lib/ai-chatbot/ag-ui-adapter.ts"
+            "name": "AgentAdapter",
+            "module": "src/lib/ai-chatbot/agent-adapter.ts"
           }
         }
       ]
@@ -1791,15 +1831,7 @@
               "kind": "field",
               "name": "adapter",
               "type": {
-                "text": "AiChatbotAdapterBase | undefined"
-              },
-              "privacy": "public"
-            },
-            {
-              "kind": "field",
-              "name": "tools",
-              "type": {
-                "text": "ToolDefinition[] | undefined"
+                "text": "AgentAdapter | undefined"
               },
               "privacy": "public"
             },
@@ -1991,7 +2023,7 @@
                   "description": "ThreadState object to restore"
                 }
               ],
-              "description": "Restores thread state from a serialized ThreadState object.\nClears any existing tool render slots and restores messages and threadId."
+              "description": "Restores thread state from a serialized ThreadState object."
             }
           ],
           "events": [
@@ -2131,6 +2163,10 @@
           "tagName": "forge-ai-chatbot",
           "customElement": true,
           "summary": "A complete, self-contained AI chatbot component that implements the AG-UI protocol using an adapter pattern."
+        },
+        {
+          "kind": "variable",
+          "name": "attachments"
         },
         {
           "kind": "variable",
@@ -2457,7 +2493,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Reactive controller that manages message and tool call state for the chatbot.\n\nResponsibilities:\n- Maintains ordered list of messages and tool calls (messageItems)\n- Tracks tool call state and lifecycle\n- Provides CRUD operations for messages\n- Handles tool render slot coordination\n- Triggers host re-renders when state changes",
+          "description": "Reactive controller that manages message and tool call state for the chatbot.\n\nResponsibilities:\n- Maintains ordered list of messages and tool calls (messageItems)\n- Tracks tool call state and lifecycle\n- Provides CRUD operations for messages\n- Triggers host re-renders when state changes",
           "name": "MessageStateController",
           "members": [
             {
@@ -3105,6 +3141,222 @@
           "declaration": {
             "name": "AiDialogComponent",
             "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiEmbeddedChatComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-embedded-chat'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiEmbeddedChatComponent",
+          "slots": [
+            {
+              "description": "Slot for custom header title content (default: \"AI Assistant\")",
+              "name": "header-title"
+            },
+            {
+              "description": "Slot for custom empty state heading",
+              "name": "empty-state-heading"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Controls whether the modal view is open when expanded.",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "gradientVariant",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "'medium'",
+              "description": "Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium')",
+              "attribute": "gradient-variant"
+            },
+            {
+              "kind": "field",
+              "name": "adapter",
+              "type": {
+                "text": "AgentAdapter"
+              },
+              "privacy": "public",
+              "description": "Required. The adapter for communication with the AI service"
+            },
+            {
+              "kind": "field",
+              "name": "threadId",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "public",
+              "attribute": "thread-id"
+            },
+            {
+              "kind": "field",
+              "name": "enableFileUpload",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Enable file upload functionality (default: false)",
+              "attribute": "enable-file-upload"
+            },
+            {
+              "kind": "field",
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "'Ask a question...'",
+              "description": "Placeholder text for input (default: \"Ask a question...\")",
+              "attribute": "placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "Suggestion[]"
+              },
+              "privacy": "public",
+              "description": "Optional suggestions for empty state"
+            },
+            {
+              "kind": "method",
+              "name": "expand",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Expands the chat to modal view."
+            },
+            {
+              "kind": "method",
+              "name": "collapse",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Collapses the chat from modal view back to embedded view."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the chat is expanded to modal view",
+              "name": "forge-ai-embedded-chat-expand"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the chat is collapsed from modal view",
+              "name": "forge-ai-embedded-chat-collapse"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Controls whether the modal view is open when expanded.",
+              "fieldName": "expanded"
+            },
+            {
+              "name": "gradient-variant",
+              "type": {
+                "text": "string"
+              },
+              "default": "'medium'",
+              "description": "Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium')",
+              "fieldName": "gradientVariant"
+            },
+            {
+              "name": "thread-id",
+              "type": {
+                "text": "string | undefined"
+              },
+              "fieldName": "threadId"
+            },
+            {
+              "name": "enable-file-upload",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Enable file upload functionality (default: false)",
+              "fieldName": "enableFileUpload"
+            },
+            {
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Ask a question...'",
+              "description": "Placeholder text for input (default: \"Ask a question...\")",
+              "fieldName": "placeholder"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-embedded-chat",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiEmbeddedChatComponentTagName",
+          "declaration": {
+            "name": "AiEmbeddedChatComponentTagName",
+            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiEmbeddedChatComponent",
+          "declaration": {
+            "name": "AiEmbeddedChatComponent",
+            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiEmbeddedChatComponent",
+            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
           }
         }
       ]
@@ -3900,231 +4152,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiEmbeddedChatComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-embedded-chat'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiEmbeddedChatComponent",
-          "slots": [
-            {
-              "description": "Slot for custom header title content (default: \"AI Assistant\")",
-              "name": "header-title"
-            },
-            {
-              "description": "Slot for custom empty state heading",
-              "name": "empty-state-heading"
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Controls whether the modal view is open when expanded.",
-              "attribute": "expanded"
-            },
-            {
-              "kind": "field",
-              "name": "gradientVariant",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "public",
-              "default": "'medium'",
-              "description": "Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium')",
-              "attribute": "gradient-variant"
-            },
-            {
-              "kind": "field",
-              "name": "adapter",
-              "type": {
-                "text": "AiChatbotAdapterBase"
-              },
-              "privacy": "public",
-              "description": "Required. The adapter for communication with the AI service"
-            },
-            {
-              "kind": "field",
-              "name": "tools",
-              "type": {
-                "text": "ToolDefinition[]"
-              },
-              "privacy": "public",
-              "description": "Optional client-side tools for the agent to execute"
-            },
-            {
-              "kind": "field",
-              "name": "threadId",
-              "type": {
-                "text": "string | undefined"
-              },
-              "privacy": "public",
-              "attribute": "thread-id"
-            },
-            {
-              "kind": "field",
-              "name": "enableFileUpload",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "attribute": "enable-file-upload"
-            },
-            {
-              "kind": "field",
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "public",
-              "default": "'Ask a question...'",
-              "description": "Placeholder text for input (default: \"Ask a question...\")",
-              "attribute": "placeholder"
-            },
-            {
-              "kind": "field",
-              "name": "suggestions",
-              "type": {
-                "text": "Suggestion[]"
-              },
-              "privacy": "public",
-              "description": "Optional suggestions for empty state"
-            },
-            {
-              "kind": "method",
-              "name": "expand",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Expands the chat to modal view."
-            },
-            {
-              "kind": "method",
-              "name": "collapse",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Collapses the chat from modal view back to embedded view."
-            }
-          ],
-          "events": [
-            {
-              "type": {
-                "text": "CustomEvent<void>"
-              },
-              "description": "Fired when the chat is expanded to modal view",
-              "name": "forge-ai-embedded-chat-expand"
-            },
-            {
-              "type": {
-                "text": "CustomEvent<void>"
-              },
-              "description": "Fired when the chat is collapsed from modal view",
-              "name": "forge-ai-embedded-chat-collapse"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Controls whether the modal view is open when expanded.",
-              "fieldName": "expanded"
-            },
-            {
-              "name": "gradient-variant",
-              "type": {
-                "text": "string"
-              },
-              "default": "'medium'",
-              "description": "Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium')",
-              "fieldName": "gradientVariant"
-            },
-            {
-              "name": "thread-id",
-              "type": {
-                "text": "string | undefined"
-              },
-              "fieldName": "threadId"
-            },
-            {
-              "name": "enable-file-upload",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "fieldName": "enableFileUpload"
-            },
-            {
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "'Ask a question...'",
-              "description": "Placeholder text for input (default: \"Ask a question...\")",
-              "fieldName": "placeholder"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-embedded-chat",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiEmbeddedChatComponentTagName",
-          "declaration": {
-            "name": "AiEmbeddedChatComponentTagName",
-            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiEmbeddedChatComponent",
-          "declaration": {
-            "name": "AiEmbeddedChatComponent",
-            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiEmbeddedChatComponent",
-            "module": "src/lib/ai-embedded-chat/ai-embedded-chat.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-empty-state/ai-empty-state.ts",
       "declarations": [
         {
@@ -4615,19 +4642,10 @@
               "kind": "field",
               "name": "adapter",
               "type": {
-                "text": "AiChatbotAdapterBase"
+                "text": "AgentAdapter"
               },
               "privacy": "public",
               "description": "Required. The adapter for communication with the AI service"
-            },
-            {
-              "kind": "field",
-              "name": "tools",
-              "type": {
-                "text": "ToolDefinition[]"
-              },
-              "privacy": "public",
-              "description": "Optional client-side tools for the agent to execute"
             },
             {
               "kind": "field",
@@ -4824,6 +4842,90 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-icon/ai-icon.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiIconComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-icon'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiIconComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "outline",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to display the icon with an outline",
+              "attribute": "outline"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "outline",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to display the icon with an outline",
+              "fieldName": "outline"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-icon",
+          "customElement": true,
+          "states": [
+            {
+              "name": "no-border",
+              "description": "The icon is displayed without a border."
+            },
+            {
+              "name": "border",
+              "description": "The icon is displayed with a border."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiIconComponentTagName",
+          "declaration": {
+            "name": "AiIconComponentTagName",
+            "module": "src/lib/ai-icon/ai-icon.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiIconComponent",
+          "declaration": {
+            "name": "AiIconComponent",
+            "module": "src/lib/ai-icon/ai-icon.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiIconComponent",
+            "module": "src/lib/ai-icon/ai-icon.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
       "declarations": [
         {
@@ -4912,90 +5014,6 @@
           "declaration": {
             "name": "AiGradientContainerComponent",
             "module": "src/lib/ai-gradient-container/ai-gradient-container.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-icon/ai-icon.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiIconComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-icon'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiIconComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "outline",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether to display the icon with an outline",
-              "attribute": "outline"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "outline",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether to display the icon with an outline",
-              "fieldName": "outline"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-icon",
-          "customElement": true,
-          "states": [
-            {
-              "name": "no-border",
-              "description": "The icon is displayed without a border."
-            },
-            {
-              "name": "border",
-              "description": "The icon is displayed with a border."
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiIconComponentTagName",
-          "declaration": {
-            "name": "AiIconComponentTagName",
-            "module": "src/lib/ai-icon/ai-icon.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiIconComponent",
-          "declaration": {
-            "name": "AiIconComponent",
-            "module": "src/lib/ai-icon/ai-icon.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiIconComponent",
-            "module": "src/lib/ai-icon/ai-icon.ts"
           }
         }
       ]
@@ -5892,19 +5910,10 @@
               "kind": "field",
               "name": "adapter",
               "type": {
-                "text": "AiChatbotAdapterBase"
+                "text": "AgentAdapter"
               },
               "privacy": "public",
               "description": "Required. The adapter for communication with the AI service"
-            },
-            {
-              "kind": "field",
-              "name": "tools",
-              "type": {
-                "text": "ToolDefinition[]"
-              },
-              "privacy": "public",
-              "description": "Optional client-side tools for the agent to execute"
             },
             {
               "kind": "field",
@@ -6862,57 +6871,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ReasoningContentComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-reasoning-content'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ReasoningContentComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-reasoning-content",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ReasoningContentComponentTagName",
-          "declaration": {
-            "name": "ReasoningContentComponentTagName",
-            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ReasoningContentComponent",
-          "declaration": {
-            "name": "ReasoningContentComponent",
-            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ReasoningContentComponent",
-            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
       "declarations": [
         {
@@ -6982,6 +6940,57 @@
           "declaration": {
             "name": "PromptButtonComponent",
             "module": "src/lib/ai-prompt/prompt-button/prompt-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ReasoningContentComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-reasoning-content'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ReasoningContentComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-reasoning-content",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ReasoningContentComponentTagName",
+          "declaration": {
+            "name": "ReasoningContentComponentTagName",
+            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ReasoningContentComponent",
+          "declaration": {
+            "name": "ReasoningContentComponent",
+            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "ReasoningContentComponent",
+            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
           }
         }
       ]
@@ -7617,17 +7626,13 @@
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 41
     },
-    "AiButtonComponent": {
-      "path": "src/lib/ai-button/ai-button.ts",
-      "lineNumber": 22
-    },
     "AiChainOfThoughtComponent": {
       "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
       "lineNumber": 17
     },
-    "AiChatInterfaceComponent": {
-      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
-      "lineNumber": 24
+    "AiButtonComponent": {
+      "path": "src/lib/ai-button/ai-button.ts",
+      "lineNumber": 22
     },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
@@ -7637,49 +7642,9 @@
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 47
     },
-    "FileUploadCallback": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 3
-    },
-    "MessageStartEvent": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 5
-    },
-    "MessageDeltaEvent": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 9
-    },
-    "MessageEndEvent": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 14
-    },
-    "ToolCallEvent": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 18
-    },
-    "ToolCallStartEvent": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 25
-    },
-    "ToolCallArgsEvent": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 31
-    },
-    "ToolCallEndEvent": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 39
-    },
-    "AdapterState": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 46
-    },
-    "ErrorEvent": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 51
-    },
-    "AiChatbotAdapterBase": {
-      "path": "src/lib/ai-chatbot/adapter-base.ts",
-      "lineNumber": 55
+    "AiChatInterfaceComponent": {
+      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
+      "lineNumber": 24
     },
     "AgUiAdapterConfig": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
@@ -7687,11 +7652,59 @@
     },
     "ToolCallState": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 21
+      "lineNumber": 22
     },
     "AgUiAdapter": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 27
+      "lineNumber": 28
+    },
+    "FileUploadCallback": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 3
+    },
+    "MessageStartEvent": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 5
+    },
+    "MessageDeltaEvent": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 9
+    },
+    "MessageEndEvent": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 14
+    },
+    "ToolCallEvent": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 18
+    },
+    "ToolCallStartEvent": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 25
+    },
+    "ToolCallArgsEvent": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 31
+    },
+    "ToolCallEndEvent": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 39
+    },
+    "ToolResultEvent": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 46
+    },
+    "AdapterState": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 52
+    },
+    "ErrorEvent": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 57
+    },
+    "AgentAdapter": {
+      "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 61
     },
     "AiChatbotToolCallComponent": {
       "path": "src/lib/ai-chatbot/ai-chatbot-tool-call.ts",
@@ -7699,27 +7712,19 @@
     },
     "ForgeAiChatbotMessageEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 70
+      "lineNumber": 72
     },
     "ForgeAiChatbotToolCallEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 74
-    },
-    "ForgeAiChatbotToolRenderEventData": {
-      "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 81
-    },
-    "ForgeAiChatbotToolRenderCleanupEventData": {
-      "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 86
+      "lineNumber": 76
     },
     "ForgeAiChatbotErrorEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 90
+      "lineNumber": 83
     },
     "AiChatbotComponent": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 121
+      "lineNumber": 114
     },
     "AiPromptRunnerConfig": {
       "path": "src/lib/ai-chatbot/ai-prompt-runner.ts",
@@ -7763,7 +7768,7 @@
     },
     "MessageStateController": {
       "path": "src/lib/ai-chatbot/message-state-controller.ts",
-      "lineNumber": 22
+      "lineNumber": 19
     },
     "ToolHandler": {
       "path": "src/lib/ai-chatbot/tool-registry.ts",
@@ -7779,15 +7784,15 @@
     },
     "ToolDefinition": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 9
+      "lineNumber": 8
     },
     "ChatMessage": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 13
+      "lineNumber": 12
     },
     "ToolCall": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 25
+      "lineNumber": 24
     },
     "FileAttachment": {
       "path": "src/lib/ai-chatbot/types.ts",
@@ -7808,6 +7813,10 @@
     "AiDialogComponent": {
       "path": "src/lib/ai-dialog/ai-dialog.ts",
       "lineNumber": 35
+    },
+    "AiEmbeddedChatComponent": {
+      "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
+      "lineNumber": 47
     },
     "ForgeAiDropdownMenuItemGroupComponent": {
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu-item-group.ts",
@@ -7869,10 +7878,6 @@
       "path": "src/lib/ai-dropdown-menu/selection-manager.ts",
       "lineNumber": 85
     },
-    "AiEmbeddedChatComponent": {
-      "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
-      "lineNumber": 48
-    },
     "AiEmptyStateComponent": {
       "path": "src/lib/ai-empty-state/ai-empty-state.ts",
       "lineNumber": 23
@@ -7903,7 +7908,11 @@
     },
     "AiFloatingChatComponent": {
       "path": "src/lib/ai-floating-chat/ai-floating-chat.ts",
-      "lineNumber": 49
+      "lineNumber": 48
+    },
+    "AiIconComponent": {
+      "path": "src/lib/ai-icon/ai-icon.ts",
+      "lineNumber": 23
     },
     "AiGradientContainerVariant": {
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
@@ -7912,10 +7921,6 @@
     "AiGradientContainerComponent": {
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
       "lineNumber": 26
-    },
-    "AiIconComponent": {
-      "path": "src/lib/ai-icon/ai-icon.ts",
-      "lineNumber": 23
     },
     "AiModalComponent": {
       "path": "src/lib/ai-modal/ai-modal.ts",
@@ -7955,7 +7960,7 @@
     },
     "AiSidebarChatComponent": {
       "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
-      "lineNumber": 53
+      "lineNumber": 52
     },
     "Suggestion": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
@@ -8049,12 +8054,12 @@
       "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
       "lineNumber": 24
     },
-    "ReasoningContentComponent": {
-      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
-      "lineNumber": 17
-    },
     "PromptButtonComponent": {
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
+      "lineNumber": 17
+    },
+    "ReasoningContentComponent": {
+      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
       "lineNumber": 17
     },
     "OverlayPlacement": {

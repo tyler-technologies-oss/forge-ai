@@ -1,5 +1,5 @@
-import { AiChatbotAdapterBase } from '$lib/ai-chatbot/adapter-base.js';
-import type { ChatMessage, FileAttachment } from '$lib/ai-chatbot/types.js';
+import { AgentAdapter } from '$lib/ai-chatbot/agent-adapter.js';
+import type { ChatMessage, FileAttachment, ToolDefinition } from '$lib/ai-chatbot/types.js';
 import { generateId } from '$lib/ai-chatbot/utils.js';
 
 export interface MockAdapterOptions {
@@ -9,12 +9,18 @@ export interface MockAdapterOptions {
   streamingDelay?: number;
   responseDelay?: number;
   mockResponses?: string[];
+  tools?: ToolDefinition[];
 }
 
-export class MockAdapter extends AiChatbotAdapterBase {
+export class MockAdapter extends AgentAdapter {
   #options: MockAdapterOptions;
   #messageIndex = 0;
   #timeoutId: number | null = null;
+
+  get threadId(): string {
+    return 'mock-thread-123';
+  }
+  set threadId(_value: string) {}
 
   constructor(options: MockAdapterOptions = {}) {
     super();
@@ -31,6 +37,9 @@ export class MockAdapter extends AiChatbotAdapterBase {
       ],
       ...options
     };
+    if (options.tools) {
+      this.setTools(options.tools);
+    }
   }
 
   async connect(): Promise<void> {

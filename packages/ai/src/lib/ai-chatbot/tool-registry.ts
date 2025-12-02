@@ -1,4 +1,4 @@
-import type { ToolCallEvent } from './adapter-base.js';
+import type { ToolCallEvent } from './agent-adapter.js';
 import type { ToolDefinition } from './types.js';
 
 export type ToolHandler<TArgs = Record<string, unknown>, TResult = unknown> = (

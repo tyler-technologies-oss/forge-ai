@@ -3,7 +3,6 @@ import { checkThirdPartyCookies } from './cookie-checker.js';
 import { checkAuthentication } from './auth-manager.js';
 import { loadAgentConfig } from './config-loader.js';
 import { loadComponent } from './component-loader.js';
-import { showError } from './utils.js';
 
 export async function initChatbot(config: ChatbotConfig): Promise<ChatbotAPI> {
   if (window.__TYLER_AI_CHATBOT__) {
@@ -24,7 +23,7 @@ export async function initChatbot(config: ChatbotConfig): Promise<ChatbotAPI> {
       const error = new Error(
         'Third-party cookies are disabled. Please enable cookies in your browser settings to use this chatbot.'
       );
-      showError(error.message);
+      console.error(error);
       if (config.onError) {
         config.onError(error);
       }
@@ -49,7 +48,6 @@ export async function initChatbot(config: ChatbotConfig): Promise<ChatbotAPI> {
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error));
     console.error('Failed to initialize chatbot:', err);
-    showError(`Failed to initialize chatbot: ${err.message}`);
     if (config.onError) {
       config.onError(err);
     }

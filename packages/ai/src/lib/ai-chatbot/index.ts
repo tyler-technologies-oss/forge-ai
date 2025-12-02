@@ -2,8 +2,6 @@ export { AiChatbotComponent, AiChatbotComponentTagName } from './ai-chatbot.js';
 export type {
   ForgeAiChatbotMessageEventData,
   ForgeAiChatbotToolCallEventData,
-  ForgeAiChatbotToolRenderEventData,
-  ForgeAiChatbotToolRenderCleanupEventData,
   ForgeAiChatbotErrorEventData
 } from './ai-chatbot.js';
 export { AiChatbotToolCallComponent, AiChatbotToolCallComponentTagName } from './ai-chatbot-tool-call.js';
@@ -11,7 +9,7 @@ export type { Suggestion } from '../ai-suggestions/index.js';
 
 // Adapter base and events
 export {
-  AiChatbotAdapterBase,
+  AgentAdapter,
   type MessageStartEvent,
   type MessageDeltaEvent,
   type MessageEndEvent,
@@ -21,7 +19,7 @@ export {
   type ToolCallEndEvent,
   type AdapterState,
   type ErrorEvent
-} from './adapter-base.js';
+} from './agent-adapter.js';
 
 // Chatbot types
 export type {

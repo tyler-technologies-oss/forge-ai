@@ -19,7 +19,7 @@ The `forge-ai-chatbot` is a complete, self-contained chatbot component that impl
 │  └───────────────────────────────────────────────┘  │
 │                      ↕                               │
 │  ┌───────────────────────────────────────────────┐  │
-│  │  AiChatbotAdapterBase (Abstract)              │  │
+│  │  AgentAdapter (Abstract)                      │  │
 │  │  - Protocol abstraction layer                 │  │
 │  │  - Event-driven callback system               │  │
 │  │  - Connection & message lifecycle             │  │
@@ -73,10 +73,10 @@ Context Update → UI Re-render
 
 ### Base Adapter
 
-All adapters extend `AiChatbotAdapterBase`:
+All adapters extend `AgentAdapter`:
 
 ```typescript
-abstract class AiChatbotAdapterBase {
+abstract class AgentAdapter {
   // Required implementations
   abstract connect(): Promise<void>;
   abstract disconnect(): Promise<void>;
@@ -400,7 +400,7 @@ chatbot.addEventListener('forge-ai-chatbot-info', () => {
 
 | Property             | Type                   | Default               | Description                    |
 | -------------------- | ---------------------- | --------------------- | ------------------------------ |
-| `adapter`            | `AiChatbotAdapterBase` | `undefined`           | Protocol adapter instance      |
+| `adapter`            | `AgentAdapter`         | `undefined`           | Protocol adapter instance      |
 | `tools`              | `ToolDefinition[]`     | `undefined`           | Available tools                |
 | `enableFileUpload`   | `boolean`              | `false`               | Enable file picker             |
 | `placeholder`        | `string`               | `'Ask a question...'` | Input placeholder              |
@@ -469,9 +469,9 @@ interface ToolCall {
 Create custom adapters for different protocols:
 
 ```typescript
-import { AiChatbotAdapterBase } from '@tylertech/forge-ai';
+import { AgentAdapter } from '@tylertech/forge-ai';
 
-export class CustomAdapter extends AiChatbotAdapterBase {
+export class CustomAdapter extends AgentAdapter {
   async connect(): Promise<void> {
     // Establish connection
     this._updateState({ isConnected: true });

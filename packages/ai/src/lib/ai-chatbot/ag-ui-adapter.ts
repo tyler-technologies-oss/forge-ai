@@ -8,7 +8,7 @@ import type {
   UserMessage,
   Context
 } from '@ag-ui/core';
-import { AiChatbotAdapterBase } from './adapter-base.js';
+import { AgentAdapter } from './agent-adapter.js';
 import type { ChatMessage, ToolDefinition } from './types.js';
 import { generateId } from './utils.js';
 
@@ -16,6 +16,7 @@ export interface AgUiAdapterConfig {
   url: string;
   context?: Record<string, unknown>;
   headers?: Record<string, string>;
+  tools?: ToolDefinition[];
 }
 
 interface ToolCallState {
@@ -24,7 +25,7 @@ interface ToolCallState {
   argsBuffer: string;
 }
 
-export class AgUiAdapter extends AiChatbotAdapterBase {
+export class AgUiAdapter extends AgentAdapter {
   #config: AgUiAdapterConfig;
   #agent: HttpAgent;
   #toolCalls = new Map<string, ToolCallState>();
@@ -39,6 +40,9 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
       url: config.url,
       headers: config.headers
     });
+    if (config.tools) {
+      this.setTools(config.tools);
+    }
     this.#setupSubscriber();
   }
 
@@ -51,15 +55,9 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     this.#agent.threadId = value;
   }
 
-  public static async create(
-    config: AgUiAdapterConfig & { tools?: ToolDefinition[]; threadId?: string }
-  ): Promise<AgUiAdapter> {
-    const { tools, threadId, ...adapterConfig } = config;
+  public static async create(config: AgUiAdapterConfig & { threadId?: string }): Promise<AgUiAdapter> {
+    const { threadId, ...adapterConfig } = config;
     const adapter = new AgUiAdapter(adapterConfig, threadId ?? generateId('thread'));
-
-    if (tools) {
-      adapter.registerTools(tools);
-    }
 
     await adapter.connect();
     return adapter;
@@ -83,10 +81,14 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     const context = this.#config.context ? this.#transformContext(this.#config.context) : undefined;
 
     this.#agent.setMessages(transformedMessages);
-    this.#agent.runAgent({
-      tools: this._tools,
-      context
+
+    // Extract tool definitions for the agent run
+    const tools = this._tools?.map(tool => {
+      const { name, description, parameters } = tool;
+      return { name, description, parameters };
     });
+
+    this.#agent.runAgent({ tools, context });
   }
 
   public sendToolResult(toolCallId: string, result: unknown): void {
@@ -100,6 +102,7 @@ export class AgUiAdapter extends AiChatbotAdapterBase {
     };
 
     this.sendMessage([toolMessage]);
+    this._emitToolResult({ toolCallId, result, message: toolMessage });
   }
 
   public abort(): void {

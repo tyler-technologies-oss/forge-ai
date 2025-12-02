@@ -160,7 +160,8 @@ const adapter = new AgUiAdapter(
       pageUrl: window.location.href,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString()
-    }
+    },
+    tools
   },
   threadId
 );
@@ -239,11 +240,11 @@ adapter.onToolCall(event => addEventToStream('TOOL_CALL', event));
 adapter.onToolCallStart(event => addEventToStream('TOOL_CALL_START', event));
 adapter.onToolCallArgs(event => addEventToStream('TOOL_CALL_ARGS', event));
 adapter.onToolCallEnd(event => addEventToStream('TOOL_CALL_END', event));
+adapter.onToolResult(event => addEventToStream('TOOL_RESULT', event));
 adapter.onError(event => addEventToStream('ERROR', event));
 adapter.onStateChange(state => addEventToStream('STATE_CHANGE', state));
 
 chatbot.adapter = adapter;
-chatbot.tools = tools;
 chatbot.suggestions = [
   { text: 'What can you help me with?', value: 'What can you help me with?' },
   { text: 'Show me confetti!', value: 'Show me confetti!' },
