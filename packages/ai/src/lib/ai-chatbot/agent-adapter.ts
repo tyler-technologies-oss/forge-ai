@@ -65,6 +65,7 @@ export abstract class AgentAdapter {
   protected _callbacks = {
     onRunStarted: [] as (() => void)[],
     onRunFinished: [] as (() => void)[],
+    onRunAborted: [] as (() => void)[],
     onMessageStart: [] as ((event: MessageStartEvent) => void)[],
     onMessageDelta: [] as ((event: MessageDeltaEvent) => void)[],
     onMessageEnd: [] as ((event: MessageEndEvent) => void)[],
@@ -102,12 +103,24 @@ export abstract class AgentAdapter {
     return { ...this._state };
   }
 
+  public get isConnected(): boolean {
+    return this._state.isConnected;
+  }
+
+  public get isRunning(): boolean {
+    return this._state.isRunning;
+  }
+
   public onRunStarted(callback: () => void): void {
     this._callbacks.onRunStarted.push(callback);
   }
 
   public onRunFinished(callback: () => void): void {
     this._callbacks.onRunFinished.push(callback);
+  }
+
+  public onRunAborted(callback: () => void): void {
+    this._callbacks.onRunAborted.push(callback);
   }
 
   public onMessageStart(callback: (event: MessageStartEvent) => void): void {
@@ -164,6 +177,10 @@ export abstract class AgentAdapter {
 
   protected _emitRunFinished(): void {
     this._invokeCallbacks(this._callbacks.onRunFinished);
+  }
+
+  protected _emitRunAborted(): void {
+    this._invokeCallbacks(this._callbacks.onRunAborted);
   }
 
   protected _emitMessageStart(messageId: string): void {

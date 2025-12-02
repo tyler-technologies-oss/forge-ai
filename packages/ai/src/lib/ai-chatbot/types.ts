@@ -1,11 +1,16 @@
-import type { Tool as SDKTool } from '@ag-ui/core';
-
 export interface ToolRenderer {
   elementTag?: string;
   render?: (toolCall: ToolCall) => HTMLElement | DocumentFragment;
 }
 
-export interface ToolDefinition extends SDKTool {
+export interface ToolDefinition {
+  name: string;
+  description?: string;
+  parameters?: {
+    type: 'object';
+    properties?: Record<string, unknown>;
+    required?: string[];
+  };
   renderer?: ToolRenderer;
 }
 

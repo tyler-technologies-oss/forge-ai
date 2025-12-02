@@ -233,6 +233,7 @@ adapter.setFileUploadCallback(async (file: File) => {
 // Track SDK events via subscriber
 adapter.onRunStarted(() => addEventToStream('RUN_STARTED', { isRunning: true }));
 adapter.onRunFinished(() => addEventToStream('RUN_FINISHED', { isRunning: false }));
+adapter.onRunAborted(() => addEventToStream('RUN_ABORTED', { isRunning: false }));
 adapter.onMessageStart(event => addEventToStream('TEXT_MESSAGE_START', event));
 adapter.onMessageDelta(event => addEventToStream('TEXT_MESSAGE_CONTENT', event));
 adapter.onMessageEnd(event => addEventToStream('TEXT_MESSAGE_END', event));

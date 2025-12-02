@@ -24,7 +24,7 @@ export class AiPromptRunner {
   public static async run(config: AiPromptRunnerConfig): Promise<AiPromptRunnerResult> {
     const { adapter, toolRegistry, prompt, onStart, onDelta, onComplete } = config;
 
-    if (!adapter.getState().isConnected) {
+    if (!adapter.isConnected) {
       await adapter.connect();
     }
 

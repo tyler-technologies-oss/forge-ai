@@ -3,8 +3,6 @@ import type { ChatMessage, MessageItem, ToolCall, ToolDefinition } from './types
 
 export interface MessageStateControllerConfig {
   tools: Map<string, ToolDefinition>;
-  /** Called after any operation that modifies message state */
-  onStateChange?: (messageItems: MessageItem[]) => void;
 }
 
 /**
@@ -48,7 +46,6 @@ export class MessageStateController implements ReactiveController {
 
   #notifyStateChange(): void {
     this._host.requestUpdate();
-    this._config.onStateChange?.(this._messageItems);
   }
 
   public addMessageItem(item: MessageItem): void {

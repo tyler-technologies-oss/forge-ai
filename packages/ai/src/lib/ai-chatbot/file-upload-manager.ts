@@ -2,8 +2,6 @@ import type { FileAttachment, UploadedFileMetadata } from './types.js';
 
 export interface FileUploadManagerConfig {
   uploadCallback?: (file: File) => Promise<UploadedFileMetadata>;
-  onUploadStart?: () => void;
-  onUploadComplete?: () => void;
   onError?: (error: string) => void;
   onStateChange?: () => void;
 }
@@ -90,7 +88,7 @@ export class FileUploadManager {
 
     try {
       this._uploadInProgress = true;
-      this._config.onUploadStart?.();
+      this._config.onStateChange?.();
 
       const files = Array.from(this._fileMap.values());
       const results = await Promise.all(files.map(file => this._config.uploadCallback?.(file)));
@@ -102,7 +100,7 @@ export class FileUploadManager {
       throw error;
     } finally {
       this._uploadInProgress = false;
-      this._config.onUploadComplete?.();
+      this._config.onStateChange?.();
       this.clearProgress();
     }
   }

@@ -31,9 +31,6 @@ export type {
   UploadedFileMetadata
 } from './types.js';
 
-// Chatbot context
-export type { ChatbotContext } from './context.js';
-
 // AG-UI adapter
 export { AgUiAdapter, type AgUiAdapterConfig } from './ag-ui-adapter.js';
 

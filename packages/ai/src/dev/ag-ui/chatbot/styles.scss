@@ -71,6 +71,7 @@ forge-card {
 .tool_result,
 .run_started,
 .run_finished,
+.run_cancelled,
 .run_error,
 .error,
 .state_change {
@@ -111,6 +112,11 @@ forge-card {
 .run_finished {
   background-color: var(--forge-theme-success-container-low);
   color: var(--forge-theme-on-success-container-low);
+}
+
+.run_cancelled {
+  background-color: var(--forge-theme-warning-container-low);
+  color: var(--forge-theme-on-warning-container-low);
 }
 
 .run_error,

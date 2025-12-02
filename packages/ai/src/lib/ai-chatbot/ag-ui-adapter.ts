@@ -4,6 +4,7 @@ import type {
   InputContent,
   Message,
   SystemMessage,
+  Tool as AgUiTool,
   ToolMessage,
   UserMessage,
   Context
@@ -82,11 +83,7 @@ export class AgUiAdapter extends AgentAdapter {
 
     this.#agent.setMessages(transformedMessages);
 
-    // Extract tool definitions for the agent run
-    const tools = this._tools?.map(tool => {
-      const { name, description, parameters } = tool;
-      return { name, description, parameters };
-    });
+    const tools = this.#transformTools(this._tools);
 
     this.#agent.runAgent({ tools, context });
   }
@@ -246,7 +243,13 @@ export class AgUiAdapter extends AgentAdapter {
     this._emitRunFinished();
   }
 
-  #handleRunError({ event }: { event: { message?: string } }): void {
+  #handleRunError({ event }: { event: { rawEvent?: { name?: string }; message?: string } }): void {
+    if (event.rawEvent?.name === 'AbortError') {
+      this.#clearRunState();
+      this._emitRunAborted();
+      return;
+    }
+
     this._emitError(event.message || 'Unknown error');
     this._updateState({ isRunning: false });
   }
@@ -287,6 +290,21 @@ export class AgUiAdapter extends AgentAdapter {
     this.#toolCalls.clear();
     this.#textBuffers.clear();
     this._updateState({ isRunning: false });
+  }
+
+  #transformTools(tools: ToolDefinition[]): AgUiTool[] | undefined {
+    if (!tools || tools.length === 0) {
+      return undefined;
+    }
+
+    return tools.map(tool => {
+      const agUiTool: AgUiTool = {
+        name: tool.name,
+        description: tool.description ?? '',
+        parameters: tool.parameters
+      };
+      return agUiTool;
+    });
   }
 
   #transformContext(context: Record<string, unknown>): Context[] {

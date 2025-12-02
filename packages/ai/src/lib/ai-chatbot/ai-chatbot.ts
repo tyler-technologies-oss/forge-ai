@@ -1,4 +1,3 @@
-import { provide } from '@lit/context';
 import { LitElement, html, nothing, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
@@ -22,12 +21,12 @@ import {
   type ToolCallStartEvent,
   type ToolResultEvent
 } from './agent-adapter.js';
-import { chatbotContext, type ChatbotContext } from './context.js';
 import { FileUploadManager } from './file-upload-manager.js';
 import { MessageStateController } from './message-state-controller.js';
 import type {
   ChatMessage,
   FileAttachment,
+  MessageItem,
   ThreadState,
   ToolCall,
   ToolDefinition,
@@ -142,37 +141,39 @@ export class AiChatbotComponent extends LitElement {
   @property({ type: Boolean, attribute: 'enable-reactions' })
   public enableReactions = false;
 
-  @provide({ context: chatbotContext })
-  private _contextValue: ChatbotContext = {
-    messageItems: [],
-    tools: new Map(),
-    isConnected: false,
-    isStreaming: false,
-    isUploading: false
-  };
-
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #messageStateController!: MessageStateController;
   #fileUploadManager!: FileUploadManager;
+  #toolsMap?: Map<string, ToolDefinition>;
+
+  get #messageItems(): MessageItem[] {
+    return this.#messageStateController?.messageItems ?? [];
+  }
+
+  get #isStreaming(): boolean {
+    return this.adapter?.isRunning ?? false;
+  }
+
+  get #isUploading(): boolean {
+    return this.#fileUploadManager?.isUploading ?? false;
+  }
+
+  get #tools(): Map<string, ToolDefinition> {
+    if (!this.#toolsMap) {
+      this.#toolsMap = new Map(this.adapter?.getTools().map(t => [t.name, t]) ?? []);
+    }
+    return this.#toolsMap;
+  }
 
   public override connectedCallback(): void {
     super.connectedCallback();
 
     this.#messageStateController = new MessageStateController(this, {
-      tools: this._contextValue.tools,
-      onStateChange: messageItems => {
-        this.#updateContext({ messageItems });
-      }
+      tools: this.#tools
     });
 
     this.#fileUploadManager = new FileUploadManager({
       uploadCallback: this.adapter?.fileUploadCallback,
-      onUploadStart: () => {
-        this.#updateContext({ isUploading: true });
-      },
-      onUploadComplete: () => {
-        this.#updateContext({ isUploading: false });
-      },
       onError: error => {
         this.#dispatchEvent({
           type: 'forge-ai-chatbot-error',
@@ -187,24 +188,16 @@ export class AiChatbotComponent extends LitElement {
     if (this.adapter) {
       this.#setupAdapter();
     }
-
-    document.addEventListener('keydown', this.#handleKeyDown);
   }
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.adapter?.disconnect();
-    document.removeEventListener('keydown', this.#handleKeyDown);
   }
-
-  #handleKeyDown = (evt: KeyboardEvent): void => {
-    if (evt.key === 'Escape' && this.adapter?.getState().isRunning) {
-      this.abort();
-    }
-  };
 
   public override willUpdate(changedProperties: PropertyValues<this>): void {
     if (changedProperties.has('adapter') && this.adapter) {
+      this.#toolsMap = undefined;
       this.#setupAdapter();
     }
   }
@@ -224,6 +217,7 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.onToolCallEnd(this.#handleToolCallEnd.bind(this));
     this.adapter.onToolCall(this.#handleToolCall.bind(this));
     this.adapter.onToolResult(this.#handleToolResult.bind(this));
+    this.adapter.onRunAborted(this.#handleRunAborted.bind(this));
     this.adapter.onError(this.#handleError.bind(this));
     this.adapter.onStateChange(this.#handleStateChange.bind(this));
 
@@ -231,19 +225,10 @@ export class AiChatbotComponent extends LitElement {
       uploadCallback: this.adapter.fileUploadCallback
     });
 
-    this.#updateToolsMap();
+    this.#toolsMap = undefined;
+    this.#messageStateController?.updateConfig({ tools: this.#tools });
 
     this.#dispatchEvent({ type: 'forge-ai-chatbot-connected' });
-  }
-
-  #updateToolsMap(): void {
-    const toolsMap = new Map<string, ToolDefinition>();
-    const tools = this.adapter?.getTools() ?? [];
-    for (const tool of tools) {
-      toolsMap.set(tool.name, tool);
-    }
-    this.#updateContext({ tools: toolsMap });
-    this.#messageStateController?.updateConfig({ tools: toolsMap });
   }
 
   /**
@@ -390,8 +375,21 @@ export class AiChatbotComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: event.message } });
   }
 
-  #handleStateChange(state: AdapterState): void {
-    this.#updateContext({ isConnected: state.isConnected, isStreaming: state.isRunning });
+  #handleRunAborted(): void {
+    const abortMessage: ChatMessage = {
+      id: generateId('msg'),
+      role: 'system',
+      content: 'Run cancelled',
+      timestamp: Date.now(),
+      status: 'complete'
+    };
+
+    this.#messageStateController.addMessage(abortMessage);
+    this.#scrollAfterUpdate();
+  }
+
+  #handleStateChange(_state: AdapterState): void {
+    this.requestUpdate();
   }
 
   #handleToolResult(event: ToolResultEvent): void {
@@ -419,12 +417,7 @@ export class AiChatbotComponent extends LitElement {
     attachments?: FileAttachment[];
     files?: File[];
   }): Promise<void> {
-    if (
-      !config.content.trim() ||
-      !this.adapter ||
-      this._contextValue.isStreaming ||
-      this.#fileUploadManager.isUploading
-    ) {
+    if (!config.content.trim() || !this.adapter || this.#isStreaming || this.#isUploading) {
       return;
     }
 
@@ -479,12 +472,18 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleStop(): void {
-    this.adapter?.abort();
-    this.#updateContext({ isStreaming: false });
+    if (this.adapter?.isRunning) {
+      this.adapter.abort();
+    }
+    this.requestUpdate();
+  }
+
+  #handleCancel(): void {
+    this.#handleStop();
   }
 
   async #handleCopy(messageItemIndex: number): Promise<void> {
-    const item = this._contextValue.messageItems[messageItemIndex];
+    const item = this.#messageItems[messageItemIndex];
     if (!item || item.type !== 'message') {
       return;
     }
@@ -503,7 +502,7 @@ export class AiChatbotComponent extends LitElement {
 
     let userMessageIndex = -1;
     for (let i = messageItemIndex - 1; i >= 0; i--) {
-      const item = this._contextValue.messageItems[i];
+      const item = this.#messageItems[i];
       if (item.type === 'message' && item.data.role === 'user') {
         userMessageIndex = i;
         break;
@@ -703,15 +702,16 @@ export class AiChatbotComponent extends LitElement {
   }
 
   get #promptSlot(): TemplateResult {
-    const isUploading = this.#fileUploadManager.isUploading;
+    const isUploading = this.#isUploading;
     return html`
       <forge-ai-prompt
         slot="prompt"
         .placeholder=${this.placeholder}
-        .running=${this._contextValue.isStreaming || isUploading}
+        .running=${this.#isStreaming || isUploading}
         ?disabled=${isUploading}
         @forge-ai-prompt-send=${this.#handleSend}
-        @forge-ai-prompt-stop=${this.#handleStop}>
+        @forge-ai-prompt-stop=${this.#handleStop}
+        @forge-ai-prompt-cancel=${this.#handleCancel}>
         ${this.#pendingAttachmentsTemplate}
         ${when(
           this.enableFileUpload,
@@ -732,11 +732,11 @@ export class AiChatbotComponent extends LitElement {
   }
 
   get #thinkingIndicator(): TemplateResult | typeof nothing {
-    if (!this._contextValue.isStreaming) {
+    if (!this.#isStreaming) {
       return nothing;
     }
 
-    const lastItem = this._contextValue.messageItems[this._contextValue.messageItems.length - 1];
+    const lastItem = this.#messageItems[this.#messageItems.length - 1];
     const hasAssistantContent =
       lastItem?.type === 'message' && lastItem.data.role === 'assistant' && lastItem.data.content.trim().length > 0;
 
@@ -750,14 +750,14 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #renderToolCall(toolCall: ToolCall): TemplateResult {
-    const toolDefinition = this._contextValue.tools.get(toolCall.name);
+    const toolDefinition = this.#tools.get(toolCall.name);
     return html`<forge-ai-chatbot-tool-call
       .toolCall=${toolCall}
       .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
   }
 
   get #emptyState(): TemplateResult | typeof nothing {
-    if (this._contextValue.messageItems.length > 0) {
+    if (this.#messageItems.length) {
       return nothing;
     }
 
@@ -776,7 +776,7 @@ export class AiChatbotComponent extends LitElement {
   }
 
   get #messages(): TemplateResult[] {
-    return this._contextValue.messageItems
+    return this.#messageItems
       .filter(item => (item.type === 'message' ? item.data.role !== 'tool' : true))
       .map((item, index) => {
         if (item.type === 'toolCall') {
@@ -785,7 +785,9 @@ export class AiChatbotComponent extends LitElement {
 
         const msg = item.data;
         if (msg.role === 'user') {
-          return html` <forge-ai-user-message> ${unsafeHTML(renderMarkdown(msg.content))} </forge-ai-user-message> `;
+          return html`<forge-ai-user-message>${unsafeHTML(renderMarkdown(msg.content))}</forge-ai-user-message>`;
+        } else if (msg.role === 'system') {
+          return html`<div class="system-message">${msg.content}</div>`;
         } else if (msg.status === 'error') {
           return html`
             <forge-ai-error-message>
@@ -819,7 +821,7 @@ export class AiChatbotComponent extends LitElement {
         role="region"
         aria-label="AI chatbot"
         aria-live="polite"
-        aria-busy=${this._contextValue.isStreaming}>
+        aria-busy=${this.#isStreaming}>
         <forge-ai-chat-header
           slot="header"
           ?show-expand-button=${this.showExpandButton}
@@ -835,11 +837,6 @@ export class AiChatbotComponent extends LitElement {
         ${this.#emptyState} ${this.#messages} ${this.#thinkingIndicator} ${this.#promptSlot}
       </forge-ai-chat-interface>
     `;
-  }
-
-  #updateContext(updates: Partial<ChatbotContext>): void {
-    this._contextValue = { ...this._contextValue, ...updates };
-    this.requestUpdate();
   }
 
   #dispatchEvent(config: { type: keyof HTMLElementEventMap; detail?: unknown; cancelable?: boolean }): CustomEvent {
