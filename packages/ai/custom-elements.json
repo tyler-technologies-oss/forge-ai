@@ -209,6 +209,81 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChainOfThoughtComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chain-of-thought'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChainOfThoughtComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chain-of-thought",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponentTagName",
+          "declaration": {
+            "name": "AiChainOfThoughtComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponent",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-button/ai-button.ts",
       "declarations": [
         {
@@ -290,21 +365,134 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "AiChainOfThoughtComponentTagName",
+          "name": "AiChatInterfaceComponentTagName",
           "type": {
             "text": "keyof HTMLElementTagNameMap"
           },
-          "default": "'forge-ai-chain-of-thought'"
+          "default": "'forge-ai-chat-interface'"
         },
         {
           "kind": "class",
           "description": "",
-          "name": "AiChainOfThoughtComponent",
+          "name": "AiChatInterfaceComponent",
+          "slots": [
+            {
+              "description": "Default slot for messages",
+              "name": ""
+            },
+            {
+              "description": "Slot for AI chat header component",
+              "name": "header"
+            },
+            {
+              "description": "Slot for AI suggestions component",
+              "name": "suggestions"
+            },
+            {
+              "description": "Slot for AI prompt component",
+              "name": "prompt"
+            }
+          ],
           "members": [
+            {
+              "kind": "method",
+              "name": "scrollToBottom",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Scrolls the messages container to the bottom with smooth animation"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chat-interface",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChatInterfaceComponentTagName",
+          "declaration": {
+            "name": "AiChatInterfaceComponentTagName",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChatInterfaceComponent",
+          "declaration": {
+            "name": "AiChatInterfaceComponent",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChatInterfaceComponent",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chat-header/ai-chat-header.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChatHeaderComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chat-header'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChatHeaderComponent",
+          "slots": [
+            {
+              "description": "Slot for custom icon (default: forge-ai-icon)",
+              "name": "icon"
+            },
+            {
+              "description": "Slot for custom title text (default: \"AI Assistant\")",
+              "name": "title"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "showExpandButton",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Controls whether the expand button is visible",
+              "attribute": "show-expand-button"
+            },
+            {
+              "kind": "field",
+              "name": "showMinimizeButton",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Controls whether the minimize button is visible",
+              "attribute": "show-minimize-button"
+            },
             {
               "kind": "field",
               "name": "expanded",
@@ -313,52 +501,174 @@
               },
               "privacy": "public",
               "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "attribute": "expanded",
-              "reflects": true
+              "description": "Indicates the current expanded state for displaying the appropriate expand/collapse icon",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "minimizeIcon",
+              "type": {
+                "text": "MinimizeIconType"
+              },
+              "privacy": "public",
+              "default": "'default'",
+              "description": "Controls which minimize icon to display ('default' | 'panel')",
+              "attribute": "minimize-icon"
+            },
+            {
+              "kind": "field",
+              "name": "showDropdownMenu",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "true",
+              "description": "Controls whether the dropdown menu is visible (default: true)",
+              "attribute": "show-dropdown-menu"
+            },
+            {
+              "kind": "field",
+              "name": "showClearChat",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "true",
+              "description": "Controls whether the clear chat menu item is visible (default: true)",
+              "attribute": "show-clear-chat"
+            },
+            {
+              "kind": "field",
+              "name": "showInfo",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "true",
+              "description": "Controls whether the info menu item is visible (default: true)",
+              "attribute": "show-info"
+            }
+          ],
+          "events": [
+            {
+              "name": "forge-ai-chat-header-clear",
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "Fired when the clear chat option is selected"
+            },
+            {
+              "name": "forge-ai-chat-header-info",
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "Fired when the info option is selected"
+            },
+            {
+              "description": "Fired when the expand button is clicked",
+              "name": "forge-ai-chat-header-expand"
+            },
+            {
+              "description": "Fired when the minimize button is clicked",
+              "name": "forge-ai-chat-header-minimize"
             }
           ],
           "attributes": [
+            {
+              "name": "show-expand-button",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Controls whether the expand button is visible",
+              "fieldName": "showExpandButton"
+            },
+            {
+              "name": "show-minimize-button",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Controls whether the minimize button is visible",
+              "fieldName": "showMinimizeButton"
+            },
             {
               "name": "expanded",
               "type": {
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the chain of thought is expanded",
+              "description": "Indicates the current expanded state for displaying the appropriate expand/collapse icon",
               "fieldName": "expanded"
+            },
+            {
+              "name": "minimize-icon",
+              "type": {
+                "text": "MinimizeIconType"
+              },
+              "default": "'default'",
+              "description": "Controls which minimize icon to display ('default' | 'panel')",
+              "fieldName": "minimizeIcon"
+            },
+            {
+              "name": "show-dropdown-menu",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Controls whether the dropdown menu is visible (default: true)",
+              "fieldName": "showDropdownMenu"
+            },
+            {
+              "name": "show-clear-chat",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Controls whether the clear chat menu item is visible (default: true)",
+              "fieldName": "showClearChat"
+            },
+            {
+              "name": "show-info",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Controls whether the info menu item is visible (default: true)",
+              "fieldName": "showInfo"
             }
           ],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "forge-ai-chain-of-thought",
-          "customElement": true
+          "tagName": "forge-ai-chat-header",
+          "customElement": true,
+          "summary": "AI chat header component with accessible tooltips"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "AiChainOfThoughtComponentTagName",
+          "name": "AiChatHeaderComponentTagName",
           "declaration": {
-            "name": "AiChainOfThoughtComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+            "name": "AiChatHeaderComponentTagName",
+            "module": "src/lib/ai-chat-header/ai-chat-header.ts"
           }
         },
         {
           "kind": "js",
-          "name": "AiChainOfThoughtComponent",
+          "name": "AiChatHeaderComponent",
           "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+            "name": "AiChatHeaderComponent",
+            "module": "src/lib/ai-chat-header/ai-chat-header.ts"
           }
         },
         {
           "kind": "custom-element-definition",
           "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+            "name": "AiChatHeaderComponent",
+            "module": "src/lib/ai-chat-header/ai-chat-header.ts"
           }
         }
       ]
@@ -518,252 +828,6 @@
           "declaration": {
             "name": "AiDialogComponent",
             "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChatInterfaceComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chat-interface'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChatInterfaceComponent",
-          "slots": [
-            {
-              "description": "Default slot for messages",
-              "name": ""
-            },
-            {
-              "description": "Slot for AI chat header component",
-              "name": "header"
-            },
-            {
-              "description": "Slot for AI suggestions component",
-              "name": "suggestions"
-            },
-            {
-              "description": "Slot for AI prompt component",
-              "name": "prompt"
-            }
-          ],
-          "members": [
-            {
-              "kind": "method",
-              "name": "scrollToBottom",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Scrolls the messages container to the bottom with smooth animation"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chat-interface",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChatInterfaceComponentTagName",
-          "declaration": {
-            "name": "AiChatInterfaceComponentTagName",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChatInterfaceComponent",
-          "declaration": {
-            "name": "AiChatInterfaceComponent",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChatInterfaceComponent",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chat-header/ai-chat-header.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChatHeaderComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chat-header'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChatHeaderComponent",
-          "slots": [
-            {
-              "description": "Slot for custom title text (default: \"AI Assistant\")",
-              "name": "title"
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "showExpandButton",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Controls whether the expand button is visible",
-              "attribute": "show-expand-button"
-            },
-            {
-              "kind": "field",
-              "name": "showMinimizeButton",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Controls whether the minimize button is visible",
-              "attribute": "show-minimize-button"
-            },
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Indicates the current expanded state for displaying the appropriate expand/collapse icon",
-              "attribute": "expanded"
-            },
-            {
-              "kind": "field",
-              "name": "minimizeIcon",
-              "type": {
-                "text": "MinimizeIconType"
-              },
-              "privacy": "public",
-              "default": "'default'",
-              "description": "Controls which minimize icon to display",
-              "attribute": "minimize-icon"
-            }
-          ],
-          "events": [
-            {
-              "name": "forge-ai-chat-header-clear",
-              "type": {
-                "text": "CustomEvent"
-              },
-              "description": "Fired when the clear chat option is selected"
-            },
-            {
-              "name": "forge-ai-chat-header-info",
-              "type": {
-                "text": "CustomEvent"
-              },
-              "description": "Fired when the info option is selected"
-            },
-            {
-              "description": "Fired when the expand button is clicked",
-              "name": "forge-ai-chat-header-expand"
-            },
-            {
-              "description": "Fired when the minimize button is clicked",
-              "name": "forge-ai-chat-header-minimize"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "show-expand-button",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Controls whether the expand button is visible",
-              "fieldName": "showExpandButton"
-            },
-            {
-              "name": "show-minimize-button",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Controls whether the minimize button is visible",
-              "fieldName": "showMinimizeButton"
-            },
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Indicates the current expanded state for displaying the appropriate expand/collapse icon",
-              "fieldName": "expanded"
-            },
-            {
-              "name": "minimize-icon",
-              "type": {
-                "text": "MinimizeIconType"
-              },
-              "default": "'default'",
-              "description": "Controls which minimize icon to display",
-              "fieldName": "minimizeIcon"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chat-header",
-          "customElement": true,
-          "summary": "AI chat header component with accessible tooltips"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChatHeaderComponentTagName",
-          "declaration": {
-            "name": "AiChatHeaderComponentTagName",
-            "module": "src/lib/ai-chat-header/ai-chat-header.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChatHeaderComponent",
-          "declaration": {
-            "name": "AiChatHeaderComponent",
-            "module": "src/lib/ai-chat-header/ai-chat-header.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChatHeaderComponent",
-            "module": "src/lib/ai-chat-header/ai-chat-header.ts"
           }
         }
       ]
@@ -1705,11 +1769,38 @@
               "name": ""
             },
             {
+              "description": "The custom icon to display instead of the default books graphic.",
+              "name": "icon"
+            },
+            {
               "description": "The actions or suggestions to display below the message.",
               "name": "actions"
             }
           ],
-          "members": [],
+          "members": [
+            {
+              "kind": "field",
+              "name": "useCustomMessage",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to show custom slotted content instead of the default message.",
+              "attribute": "use-custom-message"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "use-custom-message",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to show custom slotted content instead of the default message.",
+              "fieldName": "useCustomMessage"
+            }
+          ],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
@@ -4756,7 +4847,7 @@
       ]
     }
   ],
-  "branchName": "main",
+  "branchName": "ai-foundry-issues",
   "forgeTypes": {
     "ForgeAiActionsToolbarActionEventData": {
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
@@ -4774,17 +4865,13 @@
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "lineNumber": 23
     },
-    "AiButtonComponent": {
-      "path": "src/lib/ai-button/ai-button.ts",
-      "lineNumber": 22
-    },
     "AiChainOfThoughtComponent": {
       "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
       "lineNumber": 17
     },
-    "AiDialogComponent": {
-      "path": "src/lib/ai-dialog/ai-dialog.ts",
-      "lineNumber": 35
+    "AiButtonComponent": {
+      "path": "src/lib/ai-button/ai-button.ts",
+      "lineNumber": 22
     },
     "AiChatInterfaceComponent": {
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
@@ -4796,7 +4883,11 @@
     },
     "AiChatHeaderComponent": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
-      "lineNumber": 47
+      "lineNumber": 56
+    },
+    "AiDialogComponent": {
+      "path": "src/lib/ai-dialog/ai-dialog.ts",
+      "lineNumber": 35
     },
     "ForgeAiDropdownMenuItemGroupComponent": {
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu-item-group.ts",
@@ -4864,7 +4955,7 @@
     },
     "AiEmptyStateComponent": {
       "path": "src/lib/ai-empty-state/ai-empty-state.ts",
-      "lineNumber": 21
+      "lineNumber": 22
     },
     "AiFabComponent": {
       "path": "src/lib/ai-fab/ai-fab.ts",
