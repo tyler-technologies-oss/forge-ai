@@ -23,10 +23,10 @@
 
 .suggestions-inline {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   flex-direction: row;
-  flex-wrap: nowrap;
-  width: max-content;
+  flex-wrap: wrap;
+  width: 100%;
   gap: #{forge-spacing.variable(small)};
 }
 
@@ -45,5 +45,13 @@
   --forge-button-shape: #{forge-shape.variable(medium)};
   --forge-button-tonal-background: #{forge-theme.variable(tertiary-container)};
   --forge-button-tonal-color: #{forge-theme.variable(on-tertiary-container)};
-  --forge-button-height: 32px;
+
+  white-space: normal !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: start;
+  height: auto;
+  min-height: 32px;
+  padding-block: 6px;
+  max-width: 300px;
 }
