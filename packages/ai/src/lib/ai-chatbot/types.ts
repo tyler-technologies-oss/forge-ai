@@ -19,6 +19,7 @@ export interface HandlerContext {
 
 export interface ToolDefinition {
   name: string;
+  displayName?: string;
   description?: string;
   parameters?: {
     type: 'object';

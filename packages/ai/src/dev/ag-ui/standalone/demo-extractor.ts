@@ -26,6 +26,7 @@ export function createExtractorTools(showToast: ShowToastFn): ToolDefinition[] {
   return [
     {
       name: 'fillContactForm',
+      displayName: 'Fill Contact Form',
       description: 'Fill contact form with extracted data',
       parameters: {
         type: 'object' as const,

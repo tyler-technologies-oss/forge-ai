@@ -144,6 +144,7 @@ export const WithTools: Story = {
     const tools: ToolDefinition[] = [
       {
         name: 'getCurrentWeather',
+        displayName: 'Get Current Weather',
         description: 'Get the current weather for a location',
         parameters: {
           type: 'object',
@@ -158,6 +159,7 @@ export const WithTools: Story = {
       },
       {
         name: 'getUserInput',
+        displayName: 'Get User Input',
         description: 'Prompts the user for input using a native dialog',
         parameters: {
           type: 'object',

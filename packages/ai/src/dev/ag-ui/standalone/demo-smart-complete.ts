@@ -20,6 +20,7 @@ export function createSmartCompleteTools(showToast: ShowToastFn): ToolDefinition
   return [
     {
       name: 'fillCompanyForm',
+      displayName: 'Fill Company Form',
       description: 'Fill company form with completion data',
       parameters: {
         type: 'object' as const,

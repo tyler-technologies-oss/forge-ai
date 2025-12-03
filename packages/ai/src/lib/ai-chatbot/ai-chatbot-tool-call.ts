@@ -154,7 +154,7 @@ export class AiChatbotToolCallComponent extends LitElement {
     return html`
       <div class="tool-call">
         <span class="status-icon">${this.#statusIcon}</span>
-        <span class="tool-name">${this.toolCall.name}</span>
+        <span class="tool-name">${this.toolDefinition?.displayName ?? this.toolCall.name}</span>
         ${isComplete
           ? html`
               <button

@@ -85,6 +85,7 @@ interface ConfettiArgs {
 const tools: ToolDefinition[] = [
   {
     name: 'showConfetti',
+    displayName: 'Show Confetti',
     description: 'Show a confetti animation to celebrate',
     parameters: {
       type: 'object' as const,
@@ -135,6 +136,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: 'displayRecipe',
+    displayName: 'Display Recipe',
     description:
       'Display a recipe in a formatted card with ingredients and instructions. Use this tool when you want to present recipe information in a visually structured way.',
     parameters: {
