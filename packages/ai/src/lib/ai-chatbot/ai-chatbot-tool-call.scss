@@ -3,66 +3,54 @@
 @use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
-@use '@tylertech/forge/dist/expansion-panel/forge-expansion-panel';
 
 :host {
   display: block;
-
-  forge-ai-artifact {
-    &[data-status='executing'] {
-      border-color: #{forge-theme.variable(primary)};
-      animation: pulse-border 1.5s ease-in-out infinite;
-    }
-
-    &[data-status='complete'] {
-      border-color: #{forge-theme.variable(success)};
-    }
-
-    &[data-status='error'] {
-      border-color: #{forge-theme.variable(error)};
-    }
-
-    &[data-expanded='false'] {
-      --forge-toolbar-divider-style: none;
-    }
-  }
 }
 
-.tool-start,
-.tool-actions {
+.tool-call {
   display: flex;
   align-items: center;
   gap: #{forge-spacing.variable(small)};
+  padding-block: #{forge-spacing.variable(small)};
 }
 
-.tool-start {
-  flex: 1;
+.tool-name {
+  @include forge-typography.style(body2);
+
+  color: #{forge-theme.variable(text-medium)};
 }
 
 .status-icon {
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  color: #{forge-theme.variable(text-medium)};
 }
 
-.tool-name {
-  font-weight: 500;
+.info-button {
+  color: #{forge-theme.variable(text-medium)};
+
+  &:hover {
+    color: #{forge-theme.variable(text-high)};
+  }
 }
 
 .tool-details {
   display: grid;
   gap: #{forge-spacing.variable(medium)};
   padding: #{forge-spacing.variable(medium)};
+  min-width: 300px;
+  max-width: 500px;
 }
 
-.status-text {
-  font-size: 0.9em;
+.tool-section {
+  display: grid;
+  gap: #{forge-spacing.variable(xsmall)};
 }
 
 .section-label {
   @include forge-typography.style(heading1);
-
-  margin-block-end: #{forge-spacing.variable(xsmall)};
 }
 
 .code-block {
@@ -76,14 +64,4 @@
   font-size: 0.85em;
   white-space: pre-wrap;
   word-wrap: break-word;
-}
-
-@keyframes pulse-border {
-  0%,
-  100% {
-    border-color: #{forge-theme.variable(primary)};
-  }
-  50% {
-    border-color: #{forge-theme.variable(primary-container)};
-  }
 }

@@ -1,4 +1,5 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/button/forge-button';
@@ -15,16 +16,20 @@
 }
 
 .forge-icon-button {
-  --forge-icon-button-color: var(--forge-theme-text-medium);
+  color: #{forge-theme.variable(text-medium)};
+
+  &:hover {
+    color: #{forge-theme.variable(text-high)};
+  }
 
   &.is-active-positive {
-    color: var(--forge-theme-success);
-    background-color: var(--forge-theme-success-container);
+    color: #{forge-theme.variable(success)};
+    background-color: #{forge-theme.variable(success-container)};
   }
 
   &.is-active-negative {
-    --forge-icon-button-color: var(--forge-theme-error);
-    background-color: var(--forge-theme-error-container);
+    color: #{forge-theme.variable(error)};
+    background-color: #{forge-theme.variable(error-container)};
   }
 }
 

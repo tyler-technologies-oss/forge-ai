@@ -1,9 +1,10 @@
 import { LitElement, html, unsafeCSS, type TemplateResult, nothing, type PropertyValues } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property, state, query } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import type { ToolCall, ToolDefinition } from './types.js';
 
-import '../ai-artifact';
+import '../core/popover/popover.js';
+import '../ai-thinking-indicator/ai-thinking-indicator.js';
 
 import styles from './ai-chatbot-tool-call.scss?inline';
 
@@ -29,24 +30,23 @@ export class AiChatbotToolCallComponent extends LitElement {
   public toolDefinition?: ToolDefinition;
 
   @state()
-  private _expanded = false;
+  private _popoverOpen = false;
+
+  @query('.info-button')
+  private _infoButton?: HTMLButtonElement;
 
   #customRendererRef = createRef<HTMLDivElement>();
   #renderedElement?: HTMLElement | DocumentFragment;
 
-  #toggleExpanded(): void {
-    this._expanded = !this._expanded;
+  #togglePopover(): void {
+    this._popoverOpen = !this._popoverOpen;
   }
 
   get #statusIcon(): TemplateResult | typeof nothing {
     switch (this.toolCall.status) {
       case 'pending':
       case 'executing':
-        return html`
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="24" width="24" fill="currentColor">
-            <path d="M8 5.14v14l11-7z" />
-          </svg>
-        `;
+        return html`<forge-ai-thinking-indicator></forge-ai-thinking-indicator>`;
       case 'complete':
         return html`
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="24" width="24" fill="currentColor">
@@ -65,36 +65,11 @@ export class AiChatbotToolCallComponent extends LitElement {
     }
   }
 
-  get #statusText(): string {
-    switch (this.toolCall.status) {
-      case 'pending':
-        return 'Pending';
-      case 'parsing':
-        return 'Parsing arguments';
-      case 'executing':
-        return 'Executing';
-      case 'complete':
-        return 'Complete';
-      case 'error':
-        return 'Error';
-      default:
-        return '';
-    }
-  }
-
-  get #expandIcon(): TemplateResult {
-    return this._expanded
-      ? html`
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="24" width="24" fill="currentColor">
-            <path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
-          </svg>
-        `
-      : html`
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="24" width="24" fill="currentColor">
-            <path d="M7.41 8.58 12 13.17l4.59-4.59L18 10l-6 6-6-6z" />
-          </svg>
-        `;
-  }
+  readonly #infoIcon = html`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="24" width="24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 15h-2v-6h2zm0-8h-2V7h2z" />
+    </svg>
+  `;
 
   get #customRenderer(): TemplateResult | typeof nothing {
     const renderer = this.toolDefinition?.renderer;
@@ -134,68 +109,71 @@ export class AiChatbotToolCallComponent extends LitElement {
     }
   }
 
-  get #details(): TemplateResult | typeof nothing {
-    if (!this._expanded) {
-      return nothing;
-    }
-
+  get #popoverContent(): TemplateResult | typeof nothing {
     const hasArgs = Object.keys(this.toolCall.args).length > 0;
     const hasArgsBuffer = this.toolCall.argsBuffer && this.toolCall.argsBuffer.length > 0;
     const hasResult = this.toolCall.result !== undefined;
 
     return html`
-      <div class="forge-expansion-panel ${this._expanded ? 'forge-expansion-panel--open' : ''}">
-        <div class="forge-expansion-panel__content" id="tool-details">
-          <div class="tool-details">
-            ${hasArgsBuffer
-              ? html`
-                  <div class="tool-section">
-                    <div class="section-label">Arguments (streaming):</div>
-                    <pre class="code-block">${this.toolCall.argsBuffer}</pre>
-                  </div>
-                `
-              : hasArgs
-                ? html`
-                    <div class="tool-section">
-                      <div class="section-label">Arguments:</div>
-                      <pre class="code-block">${JSON.stringify(this.toolCall.args, null, 2)}</pre>
-                    </div>
-                  `
-                : nothing}
-            ${hasResult
-              ? html`
-                  <div class="tool-section">
-                    <div class="section-label">Result:</div>
-                    <pre class="code-block">${JSON.stringify(this.toolCall.result, null, 2)}</pre>
-                  </div>
-                `
-              : nothing}
-          </div>
-        </div>
+      <div class="tool-details">
+        ${hasArgsBuffer
+          ? html`
+              <div class="tool-section">
+                <div class="section-label">Arguments (streaming):</div>
+                <pre class="code-block">${this.toolCall.argsBuffer}</pre>
+              </div>
+            `
+          : hasArgs
+            ? html`
+                <div class="tool-section">
+                  <div class="section-label">Arguments:</div>
+                  <pre class="code-block">${JSON.stringify(this.toolCall.args, null, 2)}</pre>
+                </div>
+              `
+            : nothing}
+        ${hasResult
+          ? html`
+              <div class="tool-section">
+                <div class="section-label">Result:</div>
+                <pre class="code-block">${JSON.stringify(this.toolCall.result, null, 2)}</pre>
+              </div>
+            `
+          : nothing}
       </div>
     `;
   }
 
   public override render(): TemplateResult {
+    const isComplete = this.toolCall.status === 'complete';
+
     return html`
-      <forge-ai-artifact data-status="${this.toolCall.status}" data-expanded="${this._expanded}">
-        <div slot="start" class="tool-start">
-          <span class="status-icon">${this.#statusIcon}</span>
-          <span class="tool-name">${this.toolCall.name}</span>
-        </div>
-        <div slot="actions" class="tool-actions">
-          <span class="status-text">${this.#statusText}</span>
-          <button
-            class="forge-icon-button forge-icon-button--small"
-            aria-label="${this._expanded ? 'Collapse' : 'Expand'} tool details"
-            aria-expanded="${this._expanded}"
-            aria-controls="tool-details"
-            @click=${this.#toggleExpanded}>
-            ${this.#expandIcon}
-          </button>
-        </div>
-        ${this.#details}
-      </forge-ai-artifact>
+      <div class="tool-call">
+        <span class="status-icon">${this.#statusIcon}</span>
+        <span class="tool-name">${this.toolCall.name}</span>
+        ${isComplete
+          ? html`
+              <button
+                class="forge-icon-button forge-icon-button--small info-button"
+                type="button"
+                aria-label="${this._popoverOpen ? 'Hide' : 'Show'} tool details"
+                aria-expanded="${this._popoverOpen}"
+                @click=${this.#togglePopover}>
+                ${this.#infoIcon}
+              </button>
+            `
+          : nothing}
+      </div>
+      ${isComplete
+        ? html`
+            <forge-ai-popover
+              .anchor=${this._infoButton}
+              .open=${this._popoverOpen}
+              placement="bottom-start"
+              .flip=${true}>
+              ${this.#popoverContent}
+            </forge-ai-popover>
+          `
+        : nothing}
       ${this.#customRenderer}
     `;
   }

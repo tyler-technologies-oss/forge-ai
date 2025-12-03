@@ -84,7 +84,7 @@ interface ConfettiArgs {
 
 const tools: ToolDefinition[] = [
   {
-    name: 'showConfetti',
+    name: 'Show Confetti',
     description: 'Show a confetti animation to celebrate',
     parameters: {
       type: 'object' as const,
@@ -121,7 +121,7 @@ const tools: ToolDefinition[] = [
     // })
   },
   {
-    name: 'displayRecipe',
+    name: 'Display Recipe',
     description:
       'Display a recipe in a formatted card with ingredients and instructions. Use this tool when you want to present recipe information in a visually structured way.',
     parameters: {
@@ -265,12 +265,17 @@ chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<For
   console.log('🔧 Tool call:', { toolName, args });
 
   if (toolName === 'showConfetti') {
+    // Artificial delay to showcase streaming status
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Execute the tool action
     const confettiArgs = args as ConfettiArgs;
     (window as any).confetti({
       particleCount: confettiArgs?.particleCount || 100,
       spread: confettiArgs?.spread || 100
     });
 
+    // Respond with the result
     await respond({
       success: true,
       args
@@ -278,6 +283,8 @@ chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<For
   }
 
   if (toolName === 'displayRecipe') {
+    // This is a render-only tool, so no action is needed here, just respond success
+    // TODO: Could we have the component handle this automatically instead if configured with renderOnly: true flag?
     await respond({ success: true, args });
   }
 });
