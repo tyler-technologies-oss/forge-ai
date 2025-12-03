@@ -453,7 +453,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
         .anchor=${this._popoverAnchor}
         placement=${this._popoverPlacement}
         .flip=${true}
-        @ai-popover-toggle=${this._onPopoverToggle}>
+        @forge-ai-popover-toggle=${this._onPopoverToggle}>
         <div
           id="dropdown-content"
           role=${this._dropdownRole}

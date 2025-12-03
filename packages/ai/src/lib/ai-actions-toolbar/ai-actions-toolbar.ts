@@ -96,42 +96,14 @@ export class AiActionsToolbarComponent extends LitElement {
         this._thumbsDownPopover.anchor = this._thumbsDownButton;
       }
       this._thumbsDownPopover.open = willOpen;
-      if (this._thumbsDownFeedbackTextarea && !this._popoverOpen) {
+
+      if (this._thumbsDownFeedbackTextarea && !willOpen) {
         this._thumbsDownFeedbackTextarea.value = '';
       }
     }
     this._thumbsUpActive = false;
   }
 
-  private _handleThumbsDownBlur(evt: FocusEvent): void {
-    setTimeout(() => {
-      const popoverElement = this._thumbsDownPopover;
-      const relatedTarget = evt.relatedTarget as Node | null;
-
-      if (popoverElement && this._popoverOpen) {
-        const popoverContainsFocus = relatedTarget && popoverElement.shadowRoot?.contains(relatedTarget);
-        if (!popoverContainsFocus && relatedTarget !== this._thumbsDownButton) {
-          popoverElement.open = false;
-        }
-      }
-    }, 0);
-  }
-
-  private _handlePopoverFocusOut(evt: FocusEvent): void {
-    setTimeout(() => {
-      const relatedTarget = evt.relatedTarget as Node | null;
-      const popoverElement = this._thumbsDownPopover;
-
-      if (popoverElement && this._popoverOpen) {
-        const focusedButton = relatedTarget === this._thumbsDownButton;
-        const focusInPopover = relatedTarget && popoverElement.shadowRoot?.contains(relatedTarget);
-
-        if (!focusedButton && !focusInPopover) {
-          popoverElement.open = false;
-        }
-      }
-    }, 0);
-  }
 
   private _handleFeedbackSubmit(): void {
     const feedbackText = this._thumbsDownFeedbackTextarea?.value || '';
@@ -213,8 +185,7 @@ export class AiActionsToolbarComponent extends LitElement {
         class="forge-icon-button forge-icon-button--small ${this._thumbsDownActive || this._popoverOpen
           ? 'is-active-negative'
           : ''}"
-        @click=${this._handleThumbsDown}
-        @blur=${this._handleThumbsDownBlur}>
+        @click=${this._handleThumbsDown}>
         ${this._thumbsDownActive || this._popoverOpen
           ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path
@@ -231,8 +202,7 @@ export class AiActionsToolbarComponent extends LitElement {
         placement="bottom"
         .shift=${true}
         arrow
-        @ai-popover-toggle=${this._handlePopoverToggle}
-        @focusout=${this._handlePopoverFocusOut}>
+        @forge-ai-popover-toggle=${this._handlePopoverToggle}>
         ${this._feedbackFormTemplate}
       </forge-ai-popover>
     `;

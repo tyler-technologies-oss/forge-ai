@@ -79,6 +79,14 @@ export class ForgeAiOverlayComponent extends LitElement {
   @property({ type: Object })
   public arrowElement: HTMLElement | null = null;
 
+  /**
+   * The dismiss mode for the overlay.
+   * - 'auto': Automatically closes on outside clicks and Escape key
+   * - 'manual': Requires manual control to close
+   */
+  @property({ attribute: 'dismiss-mode' })
+  public dismissMode: 'auto' | 'manual' = 'auto';
+
   private _overlayElement: HTMLElement | null = null;
   private _cleanupAutoUpdate: (() => void) | null = null;
 
@@ -213,7 +221,7 @@ export class ForgeAiOverlayComponent extends LitElement {
 
   public override render(): TemplateResult {
     return html`
-      <div class="ai-overlay" popover="manual" @toggle=${this._onToggle}>
+      <div class="ai-overlay" popover=${this.dismissMode} @toggle=${this._onToggle}>
         <slot></slot>
       </div>
     `;

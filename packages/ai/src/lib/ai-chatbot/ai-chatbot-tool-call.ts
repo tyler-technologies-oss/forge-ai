@@ -2,6 +2,7 @@ import { LitElement, html, unsafeCSS, type TemplateResult, nothing, type Propert
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import type { ToolCall, ToolDefinition } from './types.js';
+import { PopoverToggleEventData } from '../core/popover/popover.js';
 
 import '../core/popover/popover.js';
 import '../ai-thinking-indicator/ai-thinking-indicator.js';
@@ -38,8 +39,12 @@ export class AiChatbotToolCallComponent extends LitElement {
   #customRendererRef = createRef<HTMLDivElement>();
   #renderedElement?: HTMLElement | DocumentFragment;
 
-  #togglePopover(): void {
+  #handleButtonClick(_evt: Event): void {
     this._popoverOpen = !this._popoverOpen;
+  }
+
+  #handlePopoverToggle(evt: CustomEvent<PopoverToggleEventData>): void {
+    this._popoverOpen = evt.detail.newState === 'open';
   }
 
   get #statusIcon(): TemplateResult | typeof nothing {
@@ -157,7 +162,7 @@ export class AiChatbotToolCallComponent extends LitElement {
                 type="button"
                 aria-label="${this._popoverOpen ? 'Hide' : 'Show'} tool details"
                 aria-expanded="${this._popoverOpen}"
-                @click=${this.#togglePopover}>
+                @click=${this.#handleButtonClick}>
                 ${this.#infoIcon}
               </button>
             `
@@ -166,10 +171,11 @@ export class AiChatbotToolCallComponent extends LitElement {
       ${isComplete
         ? html`
             <forge-ai-popover
-              .anchor=${this._infoButton}
+              .anchor=${this._infoButton as Element | null}
               .open=${this._popoverOpen}
               placement="bottom-start"
-              .flip=${true}>
+              .flip=${true}
+              @forge-ai-popover-toggle=${this.#handlePopoverToggle}>
               ${this.#popoverContent}
             </forge-ai-popover>
           `

@@ -11,12 +11,14 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'ai-popover-toggle': CustomEvent<{
-      open: boolean;
-      newState: string;
-      oldState: string;
-    }>;
+    'forge-ai-popover-toggle': CustomEvent<PopoverToggleEventData>;
   }
+}
+
+export interface PopoverToggleEventData {
+  open: boolean;
+  newState: string;
+  oldState: string;
 }
 
 export type PopoverPlacement = OverlayPlacement;
@@ -75,6 +77,14 @@ export class ForgeAiPopoverComponent extends LitElement {
   @property({ type: Boolean })
   public arrow = false;
 
+  /**
+   * The dismiss mode for the popover.
+   * - 'auto': Automatically closes on outside clicks and Escape key
+   * - 'manual': Requires manual control to close
+   */
+  @property({ attribute: 'dismiss-mode' })
+  public dismissMode: 'auto' | 'manual' = 'auto';
+
   @query('.ai-popover__arrow')
   private _arrowElement?: HTMLElement;
 
@@ -83,7 +93,7 @@ export class ForgeAiPopoverComponent extends LitElement {
 
     // Re-emit as popover-specific event
     this.dispatchEvent(
-      new CustomEvent('ai-popover-toggle', {
+      new CustomEvent('forge-ai-popover-toggle', {
         detail: event.detail,
         bubbles: true,
         composed: true
@@ -100,7 +110,8 @@ export class ForgeAiPopoverComponent extends LitElement {
         .shift=${this.shift}
         .open=${this.open}
         .arrowElement=${this.arrow ? this._arrowElement : null}
-        @ai-overlay-toggle=${this._onOverlayToggle}>
+        .dismissMode=${this.dismissMode}
+        @forge-ai-overlay-toggle=${this._onOverlayToggle}>
         <div class="ai-popover">
           ${this.arrow ? html`<div class="ai-popover__arrow"></div>` : null}
           <slot></slot>

@@ -49,7 +49,11 @@ export class AiPromptRunner {
     adapter: AgentAdapter,
     userMessage: ChatMessage,
     toolRegistry: ToolRegistry | undefined,
-    callbacks: { onStart?: (messageId: string) => void; onDelta?: (delta: string) => void; onComplete?: (message: ChatMessage) => void }
+    callbacks: {
+      onStart?: (messageId: string) => void;
+      onDelta?: (delta: string) => void;
+      onComplete?: (message: ChatMessage) => void;
+    }
   ): Promise<AiPromptRunnerResult> {
     return new Promise<AiPromptRunnerResult>((resolve, reject) => {
       const state: RunState = {
@@ -88,7 +92,10 @@ export class AiPromptRunner {
     };
   }
 
-  static #createMessageStartHandler(state: RunState, onStart?: (messageId: string) => void): (event: MessageStartEvent) => void {
+  static #createMessageStartHandler(
+    state: RunState,
+    onStart?: (messageId: string) => void
+  ): (event: MessageStartEvent) => void {
     return (event: MessageStartEvent): void => {
       state.currentMessage = {
         id: event.messageId,
@@ -102,7 +109,10 @@ export class AiPromptRunner {
     };
   }
 
-  static #createMessageDeltaHandler(state: RunState, onDelta?: (delta: string) => void): (event: MessageDeltaEvent) => void {
+  static #createMessageDeltaHandler(
+    state: RunState,
+    onDelta?: (delta: string) => void
+  ): (event: MessageDeltaEvent) => void {
     return (event: MessageDeltaEvent): void => {
       if (state.currentMessage) {
         state.currentMessage.content = (state.currentMessage.content ?? '') + event.delta;
@@ -129,13 +139,22 @@ export class AiPromptRunner {
     };
   }
 
-  static #createToolCallHandler(adapter: AgentAdapter, toolRegistry: ToolRegistry | undefined, state: RunState): (event: ToolCallEvent) => Promise<void> {
+  static #createToolCallHandler(
+    adapter: AgentAdapter,
+    toolRegistry: ToolRegistry | undefined,
+    state: RunState
+  ): (event: ToolCallEvent) => Promise<void> {
     return async (event: ToolCallEvent): Promise<void> => {
       await this.#executeToolCall(event, toolRegistry, state, adapter);
     };
   }
 
-  static async #executeToolCall(event: ToolCallEvent, toolRegistry: ToolRegistry | undefined, state: RunState, adapter: AgentAdapter): Promise<void> {
+  static async #executeToolCall(
+    event: ToolCallEvent,
+    toolRegistry: ToolRegistry | undefined,
+    state: RunState,
+    adapter: AgentAdapter
+  ): Promise<void> {
     const execution = (async (): Promise<void> => {
       let result: unknown;
 
