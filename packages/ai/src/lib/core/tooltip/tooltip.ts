@@ -13,12 +13,14 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'ai-tooltip-toggle': CustomEvent<{
-      open: boolean;
-      newState: string;
-      oldState: string;
-    }>;
+    'forge-ai-tooltip-toggle': CustomEvent<TooltipToggleEventDetail>;
   }
+}
+
+export interface TooltipToggleEventDetail {
+  open: boolean;
+  newState: string;
+  oldState: string;
 }
 
 export type TooltipPlacement = OverlayPlacement;
@@ -258,9 +260,8 @@ export class ForgeAiTooltipComponent extends LitElement {
   private _onOverlayToggle = (event: CustomEvent): void => {
     this.open = event.detail.open;
 
-    // Re-emit as tooltip-specific event
     this.dispatchEvent(
-      new CustomEvent('ai-tooltip-toggle', {
+      new CustomEvent('forge-ai-tooltip-toggle', {
         detail: event.detail,
         bubbles: true,
         composed: true
