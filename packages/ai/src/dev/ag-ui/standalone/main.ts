@@ -1,5 +1,5 @@
 import { tylIconForgeLogo, tylIconSparkles } from '@tylertech/tyler-icons';
-import { ToolRegistry, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
+import { type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
 import {
   defineAppBarComponent,
   defineButtonComponent,
@@ -17,8 +17,8 @@ import {
 } from '@tylertech/forge';
 import '../../../lib/ai-button';
 
-import { registerExtractorTools, initExtractorDemo } from './demo-extractor';
-import { registerSmartCompleteTools, initSmartCompleteDemo } from './demo-smart-complete';
+import { createExtractorTools, initExtractorDemo } from './demo-extractor';
+import { createSmartCompleteTools, initSmartCompleteDemo } from './demo-smart-complete';
 import { initExplainerDemo } from './demo-explainer';
 
 defineScaffoldComponent();
@@ -38,8 +38,6 @@ IconRegistry.define([tylIconForgeLogo, tylIconSparkles]);
 
 const BASE_URL = 'http://localhost:3001/api/agents';
 const AGENT_ID = 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c';
-
-const toolRegistry = new ToolRegistry();
 
 const config: AgUiAdapterConfig = {
   url: `${BASE_URL}/${AGENT_ID}/ag-ui`,
@@ -63,8 +61,8 @@ function showToast(message: string, theme: 'error' | 'success' | 'warning' | 'in
   });
 }
 
-registerExtractorTools(toolRegistry, showToast);
-registerSmartCompleteTools(toolRegistry, showToast);
+const extractorTools = createExtractorTools(showToast);
+const smartCompleteTools = createSmartCompleteTools(showToast);
 
 const tabBar = document.getElementById('tabBar') as HTMLElement;
 const tabPanels = {
@@ -83,6 +81,6 @@ tabBar.addEventListener('forge-tab-bar-change', (e: CustomEvent) => {
   });
 });
 
-initExtractorDemo(config, toolRegistry, showToast);
-initSmartCompleteDemo(config, toolRegistry, showToast);
+initExtractorDemo(config, extractorTools, showToast);
+initSmartCompleteDemo(config, smartCompleteTools, showToast);
 initExplainerDemo(config, showToast);

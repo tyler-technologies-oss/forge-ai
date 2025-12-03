@@ -27,6 +27,7 @@ export type {
   ToolDefinition,
   ToolCall,
   ToolRenderer,
+  HandlerContext,
   FileAttachment,
   UploadedFileMetadata
 } from './types.js';
@@ -36,9 +37,6 @@ export { AgUiAdapter, type AgUiAdapterConfig } from './ag-ui-adapter.js';
 
 // AI prompt runner
 export { AiPromptRunner, type AiPromptRunnerConfig, type AiPromptRunnerResult } from './ai-prompt-runner.js';
-
-// Tool registry
-export { ToolRegistry, type ToolHandler } from './tool-registry.js';
 
 // Tool renderer helper
 export { createToolRenderer, type CreateToolRendererConfig } from './create-tool-renderer.js';

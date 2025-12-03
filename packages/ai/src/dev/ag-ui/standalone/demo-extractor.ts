@@ -1,4 +1,4 @@
-import { AiPromptRunner, AgUiAdapter, type ToolRegistry, type ToolDefinition, type ToolHandler, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
+import { AiPromptRunner, AgUiAdapter, type ToolDefinition, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
 
 interface ExtractedFormData {
   name?: string;
@@ -13,7 +13,7 @@ interface ExtractedFormData {
 
 type ShowToastFn = (message: string, theme?: 'error' | 'success' | 'warning' | 'info') => void;
 
-export function registerExtractorTools(toolRegistry: ToolRegistry, showToast: ShowToastFn): void {
+export function createExtractorTools(showToast: ShowToastFn): ToolDefinition[] {
   const nameInput = document.getElementById('extractor-name') as HTMLInputElement;
   const companyInput = document.getElementById('extractor-company') as HTMLInputElement;
   const emailInput = document.getElementById('extractor-email') as HTMLInputElement;
@@ -23,44 +23,44 @@ export function registerExtractorTools(toolRegistry: ToolRegistry, showToast: Sh
   const stateInput = document.getElementById('extractor-state') as HTMLInputElement;
   const zipInput = document.getElementById('extractor-zip') as HTMLInputElement;
 
-  const fillFormTool: ToolDefinition = {
-    name: 'fillContactForm',
-    description: 'Fill contact form with extracted data',
-    parameters: {
-      type: 'object' as const,
-      properties: {
-        name: { type: 'string', description: 'Full name' },
-        company: { type: 'string', description: 'Company name' },
-        email: { type: 'string', description: 'Email address' },
-        phone: { type: 'string', description: 'Phone number' },
-        address: { type: 'string', description: 'Street address' },
-        city: { type: 'string', description: 'City' },
-        state: { type: 'string', description: 'State' },
-        zip: { type: 'string', description: 'ZIP code' }
+  return [
+    {
+      name: 'fillContactForm',
+      description: 'Fill contact form with extracted data',
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          name: { type: 'string', description: 'Full name' },
+          company: { type: 'string', description: 'Company name' },
+          email: { type: 'string', description: 'Email address' },
+          phone: { type: 'string', description: 'Phone number' },
+          address: { type: 'string', description: 'Street address' },
+          city: { type: 'string', description: 'City' },
+          state: { type: 'string', description: 'State' },
+          zip: { type: 'string', description: 'ZIP code' }
+        }
+      },
+      handler: async context => {
+        const data = context.args as ExtractedFormData;
+        nameInput.value = data.name || '';
+        companyInput.value = data.company || '';
+        emailInput.value = data.email || '';
+        phoneInput.value = data.phone || '';
+        addressInput.value = data.address || '';
+        cityInput.value = data.city || '';
+        stateInput.value = data.state || '';
+        zipInput.value = data.zip || '';
+
+        showToast('Form data extracted successfully!', 'success');
+        return { success: true, message: 'Form filled successfully' };
       }
     }
-  };
-
-  const fillFormHandler: ToolHandler<ExtractedFormData, { success: boolean; message: string }> = async data => {
-    nameInput.value = data.name || '';
-    companyInput.value = data.company || '';
-    emailInput.value = data.email || '';
-    phoneInput.value = data.phone || '';
-    addressInput.value = data.address || '';
-    cityInput.value = data.city || '';
-    stateInput.value = data.state || '';
-    zipInput.value = data.zip || '';
-
-    showToast('Form data extracted successfully!', 'success');
-    return { success: true, message: 'Form filled successfully' };
-  };
-
-  toolRegistry.register(fillFormTool, fillFormHandler);
+  ];
 }
 
 export function initExtractorDemo(
   config: AgUiAdapterConfig,
-  toolRegistry: ToolRegistry,
+  tools: ToolDefinition[],
   showToast: ShowToastFn
 ): void {
   const extractorBtn = document.getElementById('extractorBtn') as HTMLButtonElement;
@@ -105,7 +105,7 @@ Use the fillContactForm tool to populate the form with the extracted data.`;
 
     try {
       const adapter = new AgUiAdapter({ ...config });
-      await AiPromptRunner.run({ adapter, toolRegistry, prompt });
+      await AiPromptRunner.run({ adapter, tools, prompt });
     } catch (error) {
       showToast(`Extraction failed: ${(error as Error).message}`);
     } finally {

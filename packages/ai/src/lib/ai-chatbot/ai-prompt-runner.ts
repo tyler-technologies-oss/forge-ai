@@ -1,12 +1,11 @@
 import type { AgentAdapter, ErrorEvent, MessageDeltaEvent, MessageStartEvent, ToolCallEvent } from './agent-adapter.js';
-import type { ChatMessage, ToolCall } from './types.js';
+import type { ChatMessage, HandlerContext, ToolCall, ToolDefinition } from './types.js';
 import { generateId } from './utils.js';
-import { ToolRegistry } from './tool-registry.js';
 
 export interface AiPromptRunnerConfig {
   adapter: AgentAdapter;
   prompt: string;
-  toolRegistry?: ToolRegistry;
+  tools?: ToolDefinition[];
   onStart?: (messageId: string) => void;
   onDelta?: (delta: string) => void;
   onComplete?: (message: ChatMessage) => void;
@@ -32,23 +31,23 @@ export class AiPromptRunner {
   private constructor() {}
 
   public static async run(config: AiPromptRunnerConfig): Promise<AiPromptRunnerResult> {
-    const { adapter, toolRegistry, prompt, onStart, onDelta, onComplete } = config;
+    const { adapter, tools, prompt, onStart, onDelta, onComplete } = config;
 
     await this.#ensureConnected(adapter);
 
-    if (toolRegistry) {
-      adapter.setTools(toolRegistry.getDefinitions());
+    if (tools) {
+      adapter.setTools(tools);
     }
 
     const userMessage = this.#createUserMessage(prompt);
 
-    return this.#executePrompt(adapter, userMessage, toolRegistry, { onStart, onDelta, onComplete });
+    return this.#executePrompt(adapter, userMessage, tools, { onStart, onDelta, onComplete });
   }
 
   static #executePrompt(
     adapter: AgentAdapter,
     userMessage: ChatMessage,
-    toolRegistry: ToolRegistry | undefined,
+    tools: ToolDefinition[] | undefined,
     callbacks: {
       onStart?: (messageId: string) => void;
       onDelta?: (delta: string) => void;
@@ -70,7 +69,7 @@ export class AiPromptRunner {
       adapter.onMessageDelta(this.#createMessageDeltaHandler(state, callbacks.onDelta));
       adapter.onRunFinished(this.#createFinishHandler(state, callbacks.onComplete));
       adapter.onError(this.#createErrorHandler(state));
-      adapter.onToolCall(this.#createToolCallHandler(adapter, toolRegistry, state));
+      adapter.onToolCall(this.#createToolCallHandler(adapter, tools, state));
 
       adapter.sendMessage([userMessage]);
     });
@@ -141,17 +140,17 @@ export class AiPromptRunner {
 
   static #createToolCallHandler(
     adapter: AgentAdapter,
-    toolRegistry: ToolRegistry | undefined,
+    tools: ToolDefinition[] | undefined,
     state: RunState
   ): (event: ToolCallEvent) => Promise<void> {
     return async (event: ToolCallEvent): Promise<void> => {
-      await this.#executeToolCall(event, toolRegistry, state, adapter);
+      await this.#executeToolCall(event, tools, state, adapter);
     };
   }
 
   static async #executeToolCall(
     event: ToolCallEvent,
-    toolRegistry: ToolRegistry | undefined,
+    tools: ToolDefinition[] | undefined,
     state: RunState,
     adapter: AgentAdapter
   ): Promise<void> {
@@ -167,9 +166,17 @@ export class AiPromptRunner {
       };
       state.toolCalls.push(toolCall);
 
-      if (toolRegistry?.has(event.name)) {
+      const toolDef = tools?.find(t => t.name === event.name);
+
+      if (toolDef?.handler) {
         try {
-          result = await toolRegistry.execute(event);
+          const context: HandlerContext = {
+            args: event.args,
+            toolCallId: event.id,
+            toolName: event.name,
+            signal: undefined
+          };
+          result = await toolDef.handler(context);
           toolCall.status = 'complete';
           toolCall.result = result;
         } catch (error) {
@@ -178,6 +185,11 @@ export class AiPromptRunner {
           toolCall.status = 'error';
           toolCall.result = result;
         }
+      } else if (toolDef?.renderer) {
+        // Render-only tool - auto-respond with success
+        result = { success: true, args: event.args };
+        toolCall.status = 'complete';
+        toolCall.result = result;
       } else {
         result = { error: `No handler for tool: ${event.name}` };
         toolCall.status = 'error';

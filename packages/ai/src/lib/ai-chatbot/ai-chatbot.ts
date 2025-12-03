@@ -26,6 +26,7 @@ import { MessageStateController } from './message-state-controller.js';
 import type {
   ChatMessage,
   FileAttachment,
+  HandlerContext,
   MessageItem,
   ThreadState,
   ToolCall,
@@ -76,7 +77,8 @@ export interface ForgeAiChatbotToolCallEventData {
   toolCallId: string;
   toolName: string;
   arguments: Record<string, unknown>;
-  respond: (result?: unknown) => Promise<void>;
+  /** Optional respond callback - only present for event-based tools without inline handlers */
+  respond?: (result?: unknown) => Promise<void>;
 }
 
 export interface ForgeAiChatbotErrorEventData {
@@ -322,7 +324,7 @@ export class AiChatbotComponent extends LitElement {
    * Handles tool execution requests from the adapter.
    * If tool call already exists (from granular events), updates it.
    * Otherwise creates a new tool call record for adapters that skip granular events.
-   * Dispatches event to host for tool execution.
+   * Executes inline handlers, auto-responds for render-only tools, or dispatches event.
    */
   #handleToolCall(event: ToolCallEvent): void {
     const message = this.#messageStateController.getMessage(event.messageId);
@@ -348,6 +350,21 @@ export class AiChatbotComponent extends LitElement {
       this.#scrollAfterUpdate();
     }
 
+    const toolDef = this.#tools.get(event.name);
+
+    // Case 1: Tool has inline handler - invoke it directly
+    if (toolDef?.handler) {
+      void this.#executeInlineHandler(event.id, event.name, toolDef.handler, event.args);
+      return;
+    }
+
+    // Case 2: Render-only tool (has renderer but no handler) - auto-respond
+    if (toolDef?.renderer && !toolDef.handler) {
+      void this.#sendToolResult(event.id, { success: true, args: event.args });
+      return;
+    }
+
+    // Case 3: Event-based tool - dispatch event with respond callback
     this.#dispatchEvent({
       type: 'forge-ai-chatbot-tool-call',
       detail: {
@@ -359,6 +376,33 @@ export class AiChatbotComponent extends LitElement {
         }
       }
     });
+  }
+
+  /**
+   * Executes an inline tool handler with context.
+   * Automatically sends result to backend on success or marks as error on failure.
+   */
+  async #executeInlineHandler(
+    toolCallId: string,
+    toolName: string,
+    handler: (context: HandlerContext) => Promise<unknown> | unknown,
+    args: Record<string, unknown>
+  ): Promise<void> {
+    try {
+      const context: HandlerContext = {
+        args,
+        toolCallId,
+        toolName,
+        signal: undefined
+      };
+      const result = await handler(context);
+      await this.#sendToolResult(toolCallId, result);
+    } catch (error) {
+      this.#messageStateController.updateToolCall(toolCallId, {
+        status: 'error',
+        result: { error: (error as Error).message }
+      });
+    }
   }
 
   #handleError(event: ErrorEvent): void {

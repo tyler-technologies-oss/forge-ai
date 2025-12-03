@@ -3,6 +3,20 @@ export interface ToolRenderer {
   render?: (toolCall: ToolCall) => HTMLElement | DocumentFragment;
 }
 
+/**
+ * Context provided to tool handlers when they are invoked.
+ */
+export interface HandlerContext {
+  /** Tool call arguments */
+  args: Record<string, unknown>;
+  /** Unique identifier for this tool call */
+  toolCallId: string;
+  /** Name of the tool being called */
+  toolName: string;
+  /** Optional abort signal for cancellation support */
+  signal?: AbortSignal;
+}
+
 export interface ToolDefinition {
   name: string;
   description?: string;
@@ -11,7 +25,15 @@ export interface ToolDefinition {
     properties?: Record<string, unknown>;
     required?: string[];
   };
+  /** Optional renderer for displaying tool call results within the chat UI. */
   renderer?: ToolRenderer;
+  /**
+   * Optional handler function invoked when tool is called.
+   * If provided, tool result is automatically sent to backend.
+   * If omitted and renderer exists, tool auto-responds with success.
+   * If both omitted, dispatches event for external handling.
+   */
+  handler?: (context: HandlerContext) => Promise<unknown> | unknown;
 }
 
 export interface ChatMessage {

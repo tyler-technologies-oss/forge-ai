@@ -92,6 +92,19 @@ const tools: ToolDefinition[] = [
         particleCount: { type: 'number', description: 'Number of particles (default: 100)' },
         spread: { type: 'number', description: 'Spread angle in degrees (default: 70)' }
       }
+    },
+    // Pattern 2: Inline handler - no event listener needed
+    handler: async context => {
+      // Artificial delay to showcase streaming status
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const confettiArgs = context.args as ConfettiArgs;
+      (window as any).confetti({
+        particleCount: confettiArgs?.particleCount || 100,
+        spread: confettiArgs?.spread || 100
+      });
+
+      return { success: true, args: context.args };
     }
     // renderer: createToolRenderer({
     //   render: toolCall => {
@@ -261,30 +274,5 @@ chatbot.addEventListener('forge-ai-chatbot-message-received', (e: CustomEvent) =
 });
 
 chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<ForgeAiChatbotToolCallEventData>) => {
-  const { toolName, arguments: args, respond } = e.detail;
-  console.log('🔧 Tool call:', { toolName, args });
-
-  if (toolName === 'showConfetti') {
-    // Artificial delay to showcase streaming status
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Execute the tool action
-    const confettiArgs = args as ConfettiArgs;
-    (window as any).confetti({
-      particleCount: confettiArgs?.particleCount || 100,
-      spread: confettiArgs?.spread || 100
-    });
-
-    // Respond with the result
-    await respond({
-      success: true,
-      args
-    });
-  }
-
-  if (toolName === 'displayRecipe') {
-    // This is a render-only tool, so no action is needed here, just respond success
-    // TODO: Could we have the component handle this automatically instead if configured with renderOnly: true flag?
-    await respond({ success: true, args });
-  }
+  console.log('🔧 Tool call:', e);
 });
