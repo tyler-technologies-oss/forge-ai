@@ -42,6 +42,9 @@
   padding: #{forge-spacing.variable(medium)};
   min-width: 300px;
   max-width: 500px;
+  min-height: 100px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .tool-section {

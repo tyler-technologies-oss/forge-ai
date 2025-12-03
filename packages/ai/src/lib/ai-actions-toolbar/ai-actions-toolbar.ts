@@ -104,7 +104,6 @@ export class AiActionsToolbarComponent extends LitElement {
     this._thumbsUpActive = false;
   }
 
-
   private _handleFeedbackSubmit(): void {
     const feedbackText = this._thumbsDownFeedbackTextarea?.value || '';
     this._emitFeedbackEvent('negative', feedbackText);
