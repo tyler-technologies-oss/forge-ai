@@ -1,6 +1,5 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property, queryAssignedNodes } from 'lit/decorators.js';
-import { when } from 'lit/directives/when.js';
+import { customElement } from 'lit/decorators.js';
 
 import styles from './ai-empty-state.scss?inline';
 
@@ -15,42 +14,13 @@ export const AiEmptyStateComponentTagName: keyof HTMLElementTagNameMap = 'forge-
 /**
  * @tag forge-ai-empty-state
  *
- * @slot - The custom welcome message content.
+ * @slot - The welcome message content (default: "Welcome to AI Assistant! Start a conversation by asking a question or describing what you'd like help with.").
  * @slot icon - The custom icon to display instead of the default books graphic.
  * @slot actions - The actions or suggestions to display below the message.
  */
 @customElement(AiEmptyStateComponentTagName)
 export class AiEmptyStateComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
-
-  /**
-   * Whether to show custom slotted content instead of the default message.
-   */
-  @property({ type: Boolean, attribute: 'use-custom-message' })
-  public useCustomMessage = false;
-
-  @queryAssignedNodes({ slot: 'icon', flatten: true })
-  private _iconSlottedNodes!: Node[];
-
-  readonly #messageSlot = html`<slot></slot>`;
-
-  readonly #defaultMessage = html`Welcome to AI Assistant! Start a conversation by asking a question or describing what
-  you'd like help with.`;
-
-  get #messageContent(): TemplateResult {
-    return this.useCustomMessage ? this.#messageSlot : this.#defaultMessage;
-  }
-
-  get #iconContent(): TemplateResult {
-    const hasCustomIcon = this._iconSlottedNodes.length > 0;
-    return html`
-      ${when(
-        !hasCustomIcon,
-        () => this.#defaultIcon
-      )}
-      <slot name="icon" @slotchange=${this.#handleSlotChange}></slot>
-    `;
-  }
 
   readonly #defaultIcon = html`
     <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 92 92" class="graphic">
@@ -126,18 +96,19 @@ export class AiEmptyStateComponent extends LitElement {
     </svg>
   `;
 
-  #handleSlotChange(evt: Event): void {
-    const slotName = (evt.target as HTMLSlotElement).name;
-    if (slotName === 'icon') {
-      this.requestUpdate();
-    }
-  }
+  readonly #messageSlot = html`
+    <slot
+      >Welcome to AI Assistant! Start a conversation by asking a question or describing what you'd like help with.</slot
+    >
+  `;
+
+  readonly #iconSlot = html` <slot name="icon"> ${this.#defaultIcon} </slot> `;
 
   public override render(): TemplateResult {
     return html` <div class="forge-page-state">
       <div class="welcome-container">
-        ${this.#iconContent}
-        <div class="forge-page-state__message message">${this.#messageContent}</div>
+        ${this.#iconSlot}
+        <div class="forge-page-state__message message">${this.#messageSlot}</div>
         <slot name="actions"></slot>
       </div>
     </div>`;

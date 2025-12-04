@@ -1,5 +1,5 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property, queryAssignedNodes } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import '../ai-icon/ai-icon';
 import '../core/tooltip/tooltip.js';
@@ -99,33 +99,18 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ type: Boolean, attribute: 'show-info' })
   public showInfo = true;
 
-  @queryAssignedNodes({ slot: 'icon', flatten: true })
-  private _iconSlottedNodes!: Node[];
-
-  get #iconContent(): TemplateResult {
-    const hasCustomIcon = this._iconSlottedNodes.length > 0;
-    return html`
-      ${when(
-        !hasCustomIcon,
-        () => html`<forge-ai-icon></forge-ai-icon>`
-      )}
-      <slot name="icon" @slotchange=${this.#handleSlotChange}></slot>
-    `;
-  }
-
-  #handleSlotChange(evt: Event): void {
-    const slotName = (evt.target as HTMLSlotElement).name;
-    if (slotName === 'icon') {
-      this.requestUpdate();
-    }
-  }
+  readonly #iconSlot = html`
+    <slot name="icon">
+      <forge-ai-icon></forge-ai-icon>
+    </slot>
+  `;
 
   public override render(): TemplateResult {
     return html`
       <div class="header forge-toolbar forge-toolbar--no-divider">
         <div class="start">
-          ${this.#iconContent}
-          <slot name="title" @slotchange=${this.#handleSlotChange}>
+          ${this.#iconSlot}
+          <slot name="title">
             <h1>AI Assistant</h1>
           </slot>
         </div>
