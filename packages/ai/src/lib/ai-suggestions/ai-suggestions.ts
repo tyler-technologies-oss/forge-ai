@@ -1,6 +1,9 @@
 import { LitElement, TemplateResult, html, unsafeCSS, PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { toggleState } from '../utils';
+import { when } from 'lit/directives/when.js';
+import { generateUniqueId, toggleState } from '../utils';
+
+import '../core/tooltip/tooltip.js';
 
 import styles from './ai-suggestions.scss?inline';
 
@@ -49,6 +52,7 @@ export class AiSuggestionsComponent extends LitElement {
   public variant: AiSuggestionsVariant = 'inline';
 
   readonly #internals: ElementInternals;
+  private _suggestionState = new Map<Suggestion, { id: string; isOverflowing: boolean }>();
 
   constructor() {
     super();
@@ -60,6 +64,59 @@ export class AiSuggestionsComponent extends LitElement {
     if (changedProperties.has('variant')) {
       this.#setCssState();
     }
+
+    if (changedProperties.has('suggestions')) {
+      this.#syncSuggestionState();
+    }
+  }
+
+  public override updated(changedProperties: PropertyValues<this>): void {
+    if (changedProperties.has('suggestions')) {
+      this.#checkOverflows();
+    }
+  }
+
+  #syncSuggestionState(): void {
+    const newState = new Map<Suggestion, { id: string; isOverflowing: boolean }>();
+
+    for (const suggestion of this.suggestions) {
+      const existing = this._suggestionState.get(suggestion);
+      if (existing) {
+        newState.set(suggestion, existing);
+      } else {
+        newState.set(suggestion, {
+          id: generateUniqueId('suggestion'),
+          isOverflowing: false
+        });
+      }
+    }
+
+    this._suggestionState = newState;
+  }
+
+  #checkOverflows(): void {
+    setTimeout(() => {
+      let hasChanges = false;
+      const buttons = this.shadowRoot?.querySelectorAll('.suggestion');
+
+      buttons?.forEach(button => {
+        const textSpan = button.querySelector('.suggestion-text') as HTMLElement;
+        const isOverflowing = textSpan.scrollWidth > textSpan.offsetWidth;
+        const id = button.id;
+
+        for (const [, state] of this._suggestionState.entries()) {
+          if (state.id === id && state.isOverflowing !== isOverflowing) {
+            state.isOverflowing = isOverflowing;
+            hasChanges = true;
+            break;
+          }
+        }
+      });
+
+      if (hasChanges) {
+        this.requestUpdate();
+      }
+    });
   }
 
   #setCssState(): void {
@@ -68,14 +125,27 @@ export class AiSuggestionsComponent extends LitElement {
   }
 
   get #suggestionButtons(): TemplateResult[] {
-    return this.suggestions?.map(
-      suggestion =>
-        html`<button
+    return this.suggestions?.map(suggestion => {
+      const state = this._suggestionState.get(suggestion);
+      const id = state?.id ?? '';
+      const showTooltip = state?.isOverflowing ?? false;
+
+      return html`<div class="container">
+        <button
+          id="${id}"
           class="forge-button forge-button--tonal suggestion"
           @click=${() => this._handleSuggestionClick(suggestion)}>
-          ${suggestion.text}
-        </button>`
-    );
+          <span class="suggestion-text">${suggestion.text}</span>
+        </button>
+        ${when(
+          showTooltip,
+          () =>
+            html`<forge-ai-tooltip class="suggestion-tooltip" for="${id}" role="presentation"
+              >${suggestion.text}</forge-ai-tooltip
+            >`
+        )}
+      </div>`;
+    });
   }
 
   private _handleSuggestionClick(suggestion: Suggestion): void {
