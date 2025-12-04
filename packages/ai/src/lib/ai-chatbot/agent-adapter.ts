@@ -81,7 +81,7 @@ export abstract class AgentAdapter {
   public abstract connect(): Promise<void>;
   public abstract disconnect(): Promise<void>;
   public abstract sendMessage(messages: ChatMessage[]): void;
-  public abstract sendToolResult(toolCallId: string, result: unknown): void;
+  public abstract sendToolResult(toolCallId: string, result: unknown, messages: ChatMessage[]): void;
   public abstract abort(): void;
 
   public abstract get threadId(): string;

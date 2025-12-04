@@ -83,8 +83,7 @@ export class MockAdapter extends AgentAdapter {
     }
   }
 
-  sendToolResult(_toolCallId: string, _result: unknown): void {
-    const messages: ChatMessage[] = [];
+  sendToolResult(_toolCallId: string, _result: unknown, messages: ChatMessage[]): void {
     this.sendMessage(messages);
   }
 

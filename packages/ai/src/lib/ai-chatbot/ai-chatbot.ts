@@ -448,7 +448,7 @@ export class AiChatbotComponent extends LitElement {
     }
 
     this.#messageStateController.completeToolCall(toolCallId, result);
-    this.adapter.sendToolResult(toolCallId, result);
+    this.adapter.sendToolResult(toolCallId, result, this.getMessages());
   }
 
   /**
