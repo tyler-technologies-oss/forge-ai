@@ -88,7 +88,7 @@ export class AgUiAdapter extends AgentAdapter {
     this.#agent.runAgent({ tools, context });
   }
 
-  public sendToolResult(toolCallId: string, result: unknown, messages: ChatMessage[]): void {
+  public sendToolResult(toolCallId: string, result: unknown, messages?: ChatMessage[]): void {
     const toolMessage: ChatMessage = {
       id: generateId('tool'),
       role: 'tool',
@@ -98,7 +98,9 @@ export class AgUiAdapter extends AgentAdapter {
       toolCallId
     };
 
-    this.sendMessage([...messages, toolMessage]);
+    messages = messages ? [...messages, toolMessage] : [toolMessage];
+
+    this.sendMessage(messages);
     this._emitToolResult({ toolCallId, result, message: toolMessage });
   }
 
