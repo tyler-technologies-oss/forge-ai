@@ -44,6 +44,7 @@ export { createToolRenderer, type CreateToolRendererConfig } from './create-tool
 // Controllers and managers
 export { MessageStateController, type MessageStateControllerConfig } from './message-state-controller.js';
 export { FileUploadManager, type FileUploadManagerConfig } from './file-upload-manager.js';
+export { MarkdownStreamController } from './markdown-stream-controller.js';
 
 // Utilities
 export { generateId, renderMarkdown } from './utils.js';

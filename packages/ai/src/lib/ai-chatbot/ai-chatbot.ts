@@ -22,6 +22,7 @@ import {
   type ToolResultEvent
 } from './agent-adapter.js';
 import { FileUploadManager } from './file-upload-manager.js';
+import { MarkdownStreamController } from './markdown-stream-controller.js';
 import { MessageStateController } from './message-state-controller.js';
 import type {
   ChatMessage,
@@ -34,7 +35,7 @@ import type {
   ToolResponseData,
   UploadedFileMetadata
 } from './types.js';
-import { generateId, renderMarkdown } from './utils.js';
+import { generateId } from './utils.js';
 
 import '../ai-attachment';
 import '../ai-chat-header';
@@ -145,6 +146,7 @@ export class AiChatbotComponent extends LitElement {
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #messageStateController!: MessageStateController;
   #fileUploadManager!: FileUploadManager;
+  #markdownController!: MarkdownStreamController;
   #toolsMap?: Map<string, ToolDefinition>;
 
   get #messageItems(): MessageItem[] {
@@ -173,6 +175,8 @@ export class AiChatbotComponent extends LitElement {
       tools: this.#tools
     });
 
+    this.#markdownController = new MarkdownStreamController(this);
+
     this.#fileUploadManager = new FileUploadManager({
       uploadCallback: this.adapter?.fileUploadCallback,
       onError: error => {
@@ -185,10 +189,6 @@ export class AiChatbotComponent extends LitElement {
         this.requestUpdate();
       }
     });
-
-    if (this.adapter) {
-      this.#setupAdapter();
-    }
   }
 
   public override disconnectedCallback(): void {
@@ -257,9 +257,11 @@ export class AiChatbotComponent extends LitElement {
     const message = this.#messageStateController.getMessage(event.messageId);
     if (!message) {
       this.#handleMessageStart({ messageId: event.messageId });
+      return;
     }
 
     this.#messageStateController.appendToMessage(event.messageId, event.delta);
+    this.#markdownController.scheduleUpdate();
     this.#chatInterfaceRef.value?.scrollToBottom();
   }
 
@@ -824,20 +826,22 @@ export class AiChatbotComponent extends LitElement {
 
         const msg = item.data;
         if (msg.role === 'user') {
-          return html`<forge-ai-user-message>${unsafeHTML(renderMarkdown(msg.content))}</forge-ai-user-message>`;
+          const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
+          return html`<forge-ai-user-message>${unsafeHTML(renderedHtml)}</forge-ai-user-message>`;
         } else if (msg.role === 'system') {
           return html`<div class="system-message">${msg.content}</div>`;
         } else if (msg.status === 'error') {
+          const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
           return html`
             <forge-ai-error-message>
               <span slot="title">Error</span>
-              ${unsafeHTML(renderMarkdown(msg.content))}
+              ${unsafeHTML(renderedHtml)}
             </forge-ai-error-message>
           `;
         } else {
-          return when(
-            msg.content?.trim().length > 0,
-            () => html`
+          return when(msg.content?.trim().length > 0, () => {
+            const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
+            return html`
               <forge-ai-response-message
                 ?complete=${msg.status === 'complete'}
                 ?enable-reactions=${this.enableReactions}
@@ -845,10 +849,10 @@ export class AiChatbotComponent extends LitElement {
                 @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
                 @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
                 @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
-                ${unsafeHTML(renderMarkdown(msg.content))}
+                ${unsafeHTML(renderedHtml)}
               </forge-ai-response-message>
-            `
-          );
+            `;
+          });
         }
       });
   }

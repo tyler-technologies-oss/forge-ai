@@ -54,6 +54,10 @@ export class MessageStateController implements ReactiveController {
   }
 
   public addMessage(message: ChatMessage): void {
+    const existing = this.getMessage(message.id);
+    if (existing) {
+      return;
+    }
     this.addMessageItem({ type: 'message', data: message });
   }
 
