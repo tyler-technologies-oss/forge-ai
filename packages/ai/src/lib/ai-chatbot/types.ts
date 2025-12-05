@@ -4,6 +4,14 @@ export interface ToolRenderer {
 }
 
 /**
+ * Optional data that can be returned from tool handlers to include in the tool response.
+ * This data will be sent as metadata in the tool call result response.
+ */
+export interface ToolResponseData {
+  [key: string]: unknown;
+}
+
+/**
  * Context provided to tool handlers when they are invoked.
  */
 export interface HandlerContext {
@@ -30,11 +38,9 @@ export interface ToolDefinition {
   renderer?: ToolRenderer;
   /**
    * Optional handler function invoked when tool is called.
-   * If provided, tool result is automatically sent to backend.
-   * If omitted and renderer exists, tool auto-responds with success.
-   * If both omitted, dispatches event for external handling.
+   * Can return metadata to include in tool response.
    */
-  handler?: (context: HandlerContext) => Promise<unknown> | unknown;
+  handler?: (context: HandlerContext) => Promise<ToolResponseData | void> | ToolResponseData | void;
 }
 
 export interface ChatMessage {

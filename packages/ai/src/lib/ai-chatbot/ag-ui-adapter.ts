@@ -319,6 +319,13 @@ export class AgUiAdapter extends AgentAdapter {
   #transformMessages(messages: ChatMessage[]): Message[] {
     return messages
       .filter(msg => msg.role === 'user' || msg.role === 'assistant' || msg.role === 'system' || msg.role === 'tool')
+      .filter(msg => {
+        // Filter out assistant messages with empty content and no tool calls
+        if (msg.role === 'assistant') {
+          return msg.content.trim().length > 0 || (msg.toolCalls && msg.toolCalls.length > 0);
+        }
+        return true;
+      })
       .map(msg => {
         switch (msg.role) {
           case 'user': {
@@ -336,8 +343,21 @@ export class AgUiAdapter extends AgentAdapter {
             const assistantMsg: AssistantMessage = {
               id: msg.id,
               role: 'assistant',
-              content: msg.content
+              content: msg.content || ''
             };
+
+            // Include tool calls if present
+            if (msg.toolCalls && msg.toolCalls.length) {
+              assistantMsg.toolCalls = msg.toolCalls.map(tc => ({
+                id: tc.id,
+                type: 'function' as const,
+                function: {
+                  name: tc.name,
+                  arguments: JSON.stringify(tc.args)
+                }
+              }));
+            }
+
             return assistantMsg;
           }
           case 'system': {

@@ -148,6 +148,13 @@ export class AiPromptRunner {
     };
   }
 
+  static #createToolResponse({ metadata }: { metadata?: Record<string, unknown> | void } = {}): Record<
+    string,
+    unknown
+  > {
+    return { metadata, success: true };
+  }
+
   static async #executeToolCall(
     event: ToolCallEvent,
     tools: ToolDefinition[] | undefined,
@@ -176,27 +183,23 @@ export class AiPromptRunner {
             toolName: event.name,
             signal: undefined
           };
-          result = await toolDef.handler(context);
-          toolCall.status = 'complete';
-          toolCall.result = result;
+          const metadata = await toolDef.handler(context);
+          result = this.#createToolResponse({ metadata });
         } catch (error) {
           const err = error as Error;
           result = { error: err.message };
           toolCall.status = 'error';
           toolCall.result = result;
+          adapter.sendToolResult(event.id, result, []);
+          return;
         }
-      } else if (toolDef?.renderer) {
-        // Render-only tool - auto-respond with success
-        result = { success: true, args: event.args };
-        toolCall.status = 'complete';
-        toolCall.result = result;
       } else {
-        result = { error: `No handler for tool: ${event.name}` };
-        toolCall.status = 'error';
-        toolCall.result = result;
+        result = this.#createToolResponse();
       }
 
-      adapter.sendToolResult(event.id, result);
+      toolCall.status = 'complete';
+      toolCall.result = result;
+      adapter.sendToolResult(event.id, result, []);
     })();
 
     state.pendingToolExecutions.add(execution);

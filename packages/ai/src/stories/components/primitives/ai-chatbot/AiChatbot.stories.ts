@@ -184,23 +184,6 @@ export const WithTools: Story = {
 
     const onToolCall = (e: CustomEvent) => {
       action('forge-ai-chatbot-tool-call')(e.detail);
-
-      if (e.detail.toolName === 'getUserInput') {
-        setTimeout(() => {
-          const userInput = prompt(e.detail.arguments.prompt || 'Enter input:');
-          e.detail.respond({ input: userInput || '(cancelled)' });
-        }, 500);
-      } else if (e.detail.toolName === 'getCurrentWeather') {
-        setTimeout(() => {
-          const result = {
-            temperature: 72,
-            condition: 'Sunny',
-            humidity: 45,
-            windSpeed: 10
-          };
-          e.detail.respond(result);
-        }, 2000);
-      }
     };
 
     return html`

@@ -104,8 +104,6 @@ const tools: ToolDefinition[] = [
         particleCount: confettiArgs?.particleCount || 100,
         spread: confettiArgs?.spread || 100
       });
-
-      return { success: true, args: context.args };
     }
     // renderer: createToolRenderer({
     //   render: toolCall => {

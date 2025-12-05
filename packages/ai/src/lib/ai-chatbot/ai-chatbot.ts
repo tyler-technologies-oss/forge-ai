@@ -31,6 +31,7 @@ import type {
   ThreadState,
   ToolCall,
   ToolDefinition,
+  ToolResponseData,
   UploadedFileMetadata
 } from './types.js';
 import { generateId, renderMarkdown } from './utils.js';
@@ -77,8 +78,6 @@ export interface ForgeAiChatbotToolCallEventData {
   toolCallId: string;
   toolName: string;
   arguments: Record<string, unknown>;
-  /** Optional respond callback - only present for event-based tools without inline handlers */
-  respond?: (result?: unknown) => Promise<void>;
 }
 
 export interface ForgeAiChatbotErrorEventData {
@@ -320,13 +319,18 @@ export class AiChatbotComponent extends LitElement {
     });
   }
 
+  #createToolResponse({
+    metadata
+  }: {
+    metadata?: Record<string, unknown> | void;
+  } = {}): Record<string, unknown> {
+    return { metadata, success: true };
+  }
+
   /**
    * Handles tool execution requests from the adapter.
-   * If tool call already exists (from granular events), updates it.
-   * Otherwise creates a new tool call record for adapters that skip granular events.
-   * Executes inline handlers, auto-responds for render-only tools, or dispatches event.
    */
-  #handleToolCall(event: ToolCallEvent): void {
+  async #handleToolCall(event: ToolCallEvent): Promise<void> {
     const message = this.#messageStateController.getMessage(event.messageId);
     if (!message) {
       this.#handleMessageStart({ messageId: event.messageId });
@@ -352,40 +356,31 @@ export class AiChatbotComponent extends LitElement {
 
     const toolDef = this.#tools.get(event.name);
 
-    // Case 1: Tool has inline handler - invoke it directly
-    if (toolDef?.handler) {
-      void this.#executeInlineHandler(event.id, event.name, toolDef.handler, event.args);
-      return;
-    }
-
-    // Case 2: Render-only tool (has renderer but no handler) - auto-respond
-    if (toolDef?.renderer && !toolDef.handler) {
-      void this.#sendToolResult(event.id, { success: true, args: event.args });
-      return;
-    }
-
-    // Case 3: Event-based tool - dispatch event with respond callback
     this.#dispatchEvent({
       type: 'forge-ai-chatbot-tool-call',
       detail: {
         toolCallId: event.id,
         toolName: event.name,
-        arguments: event.args,
-        respond: async (result: unknown) => {
-          await this.#sendToolResult(event.id, result);
-        }
+        arguments: event.args
       }
     });
+
+    // Execute handler if present
+    if (toolDef?.handler) {
+      await Promise.resolve(this.#executeToolHandler(event.id, event.name, toolDef.handler, event.args));
+    } else {
+      // No handler - send response immediately
+      void this.#sendToolResult(event.id, this.#createToolResponse());
+    }
   }
 
   /**
-   * Executes an inline tool handler with context.
-   * Automatically sends result to backend on success or marks as error on failure.
+   * Executes inline tool handler.
    */
-  async #executeInlineHandler(
+  async #executeToolHandler(
     toolCallId: string,
     toolName: string,
-    handler: (context: HandlerContext) => Promise<unknown> | unknown,
+    handler: (context: HandlerContext) => Promise<ToolResponseData | void> | ToolResponseData | void,
     args: Record<string, unknown>
   ): Promise<void> {
     try {
@@ -395,8 +390,8 @@ export class AiChatbotComponent extends LitElement {
         toolName,
         signal: undefined
       };
-      const result = await handler(context);
-      await this.#sendToolResult(toolCallId, result);
+      const metadata = await handler(context);
+      await this.#sendToolResult(toolCallId, this.#createToolResponse({ metadata }));
     } catch (error) {
       this.#messageStateController.updateToolCall(toolCallId, {
         status: 'error',
