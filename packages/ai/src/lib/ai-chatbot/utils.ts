@@ -1,5 +1,6 @@
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import remend from 'remend';
 
 const DOMPURIFY_CONFIG = {
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
@@ -17,6 +18,7 @@ export function generateId(prefix: string): string {
  * Renders markdown content to sanitized HTML
  */
 export function renderMarkdown(content: string): string {
-  const rawHtml = marked.parse(content, { async: false, gfm: true, breaks: true }) as string;
+  const completedMarkdown = remend(content);
+  const rawHtml = marked.parse(completedMarkdown, { async: false, gfm: true, breaks: true }) as string;
   return DOMPurify.sanitize(rawHtml, DOMPURIFY_CONFIG);
 }
