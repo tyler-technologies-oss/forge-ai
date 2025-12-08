@@ -5,6 +5,7 @@ import '../ai-icon/ai-icon';
 import '../core/tooltip/tooltip.js';
 import '../ai-dropdown-menu/ai-dropdown-menu.js';
 import '../ai-dropdown-menu/ai-dropdown-menu-item.js';
+import '../ai-dropdown-menu/ai-dropdown-menu-separator.js';
 
 import styles from './ai-chat-header.scss?inline';
 
@@ -22,6 +23,7 @@ declare global {
     'forge-ai-chat-header-minimize': CustomEvent<void>;
     'forge-ai-chat-header-clear': CustomEvent<void>;
     'forge-ai-chat-header-info': CustomEvent<void>;
+    'forge-ai-chat-header-export': CustomEvent<void>;
   }
 }
 
@@ -43,6 +45,7 @@ export type MinimizeIconType = 'default' | 'panel';
  * @event forge-ai-chat-header-minimize - Fired when the minimize button is clicked
  * @event forge-ai-chat-header-clear - Fired when the clear chat option is selected
  * @event forge-ai-chat-header-info - Fired when the info option is selected
+ * @event forge-ai-chat-header-export - Fired when the export option is selected
  */
 @customElement(AiChatHeaderComponentTagName)
 export class AiChatHeaderComponent extends LitElement {
@@ -76,7 +79,9 @@ export class AiChatHeaderComponent extends LitElement {
     return html`
       <div class="header forge-toolbar forge-toolbar--no-divider">
         <div class="start">
-          <forge-ai-icon></forge-ai-icon>
+          <slot name="icon">
+            <forge-ai-icon></forge-ai-icon>
+          </slot>
           <slot name="title">
             <h1>AI Assistant</h1>
           </slot>
@@ -96,11 +101,27 @@ export class AiChatHeaderComponent extends LitElement {
               <path
                 d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2" />
             </svg>
-            <forge-ai-dropdown-menu-item value="clear-chat">
-              <span>Clear chat</span>
+            <forge-ai-dropdown-menu-item value="export">
+              <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                <path d="m15.61 8.92 1.41-1.41-5-5-5 5 1.41 1.41 2.59-2.58v9.67h2V6.34z" />
+                <path d="M19.05 14.06V19h-14v-4.94h-2V19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4.94z" />
+              </svg>
+              <span>Export current chat</span>
             </forge-ai-dropdown-menu-item>
             <forge-ai-dropdown-menu-item value="info">
+              <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                <path fill="none" d="M0 0h24v24H0z" />
+                <path
+                  d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8" />
+              </svg>
               <span>Info</span>
+            </forge-ai-dropdown-menu-item>
+            <forge-ai-dropdown-menu-separator></forge-ai-dropdown-menu-separator>
+            <forge-ai-dropdown-menu-item value="clear-chat">
+              <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z" />
+              </svg>
+              <span>Clear chat</span>
             </forge-ai-dropdown-menu-item>
           </forge-ai-dropdown-menu>
           ${when(
@@ -200,9 +221,9 @@ export class AiChatHeaderComponent extends LitElement {
     const value = event.detail.value;
 
     switch (value) {
-      case 'clear-chat':
+      case 'export':
         this.dispatchEvent(
-          new CustomEvent('forge-ai-chat-header-clear', {
+          new CustomEvent('forge-ai-chat-header-export', {
             bubbles: true,
             composed: true
           })
@@ -211,6 +232,14 @@ export class AiChatHeaderComponent extends LitElement {
       case 'info':
         this.dispatchEvent(
           new CustomEvent('forge-ai-chat-header-info', {
+            bubbles: true,
+            composed: true
+          })
+        );
+        break;
+      case 'clear-chat':
+        this.dispatchEvent(
+          new CustomEvent('forge-ai-chat-header-clear', {
             bubbles: true,
             composed: true
           })

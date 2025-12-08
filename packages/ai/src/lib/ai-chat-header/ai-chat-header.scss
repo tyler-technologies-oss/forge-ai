@@ -34,3 +34,8 @@
   display: flex;
   align-items: center;
 }
+
+forge-ai-dropdown-menu-item > svg[slot='start'].forge-icon {
+  width: 20px;
+  height: 20px;
+}
