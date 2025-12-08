@@ -13,10 +13,11 @@ export interface ToolResponseData {
 
 /**
  * Context provided to tool handlers when they are invoked.
+ * @template TArgs - Type of the tool call arguments
  */
-export interface HandlerContext {
+export interface HandlerContext<TArgs = Record<string, unknown>> {
   /** Tool call arguments */
-  args: Record<string, unknown>;
+  args: TArgs;
   /** Unique identifier for this tool call */
   toolCallId: string;
   /** Name of the tool being called */
@@ -25,7 +26,11 @@ export interface HandlerContext {
   signal?: AbortSignal;
 }
 
-export interface ToolDefinition {
+/**
+ * Tool definition with optional type-safe handler.
+ * @template TArgs - Type of the tool call arguments for type-safe handler context
+ */
+export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
   name: string;
   displayName?: string;
   description?: string;
@@ -40,7 +45,7 @@ export interface ToolDefinition {
    * Optional handler function invoked when tool is called.
    * Can return metadata to include in tool response.
    */
-  handler?: (context: HandlerContext) => Promise<ToolResponseData | void> | ToolResponseData | void;
+  handler?: (context: HandlerContext<THandlerArgs>) => Promise<ToolResponseData | void> | ToolResponseData | void;
 }
 
 export interface ChatMessage {

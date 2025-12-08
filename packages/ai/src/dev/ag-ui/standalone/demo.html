@@ -25,6 +25,7 @@
           <forge-tab value="extractor">Form Data Extractor</forge-tab>
           <forge-tab value="smart-complete">Smart Completion</forge-tab>
           <forge-tab value="explainer">AI Explainer</forge-tab>
+          <forge-tab value="multi-turn">Multi-Turn Agent</forge-tab>
         </forge-tab-bar>
       </forge-toolbar>
 
@@ -230,6 +231,52 @@
                   <forge-button class="close-btn" variant="text">Close</forge-button>
                 </div>
               </forge-popover>
+            </div>
+          </div>
+
+          <!-- Multi-Turn Agent -->
+          <div id="multi-turn-tab" class="tab-panel" style="display: none">
+            <h2 class="forge-typography--heading4">Multi-Turn Agent</h2>
+            <p class="forge-typography--subheading2 description">
+              Watch the agent make multiple tool calls to gather information before responding
+            </p>
+
+            <forge-stack inline>
+              <forge-text-field>
+                <label for="mt-destination">Destination</label>
+                <input type="text" id="mt-destination" value="Paris" placeholder="e.g., Paris" />
+              </forge-text-field>
+              <forge-date-picker id="mt-date-picker">
+                <forge-text-field>
+                  <label for="mt-date">Travel Date</label>
+                  <input type="text" />
+                </forge-text-field>
+              </forge-date-picker>
+              <forge-ai-button id="mtPlanBtn" style="align-self: flex-end;">
+                <span>Plan My Trip</span>
+                <forge-circular-progress slot="end" id="mtProgress" style="display: none;"></forge-circular-progress>
+              </forge-ai-button>
+            </forge-stack>
+
+            <div id="mtResultsSection" class="results-section" style="display: none;">
+              <div class="trip-info-grid">
+                <div class="trip-info-container" style="grid-column: 1 / 3;">
+                  <h3 class="forge-typography--heading2">Weather</h3>
+                  <forge-list id="mtWeatherList"></forge-list>
+                </div>
+                <div class="trip-info-container">
+                  <h3 class="forge-typography--heading2">Restaurants</h3>
+                  <forge-list id="mtRestaurantsList"></forge-list>
+                </div>
+                <div class="trip-info-container">
+                  <h3 class="forge-typography--heading2">Hotels</h3>
+                  <forge-list id="mtHotelsList"></forge-list>
+                </div>
+              </div>
+              <div class="agent-message-container">
+                <h3 class="forge-typography--heading2">Agent Summary</h3>
+                <div id="mtAgentMessage" class="agent-message-content"></div>
+              </div>
             </div>
           </div>
         </forge-card>

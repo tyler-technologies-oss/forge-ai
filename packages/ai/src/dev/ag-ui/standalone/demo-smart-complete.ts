@@ -1,4 +1,10 @@
-import { AgentRunner, AgUiAdapter, type ToolDefinition, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
+import {
+  AgentRunner,
+  AgUiAdapter,
+  type ToolDefinition,
+  type AgUiAdapterConfig,
+  HandlerContext
+} from '../../../lib/ai-chatbot';
 
 interface CompanyFormData {
   industry?: string;
@@ -10,41 +16,41 @@ interface CompanyFormData {
 
 type ShowToastFn = (message: string, theme?: 'error' | 'success' | 'warning' | 'info') => void;
 
-export function createSmartCompleteTools(showToast: ShowToastFn): ToolDefinition[] {
+export function createSmartCompleteTools(showToast: ShowToastFn): Array<ToolDefinition<any>> {
   const industryInput = document.getElementById('sc-industry') as HTMLInputElement;
   const headquartersInput = document.getElementById('sc-headquarters') as HTMLInputElement;
   const websiteInput = document.getElementById('sc-website') as HTMLInputElement;
   const employeesInput = document.getElementById('sc-employees') as HTMLInputElement;
   const foundedInput = document.getElementById('sc-founded') as HTMLInputElement;
 
-  return [
-    {
-      name: 'fillCompanyForm',
-      displayName: 'Fill Company Form',
-      description: 'Fill company form with completion data',
-      parameters: {
-        type: 'object' as const,
-        properties: {
-          industry: { type: 'string', description: 'Primary industry/sector' },
-          headquarters: { type: 'string', description: 'City and state/country' },
-          website: { type: 'string', description: 'Company website URL' },
-          employees: { type: 'string', description: 'Employee count or range' },
-          founded: { type: 'string', description: 'Year founded' }
-        }
-      },
-      handler: async context => {
-        const data = context.args as CompanyFormData;
-        industryInput.value = data.industry || '';
-        headquartersInput.value = data.headquarters || '';
-        websiteInput.value = data.website || '';
-        employeesInput.value = data.employees || '';
-        foundedInput.value = data.founded || '';
-
-        showToast('Company information completed!', 'success');
-        return { success: true, message: 'Form filled successfully' };
+  const fillCompanyFormTool: ToolDefinition<CompanyFormData> = {
+    name: 'fillCompanyForm',
+    displayName: 'Fill Company Form',
+    description: 'Fill company form with completion data',
+    parameters: {
+      type: 'object' as const,
+      properties: {
+        industry: { type: 'string', description: 'Primary industry/sector' },
+        headquarters: { type: 'string', description: 'City and state/country' },
+        website: { type: 'string', description: 'Company website URL' },
+        employees: { type: 'string', description: 'Employee count or range' },
+        founded: { type: 'string', description: 'Year founded' }
       }
+    },
+    handler: async (context: HandlerContext<CompanyFormData>) => {
+      const data = context.args;
+      industryInput.value = data.industry || '';
+      headquartersInput.value = data.headquarters || '';
+      websiteInput.value = data.website || '';
+      employeesInput.value = data.employees || '';
+      foundedInput.value = data.founded || '';
+
+      showToast('Company information completed!', 'success');
+      return { success: true, message: 'Form filled successfully' };
     }
-  ];
+  };
+
+  return [fillCompanyFormTool];
 }
 
 export function initSmartCompleteDemo(

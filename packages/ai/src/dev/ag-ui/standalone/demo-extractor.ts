@@ -1,4 +1,10 @@
-import { AgentRunner, AgUiAdapter, type ToolDefinition, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
+import {
+  AgentRunner,
+  AgUiAdapter,
+  type ToolDefinition,
+  type AgUiAdapterConfig,
+  HandlerContext
+} from '../../../lib/ai-chatbot';
 
 interface ExtractedFormData {
   name?: string;
@@ -13,7 +19,7 @@ interface ExtractedFormData {
 
 type ShowToastFn = (message: string, theme?: 'error' | 'success' | 'warning' | 'info') => void;
 
-export function createExtractorTools(showToast: ShowToastFn): ToolDefinition[] {
+export function createExtractorTools(showToast: ShowToastFn): Array<ToolDefinition<any>> {
   const nameInput = document.getElementById('extractor-name') as HTMLInputElement;
   const companyInput = document.getElementById('extractor-company') as HTMLInputElement;
   const emailInput = document.getElementById('extractor-email') as HTMLInputElement;
@@ -23,40 +29,40 @@ export function createExtractorTools(showToast: ShowToastFn): ToolDefinition[] {
   const stateInput = document.getElementById('extractor-state') as HTMLInputElement;
   const zipInput = document.getElementById('extractor-zip') as HTMLInputElement;
 
-  return [
-    {
-      name: 'fillContactForm',
-      displayName: 'Fill Contact Form',
-      description: 'Fill contact form with extracted data',
-      parameters: {
-        type: 'object' as const,
-        properties: {
-          name: { type: 'string', description: 'Full name' },
-          company: { type: 'string', description: 'Company name' },
-          email: { type: 'string', description: 'Email address' },
-          phone: { type: 'string', description: 'Phone number' },
-          address: { type: 'string', description: 'Street address' },
-          city: { type: 'string', description: 'City' },
-          state: { type: 'string', description: 'State' },
-          zip: { type: 'string', description: 'ZIP code' }
-        }
-      },
-      handler: async context => {
-        const data = context.args as ExtractedFormData;
-        nameInput.value = data.name || '';
-        companyInput.value = data.company || '';
-        emailInput.value = data.email || '';
-        phoneInput.value = data.phone || '';
-        addressInput.value = data.address || '';
-        cityInput.value = data.city || '';
-        stateInput.value = data.state || '';
-        zipInput.value = data.zip || '';
-
-        showToast('Form data extracted successfully!', 'success');
-        return { success: true, message: 'Form filled successfully' };
+  const fillContactFormTool: ToolDefinition<ExtractedFormData> = {
+    name: 'fillContactForm',
+    displayName: 'Fill Contact Form',
+    description: 'Fill contact form with extracted data',
+    parameters: {
+      type: 'object' as const,
+      properties: {
+        name: { type: 'string', description: 'Full name' },
+        company: { type: 'string', description: 'Company name' },
+        email: { type: 'string', description: 'Email address' },
+        phone: { type: 'string', description: 'Phone number' },
+        address: { type: 'string', description: 'Street address' },
+        city: { type: 'string', description: 'City' },
+        state: { type: 'string', description: 'State' },
+        zip: { type: 'string', description: 'ZIP code' }
       }
+    },
+    handler: async (context: HandlerContext<ExtractedFormData>) => {
+      const data = context.args;
+      nameInput.value = data.name || '';
+      companyInput.value = data.company || '';
+      emailInput.value = data.email || '';
+      phoneInput.value = data.phone || '';
+      addressInput.value = data.address || '';
+      cityInput.value = data.city || '';
+      stateInput.value = data.state || '';
+      zipInput.value = data.zip || '';
+
+      showToast('Form data extracted successfully!', 'success');
+      return { success: true, message: 'Form filled successfully' };
     }
-  ];
+  };
+
+  return [fillContactFormTool];
 }
 
 export function initExtractorDemo(
