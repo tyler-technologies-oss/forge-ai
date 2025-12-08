@@ -1,4 +1,4 @@
-import { AiPromptRunner, AgUiAdapter, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
+import { AgentRunner, AgUiAdapter, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
 
 type ShowToastFn = (message: string, theme?: 'error' | 'success' | 'warning' | 'info') => void;
 
@@ -36,9 +36,9 @@ export function initExplainerDemo(config: AgUiAdapterConfig, showToast: ShowToas
 
       try {
         const adapter = new AgUiAdapter({ ...config });
-        const result = await AiPromptRunner.run({ adapter, prompt });
+        const result = await AgentRunner.run({ adapter, prompt });
 
-        textEl.textContent = result.message.content;
+        textEl.textContent = result.finalMessage.content;
         hasContent = true;
         popover.open = true;
       } catch (error) {

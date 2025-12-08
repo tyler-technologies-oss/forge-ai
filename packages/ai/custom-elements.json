@@ -237,6 +237,87 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-button/ai-button.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiButtonComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-button'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiButtonComponent",
+          "slots": [
+            {
+              "description": "Default slot for button content",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-button",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiButtonComponentTagName",
+          "declaration": {
+            "name": "AiButtonComponentTagName",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiButtonComponent",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "declarations": [
         {
@@ -443,81 +524,156 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-button/ai-button.ts",
+      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "AiButtonComponentTagName",
+          "name": "AiChatInterfaceComponentTagName",
           "type": {
             "text": "keyof HTMLElementTagNameMap"
           },
-          "default": "'forge-ai-button'"
+          "default": "'forge-ai-chat-interface'"
         },
         {
           "kind": "class",
           "description": "",
-          "name": "AiButtonComponent",
+          "name": "AiChatInterfaceComponent",
           "slots": [
             {
-              "description": "Default slot for button content",
+              "description": "Default slot for messages",
               "name": ""
+            },
+            {
+              "description": "Slot for AI chat header component",
+              "name": "header"
+            },
+            {
+              "description": "Slot for AI suggestions component",
+              "name": "suggestions"
+            },
+            {
+              "description": "Slot for AI prompt component",
+              "name": "prompt"
             }
           ],
           "members": [
             {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
+              "kind": "method",
+              "name": "scrollToBottom",
               "privacy": "public",
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "attribute": "disabled",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
+              "return": {
+                "type": {
+                  "text": "void"
+                }
               },
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "fieldName": "disabled"
+              "description": "Scrolls the messages container to the bottom with smooth animation"
             }
           ],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "forge-ai-button",
+          "tagName": "forge-ai-chat-interface",
           "customElement": true
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "AiButtonComponentTagName",
+          "name": "AiChatInterfaceComponentTagName",
           "declaration": {
-            "name": "AiButtonComponentTagName",
-            "module": "src/lib/ai-button/ai-button.ts"
+            "name": "AiChatInterfaceComponentTagName",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
           }
         },
         {
           "kind": "js",
-          "name": "AiButtonComponent",
+          "name": "AiChatInterfaceComponent",
           "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
+            "name": "AiChatInterfaceComponent",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
           }
         },
         {
           "kind": "custom-element-definition",
           "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
+            "name": "AiChatInterfaceComponent",
+            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChainOfThoughtComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chain-of-thought'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChainOfThoughtComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chain-of-thought",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponentTagName",
+          "declaration": {
+            "name": "AiChainOfThoughtComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponent",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
           }
         }
       ]
@@ -683,162 +839,6 @@
           "declaration": {
             "name": "AiChatHeaderComponent",
             "module": "src/lib/ai-chat-header/ai-chat-header.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChatInterfaceComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chat-interface'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChatInterfaceComponent",
-          "slots": [
-            {
-              "description": "Default slot for messages",
-              "name": ""
-            },
-            {
-              "description": "Slot for AI chat header component",
-              "name": "header"
-            },
-            {
-              "description": "Slot for AI suggestions component",
-              "name": "suggestions"
-            },
-            {
-              "description": "Slot for AI prompt component",
-              "name": "prompt"
-            }
-          ],
-          "members": [
-            {
-              "kind": "method",
-              "name": "scrollToBottom",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Scrolls the messages container to the bottom with smooth animation"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chat-interface",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChatInterfaceComponentTagName",
-          "declaration": {
-            "name": "AiChatInterfaceComponentTagName",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChatInterfaceComponent",
-          "declaration": {
-            "name": "AiChatInterfaceComponent",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChatInterfaceComponent",
-            "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChainOfThoughtComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chain-of-thought'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChainOfThoughtComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "attribute": "expanded",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chain-of-thought",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponentTagName",
-          "declaration": {
-            "name": "AiChainOfThoughtComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponent",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
           }
         }
       ]
@@ -1098,7 +1098,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1120,7 +1120,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1142,7 +1142,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1164,7 +1164,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1186,7 +1186,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1208,7 +1208,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1230,7 +1230,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1252,7 +1252,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1274,7 +1274,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1296,7 +1296,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1318,7 +1318,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1340,7 +1340,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1362,7 +1362,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1583,7 +1583,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1601,7 +1601,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1619,7 +1619,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1637,7 +1637,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1655,7 +1655,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1673,7 +1673,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1691,7 +1691,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1709,7 +1709,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1727,7 +1727,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1745,7 +1745,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1763,7 +1763,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1781,7 +1781,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1799,7 +1799,7 @@
               "privacy": "public",
               "return": {
                 "type": {
-                  "text": "void"
+                  "text": "Subscription"
                 }
               },
               "parameters": [
@@ -1821,6 +1821,48 @@
           "declaration": {
             "name": "AgentAdapter",
             "module": "src/lib/ai-chatbot/agent-adapter.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/agent-runner.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AgentRunner",
+          "members": [
+            {
+              "kind": "method",
+              "name": "run",
+              "privacy": "public",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "Promise<AgentRunnerResult>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "text": "AgentRunnerConfig"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AgentRunner",
+          "declaration": {
+            "name": "AgentRunner",
+            "module": "src/lib/ai-chatbot/agent-runner.ts"
           }
         }
       ]
@@ -2302,48 +2344,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chatbot/ai-prompt-runner.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiPromptRunner",
-          "members": [
-            {
-              "kind": "method",
-              "name": "run",
-              "privacy": "public",
-              "static": true,
-              "return": {
-                "type": {
-                  "text": "Promise<AiPromptRunnerResult>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "config",
-                  "type": {
-                    "text": "AiPromptRunnerConfig"
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiPromptRunner",
-          "declaration": {
-            "name": "AiPromptRunner",
-            "module": "src/lib/ai-chatbot/ai-prompt-runner.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-chatbot/create-tool-renderer.ts",
       "declarations": [
         {
@@ -2371,6 +2371,146 @@
           "declaration": {
             "name": "createToolRenderer",
             "module": "src/lib/ai-chatbot/create-tool-renderer.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/event-emitter.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Generic event emitter for pub/sub pattern with type-safe events",
+          "name": "EventEmitter",
+          "members": [
+            {
+              "kind": "method",
+              "name": "subscribe",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "parameters": [
+                {
+                  "name": "listener",
+                  "type": {
+                    "text": "(event: T) => void"
+                  },
+                  "description": "Function to call when events are emitted"
+                }
+              ],
+              "description": "Subscribes a listener to events"
+            },
+            {
+              "kind": "method",
+              "name": "emit",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "T"
+                  },
+                  "description": "The event payload to send to listeners"
+                }
+              ],
+              "description": "Emits an event to all subscribed listeners"
+            },
+            {
+              "kind": "method",
+              "name": "clear",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Removes all listeners"
+            },
+            {
+              "kind": "field",
+              "name": "listenerCount",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "public",
+              "description": "Returns the current number of active listeners",
+              "readonly": true
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "description": "Manages multiple subscriptions as a single unit for batch cleanup\nUseful for managing event listeners that should all be cleaned up together",
+          "name": "SubscriptionManager",
+          "members": [
+            {
+              "kind": "method",
+              "name": "add",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "subscriptions",
+                  "type": {
+                    "text": "Subscription[]"
+                  },
+                  "description": "Subscriptions to add to the manager"
+                }
+              ],
+              "description": "Adds one or more subscriptions to manage"
+            },
+            {
+              "kind": "method",
+              "name": "unsubscribe",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Unsubscribes from all managed subscriptions"
+            },
+            {
+              "kind": "field",
+              "name": "isUnsubscribed",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "description": "Returns whether all subscriptions have been unsubscribed",
+              "readonly": true
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EventEmitter",
+          "declaration": {
+            "name": "EventEmitter",
+            "module": "src/lib/ai-chatbot/event-emitter.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "SubscriptionManager",
+          "declaration": {
+            "name": "SubscriptionManager",
+            "module": "src/lib/ai-chatbot/event-emitter.ts"
           }
         }
       ]
@@ -5521,6 +5661,121 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-reasoning-header/ai-reasoning-header.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiReasoningHeaderComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-reasoning-header'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiReasoningHeaderComponent",
+          "slots": [
+            {
+              "description": "Content for the header when in regular (non-reasoning) state",
+              "name": "title"
+            },
+            {
+              "description": "Content for the header when in reasoning state",
+              "name": "reasoning-title"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the header is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "reasoning",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether this is a reasoning header",
+              "attribute": "reasoning",
+              "reflects": true
+            }
+          ],
+          "events": [
+            {
+              "name": "toggle",
+              "type": {
+                "text": "CustomEvent<{ expanded: boolean }>"
+              },
+              "description": "Fired when the header is clicked and the expanded state changes"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the header is expanded",
+              "fieldName": "expanded"
+            },
+            {
+              "name": "reasoning",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether this is a reasoning header",
+              "fieldName": "reasoning"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-reasoning-header",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiReasoningHeaderComponentTagName",
+          "declaration": {
+            "name": "AiReasoningHeaderComponentTagName",
+            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiReasoningHeaderComponent",
+          "declaration": {
+            "name": "AiReasoningHeaderComponent",
+            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiReasoningHeaderComponent",
+            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-response-message/ai-response-message.ts",
       "declarations": [
         {
@@ -5638,121 +5893,6 @@
           "declaration": {
             "name": "AiResponseMessageComponent",
             "module": "src/lib/ai-response-message/ai-response-message.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-reasoning-header/ai-reasoning-header.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiReasoningHeaderComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-reasoning-header'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiReasoningHeaderComponent",
-          "slots": [
-            {
-              "description": "Content for the header when in regular (non-reasoning) state",
-              "name": "title"
-            },
-            {
-              "description": "Content for the header when in reasoning state",
-              "name": "reasoning-title"
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the header is expanded",
-              "attribute": "expanded",
-              "reflects": true
-            },
-            {
-              "kind": "field",
-              "name": "reasoning",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether this is a reasoning header",
-              "attribute": "reasoning",
-              "reflects": true
-            }
-          ],
-          "events": [
-            {
-              "name": "toggle",
-              "type": {
-                "text": "CustomEvent<{ expanded: boolean }>"
-              },
-              "description": "Fired when the header is clicked and the expanded state changes"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the header is expanded",
-              "fieldName": "expanded"
-            },
-            {
-              "name": "reasoning",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether this is a reasoning header",
-              "fieldName": "reasoning"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-reasoning-header",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiReasoningHeaderComponentTagName",
-          "declaration": {
-            "name": "AiReasoningHeaderComponentTagName",
-            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiReasoningHeaderComponent",
-          "declaration": {
-            "name": "AiReasoningHeaderComponent",
-            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiReasoningHeaderComponent",
-            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
           }
         }
       ]
@@ -6236,6 +6376,58 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thinking-indicator'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiThinkingIndicatorComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thinking-indicator",
+          "customElement": true,
+          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponentTagName",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponent",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-threads/ai-threads.ts",
       "declarations": [
         {
@@ -6333,58 +6525,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiThinkingIndicatorComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thinking-indicator'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiThinkingIndicatorComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thinking-indicator",
-          "customElement": true,
-          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiThinkingIndicatorComponentTagName",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponentTagName",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiThinkingIndicatorComponent",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-user-message/ai-user-message.ts",
       "declarations": [
         {
@@ -6430,6 +6570,66 @@
           "declaration": {
             "name": "AiUserMessageComponent",
             "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-voice-input/ai-voice-input.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiVoiceInputComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-voice-input'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiVoiceInputComponent",
+          "members": [],
+          "events": [
+            {
+              "name": "forge-ai-voice-input-result",
+              "type": {
+                "text": "CustomEvent<AiVoiceInputResultEvent>"
+              },
+              "description": "Fired when speech recognition produces a result. The event detail contains the transcript and confidence score of the recognized speech."
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-voice-input",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiVoiceInputComponentTagName",
+          "declaration": {
+            "name": "AiVoiceInputComponentTagName",
+            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiVoiceInputComponent",
+          "declaration": {
+            "name": "AiVoiceInputComponent",
+            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiVoiceInputComponent",
+            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
           }
         }
       ]
@@ -6527,66 +6727,6 @@
           "declaration": {
             "name": "DragController",
             "module": "src/lib/core/drag-controller.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-voice-input/ai-voice-input.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiVoiceInputComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-voice-input'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiVoiceInputComponent",
-          "members": [],
-          "events": [
-            {
-              "name": "forge-ai-voice-input-result",
-              "type": {
-                "text": "CustomEvent<AiVoiceInputResultEvent>"
-              },
-              "description": "Fired when speech recognition produces a result. The event detail contains the transcript and confidence score of the recognized speech."
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-voice-input",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiVoiceInputComponentTagName",
-          "declaration": {
-            "name": "AiVoiceInputComponentTagName",
-            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiVoiceInputComponent",
-          "declaration": {
-            "name": "AiVoiceInputComponent",
-            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiVoiceInputComponent",
-            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
           }
         }
       ]
@@ -7681,6 +7821,10 @@
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "lineNumber": 23
     },
+    "AiButtonComponent": {
+      "path": "src/lib/ai-button/ai-button.ts",
+      "lineNumber": 22
+    },
     "ForgeAiAttachmentRemoveEventData": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 19
@@ -7689,9 +7833,13 @@
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 41
     },
-    "AiButtonComponent": {
-      "path": "src/lib/ai-button/ai-button.ts",
-      "lineNumber": 22
+    "AiChatInterfaceComponent": {
+      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
+      "lineNumber": 24
+    },
+    "AiChainOfThoughtComponent": {
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "lineNumber": 17
     },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
@@ -7700,14 +7848,6 @@
     "AiChatHeaderComponent": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 47
-    },
-    "AiChatInterfaceComponent": {
-      "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
-      "lineNumber": 24
-    },
-    "AiChainOfThoughtComponent": {
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "lineNumber": 17
     },
     "AgUiAdapterConfig": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
@@ -7723,50 +7863,66 @@
     },
     "FileUploadCallback": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 3
+      "lineNumber": 4
     },
     "MessageStartEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 5
+      "lineNumber": 6
     },
     "MessageDeltaEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 9
+      "lineNumber": 10
     },
     "MessageEndEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 14
+      "lineNumber": 15
     },
     "ToolCallEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 18
+      "lineNumber": 19
     },
     "ToolCallStartEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 25
+      "lineNumber": 26
     },
     "ToolCallArgsEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 31
+      "lineNumber": 32
     },
     "ToolCallEndEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 39
+      "lineNumber": 40
     },
     "ToolResultEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 46
+      "lineNumber": 47
     },
     "AdapterState": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 52
+      "lineNumber": 53
     },
     "ErrorEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
-      "lineNumber": 57
+      "lineNumber": 58
     },
     "AgentAdapter": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
+      "lineNumber": 62
+    },
+    "AgentRunnerConfig": {
+      "path": "src/lib/ai-chatbot/agent-runner.ts",
+      "lineNumber": 6
+    },
+    "AgentRunnerResult": {
+      "path": "src/lib/ai-chatbot/agent-runner.ts",
+      "lineNumber": 27
+    },
+    "RunState": {
+      "path": "src/lib/ai-chatbot/agent-runner.ts",
+      "lineNumber": 42
+    },
+    "AgentRunner": {
+      "path": "src/lib/ai-chatbot/agent-runner.ts",
       "lineNumber": 61
     },
     "AiChatbotToolCallComponent": {
@@ -7789,22 +7945,6 @@
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
       "lineNumber": 115
     },
-    "AiPromptRunnerConfig": {
-      "path": "src/lib/ai-chatbot/ai-prompt-runner.ts",
-      "lineNumber": 5
-    },
-    "AiPromptRunnerResult": {
-      "path": "src/lib/ai-chatbot/ai-prompt-runner.ts",
-      "lineNumber": 14
-    },
-    "RunState": {
-      "path": "src/lib/ai-chatbot/ai-prompt-runner.ts",
-      "lineNumber": 20
-    },
-    "AiPromptRunner": {
-      "path": "src/lib/ai-chatbot/ai-prompt-runner.ts",
-      "lineNumber": 30
-    },
     "CreateToolRendererElementConfig": {
       "path": "src/lib/ai-chatbot/create-tool-renderer.ts",
       "lineNumber": 3
@@ -7816,6 +7956,18 @@
     "CreateToolRendererConfig": {
       "path": "src/lib/ai-chatbot/create-tool-renderer.ts",
       "lineNumber": 14
+    },
+    "Subscription": {
+      "path": "src/lib/ai-chatbot/event-emitter.ts",
+      "lineNumber": 2
+    },
+    "EventEmitter": {
+      "path": "src/lib/ai-chatbot/event-emitter.ts",
+      "lineNumber": 11
+    },
+    "SubscriptionManager": {
+      "path": "src/lib/ai-chatbot/event-emitter.ts",
+      "lineNumber": 62
     },
     "FileUploadManagerConfig": {
       "path": "src/lib/ai-chatbot/file-upload-manager.ts",
@@ -8013,13 +8165,13 @@
       "path": "src/lib/ai-reasoning/ai-reasoning.ts",
       "lineNumber": 17
     },
-    "AiResponseMessageComponent": {
-      "path": "src/lib/ai-response-message/ai-response-message.ts",
-      "lineNumber": 33
-    },
     "AiReasoningHeaderComponent": {
       "path": "src/lib/ai-reasoning-header/ai-reasoning-header.ts",
       "lineNumber": 22
+    },
+    "AiResponseMessageComponent": {
+      "path": "src/lib/ai-response-message/ai-response-message.ts",
+      "lineNumber": 33
     },
     "AiSidebarComponent": {
       "path": "src/lib/ai-sidebar/ai-sidebar.ts",
@@ -8045,6 +8197,10 @@
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 42
     },
+    "AiThinkingIndicatorComponent": {
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "lineNumber": 24
+    },
     "Thread": {
       "path": "src/lib/ai-threads/ai-threads.ts",
       "lineNumber": 19
@@ -8057,21 +8213,9 @@
       "path": "src/lib/ai-threads/ai-threads.ts",
       "lineNumber": 40
     },
-    "AiThinkingIndicatorComponent": {
-      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
-      "lineNumber": 24
-    },
     "AiUserMessageComponent": {
       "path": "src/lib/ai-user-message/ai-user-message.ts",
       "lineNumber": 17
-    },
-    "DragControllerOptions": {
-      "path": "src/lib/core/drag-controller.ts",
-      "lineNumber": 4
-    },
-    "DragController": {
-      "path": "src/lib/core/drag-controller.ts",
-      "lineNumber": 21
     },
     "SpeechRecognitionAlternative": {
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
@@ -8100,6 +8244,14 @@
     "AiVoiceInputComponent": {
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
       "lineNumber": 74
+    },
+    "DragControllerOptions": {
+      "path": "src/lib/core/drag-controller.ts",
+      "lineNumber": 4
+    },
+    "DragController": {
+      "path": "src/lib/core/drag-controller.ts",
+      "lineNumber": 21
     },
     "ThoughtBaseComponent": {
       "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",

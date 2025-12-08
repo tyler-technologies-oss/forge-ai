@@ -16,7 +16,7 @@
 }
 
 .tool-name {
-  @include forge-typography.style(body2);
+  @include forge-typography.style(body1);
 
   color: #{forge-theme.variable(text-medium)};
 }

@@ -1,4 +1,5 @@
 import type { ChatMessage, ToolDefinition, UploadedFileMetadata } from './types.js';
+import { EventEmitter, type Subscription } from './event-emitter.js';
 
 export type FileUploadCallback = (file: File) => Promise<UploadedFileMetadata>;
 
@@ -62,20 +63,20 @@ export abstract class AgentAdapter {
   protected _state: AdapterState = { isConnected: false, isRunning: false };
   protected _tools: ToolDefinition[] = [];
   public fileUploadCallback?: FileUploadCallback;
-  protected _callbacks = {
-    onRunStarted: [] as (() => void)[],
-    onRunFinished: [] as (() => void)[],
-    onRunAborted: [] as (() => void)[],
-    onMessageStart: [] as ((event: MessageStartEvent) => void)[],
-    onMessageDelta: [] as ((event: MessageDeltaEvent) => void)[],
-    onMessageEnd: [] as ((event: MessageEndEvent) => void)[],
-    onToolCall: [] as ((event: ToolCallEvent) => void)[],
-    onToolCallStart: [] as ((event: ToolCallStartEvent) => void)[],
-    onToolCallArgs: [] as ((event: ToolCallArgsEvent) => void)[],
-    onToolCallEnd: [] as ((event: ToolCallEndEvent) => void)[],
-    onToolResult: [] as ((event: ToolResultEvent) => void)[],
-    onError: [] as ((event: ErrorEvent) => void)[],
-    onStateChange: [] as ((state: AdapterState) => void)[]
+  protected _events = {
+    runStarted: new EventEmitter<void>(),
+    runFinished: new EventEmitter<void>(),
+    runAborted: new EventEmitter<void>(),
+    messageStart: new EventEmitter<MessageStartEvent>(),
+    messageDelta: new EventEmitter<MessageDeltaEvent>(),
+    messageEnd: new EventEmitter<MessageEndEvent>(),
+    toolCall: new EventEmitter<ToolCallEvent>(),
+    toolCallStart: new EventEmitter<ToolCallStartEvent>(),
+    toolCallArgs: new EventEmitter<ToolCallArgsEvent>(),
+    toolCallEnd: new EventEmitter<ToolCallEndEvent>(),
+    toolResult: new EventEmitter<ToolResultEvent>(),
+    error: new EventEmitter<ErrorEvent>(),
+    stateChange: new EventEmitter<AdapterState>()
   };
 
   public abstract connect(): Promise<void>;
@@ -111,116 +112,108 @@ export abstract class AgentAdapter {
     return this._state.isRunning;
   }
 
-  public onRunStarted(callback: () => void): void {
-    this._callbacks.onRunStarted.push(callback);
+  public onRunStarted(callback: () => void): Subscription {
+    return this._events.runStarted.subscribe(callback);
   }
 
-  public onRunFinished(callback: () => void): void {
-    this._callbacks.onRunFinished.push(callback);
+  public onRunFinished(callback: () => void): Subscription {
+    return this._events.runFinished.subscribe(callback);
   }
 
-  public onRunAborted(callback: () => void): void {
-    this._callbacks.onRunAborted.push(callback);
+  public onRunAborted(callback: () => void): Subscription {
+    return this._events.runAborted.subscribe(callback);
   }
 
-  public onMessageStart(callback: (event: MessageStartEvent) => void): void {
-    this._callbacks.onMessageStart.push(callback);
+  public onMessageStart(callback: (event: MessageStartEvent) => void): Subscription {
+    return this._events.messageStart.subscribe(callback);
   }
 
-  public onMessageDelta(callback: (event: MessageDeltaEvent) => void): void {
-    this._callbacks.onMessageDelta.push(callback);
+  public onMessageDelta(callback: (event: MessageDeltaEvent) => void): Subscription {
+    return this._events.messageDelta.subscribe(callback);
   }
 
-  public onMessageEnd(callback: (event: MessageEndEvent) => void): void {
-    this._callbacks.onMessageEnd.push(callback);
+  public onMessageEnd(callback: (event: MessageEndEvent) => void): Subscription {
+    return this._events.messageEnd.subscribe(callback);
   }
 
-  public onToolCall(callback: (event: ToolCallEvent) => void): void {
-    this._callbacks.onToolCall.push(callback);
+  public onToolCall(callback: (event: ToolCallEvent) => void): Subscription {
+    return this._events.toolCall.subscribe(callback);
   }
 
-  public onToolCallStart(callback: (event: ToolCallStartEvent) => void): void {
-    this._callbacks.onToolCallStart.push(callback);
+  public onToolCallStart(callback: (event: ToolCallStartEvent) => void): Subscription {
+    return this._events.toolCallStart.subscribe(callback);
   }
 
-  public onToolCallArgs(callback: (event: ToolCallArgsEvent) => void): void {
-    this._callbacks.onToolCallArgs.push(callback);
+  public onToolCallArgs(callback: (event: ToolCallArgsEvent) => void): Subscription {
+    return this._events.toolCallArgs.subscribe(callback);
   }
 
-  public onToolCallEnd(callback: (event: ToolCallEndEvent) => void): void {
-    this._callbacks.onToolCallEnd.push(callback);
+  public onToolCallEnd(callback: (event: ToolCallEndEvent) => void): Subscription {
+    return this._events.toolCallEnd.subscribe(callback);
   }
 
-  public onToolResult(callback: (event: ToolResultEvent) => void): void {
-    this._callbacks.onToolResult.push(callback);
+  public onToolResult(callback: (event: ToolResultEvent) => void): Subscription {
+    return this._events.toolResult.subscribe(callback);
   }
 
-  public onError(callback: (event: ErrorEvent) => void): void {
-    this._callbacks.onError.push(callback);
+  public onError(callback: (event: ErrorEvent) => void): Subscription {
+    return this._events.error.subscribe(callback);
   }
 
-  public onStateChange(callback: (state: AdapterState) => void): void {
-    this._callbacks.onStateChange.push(callback);
-  }
-
-  protected _invokeCallbacks<T>(callbacks: Array<(event: T) => void>, event: T): void;
-  protected _invokeCallbacks(callbacks: Array<() => void>): void;
-  protected _invokeCallbacks<T>(callbacks: Array<((event: T) => void) | (() => void)>, event?: T): void {
-    for (const callback of callbacks) {
-      (callback as (event?: T) => void)(event);
-    }
+  public onStateChange(callback: (state: AdapterState) => void): Subscription {
+    return this._events.stateChange.subscribe(callback);
   }
 
   protected _emitRunStarted(): void {
-    this._invokeCallbacks(this._callbacks.onRunStarted);
+    this._events.runStarted.emit();
   }
 
   protected _emitRunFinished(): void {
-    this._invokeCallbacks(this._callbacks.onRunFinished);
+    this._events.runFinished.emit();
   }
 
   protected _emitRunAborted(): void {
-    this._invokeCallbacks(this._callbacks.onRunAborted);
+    this._events.runAborted.emit();
   }
 
   protected _emitMessageStart(messageId: string): void {
-    this._invokeCallbacks(this._callbacks.onMessageStart, { messageId });
+    this._events.messageStart.emit({ messageId });
   }
 
   protected _emitMessageDelta(messageId: string, delta: string): void {
-    this._invokeCallbacks(this._callbacks.onMessageDelta, { messageId, delta });
+    this._events.messageDelta.emit({ messageId, delta });
   }
 
   protected _emitMessageEnd(messageId: string): void {
-    this._invokeCallbacks(this._callbacks.onMessageEnd, { messageId });
+    this._events.messageEnd.emit({ messageId });
   }
 
   protected _emitToolCall(event: ToolCallEvent): void {
-    this._invokeCallbacks(this._callbacks.onToolCall, event);
+    this._events.toolCall.emit(event);
   }
 
   protected _emitToolCallStart(event: ToolCallStartEvent): void {
-    this._invokeCallbacks(this._callbacks.onToolCallStart, event);
+    this._events.toolCallStart.emit(event);
   }
 
   protected _emitToolCallArgs(event: ToolCallArgsEvent): void {
-    this._invokeCallbacks(this._callbacks.onToolCallArgs, event);
+    this._events.toolCallArgs.emit(event);
   }
 
   protected _emitToolCallEnd(event: ToolCallEndEvent): void {
-    this._invokeCallbacks(this._callbacks.onToolCallEnd, event);
+    this._events.toolCallEnd.emit(event);
   }
 
   protected _emitToolResult(event: ToolResultEvent): void {
-    this._invokeCallbacks(this._callbacks.onToolResult, event);
+    this._events.toolResult.emit(event);
   }
 
   protected _emitError(message: string): void {
-    this._invokeCallbacks(this._callbacks.onError, { message });
+    this._events.error.emit({ message });
   }
 
   protected _updateState(updates: Partial<AdapterState>): void {
     this._state = { ...this._state, ...updates };
-    this._invokeCallbacks(this._callbacks.onStateChange, this.getState());
+    this._events.stateChange.emit(this.getState());
   }
 }

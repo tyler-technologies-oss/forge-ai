@@ -35,8 +35,11 @@ export type {
 // AG-UI adapter
 export { AgUiAdapter, type AgUiAdapterConfig } from './ag-ui-adapter.js';
 
-// AI prompt runner
-export { AiPromptRunner, type AiPromptRunnerConfig, type AiPromptRunnerResult } from './ai-prompt-runner.js';
+// Event system
+export { EventEmitter, SubscriptionManager, type Subscription } from './event-emitter.js';
+
+// Agent runner
+export { AgentRunner, type AgentRunnerConfig, type AgentRunnerResult } from './agent-runner.js';
 
 // Tool renderer helper
 export { createToolRenderer, type CreateToolRendererConfig } from './create-tool-renderer.js';
