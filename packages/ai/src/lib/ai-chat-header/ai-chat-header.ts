@@ -32,6 +32,8 @@ declare global {
 
 export type MinimizeIconType = 'default' | 'panel';
 
+export type OptionState = 'enabled' | 'off';
+
 export interface AgentInfo {
   name?: string;
   description?: string;
@@ -92,6 +94,24 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ type: Object, attribute: false })
   public agentInfo?: AgentInfo;
 
+  /**
+   * Controls state of the options dropdown menu
+   */
+  @property()
+  public options: OptionState = 'enabled';
+
+  /**
+   * Controls state of the export option
+   */
+  @property({ attribute: 'export-option' })
+  public exportOption: OptionState = 'enabled';
+
+  /**
+   * Controls state of the clear chat option
+   */
+  @property({ attribute: 'clear-option' })
+  public clearOption: OptionState = 'enabled';
+
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
   public override render(): TemplateResult {
@@ -106,48 +126,66 @@ export class AiChatHeaderComponent extends LitElement {
           </slot>
         </div>
         <div class="end">
-          <forge-ai-dropdown-menu
-            variant="icon-button"
-            popover-placement="bottom-end"
-            selection-mode="none"
-            @forge-ai-dropdown-menu-change=${this.#handleDropdownChange}>
-            <svg
-              slot="trigger-content"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="forge-icon ai-icon-button">
-              <path fill="none" d="M0 0h24v24H0z" />
-              <path
-                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2" />
-            </svg>
-            <forge-ai-dropdown-menu-item value="export">
-              <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
-                <path d="m15.61 8.92 1.41-1.41-5-5-5 5 1.41 1.41 2.59-2.58v9.67h2V6.34z" />
-                <path d="M19.05 14.06V19h-14v-4.94h-2V19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4.94z" />
-              </svg>
-              <span>Export current chat</span>
-            </forge-ai-dropdown-menu-item>
-            ${when(
-              this.agentInfo,
-              () => html`
-                <forge-ai-dropdown-menu-item value="info">
-                  <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
-                    <path fill="none" d="M0 0h24v24H0z" />
-                    <path
-                      d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8" />
-                  </svg>
-                  <span>Info</span>
-                </forge-ai-dropdown-menu-item>
-              `
-            )}
-            <forge-ai-dropdown-menu-separator></forge-ai-dropdown-menu-separator>
-            <forge-ai-dropdown-menu-item value="clear-chat">
-              <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
-                <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z" />
-              </svg>
-              <span>Clear chat</span>
-            </forge-ai-dropdown-menu-item>
-          </forge-ai-dropdown-menu>
+          ${when(
+            this.options === 'enabled',
+            () => html`
+              <forge-ai-dropdown-menu
+                variant="icon-button"
+                popover-placement="bottom-end"
+                selection-mode="none"
+                @forge-ai-dropdown-menu-change=${this.#handleDropdownChange}>
+                <svg
+                  slot="trigger-content"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  class="forge-icon ai-icon-button">
+                  <path fill="none" d="M0 0h24v24H0z" />
+                  <path
+                    d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2" />
+                </svg>
+                ${when(
+                  this.exportOption === 'enabled',
+                  () => html`
+                    <forge-ai-dropdown-menu-item value="export">
+                      <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                        <path d="m15.61 8.92 1.41-1.41-5-5-5 5 1.41 1.41 2.59-2.58v9.67h2V6.34z" />
+                        <path d="M19.05 14.06V19h-14v-4.94h-2V19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4.94z" />
+                      </svg>
+                      <span>Export current chat</span>
+                    </forge-ai-dropdown-menu-item>
+                  `
+                )}
+                ${when(
+                  this.agentInfo,
+                  () => html`
+                    <forge-ai-dropdown-menu-item value="info">
+                      <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                        <path fill="none" d="M0 0h24v24H0z" />
+                        <path
+                          d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8" />
+                      </svg>
+                      <span>Info</span>
+                    </forge-ai-dropdown-menu-item>
+                  `
+                )}
+                ${when(
+                  this.agentInfo && (this.exportOption === 'enabled' || this.clearOption === 'enabled'),
+                  () => html`<forge-ai-dropdown-menu-separator></forge-ai-dropdown-menu-separator>`
+                )}
+                ${when(
+                  this.clearOption === 'enabled',
+                  () => html`
+                    <forge-ai-dropdown-menu-item value="clear-chat">
+                      <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                        <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z" />
+                      </svg>
+                      <span>Clear chat</span>
+                    </forge-ai-dropdown-menu-item>
+                  `
+                )}
+              </forge-ai-dropdown-menu>
+            `
+          )}
           ${when(
             this.showExpandButton,
             () => html`

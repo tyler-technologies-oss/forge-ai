@@ -165,6 +165,10 @@ export class AiChatbotComponent extends LitElement {
     return this.#fileUploadManager?.isUploading ?? false;
   }
 
+  get #hasMessages(): boolean {
+    return this.#messageItems.length > 0;
+  }
+
   get #tools(): Map<string, ToolDefinition> {
     if (!this.#toolsMap) {
       this.#toolsMap = new Map(this.adapter?.getTools().map(t => [t.name, t]) ?? []);
@@ -874,6 +878,8 @@ export class AiChatbotComponent extends LitElement {
           ?show-expand-button=${this.showExpandButton}
           ?show-minimize-button=${this.showMinimizeButton}
           ?expanded=${this.expanded}
+          export-option=${this.#hasMessages ? 'enabled' : 'off'}
+          clear-option=${this.#hasMessages ? 'enabled' : 'off'}
           .minimizeIcon=${this.minimizeIcon}
           .agentInfo=${this.agentInfo}
           @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
