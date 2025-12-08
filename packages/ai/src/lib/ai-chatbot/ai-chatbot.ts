@@ -36,6 +36,7 @@ import type {
   UploadedFileMetadata
 } from './types.js';
 import { generateId } from './utils.js';
+import type { AgentInfo } from '../ai-agent-info';
 
 import '../ai-attachment';
 import '../ai-chat-header';
@@ -142,6 +143,9 @@ export class AiChatbotComponent extends LitElement {
 
   @property({ type: Boolean, attribute: 'enable-reactions' })
   public enableReactions = false;
+
+  @property({ type: Object, attribute: false })
+  public agentInfo?: AgentInfo;
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #messageStateController!: MessageStateController;
@@ -871,6 +875,7 @@ export class AiChatbotComponent extends LitElement {
           ?show-minimize-button=${this.showMinimizeButton}
           ?expanded=${this.expanded}
           .minimizeIcon=${this.minimizeIcon}
+          .agentInfo=${this.agentInfo}
           @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
           @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}

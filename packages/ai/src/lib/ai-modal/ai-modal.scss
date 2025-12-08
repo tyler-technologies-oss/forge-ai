@@ -6,7 +6,7 @@
 }
 
 dialog.forge-dialog:not(.forge-dialog--fullscreen) {
-  height: 80vh;
-  width: 80vw;
+  height: var(--forge-ai-modal-height, 80vh);
+  width: var(--forge-ai-modal-width, 80vw);
   border-radius: #{forge-shape.variable(large)};
 }

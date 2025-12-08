@@ -2,6 +2,7 @@ import { html, LitElement, PropertyValues, TemplateResult, unsafeCSS } from 'lit
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 
+import { toggleState } from '../utils';
 import styles from './ai-modal.scss?inline';
 
 const FULLSCREEN_WIDTH_THRESHOLD = 768;
@@ -26,6 +27,11 @@ declare global {
  * @event {CustomEvent<void>} forge-ai-modal-open - Fired when the modal is opened
  * @event {CustomEvent<void>} forge-ai-modal-close - Fired when the modal is closed
  * @event {CustomEvent<{ isFullscreen: boolean }>} forge-ai-modal-fullscreen-change - Fired when the fullscreen state changes
+ *
+ * @cssproperty --forge-ai-modal-width - Width of the modal in non-fullscreen mode
+ * @cssproperty --forge-ai-modal-height - Height of the modal in non-fullscreen mode
+ *
+ * @state fullscreen - The modal is in fullscreen mode
  */
 @customElement('forge-ai-modal')
 export class AiModalComponent extends LitElement {
@@ -51,6 +57,13 @@ export class AiModalComponent extends LitElement {
   private _autoFullscreen = window.innerWidth <= FULLSCREEN_WIDTH_THRESHOLD;
 
   #mediaQuery?: MediaQueryList;
+  readonly #internals: ElementInternals;
+
+  constructor() {
+    super();
+    this.#internals = this.attachInternals();
+    this.#updateFullscreenState();
+  }
 
   public render(): TemplateResult {
     const isFullscreen = this.fullscreen ?? this._autoFullscreen;
@@ -88,9 +101,18 @@ export class AiModalComponent extends LitElement {
         this._dialog?.close();
         window.setTimeout(() => {
           this.dispatchEvent(new CustomEvent('forge-ai-modal-close', { bubbles: true, composed: true }));
-        }, 100); // Delay to allow dialog close animation to complete
+        }, 100);
       }
     }
+
+    if (changedProperties.has('fullscreen')) {
+      this.#updateFullscreenState();
+    }
+  }
+
+  #updateFullscreenState(): void {
+    const isFullscreen = this.fullscreen ?? this._autoFullscreen;
+    toggleState(this.#internals, 'fullscreen', isFullscreen);
   }
 
   #handleDialogClose(): void {
@@ -132,14 +154,17 @@ export class AiModalComponent extends LitElement {
     const previousFullscreen = this._autoFullscreen;
     this._autoFullscreen = e.matches;
 
-    // Only dispatch event if the effective fullscreen state changed and we don't have an explicit override
-    if (this.fullscreen === undefined && previousFullscreen !== this._autoFullscreen) {
-      const event = new CustomEvent('forge-ai-modal-fullscreen-change', {
-        bubbles: true,
-        composed: true,
-        detail: { isFullscreen: this._autoFullscreen }
-      });
-      this.dispatchEvent(event);
+    if (previousFullscreen !== this._autoFullscreen) {
+      this.#updateFullscreenState();
+
+      if (this.fullscreen === undefined) {
+        const event = new CustomEvent('forge-ai-modal-fullscreen-change', {
+          bubbles: true,
+          composed: true,
+          detail: { isFullscreen: this._autoFullscreen }
+        });
+        this.dispatchEvent(event);
+      }
     }
   };
 }

@@ -3,6 +3,8 @@
 @use '@tylertech/forge/dist/toolbar/forge-toolbar';
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/icon/forge-icon';
+@use '@tylertech/forge/dist/scaffold/forge-scaffold';
+@use '@tylertech/forge/dist/button/forge-button';
 
 :host {
   display: block;
@@ -38,4 +40,70 @@
 forge-ai-dropdown-menu-item > svg[slot='start'].forge-icon {
   width: 20px;
   height: 20px;
+}
+
+forge-ai-modal {
+  --forge-ai-modal-width: fit-content;
+  --forge-ai-modal-height: fit-content;
+}
+
+.forge-scaffold {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
+}
+
+.forge-scaffold__header,
+.forge-scaffold__footer {
+  flex-shrink: 0;
+}
+
+.forge-scaffold__body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.agent-info-title {
+  @include forge-typography.style(heading4);
+  margin: 0;
+  margin-inline-start: #{forge-spacing.variable(medium)};
+}
+
+.agent-info-content {
+  padding: #{forge-spacing.variable(medium)};
+}
+
+.forge-scaffold__footer .forge-toolbar {
+  justify-content: flex-end;
+  align-items: center;
+  padding-inline: #{forge-spacing.variable(small)};
+}
+
+forge-ai-modal:state(fullscreen) {
+  .forge-scaffold {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .forge-scaffold__body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .agent-info-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  forge-ai-agent-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
 }

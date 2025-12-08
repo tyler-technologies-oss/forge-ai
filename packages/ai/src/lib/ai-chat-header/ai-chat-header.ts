@@ -1,11 +1,15 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
+import { Ref, createRef, ref } from 'lit/directives/ref.js';
+import type { AiModalComponent } from '../ai-modal';
 import '../ai-icon/ai-icon';
 import '../core/tooltip/tooltip.js';
 import '../ai-dropdown-menu/ai-dropdown-menu.js';
 import '../ai-dropdown-menu/ai-dropdown-menu-item.js';
 import '../ai-dropdown-menu/ai-dropdown-menu-separator.js';
+import '../ai-modal/ai-modal.js';
+import '../ai-agent-info/ai-agent-info.js';
 
 import styles from './ai-chat-header.scss?inline';
 
@@ -22,12 +26,20 @@ declare global {
     'forge-ai-chat-header-expand': CustomEvent<void>;
     'forge-ai-chat-header-minimize': CustomEvent<void>;
     'forge-ai-chat-header-clear': CustomEvent<void>;
-    'forge-ai-chat-header-info': CustomEvent<void>;
     'forge-ai-chat-header-export': CustomEvent<void>;
   }
 }
 
 export type MinimizeIconType = 'default' | 'panel';
+
+export interface AgentInfo {
+  name?: string;
+  description?: string;
+  identifier?: string;
+  version?: string;
+  model?: string;
+  lastUpdated?: string;
+}
 
 /**
  * @summary AI chat header component with accessible tooltips
@@ -44,7 +56,6 @@ export type MinimizeIconType = 'default' | 'panel';
  * @event forge-ai-chat-header-expand - Fired when the expand button is clicked
  * @event forge-ai-chat-header-minimize - Fired when the minimize button is clicked
  * @event forge-ai-chat-header-clear - Fired when the clear chat option is selected
- * @event forge-ai-chat-header-info - Fired when the info option is selected
  * @event forge-ai-chat-header-export - Fired when the export option is selected
  */
 @customElement(AiChatHeaderComponentTagName)
@@ -74,6 +85,14 @@ export class AiChatHeaderComponent extends LitElement {
    */
   @property({ attribute: 'minimize-icon' })
   public minimizeIcon: MinimizeIconType = 'default';
+
+  /**
+   * Agent information to display in the info dialog
+   */
+  @property({ type: Object, attribute: false })
+  public agentInfo?: AgentInfo;
+
+  #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
   public override render(): TemplateResult {
     return html`
@@ -108,14 +127,19 @@ export class AiChatHeaderComponent extends LitElement {
               </svg>
               <span>Export current chat</span>
             </forge-ai-dropdown-menu-item>
-            <forge-ai-dropdown-menu-item value="info">
-              <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
-                <path fill="none" d="M0 0h24v24H0z" />
-                <path
-                  d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8" />
-              </svg>
-              <span>Info</span>
-            </forge-ai-dropdown-menu-item>
+            ${when(
+              this.agentInfo,
+              () => html`
+                <forge-ai-dropdown-menu-item value="info">
+                  <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                    <path fill="none" d="M0 0h24v24H0z" />
+                    <path
+                      d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8" />
+                  </svg>
+                  <span>Info</span>
+                </forge-ai-dropdown-menu-item>
+              `
+            )}
             <forge-ai-dropdown-menu-separator></forge-ai-dropdown-menu-separator>
             <forge-ai-dropdown-menu-item value="clear-chat">
               <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
@@ -198,6 +222,32 @@ export class AiChatHeaderComponent extends LitElement {
           )}
         </div>
       </div>
+      ${when(
+        this.agentInfo,
+        () => html`
+          <forge-ai-modal ${ref(this.#agentInfoModalRef)}>
+            <div class="forge-scaffold">
+              <div class="forge-scaffold__header">
+                <div class="forge-toolbar forge-toolbar--no-divider">
+                  <h2 class="forge-toolbar__start agent-info-title">Agent Information</h2>
+                </div>
+              </div>
+              <div class="forge-scaffold__body">
+                <div class="agent-info-content">
+                  <forge-ai-agent-info .agentInfo=${this.agentInfo}></forge-ai-agent-info>
+                </div>
+              </div>
+              <div class="forge-scaffold__footer">
+                <div class="forge-toolbar forge-toolbar--no-divider">
+                  <button class="forge-button forge-button--filled forge-toolbar__end" @click=${this.#handleModalClose}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </forge-ai-modal>
+        `
+      )}
     `;
   }
 
@@ -230,12 +280,7 @@ export class AiChatHeaderComponent extends LitElement {
         );
         break;
       case 'info':
-        this.dispatchEvent(
-          new CustomEvent('forge-ai-chat-header-info', {
-            bubbles: true,
-            composed: true
-          })
-        );
+        this.#agentInfoModalRef.value?.show();
         break;
       case 'clear-chat':
         this.dispatchEvent(
@@ -246,5 +291,9 @@ export class AiChatHeaderComponent extends LitElement {
         );
         break;
     }
+  }
+
+  #handleModalClose(): void {
+    this.#agentInfoModalRef.value?.close();
   }
 }

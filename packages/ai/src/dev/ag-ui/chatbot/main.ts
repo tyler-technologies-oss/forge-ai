@@ -264,6 +264,14 @@ chatbot.suggestions = [
   { text: 'Show me confetti!', value: 'Show me confetti!' },
   { text: 'Show me a recipe for chocolate chip cookies', value: 'Show me a recipe for chocolate chip cookies' }
 ];
+chatbot.agentInfo = {
+  name: 'My Agent',
+  description: 'A helpful AI assistant with access to recipes and celebration tools',
+  identifier: 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c',
+  version: '1.0.0',
+  model: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
+  lastUpdated: '2025-11-25'
+};
 
 chatbot.addEventListener('forge-ai-chatbot-message-sent', (e: CustomEvent) => {
   addEventToStream('USER_MESSAGE', e.detail.message);
