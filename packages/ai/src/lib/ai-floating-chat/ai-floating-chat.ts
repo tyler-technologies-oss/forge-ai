@@ -4,6 +4,7 @@ import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AiDialogComponent } from '../ai-dialog';
 import type { AgentAdapter, Suggestion } from '../ai-chatbot';
+import type { AgentInfo } from '../ai-agent-info';
 import '../ai-dialog';
 import '../ai-chatbot';
 
@@ -44,6 +45,7 @@ export const AiFloatingChatComponentTagName: keyof HTMLElementTagNameMap = 'forg
  * @property {boolean} enableFileUpload - Enable file upload functionality (default: false)
  * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
  * @property {Suggestion[]} suggestions - Optional suggestions for empty state
+ * @property {AgentInfo} agentInfo - Optional agent information to display in header
  */
 @customElement(AiFloatingChatComponentTagName)
 export class AiFloatingChatComponent extends LitElement {
@@ -78,6 +80,9 @@ export class AiFloatingChatComponent extends LitElement {
   @property({ attribute: false })
   public suggestions?: Suggestion[];
 
+  @property({ attribute: false })
+  public agentInfo?: AgentInfo;
+
   @state()
   private _isFullscreen = false;
 
@@ -104,6 +109,7 @@ export class AiFloatingChatComponent extends LitElement {
           ?enable-file-upload=${this.enableFileUpload}
           placeholder=${this.placeholder}
           .suggestions=${this.suggestions}
+          .agentInfo=${this.agentInfo}
           ?show-expand-button=${!this._isFullscreen}
           show-minimize-button
           minimize-icon="default"

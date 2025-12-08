@@ -17,7 +17,7 @@ export async function loadComponent(config: ChatbotConfig, agentConfig: AgentUIC
 }
 
 async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
-  const [_, { AgUiAdapter, AiPromptRunner }] = await Promise.all([
+  const [_, { AgUiAdapter, AgentRunner }] = await Promise.all([
     import('@tylertech/forge-ai/ai-floating-chat'),
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
@@ -37,10 +37,28 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
   element.placeholder = 'Ask a question...';
   element.suggestions = agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }));
 
+  if (
+    agentConfig.name ||
+    agentConfig.description ||
+    agentConfig.version ||
+    agentConfig.model?.model ||
+    agentConfig.id ||
+    agentConfig.metadata?.updatedAt
+  ) {
+    element.agentInfo = {
+      name: agentConfig.name,
+      description: agentConfig.description,
+      identifier: agentConfig.id,
+      version: agentConfig.version,
+      model: agentConfig.model?.model,
+      lastUpdated: agentConfig.metadata?.updatedAt
+    };
+  }
+
   document.body.appendChild(element);
   element.open = true;
 
-  return createAPI(element, adapter, AiPromptRunner);
+  return createAPI(element, adapter, AgentRunner);
 }
 
 async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
@@ -55,7 +73,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
     throw new Error(`Mount point not found: ${config.mountPoint}`);
   }
 
-  const [_, { AgUiAdapter, AiPromptRunner }] = await Promise.all([
+  const [_, { AgUiAdapter, AgentRunner }] = await Promise.all([
     import('@tylertech/forge-ai/ai-sidebar-chat'),
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
@@ -75,10 +93,28 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
   element.placeholder = 'Ask a question...';
   element.suggestions = agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }));
 
+  if (
+    agentConfig.name ||
+    agentConfig.description ||
+    agentConfig.version ||
+    agentConfig.model?.model ||
+    agentConfig.id ||
+    agentConfig.metadata?.updatedAt
+  ) {
+    element.agentInfo = {
+      name: agentConfig.name,
+      description: agentConfig.description,
+      identifier: agentConfig.id,
+      version: agentConfig.version,
+      model: agentConfig.model?.model,
+      lastUpdated: agentConfig.metadata?.updatedAt
+    };
+  }
+
   mountElement.appendChild(element);
   element.open = true;
 
-  return createAPI(element, adapter, AiPromptRunner);
+  return createAPI(element, adapter, AgentRunner);
 }
 
 async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
@@ -93,7 +129,7 @@ async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfi
     throw new Error(`Mount point not found: ${config.mountPoint}`);
   }
 
-  const [_, { AgUiAdapter, AiPromptRunner }] = await Promise.all([
+  const [_, { AgUiAdapter, AgentRunner }] = await Promise.all([
     import('@tylertech/forge-ai/ai-threads'),
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
@@ -113,7 +149,7 @@ async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfi
 
   mountElement.appendChild(element);
 
-  return createAPI(element, adapter, AiPromptRunner);
+  return createAPI(element, adapter, AgentRunner);
 }
 
 function createAPI(element: HTMLElement, adapter: any, promptRunner: any): ChatbotAPI {
@@ -159,7 +195,7 @@ function createAPI(element: HTMLElement, adapter: any, promptRunner: any): Chatb
       return [];
     },
     adapter,
-    promptRunner,
+    agentRunner: promptRunner,
     element,
     destroy() {
       adapter.disconnect();

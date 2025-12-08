@@ -6,6 +6,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AiSidebarComponent } from '../ai-sidebar';
 import type { AiModalComponent } from '../ai-modal';
 import type { AgentAdapter, Suggestion } from '../ai-chatbot';
+import type { AgentInfo } from '../ai-agent-info';
 import '../ai-sidebar';
 import '../ai-chatbot';
 import '../ai-modal';
@@ -48,6 +49,7 @@ export const AiSidebarChatComponentTagName: keyof HTMLElementTagNameMap = 'forge
  * @property {boolean} enableFileUpload - Enable file upload functionality (default: false)
  * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
  * @property {Suggestion[]} suggestions - Optional suggestions for empty state
+ * @property {AgentInfo} agentInfo - Optional agent information to display in header
  */
 @customElement(AiSidebarChatComponentTagName)
 export class AiSidebarChatComponent extends LitElement {
@@ -82,6 +84,9 @@ export class AiSidebarChatComponent extends LitElement {
   @property({ attribute: false })
   public suggestions?: Suggestion[];
 
+  @property({ attribute: false })
+  public agentInfo?: AgentInfo;
+
   #sidebarRef: Ref<AiSidebarComponent> = createRef();
   #modalRef: Ref<AiModalComponent> = createRef();
 
@@ -93,6 +98,7 @@ export class AiSidebarChatComponent extends LitElement {
         ?enable-file-upload=${this.enableFileUpload}
         placeholder=${this.placeholder}
         .suggestions=${this.suggestions}
+        .agentInfo=${this.agentInfo}
         show-expand-button
         ?show-minimize-button=${!this.expanded}
         .minimizeIcon=${this.expanded ? 'default' : 'panel'}

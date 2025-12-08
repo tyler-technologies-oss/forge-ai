@@ -4,7 +4,7 @@ import type {
   Suggestion,
   UploadedFileMetadata,
   AgUiAdapter,
-  AiPromptRunner
+  AgentRunner
 } from '@tylertech/forge-ai/ai-chatbot';
 
 export interface ChatbotConfig {
@@ -28,16 +28,32 @@ export interface ChatbotAPI {
   clearMessages(): void;
   getMessages(): ChatMessage[];
   adapter: AgUiAdapter;
-  promptRunner: typeof AiPromptRunner;
+  agentRunner: typeof AgentRunner;
   element: HTMLElement;
   destroy(): void;
 }
 
 export interface AgentUIConfig {
+  id?: string;
+  name?: string;
+  description?: string;
+  version?: string;
+  model?: {
+    provider?: string;
+    model?: string;
+    temperature?: number;
+    maxTokens?: number;
+  };
+  metadata?: {
+    createdAt?: string;
+    updatedAt?: string;
+    uploadedFiles?: unknown[];
+  };
   chatExperience?: {
     welcomeMessage?: string;
     sampleQuestions?: string[];
     enableFileUpload?: boolean;
+    updatedAt?: string;
   };
 }
 
