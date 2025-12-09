@@ -5,8 +5,8 @@ import { loadAgentConfig } from './config-loader.js';
 import { loadComponent } from './component-loader.js';
 
 export async function initChatbot(config: ChatbotConfig): Promise<ChatbotAPI> {
-  if (window.__TYLER_AI_CHATBOT__) {
-    return window.__TYLER_AI_CHATBOT__;
+  if (window.TylerAI) {
+    return window.TylerAI;
   }
 
   try {
@@ -36,7 +36,7 @@ export async function initChatbot(config: ChatbotConfig): Promise<ChatbotAPI> {
 
     const api = await loadComponent(config, agentConfig);
 
-    window.__TYLER_AI_CHATBOT__ = api;
+    window.TylerAI = api;
 
     window.dispatchEvent(new CustomEvent('tyler-ai-chatbot-ready', { detail: { api } }));
 

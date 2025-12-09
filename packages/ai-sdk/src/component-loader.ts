@@ -105,8 +105,9 @@ export async function loadComponent(config: ChatbotConfig, agentConfig: AgentUIC
 }
 
 async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
-  const [_, { AgUiAdapter, AgentRunner }] = await Promise.all([
+  const [_, __, { AgUiAdapter, AgentRunner }] = await Promise.all([
     import('@tylertech/forge-ai/ai-floating-chat'),
+    import('@tylertech/forge-ai/ai-fab'),
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
 
@@ -144,14 +145,40 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
   }
 
   document.body.appendChild(element);
-  element.open = true;
+  element.open = config.initialOpen ?? false;
 
   const chatbot = element.shadowRoot?.querySelector('forge-ai-chatbot');
   if (chatbot && !config.fileUploadHandler) {
     setupFileUploadHandler(chatbot as HTMLElement, config, config.agentId, adapter.threadId);
   }
 
-  return createAPI(element, adapter, AgentRunner);
+  let fabElement: HTMLElement | undefined;
+
+  if (config.showTriggerButton !== false) {
+    fabElement = document.createElement('forge-ai-fab');
+    fabElement.style.position = 'absolute';
+    fabElement.style.bottom = '16px';
+    fabElement.style.right = '16px';
+    fabElement.style.zIndex = '1000';
+
+    fabElement.style.display = element.open ? 'none' : 'block';
+
+    fabElement.addEventListener('click', () => {
+      element.toggle();
+    });
+
+    element.addEventListener('forge-ai-floating-chat-open', () => {
+      fabElement!.style.display = 'none';
+    });
+
+    element.addEventListener('forge-ai-floating-chat-close', () => {
+      fabElement!.style.display = 'block';
+    });
+
+    document.body.appendChild(fabElement);
+  }
+
+  return createAPI({ element, adapter, agentRunner: AgentRunner, fabElement });
 }
 
 async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
@@ -212,7 +239,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
     setupFileUploadHandler(chatbot as HTMLElement, config, config.agentId, adapter.threadId);
   }
 
-  return createAPI(element, adapter, AgentRunner);
+  return createAPI({ element, adapter, agentRunner: AgentRunner });
 }
 
 async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
@@ -247,10 +274,17 @@ async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfi
 
   mountElement.appendChild(element);
 
-  return createAPI(element, adapter, AgentRunner);
+  return createAPI({ element, adapter, agentRunner: AgentRunner });
 }
 
-function createAPI(element: HTMLElement, adapter: any, promptRunner: any): ChatbotAPI {
+interface CreateAPIOptions {
+  element: HTMLElement;
+  adapter: any;
+  agentRunner: any;
+  fabElement?: HTMLElement;
+}
+
+function createAPI({ element, adapter, agentRunner, fabElement }: CreateAPIOptions): ChatbotAPI {
   return {
     show() {
       if ('show' in element && typeof element.show === 'function') {
@@ -273,6 +307,9 @@ function createAPI(element: HTMLElement, adapter: any, promptRunner: any): Chatb
         element.open = !element.open;
       }
     },
+    isOpen() {
+      return 'open' in element ? (element as any).open : false;
+    },
     async sendMessage(message: string, files?: File[]) {
       const chatbot = element.shadowRoot?.querySelector('forge-ai-chatbot');
       if (chatbot && 'sendMessage' in chatbot && typeof chatbot.sendMessage === 'function') {
@@ -293,11 +330,12 @@ function createAPI(element: HTMLElement, adapter: any, promptRunner: any): Chatb
       return [];
     },
     adapter,
-    agentRunner: promptRunner,
+    agentRunner,
     element,
     destroy() {
       adapter.disconnect();
       element.remove();
+      fabElement?.remove();
     }
   };
 }

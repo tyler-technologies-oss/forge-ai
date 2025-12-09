@@ -19,12 +19,15 @@ export interface ChatbotConfig {
   fileUploadHandler?: (event: FileUploadEvent) => Promise<void> | void;
   onReady?: (api: ChatbotAPI) => void;
   onError?: (error: Error) => void;
+  showTriggerButton?: boolean;
+  initialOpen?: boolean;
 }
 
 export interface ChatbotAPI {
   show(): void;
   close(): void;
   toggle(): void;
+  isOpen(): boolean;
   sendMessage(message: string, files?: File[]): Promise<void>;
   clearMessages(): void;
   getMessages(): ChatMessage[];
@@ -73,7 +76,7 @@ export interface AuthStatus {
 
 declare global {
   interface Window {
-    __TYLER_AI_CHATBOT__?: ChatbotAPI;
+    TylerAI?: ChatbotAPI;
   }
 }
 
