@@ -976,6 +976,165 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-dialog/ai-dialog.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiDialogComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-dialog'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiDialogComponent",
+          "slots": [
+            {
+              "description": "Default slot for dialog content (typically ai-chat-interface)",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Indicates whether the dialog is open.",
+              "attribute": "open"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "isFullscreen",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "description": "Gets the current fullscreen state (readonly)",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "show",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Opens the dialog."
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the dialog."
+            },
+            {
+              "kind": "method",
+              "name": "toggle",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Toggles the dialog open state."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<{ isFullscreen: boolean }>"
+              },
+              "description": "Fired when the fullscreen state changes due to viewport size",
+              "name": "forge-ai-dialog-fullscreen-change"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the dialog is closed",
+              "name": "forge-ai-dialog-close"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Indicates whether the dialog is open.",
+              "fieldName": "open"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-dialog",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiDialogComponentTagName",
+          "declaration": {
+            "name": "AiDialogComponentTagName",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiDialogComponent",
+          "declaration": {
+            "name": "AiDialogComponent",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiDialogComponent",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
       "declarations": [
         {
@@ -3384,165 +3543,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-dialog/ai-dialog.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiDialogComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-dialog'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiDialogComponent",
-          "slots": [
-            {
-              "description": "Default slot for dialog content (typically ai-chat-interface)",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Indicates whether the dialog is open.",
-              "attribute": "open"
-            },
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
-              "attribute": "expanded"
-            },
-            {
-              "kind": "field",
-              "name": "isFullscreen",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Gets the current fullscreen state (readonly)",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "show",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Opens the dialog."
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Closes the dialog."
-            },
-            {
-              "kind": "method",
-              "name": "toggle",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Toggles the dialog open state."
-            }
-          ],
-          "events": [
-            {
-              "type": {
-                "text": "CustomEvent<{ isFullscreen: boolean }>"
-              },
-              "description": "Fired when the fullscreen state changes due to viewport size",
-              "name": "forge-ai-dialog-fullscreen-change"
-            },
-            {
-              "type": {
-                "text": "CustomEvent<void>"
-              },
-              "description": "Fired when the dialog is closed",
-              "name": "forge-ai-dialog-close"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Indicates whether the dialog is open.",
-              "fieldName": "open"
-            },
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-dialog",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiDialogComponentTagName",
-          "declaration": {
-            "name": "AiDialogComponentTagName",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiDialogComponent",
-          "declaration": {
-            "name": "AiDialogComponent",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiDialogComponent",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu-item-group.ts",
       "declarations": [
         {
@@ -5007,12 +5007,8 @@
           "name": "AiFloatingChatComponent",
           "slots": [
             {
-              "description": "Slot for custom header title content (default: \"AI Assistant\")",
-              "name": "header-title"
-            },
-            {
-              "description": "Slot for custom empty state heading",
-              "name": "empty-state-heading"
+              "description": "Default slot for chatbot component",
+              "name": ""
             }
           ],
           "members": [
@@ -5024,7 +5020,6 @@
               },
               "privacy": "public",
               "default": "false",
-              "description": "Indicates whether the chat is open.",
               "attribute": "open"
             },
             {
@@ -5035,66 +5030,7 @@
               },
               "privacy": "public",
               "default": "false",
-              "description": "Controls the chat's positioning and size behavior.\nWhen true, the chat will have an expanded width and be centered on the screen.\nWhen false, the chat will be positioned at the bottom-right corner with a fixed width.",
               "attribute": "expanded"
-            },
-            {
-              "kind": "field",
-              "name": "adapter",
-              "type": {
-                "text": "AgentAdapter"
-              },
-              "privacy": "public",
-              "description": "Required. The adapter for communication with the AI service"
-            },
-            {
-              "kind": "field",
-              "name": "threadId",
-              "type": {
-                "text": "string | undefined"
-              },
-              "privacy": "public",
-              "attribute": "thread-id"
-            },
-            {
-              "kind": "field",
-              "name": "enableFileUpload",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "attribute": "enable-file-upload"
-            },
-            {
-              "kind": "field",
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "public",
-              "default": "'Ask a question...'",
-              "description": "Placeholder text for input (default: \"Ask a question...\")",
-              "attribute": "placeholder"
-            },
-            {
-              "kind": "field",
-              "name": "suggestions",
-              "type": {
-                "text": "Suggestion[]"
-              },
-              "privacy": "public",
-              "description": "Optional suggestions for empty state"
-            },
-            {
-              "kind": "field",
-              "name": "agentInfo",
-              "type": {
-                "text": "AgentInfo"
-              },
-              "privacy": "public",
-              "description": "Optional agent information to display in header"
             },
             {
               "kind": "method",
@@ -5104,8 +5040,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Opens the chat."
+              }
             },
             {
               "kind": "method",
@@ -5115,8 +5050,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Closes the chat."
+              }
             },
             {
               "kind": "method",
@@ -5126,8 +5060,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Toggles the chat open state."
+              }
             },
             {
               "kind": "method",
@@ -5137,8 +5070,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Expands the chat to full width."
+              }
             },
             {
               "kind": "method",
@@ -5148,8 +5080,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Collapses the chat to normal width."
+              }
             }
           ],
           "events": [
@@ -5177,7 +5108,6 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Indicates whether the chat is open.",
               "fieldName": "open"
             },
             {
@@ -5186,33 +5116,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Controls the chat's positioning and size behavior.\nWhen true, the chat will have an expanded width and be centered on the screen.\nWhen false, the chat will be positioned at the bottom-right corner with a fixed width.",
               "fieldName": "expanded"
-            },
-            {
-              "name": "thread-id",
-              "type": {
-                "text": "string | undefined"
-              },
-              "fieldName": "threadId"
-            },
-            {
-              "name": "enable-file-upload",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "fieldName": "enableFileUpload"
-            },
-            {
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "'Ask a question...'",
-              "description": "Placeholder text for input (default: \"Ask a question...\")",
-              "fieldName": "placeholder"
             }
           ],
           "superclass": {
@@ -6300,12 +6204,8 @@
           "name": "AiSidebarChatComponent",
           "slots": [
             {
-              "description": "Slot for custom header title content (default: \"AI Assistant\")",
-              "name": "header-title"
-            },
-            {
-              "description": "Slot for custom empty state heading",
-              "name": "empty-state-heading"
+              "description": "Default slot for chatbot component",
+              "name": ""
             }
           ],
           "members": [
@@ -6317,7 +6217,6 @@
               },
               "privacy": "public",
               "default": "false",
-              "description": "Indicates whether the sidebar chat is open.",
               "attribute": "open"
             },
             {
@@ -6328,66 +6227,7 @@
               },
               "privacy": "public",
               "default": "false",
-              "description": "Controls whether the chat is displayed in an expanded modal state.\nWhen true, the chat content will be shown in a fullscreen modal.\nWhen false, the chat will be displayed in the sidebar.",
               "attribute": "expanded"
-            },
-            {
-              "kind": "field",
-              "name": "adapter",
-              "type": {
-                "text": "AgentAdapter"
-              },
-              "privacy": "public",
-              "description": "Required. The adapter for communication with the AI service"
-            },
-            {
-              "kind": "field",
-              "name": "threadId",
-              "type": {
-                "text": "string | undefined"
-              },
-              "privacy": "public",
-              "attribute": "thread-id"
-            },
-            {
-              "kind": "field",
-              "name": "enableFileUpload",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "attribute": "enable-file-upload"
-            },
-            {
-              "kind": "field",
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "public",
-              "default": "'Ask a question...'",
-              "description": "Placeholder text for input (default: \"Ask a question...\")",
-              "attribute": "placeholder"
-            },
-            {
-              "kind": "field",
-              "name": "suggestions",
-              "type": {
-                "text": "Suggestion[]"
-              },
-              "privacy": "public",
-              "description": "Optional suggestions for empty state"
-            },
-            {
-              "kind": "field",
-              "name": "agentInfo",
-              "type": {
-                "text": "AgentInfo"
-              },
-              "privacy": "public",
-              "description": "Optional agent information to display in header"
             },
             {
               "kind": "method",
@@ -6397,8 +6237,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Opens the sidebar chat."
+              }
             },
             {
               "kind": "method",
@@ -6408,8 +6247,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Closes the sidebar chat."
+              }
             },
             {
               "kind": "method",
@@ -6419,8 +6257,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Toggles the sidebar chat open state."
+              }
             },
             {
               "kind": "method",
@@ -6430,8 +6267,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Expands the chat to fullscreen modal."
+              }
             },
             {
               "kind": "method",
@@ -6441,8 +6277,7 @@
                 "type": {
                   "text": "void"
                 }
-              },
-              "description": "Collapses the chat from fullscreen modal back to sidebar."
+              }
             }
           ],
           "events": [
@@ -6470,7 +6305,6 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Indicates whether the sidebar chat is open.",
               "fieldName": "open"
             },
             {
@@ -6479,33 +6313,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Controls whether the chat is displayed in an expanded modal state.\nWhen true, the chat content will be shown in a fullscreen modal.\nWhen false, the chat will be displayed in the sidebar.",
               "fieldName": "expanded"
-            },
-            {
-              "name": "thread-id",
-              "type": {
-                "text": "string | undefined"
-              },
-              "fieldName": "threadId"
-            },
-            {
-              "name": "enable-file-upload",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "fieldName": "enableFileUpload"
-            },
-            {
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "'Ask a question...'",
-              "description": "Placeholder text for input (default: \"Ask a question...\")",
-              "fieldName": "placeholder"
             }
           ],
           "superclass": {
@@ -7090,6 +6898,57 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ThoughtDetailComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thought-detail'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ThoughtDetailComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thought-detail",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ThoughtDetailComponentTagName",
+          "declaration": {
+            "name": "ThoughtDetailComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ThoughtDetailComponent",
+          "declaration": {
+            "name": "ThoughtDetailComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "ThoughtDetailComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
       "declarations": [
         {
@@ -7156,57 +7015,6 @@
           "declaration": {
             "name": "ThoughtImageComponent",
             "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ThoughtDetailComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thought-detail'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ThoughtDetailComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thought-detail",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ThoughtDetailComponentTagName",
-          "declaration": {
-            "name": "ThoughtDetailComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ThoughtDetailComponent",
-          "declaration": {
-            "name": "ThoughtDetailComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ThoughtDetailComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
           }
         }
       ]
@@ -8132,6 +7940,10 @@
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
       "lineNumber": 24
     },
+    "AiDialogComponent": {
+      "path": "src/lib/ai-dialog/ai-dialog.ts",
+      "lineNumber": 35
+    },
     "AgUiAdapterConfig": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
       "lineNumber": 15
@@ -8328,10 +8140,6 @@
       "path": "src/lib/ai-chatbot/types.ts",
       "lineNumber": 119
     },
-    "AiDialogComponent": {
-      "path": "src/lib/ai-dialog/ai-dialog.ts",
-      "lineNumber": 35
-    },
     "ForgeAiDropdownMenuItemGroupComponent": {
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu-item-group.ts",
       "lineNumber": 29
@@ -8426,7 +8234,7 @@
     },
     "AiFloatingChatComponent": {
       "path": "src/lib/ai-floating-chat/ai-floating-chat.ts",
-      "lineNumber": 50
+      "lineNumber": 38
     },
     "AiGradientContainerVariant": {
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
@@ -8478,7 +8286,7 @@
     },
     "AiSidebarChatComponent": {
       "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
-      "lineNumber": 54
+      "lineNumber": 42
     },
     "Suggestion": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
@@ -8556,13 +8364,13 @@
       "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",
       "lineNumber": 21
     },
-    "ThoughtImageComponent": {
-      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
-      "lineNumber": 19
-    },
     "ThoughtDetailComponent": {
       "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
       "lineNumber": 18
+    },
+    "ThoughtImageComponent": {
+      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
+      "lineNumber": 19
     },
     "Source": {
       "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",

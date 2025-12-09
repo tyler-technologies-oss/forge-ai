@@ -6,26 +6,48 @@ import * as AiFloatingChatStories from './AiFloatingChat.stories';
 
 <Title>AI Floating Chat</Title>
 
-The AI Floating Chat component is a structured form factor component that provides a complete floating chat interface with built-in composition of `ai-dialog` and `ai-chat-interface` components. This component handles all the wiring and event management automatically, providing an easy-to-use solution for common floating chat use cases.
+The AI Floating Chat component is a form factor component that positions a slotted chatbot in a floating dialog. It manages positioning and expand/minimize state while delegating all chat functionality to the slotted `ai-chatbot` component.
 
 ## Features
 
-- **Structured composition**: Combines ai-dialog and ai-chat-interface components automatically
+- **Composition-based**: Accepts slotted chatbot component for maximum flexibility
 - **Built-in event handling**: Manages expand/minimize/open/close events internally
 - **Responsive behavior**: Adapts to different viewport sizes automatically
-- **Customizable slots**: Supports slotting messages, suggestions, and custom prompt components
-- **Rich API**: Provides methods and events for programmatic control
+- **Direct chatbot access**: Exposes slotted chatbot via `chatbot` property for programmatic control
+- **Event bubbling**: All chatbot events bubble through unchanged
 
 ## When to Use
 
 Use the AI Floating Chat component when you want:
 
-- A quick, easy-to-implement floating chat interface
-- Standard floating chat behavior without custom positioning logic
-- Built-in responsive behavior and event handling
-- A component that "just works" out of the box
+- A floating dialog container for your chatbot
+- Standard floating chat positioning without custom logic
+- Built-in responsive behavior and expand/collapse functionality
+- Direct control over the chatbot configuration
 
-For more complex compositions or custom containers, consider using the atomic `ai-dialog` and `ai-chat-interface` components directly.
+## Usage
+
+```html
+<forge-ai-floating-chat>
+  <forge-ai-chatbot .adapter="\${adapter}" enable-file-upload> </forge-ai-chatbot>
+</forge-ai-floating-chat>
+```
+
+### Programmatic Control
+
+```javascript
+const floatingChat = document.querySelector('forge-ai-floating-chat');
+
+// Control form factor
+floatingChat.show();
+floatingChat.close();
+floatingChat.expand();
+floatingChat.collapse();
+
+// Access slotted chatbot
+const chatbot = floatingChat.chatbot;
+chatbot.sendMessage('Hello!');
+```
 
 ## API
 

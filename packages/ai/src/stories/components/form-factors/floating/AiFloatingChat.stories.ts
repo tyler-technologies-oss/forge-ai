@@ -47,25 +47,47 @@ const meta = {
       responseDelay: 500
     });
 
+    const handleExpand = (e: Event) => {
+      action('forge-ai-floating-chat-expand')(e);
+      const chatbot = (e.target as HTMLElement).querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        chatbot.expanded = true;
+      }
+    };
+
+    const handleCollapse = (e: Event) => {
+      action('forge-ai-floating-chat-collapse')(e);
+      const chatbot = (e.target as HTMLElement).querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        chatbot.expanded = false;
+      }
+    };
+
     const chat = html`
       <forge-ai-floating-chat
-        .adapter=${adapter}
         ?open=${args.open}
         ?expanded=${args.expanded}
-        ?enable-file-upload=${args.enableFileUpload}
-        placeholder=${args.placeholder}
         @forge-ai-floating-chat-open=${action('forge-ai-floating-chat-open')}
         @forge-ai-floating-chat-close=${action('forge-ai-floating-chat-close')}
-        @forge-ai-floating-chat-expand=${action('forge-ai-floating-chat-expand')}
-        @forge-ai-floating-chat-collapse=${action('forge-ai-floating-chat-collapse')}
-        @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
-        @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
-        @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
-        @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
-        @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}
-        @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
-        @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
-        @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}>
+        @forge-ai-floating-chat-expand=${handleExpand}
+        @forge-ai-floating-chat-collapse=${handleCollapse}>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          ?enable-file-upload=${args.enableFileUpload}
+          ?expanded=${args.expanded}
+          placeholder=${args.placeholder}
+          show-expand-button
+          show-minimize-button
+          minimize-icon="default"
+          @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+          @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
+          @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+          @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+          @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}
+          @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
+          @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
+          @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}>
+        </forge-ai-chatbot>
       </forge-ai-floating-chat>
     `;
 
@@ -84,7 +106,7 @@ const meta = {
         <div>
           <h2>AI Floating Chat Demo</h2>
           <p>Click the FAB in the bottom right corner to open the AI chat.</p>
-          <p>This form factor combines ai-dialog and ai-chatbot for floating chat UI.</p>
+          <p>This form factor positions a slotted chatbot in a floating dialog.</p>
           <p>Try sending messages, expanding the chat, or closing it.</p>
         </div>
         ${fab} ${chat}

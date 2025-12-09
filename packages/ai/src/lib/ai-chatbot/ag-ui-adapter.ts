@@ -380,7 +380,6 @@ export class AgUiAdapter extends AgentAdapter {
       });
   }
 
-
   #validateToolArgs(toolName: string, args: Record<string, unknown>, toolDef: ToolDefinition): string | null {
     const { parameters } = toolDef;
     if (!parameters || parameters.type !== 'object') {

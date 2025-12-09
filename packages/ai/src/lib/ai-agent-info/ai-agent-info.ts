@@ -82,7 +82,9 @@ export class AiAgentInfoComponent extends LitElement {
             () => html`
               <div class="forge-label-value">
                 <div class="forge-label-value__label">Last Updated</div>
-                <div class="forge-label-value__value">${this.agentInfo?.lastUpdated ? this.#formatDate(this.agentInfo.lastUpdated) : ''}</div>
+                <div class="forge-label-value__value">
+                  ${this.agentInfo?.lastUpdated ? this.#formatDate(this.agentInfo.lastUpdated) : ''}
+                </div>
               </div>
             `
           )}

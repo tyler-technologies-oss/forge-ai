@@ -81,25 +81,47 @@ const meta = {
       responseDelay: 500
     });
 
+    const handleExpand = (e: Event) => {
+      action('forge-ai-sidebar-chat-expand')(e);
+      const chatbot = (e.target as HTMLElement).querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        chatbot.expanded = true;
+      }
+    };
+
+    const handleCollapse = (e: Event) => {
+      action('forge-ai-sidebar-chat-collapse')(e);
+      const chatbot = (e.target as HTMLElement).querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        chatbot.expanded = false;
+      }
+    };
+
     const sidebarChat = html`
       <forge-ai-sidebar-chat
-        .adapter=${adapter}
         ?open=${args.open}
         ?expanded=${args.expanded}
-        ?enable-file-upload=${args.enableFileUpload}
-        placeholder=${args.placeholder}
         @forge-ai-sidebar-chat-open=${action('forge-ai-sidebar-chat-open')}
         @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}
-        @forge-ai-sidebar-chat-expand=${action('forge-ai-sidebar-chat-expand')}
-        @forge-ai-sidebar-chat-collapse=${action('forge-ai-sidebar-chat-collapse')}
-        @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
-        @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
-        @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
-        @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
-        @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}
-        @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
-        @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
-        @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}>
+        @forge-ai-sidebar-chat-expand=${handleExpand}
+        @forge-ai-sidebar-chat-collapse=${handleCollapse}>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          ?enable-file-upload=${args.enableFileUpload}
+          ?expanded=${args.expanded}
+          placeholder=${args.placeholder}
+          show-expand-button
+          show-minimize-button
+          minimize-icon="panel"
+          @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+          @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
+          @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+          @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+          @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}
+          @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
+          @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
+          @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}>
+        </forge-ai-chatbot>
       </forge-ai-sidebar-chat>
     `;
 
@@ -122,7 +144,7 @@ const meta = {
         <main slot="body" style="padding: 24px;">
           <forge-card>
             <p>Demo of the AI Sidebar Chat component within a typical application layout.</p>
-            <p>This form factor combines ai-sidebar, ai-modal, and ai-chatbot for sidebar-based chat.</p>
+            <p>This form factor positions a slotted chatbot in a sidebar or modal.</p>
             <p>Try sending messages, expanding to modal, or closing the sidebar.</p>
             <p>Click "Ask AI Assistant" button in the toolbar to toggle the sidebar.</p>
           </forge-card>

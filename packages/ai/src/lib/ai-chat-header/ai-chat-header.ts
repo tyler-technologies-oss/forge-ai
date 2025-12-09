@@ -114,6 +114,14 @@ export class AiChatHeaderComponent extends LitElement {
 
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
+  get #hasAvailableOptions(): boolean {
+    return (
+      this.exportOption === 'enabled' ||
+      this.clearOption === 'enabled' ||
+      !!this.agentInfo
+    );
+  }
+
   public override render(): TemplateResult {
     return html`
       <div class="header forge-toolbar forge-toolbar--no-divider">
@@ -127,7 +135,7 @@ export class AiChatHeaderComponent extends LitElement {
         </div>
         <div class="end">
           ${when(
-            this.options === 'enabled',
+            this.options === 'enabled' && this.#hasAvailableOptions,
             () => html`
               <forge-ai-dropdown-menu
                 variant="icon-button"

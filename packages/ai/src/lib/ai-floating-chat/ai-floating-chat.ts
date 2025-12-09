@@ -1,12 +1,8 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AiDialogComponent } from '../ai-dialog';
-import type { AgentAdapter, Suggestion } from '../ai-chatbot';
-import type { AgentInfo } from '../ai-agent-info';
 import '../ai-dialog';
-import '../ai-chatbot';
 
 import styles from './ai-floating-chat.scss?inline';
 
@@ -28,72 +24,28 @@ export const AiFloatingChatComponentTagName: keyof HTMLElementTagNameMap = 'forg
 /**
  * @tag forge-ai-floating-chat
  *
- * @slot header-title - Slot for custom header title content (default: "AI Assistant")
- * @slot empty-state-heading - Slot for custom empty state heading
+ * @slot - Default slot for chatbot component
  *
  * @fires forge-ai-floating-chat-open - Fired when the chat is opened
  * @fires forge-ai-floating-chat-close - Fired when the chat is closed
  * @fires forge-ai-floating-chat-expand - Fired when the chat is expanded
  * @fires forge-ai-floating-chat-collapse - Fired when the chat is collapsed
  *
- * @description A structured form factor component that combines ai-dialog and ai-chatbot
- * with automatic event handling and responsive behavior delegation to the underlying ai-dialog.
- * The chatbot component handles all chat UI, this component only manages positioning and expand/minimize state.
- * All chatbot events (message-sent, message-received, tool-call, error, clear, info, connected, disconnected) bubble through unchanged.
- *
- * @property {AgentAdapter} adapter - Required. The adapter for communication with the AI service
- * @property {boolean} enableFileUpload - Enable file upload functionality (default: false)
- * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
- * @property {Suggestion[]} suggestions - Optional suggestions for empty state
- * @property {AgentInfo} agentInfo - Optional agent information to display in header
+ * @description A form factor component that positions a slotted chatbot in a floating dialog.
+ * Manages positioning and expand/minimize state while delegating chat functionality to the slotted chatbot.
+ * All chatbot events bubble through unchanged.
  */
 @customElement(AiFloatingChatComponentTagName)
 export class AiFloatingChatComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
-  /**
-   * Indicates whether the chat is open.
-   */
   @property({ type: Boolean })
   public open = false;
 
-  /**
-   * Controls the chat's positioning and size behavior.
-   * When true, the chat will have an expanded width and be centered on the screen.
-   * When false, the chat will be positioned at the bottom-right corner with a fixed width.
-   */
   @property({ type: Boolean })
   public expanded = false;
 
-  @property({ attribute: false })
-  public adapter?: AgentAdapter;
-
-  @property({ attribute: 'thread-id' })
-  public threadId?: string;
-
-  @property({ type: Boolean, attribute: 'enable-file-upload' })
-  public enableFileUpload = false;
-
-  @property()
-  public placeholder = 'Ask a question...';
-
-  @property({ attribute: false })
-  public suggestions?: Suggestion[];
-
-  @property({ attribute: false })
-  public agentInfo?: AgentInfo;
-
-  @state()
-  private _isFullscreen = false;
-
   #dialogRef: Ref<AiDialogComponent> = createRef();
-
-  public override updated(): void {
-    // Sync with dialog's initial fullscreen state
-    if (this.#dialogRef.value && this._isFullscreen !== this.#dialogRef.value.isFullscreen) {
-      this._isFullscreen = this.#dialogRef.value.isFullscreen;
-    }
-  }
 
   public override render(): TemplateResult {
     return html`
@@ -103,37 +55,18 @@ export class AiFloatingChatComponent extends LitElement {
         ?expanded=${this.expanded}
         @forge-ai-dialog-fullscreen-change=${this.#handleFullscreenChange}
         @forge-ai-dialog-close=${this.#handleDialogClose}>
-        <forge-ai-chatbot
-          .adapter=${this.adapter}
-          thread-id=${ifDefined(this.threadId)}
-          ?enable-file-upload=${this.enableFileUpload}
-          placeholder=${this.placeholder}
-          .suggestions=${this.suggestions}
-          .agentInfo=${this.agentInfo}
-          ?show-expand-button=${!this._isFullscreen}
-          show-minimize-button
-          minimize-icon="default"
-          ?expanded=${this.expanded}
+        <slot
           @forge-ai-chatbot-expand=${this.#handleChatbotExpand}
-          @forge-ai-chatbot-minimize=${this.#handleChatbotMinimize}>
-          <slot name="header-title" slot="header-title"></slot>
-          <slot name="empty-state-heading" slot="empty-state-heading"></slot>
-        </forge-ai-chatbot>
+          @forge-ai-chatbot-minimize=${this.#handleChatbotMinimize}></slot>
       </forge-ai-dialog>
     `;
   }
 
-  /**
-   * Opens the chat.
-   */
   public show(): void {
     this.open = true;
     this.#dispatchEvent('forge-ai-floating-chat-open');
   }
 
-  /**
-   * Closes the chat.
-   */
   public close(): void {
     if (this.expanded) {
       this.expanded = false;
@@ -143,9 +76,6 @@ export class AiFloatingChatComponent extends LitElement {
     this.#dispatchEvent('forge-ai-floating-chat-close');
   }
 
-  /**
-   * Toggles the chat open state.
-   */
   public toggle(): void {
     if (this.open) {
       this.close();
@@ -154,9 +84,6 @@ export class AiFloatingChatComponent extends LitElement {
     }
   }
 
-  /**
-   * Expands the chat to full width.
-   */
   public expand(): void {
     if (!this.expanded) {
       this.expanded = true;
@@ -164,9 +91,6 @@ export class AiFloatingChatComponent extends LitElement {
     }
   }
 
-  /**
-   * Collapses the chat to normal width.
-   */
   public collapse(): void {
     if (this.expanded) {
       this.expanded = false;
@@ -175,7 +99,14 @@ export class AiFloatingChatComponent extends LitElement {
   }
 
   #handleFullscreenChange(event: CustomEvent<{ isFullscreen: boolean }>): void {
-    this._isFullscreen = event.detail.isFullscreen;
+    const { isFullscreen } = event.detail;
+    if (isFullscreen && !this.expanded) {
+      this.expanded = true;
+      this.#dispatchEvent('forge-ai-floating-chat-expand');
+    } else if (!isFullscreen && this.expanded) {
+      this.expanded = false;
+      this.#dispatchEvent('forge-ai-floating-chat-collapse');
+    }
   }
 
   #handleChatbotExpand(): void {
@@ -192,7 +123,6 @@ export class AiFloatingChatComponent extends LitElement {
   }
 
   #handleDialogClose(): void {
-    // Sync state when dialog is closed externally (Escape key, backdrop click, etc.)
     if (this.open) {
       this.close();
     }

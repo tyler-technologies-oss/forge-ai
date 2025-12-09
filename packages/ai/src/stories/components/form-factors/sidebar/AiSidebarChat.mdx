@@ -6,27 +6,48 @@ import * as AiSidebarChatStories from './AiSidebarChat.stories';
 
 <Title>AI Sidebar Chat</Title>
 
-The AI Sidebar Chat component is a structured form factor component that provides a complete sidebar chat interface with built-in composition of `ai-sidebar` and `ai-chat-interface` components. This component handles all the wiring and event management automatically, providing an easy-to-use solution for sidebar-based chat interfaces.
+The AI Sidebar Chat component is a form factor component that positions a slotted chatbot in a sidebar or fullscreen modal. It manages positioning and expand/collapse state while delegating all chat functionality to the slotted `ai-chatbot` component. When expanded, the chat is displayed in a fullscreen modal. When collapsed, it's displayed in a sidebar.
 
 ## Features
 
-- **Structured composition**: Combines ai-sidebar and ai-chat-interface components automatically
-- **Built-in event handling**: Manages open/close events and minimize button interactions
-- **Flexible positioning**: Supports both left and right sidebar positions
-- **Responsive design**: Adapts to mobile viewports automatically
-- **Customizable slots**: Supports slotting messages, suggestions, and custom prompt components
-- **Rich API**: Provides methods and events for programmatic control
+- **Composition-based**: Accepts slotted chatbot component for maximum flexibility
+- **Built-in event handling**: Manages open/close events and expand/collapse interactions
+- **Dual display modes**: Sidebar for normal view, fullscreen modal when expanded
+- **Direct chatbot access**: Exposes slotted chatbot via `chatbot` property for programmatic control
+- **Event bubbling**: All chatbot events bubble through unchanged
 
 ## When to Use
 
 Use the AI Sidebar Chat component when you want:
 
-- A quick, easy-to-implement sidebar chat interface
-- Standard sidebar chat behavior without custom positioning logic
-- Built-in event handling and minimize functionality
-- A component that "just works" out of the box
+- A sidebar container for your chatbot that can expand to fullscreen
+- Standard sidebar positioning without custom logic
+- Built-in modal transition for expanded view
+- Direct control over the chatbot configuration
 
-For more complex compositions or custom containers, consider using the atomic `ai-sidebar` and `ai-chat-interface` components directly.
+## Usage
+
+```html
+<forge-ai-sidebar-chat>
+  <forge-ai-chatbot .adapter="\${adapter}" enable-file-upload> </forge-ai-chatbot>
+</forge-ai-sidebar-chat>
+```
+
+### Programmatic Control
+
+```javascript
+const sidebarChat = document.querySelector('forge-ai-sidebar-chat');
+
+// Control form factor
+sidebarChat.show();
+sidebarChat.close();
+sidebarChat.expand(); // Switch to fullscreen modal
+sidebarChat.collapse(); // Return to sidebar
+
+// Access slotted chatbot
+const chatbot = sidebarChat.chatbot;
+chatbot.sendMessage('Hello!');
+```
 
 ## API
 
