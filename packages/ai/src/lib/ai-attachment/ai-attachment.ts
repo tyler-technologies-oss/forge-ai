@@ -176,16 +176,18 @@ export class AiAttachmentComponent extends LitElement {
   }
 
   get #removeButton(): TemplateResult | typeof nothing {
-    if (!this.removable || this.uploading) {
+    if (!this.removable) {
       return nothing;
     }
+
+    const label = this.uploading ? `Cancel upload of ${this.filename}` : `Remove ${this.filename}`;
 
     return html`
       <button
         type="button"
         class="remove-button forge-icon-button forge-icon-button--small forge-icon-button--tonal"
         @click=${this.#handleRemove}
-        aria-label="Remove ${this.filename}">
+        aria-label="${label}">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path
             d="M12.854 3.146a.5.5 0 0 1 0 .708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708 0z"

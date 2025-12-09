@@ -1,7 +1,5 @@
-import type { ChatMessage, ToolDefinition, UploadedFileMetadata } from './types.js';
+import type { ChatMessage, FileUploadCallbacks, ToolDefinition } from './types.js';
 import { EventEmitter, type Subscription } from './event-emitter.js';
-
-export type FileUploadCallback = (file: File) => Promise<UploadedFileMetadata>;
 
 export interface MessageStartEvent {
   messageId: string;
@@ -55,6 +53,10 @@ export interface AdapterState {
   isRunning: boolean;
 }
 
+export interface FileUploadEvent extends FileUploadCallbacks {
+  file: File;
+}
+
 export interface ErrorEvent {
   message: string;
 }
@@ -62,7 +64,6 @@ export interface ErrorEvent {
 export abstract class AgentAdapter {
   protected _state: AdapterState = { isConnected: false, isRunning: false };
   protected _tools: ToolDefinition[] = [];
-  public fileUploadCallback?: FileUploadCallback;
   protected _events = {
     runStarted: new EventEmitter<void>(),
     runFinished: new EventEmitter<void>(),
@@ -75,6 +76,7 @@ export abstract class AgentAdapter {
     toolCallArgs: new EventEmitter<ToolCallArgsEvent>(),
     toolCallEnd: new EventEmitter<ToolCallEndEvent>(),
     toolResult: new EventEmitter<ToolResultEvent>(),
+    fileUpload: new EventEmitter<FileUploadEvent>(),
     error: new EventEmitter<ErrorEvent>(),
     stateChange: new EventEmitter<AdapterState>()
   };
@@ -90,10 +92,6 @@ export abstract class AgentAdapter {
 
   public setTools(tools: ToolDefinition[]): void {
     this._tools = tools;
-  }
-
-  public setFileUploadCallback(callback: FileUploadCallback): void {
-    this.fileUploadCallback = callback;
   }
 
   public getTools(): ToolDefinition[] {
@@ -156,6 +154,10 @@ export abstract class AgentAdapter {
     return this._events.toolResult.subscribe(callback);
   }
 
+  public onFileUpload(callback: (event: FileUploadEvent) => void): Subscription {
+    return this._events.fileUpload.subscribe(callback);
+  }
+
   public onError(callback: (event: ErrorEvent) => void): Subscription {
     return this._events.error.subscribe(callback);
   }
@@ -206,6 +208,10 @@ export abstract class AgentAdapter {
 
   protected _emitToolResult(event: ToolResultEvent): void {
     this._events.toolResult.emit(event);
+  }
+
+  public emitFileUpload(file: File, callbacks: FileUploadCallbacks): void {
+    this._events.fileUpload.emit({ file, ...callbacks });
   }
 
   protected _emitError(message: string): void {

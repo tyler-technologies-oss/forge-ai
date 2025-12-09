@@ -27,6 +27,8 @@ import { MessageStateController } from './message-state-controller.js';
 import type {
   ChatMessage,
   FileAttachment,
+  FileUploadCallbacks,
+  ForgeAiChatbotFileSelectEventData,
   HandlerContext,
   MessageItem,
   ThreadState,
@@ -69,6 +71,7 @@ declare global {
     'forge-ai-chatbot-minimize': CustomEvent<void>;
     'forge-ai-chatbot-clear': CustomEvent<void>;
     'forge-ai-chatbot-info': CustomEvent<void>;
+    'forge-ai-chatbot-file-select': CustomEvent<ForgeAiChatbotFileSelectEventData>;
   }
 }
 
@@ -186,7 +189,6 @@ export class AiChatbotComponent extends LitElement {
     this.#markdownController = new MarkdownStreamController(this);
 
     this.#fileUploadManager = new FileUploadManager({
-      uploadCallback: this.adapter?.fileUploadCallback,
       onError: error => {
         this.#dispatchEvent({
           type: 'forge-ai-chatbot-error',
@@ -229,10 +231,6 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.onRunAborted(this.#handleRunAborted.bind(this));
     this.adapter.onError(this.#handleError.bind(this));
     this.adapter.onStateChange(this.#handleStateChange.bind(this));
-
-    this.#fileUploadManager?.updateConfig({
-      uploadCallback: this.adapter.fileUploadCallback
-    });
 
     this.#toolsMap = undefined;
     this.#messageStateController?.updateConfig({ tools: this.#tools });
@@ -464,22 +462,17 @@ export class AiChatbotComponent extends LitElement {
     content: string;
     timestamp?: number;
     attachments?: FileAttachment[];
-    files?: File[];
   }): Promise<void> {
-    if (!config.content.trim() || !this.adapter || this.#isStreaming || this.#isUploading) {
+    if (!config.content.trim() || !this.adapter || this.#isStreaming) {
+      return;
+    }
+
+    if (!this.#fileUploadManager.canSend()) {
       return;
     }
 
     const attachments = config.attachments ?? [];
-    let uploadedFiles: UploadedFileMetadata[] = [];
-
-    if (config.files && config.files.length > 0) {
-      try {
-        uploadedFiles = await this.#fileUploadManager.uploadFiles();
-      } catch {
-        return;
-      }
-    }
+    const uploadedFiles = this.#fileUploadManager.getCompletedUploads();
 
     const userMessage: ChatMessage = {
       id: generateId('msg'),
@@ -515,8 +508,7 @@ export class AiChatbotComponent extends LitElement {
     await this.#sendUserMessage({
       content: evt.detail.value,
       timestamp: evt.detail.date.getTime(),
-      attachments: pendingAttachments,
-      files: pendingAttachments.length > 0 ? [] : undefined
+      attachments: pendingAttachments
     });
   }
 
@@ -577,17 +569,56 @@ export class AiChatbotComponent extends LitElement {
     console.warn('thumbs-down', messageId);
   }
 
-  #handleFileSelect(evt: CustomEvent<ForgeAiFilePickerChangeEventData>): void {
-    const { file, timestamp, thumbnail } = evt.detail;
+  #processFileUpload(file: File, timestamp: number, thumbnail?: string): void {
     const fileId = generateId('file');
 
-    this.#fileUploadManager.addAttachment(fileId, file, {
+    this.#fileUploadManager.addAttachment(fileId, {
       filename: file.name,
       size: file.size,
       mimeType: file.type,
       timestamp,
       thumbnail
     });
+
+    const callbacks = this.#createFileUploadCallbacks(fileId);
+
+    this.adapter?.emitFileUpload(file, callbacks);
+
+    this.#dispatchEvent({
+      type: 'forge-ai-chatbot-file-select',
+      detail: {
+        fileId,
+        file,
+        filename: file.name,
+        size: file.size,
+        mimeType: file.type,
+        timestamp,
+        thumbnail,
+        ...callbacks
+      }
+    });
+  }
+
+  #handleFileSelect(evt: CustomEvent<ForgeAiFilePickerChangeEventData>): void {
+    const { file, timestamp, thumbnail } = evt.detail;
+    this.#processFileUpload(file, timestamp, thumbnail);
+  }
+
+  #createFileUploadCallbacks(fileId: string): FileUploadCallbacks {
+    return {
+      updateProgress: (progress: number) => {
+        this.#fileUploadManager.updateProgress(fileId, progress);
+      },
+      markComplete: (uploadedFile: UploadedFileMetadata) => {
+        this.#fileUploadManager.markComplete(fileId, uploadedFile);
+      },
+      markError: (error: string) => {
+        this.#fileUploadManager.markError(fileId, error);
+      },
+      onAbort: (callback: () => void) => {
+        this.#fileUploadManager.registerOnAbort(fileId, callback);
+      }
+    };
   }
 
   #handleFileError(evt: CustomEvent<ForgeAiFilePickerErrorEventData>): void {
@@ -604,7 +635,10 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleAttachmentRemove(evt: CustomEvent<ForgeAiAttachmentRemoveEventData>): void {
-    this.#fileUploadManager.removeAttachmentByFilename(evt.detail.filename);
+    const attachment = this.#fileUploadManager.pendingAttachments.find(a => a.filename === evt.detail.filename);
+    if (attachment) {
+      this.#fileUploadManager.abort(attachment.id);
+    }
   }
 
   #handleSuggestionSelect(evt: CustomEvent<ForgeAiSuggestionsEventData>): void {
@@ -666,31 +700,16 @@ export class AiChatbotComponent extends LitElement {
    * @param files - Optional file objects to attach
    */
   public async sendMessage(content: string, files?: File[]): Promise<void> {
-    const attachments: FileAttachment[] = [];
     if (files) {
+      const timestamp = Date.now();
       for (const file of files) {
-        const fileId = generateId('file');
-        const attachment: FileAttachment = {
-          id: fileId,
-          filename: file.name,
-          size: file.size,
-          mimeType: file.type,
-          timestamp: Date.now()
-        };
-        attachments.push(attachment);
-        this.#fileUploadManager.addAttachment(fileId, file, {
-          filename: file.name,
-          size: file.size,
-          mimeType: file.type,
-          timestamp: Date.now()
-        });
+        this.#processFileUpload(file, timestamp);
       }
     }
 
     await this.#sendUserMessage({
       content,
-      attachments,
-      files
+      attachments: this.#fileUploadManager.pendingAttachments
     });
   }
 

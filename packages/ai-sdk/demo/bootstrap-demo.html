@@ -112,7 +112,8 @@
 
       const api = await initChatbot({
         baseUrl: 'http://localhost:3001',
-        agentId: 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c',
+        agentId: 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c', // OLD
+        // agentId: 'agent-360eae91-fa73-4890-b861-de91ae474d93', // LATEST
         chatViewType: 'floating',
         onReady: api => {
           console.log('Chatbot ready via callback!', api);

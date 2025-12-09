@@ -35,7 +35,8 @@ defineIconComponent();
 IconRegistry.define([tylIconForgeLogo, tylIconInfoOutline]);
 
 const BASE_URL = 'http://localhost:3001/api/agents';
-const AGENT_ID = 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c';
+const AGENT_ID = 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c'; // OLD
+// const AGENT_ID = 'agent-360eae91-fa73-4890-b861-de91ae474d93'; // LATEST
 
 const chatbot = document.getElementById('chatbot') as AiChatbotComponent;
 const eventStreamEl = document.getElementById('eventStream') as HTMLElement;
@@ -179,7 +180,13 @@ const adapter = new AgUiAdapter(
   threadId
 );
 
-adapter.setFileUploadCallback(async (file: File) => {
+adapter.onFileUpload(async ({ file, markComplete, markError, onAbort, updateProgress }) => {
+  console.log('Starting upload for file:', file.name);
+
+  onAbort(() => {
+    console.log('Upload aborted for file:', file.name);
+  });
+
   const formData = new FormData();
   formData.append('file', file);
 
@@ -211,36 +218,26 @@ adapter.setFileUploadCallback(async (file: File) => {
       if (line.startsWith('data: ')) {
         const data = JSON.parse(line.slice(6));
 
-        if (data.type === 'progress') {
-          document.dispatchEvent(
-            new CustomEvent('file-upload-progress', {
-              detail: {
-                fileName: file.name,
-                progress: data.progress,
-                message: data.message
-              }
-            })
-          );
-        }
-
-        if (data.type === 'complete') {
-          return {
-            fileId: data.file.file_id,
-            fileName: data.file.file_metadata.fileName,
-            fileType: data.file.file_metadata.fileType,
-            fileSize: data.file.file_metadata.fileSize,
-            uploadedAt: data.file.file_metadata.uploadedAt
-          };
-        }
-
-        if (data.type === 'error') {
-          throw new Error(data.error);
+        switch (data.type) {
+          case 'progress':
+            updateProgress(data.progress);
+            break;
+          case 'complete':
+            markComplete({
+              fileId: data.file.file_id,
+              fileName: data.file.file_metadata.fileName,
+              fileType: data.file.file_metadata.fileType,
+              fileSize: data.file.file_metadata.fileSize,
+              uploadedAt: data.file.file_metadata.uploadedAt
+            });
+            return;
+          case 'error':
+            markError(data.error);
+            return;
         }
       }
     }
   }
-
-  throw new Error('Upload failed: No response');
 });
 
 // Track SDK events via subscriber
@@ -255,7 +252,7 @@ adapter.onToolCallStart(event => addEventToStream('TOOL_CALL_START', event));
 adapter.onToolCallArgs(event => addEventToStream('TOOL_CALL_ARGS', event));
 adapter.onToolCallEnd(event => addEventToStream('TOOL_CALL_END', event));
 adapter.onToolResult(event => addEventToStream('TOOL_RESULT', event));
-adapter.onError(event => addEventToStream('ERROR', event));
+adapter.onError(event => addEventToStream('RUN_ERROR', event));
 adapter.onStateChange(state => addEventToStream('STATE_CHANGE', state));
 
 chatbot.adapter = adapter;

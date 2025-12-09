@@ -3,6 +3,7 @@ import type {
   ToolDefinition,
   Suggestion,
   UploadedFileMetadata,
+  FileUploadEvent,
   AgUiAdapter,
   AgentRunner
 } from '@tylertech/forge-ai/ai-chatbot';
@@ -15,7 +16,7 @@ export interface ChatbotConfig {
   mountPoint?: string | HTMLElement;
   credentials?: RequestCredentials;
   headers?: Record<string, string>;
-  fileUploadHandler?: (file: File) => Promise<UploadedFileMetadata>;
+  fileUploadHandler?: (event: FileUploadEvent) => Promise<void> | void;
   onReady?: (api: ChatbotAPI) => void;
   onError?: (error: Error) => void;
 }

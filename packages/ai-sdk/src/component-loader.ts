@@ -1,6 +1,94 @@
 import type { ChatbotConfig, AgentUIConfig, ChatbotAPI } from './types.js';
 import { resolveMountPoint, waitForDOMReady } from './utils.js';
 
+function setupFileUploadHandler(
+  chatbot: HTMLElement,
+  config: ChatbotConfig,
+  agentId?: string,
+  threadId?: string
+): void {
+  if (!agentId || !threadId) {
+    return;
+  }
+
+  chatbot.addEventListener('forge-ai-chatbot-file-attached', async (event: Event) => {
+    const detail = (event as CustomEvent).detail;
+    const { file, updateProgress, markComplete, markError, onAbort } = detail;
+    const controller = new AbortController();
+
+    onAbort(() => controller.abort());
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const uploadUrl = `${config.baseUrl}/api/agents/${agentId}/threads/${threadId}/upload`;
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: config.headers || {},
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Upload failed: ${response.statusText}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      if (!reader) {
+        throw new Error('Response body is not readable');
+      }
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.type === 'progress' && data.progress !== undefined) {
+                updateProgress(data.progress);
+              } else if (data.type === 'complete') {
+                const { file_metadata, file_id } = data.file;
+                const uploadedFile = {
+                  fileId: file_id,
+                  fileName: file_metadata.fileName,
+                  fileType: file_metadata.fileType,
+                  fileSize: file_metadata.fileSize,
+                  uploadedAt: data.file.uploadedAt
+                };
+                markComplete(uploadedFile);
+              } else if (data.type === 'error') {
+                throw new Error(data.error || 'Upload failed');
+              }
+            } catch (parseError) {
+              console.error('Failed to parse SSE message:', parseError);
+            }
+          }
+        }
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
+      markError(error instanceof Error ? error.message : 'Upload failed');
+    }
+  });
+}
+
 export async function loadComponent(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
   const { chatViewType = 'floating' } = config;
 
@@ -28,7 +116,7 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
   });
 
   if (config.fileUploadHandler) {
-    adapter.fileUploadCallback = config.fileUploadHandler;
+    adapter.onFileUpload(config.fileUploadHandler);
   }
 
   const element = document.createElement('forge-ai-floating-chat');
@@ -58,6 +146,11 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
   document.body.appendChild(element);
   element.open = true;
 
+  const chatbot = element.shadowRoot?.querySelector('forge-ai-chatbot');
+  if (chatbot && !config.fileUploadHandler) {
+    setupFileUploadHandler(chatbot as HTMLElement, config, config.agentId, adapter.threadId);
+  }
+
   return createAPI(element, adapter, AgentRunner);
 }
 
@@ -84,7 +177,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
   });
 
   if (config.fileUploadHandler) {
-    adapter.fileUploadCallback = config.fileUploadHandler;
+    adapter.onFileUpload(config.fileUploadHandler);
   }
 
   const element = document.createElement('forge-ai-sidebar-chat');
@@ -114,6 +207,11 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
   mountElement.appendChild(element);
   element.open = true;
 
+  const chatbot = element.shadowRoot?.querySelector('forge-ai-chatbot');
+  if (chatbot && !config.fileUploadHandler) {
+    setupFileUploadHandler(chatbot as HTMLElement, config, config.agentId, adapter.threadId);
+  }
+
   return createAPI(element, adapter, AgentRunner);
 }
 
@@ -140,7 +238,7 @@ async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfi
   });
 
   if (config.fileUploadHandler) {
-    adapter.fileUploadCallback = config.fileUploadHandler;
+    adapter.onFileUpload(config.fileUploadHandler);
   }
 
   await adapter.connect();

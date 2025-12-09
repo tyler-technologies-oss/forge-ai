@@ -17,6 +17,7 @@ export {
   type ToolCallStartEvent,
   type ToolCallArgsEvent,
   type ToolCallEndEvent,
+  type FileUploadEvent,
   type AdapterState,
   type ErrorEvent
 } from './agent-adapter.js';
@@ -29,7 +30,10 @@ export type {
   ToolRenderer,
   HandlerContext,
   FileAttachment,
-  UploadedFileMetadata
+  UploadedFileMetadata,
+  FileUploadCallbacks,
+  FileUploadHandler,
+  ForgeAiChatbotFileSelectEventData
 } from './types.js';
 
 // AG-UI adapter

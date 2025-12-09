@@ -79,6 +79,8 @@ export interface FileAttachment {
   thumbnail?: string;
   uploading?: boolean;
   progress?: number;
+  status?: 'pending' | 'uploading' | 'success' | 'error';
+  error?: string;
 }
 
 export interface UploadedFileMetadata {
@@ -87,6 +89,29 @@ export interface UploadedFileMetadata {
   fileType: string;
   fileSize: number;
   uploadedAt: string;
+}
+
+export interface FileUploadCallbacks {
+  updateProgress: (progress: number) => void;
+  markComplete: (metadata: UploadedFileMetadata) => void;
+  markError: (error: string) => void;
+  onAbort: (callback: () => void) => void;
+}
+
+export type FileUploadHandler = (file: File, callbacks: FileUploadCallbacks) => Promise<void> | void;
+
+export interface ForgeAiChatbotFileSelectEventData {
+  fileId: string;
+  file: File;
+  filename: string;
+  size: number;
+  mimeType: string;
+  timestamp: number;
+  thumbnail?: string;
+  updateProgress: (progress: number) => void;
+  markComplete: (metadata: UploadedFileMetadata) => void;
+  markError: (error: string) => void;
+  onAbort: (callback: () => void) => void;
 }
 
 export type MessageItem = { type: 'message'; data: ChatMessage } | { type: 'toolCall'; data: ToolCall };
