@@ -1,7 +1,6 @@
 import { HttpAgent, type AgentSubscriber } from '@ag-ui/client';
 import type {
   AssistantMessage,
-  InputContent,
   Message,
   SystemMessage,
   Tool as AgUiTool,
@@ -332,7 +331,7 @@ export class AgUiAdapter extends AgentAdapter {
             const userMsg: UserMessage & { fileIds?: string[] } = {
               id: msg.id,
               role: 'user',
-              content: this.#createInputContent(msg.content)
+              content: msg.content
             };
             if (msg.uploadedFiles?.length) {
               userMsg.fileIds = msg.uploadedFiles.map(f => f.fileId);
@@ -381,9 +380,6 @@ export class AgUiAdapter extends AgentAdapter {
       });
   }
 
-  #createInputContent(content: string): InputContent[] {
-    return [{ type: 'text', text: content }];
-  }
 
   #validateToolArgs(toolName: string, args: Record<string, unknown>, toolDef: ToolDefinition): string | null {
     const { parameters } = toolDef;
