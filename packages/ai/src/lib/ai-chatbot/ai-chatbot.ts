@@ -6,8 +6,9 @@ import { when } from 'lit/directives/when.js';
 import type { ForgeAiAttachmentRemoveEventData } from '../ai-attachment';
 import type { AiChatInterfaceComponent } from '../ai-chat-interface';
 import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData } from '../ai-file-picker';
-import type { ForgeAiPromptSendEventData } from '../ai-prompt';
+import type { AiPromptComponent, ForgeAiPromptSendEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData, Suggestion } from '../ai-suggestions';
+import type { ForgeAiVoiceInputResultEvent } from '../ai-voice-input';
 import {
   AgentAdapter,
   type AdapterState,
@@ -51,6 +52,7 @@ import '../ai-response-message';
 import '../ai-suggestions';
 import '../ai-thinking-indicator';
 import '../ai-user-message';
+import '../ai-voice-input';
 import './ai-chatbot-tool-call.js';
 
 import styles from './ai-chatbot.scss?inline';
@@ -72,6 +74,7 @@ declare global {
     'forge-ai-chatbot-clear': CustomEvent<void>;
     'forge-ai-chatbot-info': CustomEvent<void>;
     'forge-ai-chatbot-file-select': CustomEvent<ForgeAiChatbotFileSelectEventData>;
+    'forge-ai-voice-input-result': CustomEvent<ForgeAiVoiceInputResultEvent>;
   }
 }
 
@@ -126,6 +129,9 @@ export class AiChatbotComponent extends LitElement {
   @property({ type: Boolean, attribute: 'enable-file-upload' })
   public enableFileUpload = false;
 
+  @property({ type: Boolean, attribute: 'enable-voice-input' })
+  public enableVoiceInput = false;
+
   @property()
   public placeholder = 'Ask a question...';
 
@@ -151,6 +157,7 @@ export class AiChatbotComponent extends LitElement {
   public agentInfo?: AgentInfo;
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
+  #promptRef = createRef<AiPromptComponent>();
   #messageStateController!: MessageStateController;
   #fileUploadManager!: FileUploadManager;
   #markdownController!: MarkdownStreamController;
@@ -645,6 +652,13 @@ export class AiChatbotComponent extends LitElement {
     this.sendMessage(evt.detail.text);
   }
 
+  #handleVoiceInputResult(evt: CustomEvent<ForgeAiVoiceInputResultEvent>): void {
+    const { transcript } = evt.detail;
+    if (transcript && this.#promptRef.value) {
+      this.#promptRef.value.value = transcript;
+    }
+  }
+
   async #scrollAfterUpdate(): Promise<void> {
     await this.updateComplete;
     this.#chatInterfaceRef.value?.scrollToBottom();
@@ -793,6 +807,7 @@ export class AiChatbotComponent extends LitElement {
     const isUploading = this.#isUploading;
     return html`
       <forge-ai-prompt
+        ${ref(this.#promptRef)}
         slot="prompt"
         .placeholder=${this.placeholder}
         .running=${this.#isStreaming || isUploading}
@@ -813,6 +828,15 @@ export class AiChatbotComponent extends LitElement {
               @forge-ai-file-picker-change=${this.#handleFileSelect}
               @forge-ai-file-picker-error=${this.#handleFileError}>
             </forge-ai-file-picker>
+          `
+        )}
+        ${when(
+          this.enableVoiceInput,
+          () => html`
+            <forge-ai-voice-input
+              slot="actions"
+              @forge-ai-voice-input-result=${this.#handleVoiceInputResult}>
+            </forge-ai-voice-input>
           `
         )}
       </forge-ai-prompt>

@@ -5,6 +5,7 @@ import { action } from 'storybook/actions';
 import '$lib/ai-chatbot';
 import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
+import '$lib/ai-voice-input';
 import { type ToolDefinition, type Suggestion } from '$lib/ai-chatbot';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
@@ -21,6 +22,10 @@ const meta = {
     enableFileUpload: {
       control: 'boolean',
       description: 'Enable file upload functionality'
+    },
+    enableVoiceInput: {
+      control: 'boolean',
+      description: 'Enable voice input functionality'
     },
     showExpandButton: {
       control: 'boolean',
@@ -47,6 +52,7 @@ const meta = {
   args: {
     placeholder: 'Ask a question...',
     enableFileUpload: false,
+    enableVoiceInput: false,
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,
@@ -79,6 +85,7 @@ const meta = {
           .adapter=${adapter}
           placeholder=${args.placeholder}
           ?enable-file-upload=${args.enableFileUpload}
+          ?enable-voice-input=${args.enableVoiceInput}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?expanded=${args.expanded}
@@ -262,6 +269,60 @@ export const WithPersistence: Story = {
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
           @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
           <span slot="header-title">Persistent Chat</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithVoiceInput: Story = {
+  args: {
+    enableVoiceInput: true
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const onConnected = action('forge-ai-chatbot-connected');
+    const onDisconnected = action('forge-ai-chatbot-disconnected');
+    const onMessageSent = action('forge-ai-chatbot-message-sent');
+    const onMessageReceived = action('forge-ai-chatbot-message-received');
+    const onToolCall = action('forge-ai-chatbot-tool-call');
+    const onError = action('forge-ai-chatbot-error');
+    const onExpand = action('forge-ai-chatbot-expand');
+    const onMinimize = action('forge-ai-chatbot-minimize');
+    const onClear = action('forge-ai-chatbot-clear');
+    const onExport = action('forge-ai-chatbot-export');
+    const onInfo = action('forge-ai-chatbot-info');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          ?enable-file-upload=${args.enableFileUpload}
+          ?enable-voice-input=${args.enableVoiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
+          @forge-ai-chatbot-connected=${onConnected}
+          @forge-ai-chatbot-disconnected=${onDisconnected}
+          @forge-ai-chatbot-message-sent=${onMessageSent}
+          @forge-ai-chatbot-message-received=${onMessageReceived}
+          @forge-ai-chatbot-tool-call=${onToolCall}
+          @forge-ai-chatbot-error=${onError}
+          @forge-ai-chatbot-expand=${onExpand}
+          @forge-ai-chatbot-minimize=${onMinimize}
+          @forge-ai-chatbot-clear=${onClear}
+          @forge-ai-chat-header-export=${onExport}
+          @forge-ai-chatbot-info=${onInfo}>
         </forge-ai-chatbot>
       </div>
     `;
