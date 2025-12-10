@@ -14,7 +14,7 @@ export interface ChatbotConfig {
   /** Unique identifier for the team. Either agentId or teamId is required. */
   teamId?: string;
   /** Base URL of the Tyler AI backend service. */
-  baseUrl: string;
+  baseUrl?: string;
   /** Display format for the chatbot: 'floating' (FAB), 'sidebar', or 'threads'. Defaults to 'floating'. */
   chatViewType?: 'floating' | 'sidebar' | 'threads';
   /** CSS selector string or HTMLElement where the chatbot will be mounted. Defaults to document.body. */
@@ -140,6 +140,7 @@ export interface AuthStatus {
 declare global {
   interface Window {
     TylerAI?: ChatbotAPI;
+    tylerAIConfig?: Partial<ChatbotConfig>;
   }
 }
 
