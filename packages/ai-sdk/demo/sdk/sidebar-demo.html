@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.forge.tylertech.com/v1/css/tyler-font.css" />
+    <title>Sidebar Chat Demo - Tyler Forge AI SDK</title>
+    <style>
+      @import '@tylertech/forge/dist/forge-core.css';
+      @import '@tylertech/forge/dist/forge.css';
+
+      :not(:defined) {
+        visibility: hidden;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      main {
+        padding: var(--forge-spacing-medium);
+        display: flex;
+        flex-direction: column;
+        gap: var(--forge-spacing-medium);
+      }
+
+      forge-card h2 {
+        margin: 0;
+      }
+
+      forge-card p {
+        margin-block-start: 0;
+        margin-block-end: var(--forge-spacing-small);
+      }
+
+      .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--forge-spacing-small);
+      }
+
+      #sidebar-container {
+        height: 600px;
+        border: 2px dashed var(--forge-theme-outline);
+        border-radius: var(--forge-shape-medium);
+        margin-block-start: var(--forge-spacing-medium);
+      }
+    </style>
+  </head>
+  <body>
+    <forge-scaffold>
+      <forge-app-bar slot="header" theme-mode="scoped" title-text="Sidebar Chat Demo - Tyler Forge AI SDK">
+        <forge-icon name="forge_logo" slot="logo"></forge-icon>
+      </forge-app-bar>
+
+      <main slot="body">
+        <forge-card>
+          <h2 class="forge-typography--heading4">Sidebar Chat</h2>
+          <p>Demonstrates the sidebar chat component with manual adapter creation.</p>
+          <div class="button-group">
+            <forge-button id="show-manual" variant="outlined">Show</forge-button>
+            <forge-button id="close-manual" variant="outlined">Close</forge-button>
+          </div>
+        </forge-card>
+      </main>
+
+      <forge-ai-sidebar-chat slot="body-right" id="sidebar-chat">
+        <forge-ai-chatbot id="chatbot"></forge-ai-chatbot>
+      </forge-ai-sidebar-chat>
+    </forge-scaffold>
+
+    <script type="module" src="./sidebar-demo.ts"></script>
+  </body>
+</html>

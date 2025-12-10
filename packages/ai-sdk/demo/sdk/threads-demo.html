@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.forge.tylertech.com/v1/css/tyler-font.css" />
+    <title>Threads Demo - Tyler Forge AI SDK</title>
+    <style>
+      @import '@tylertech/forge/dist/forge-core.css';
+      @import '@tylertech/forge/dist/forge.css';
+
+      :not(:defined) {
+        visibility: hidden;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      forge-scaffold {
+        height: 100%;
+      }
+
+      #threads {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <forge-scaffold>
+      <forge-app-bar slot="header" theme-mode="scoped" title-text="Threads Demo - Tyler Forge AI SDK">
+        <forge-icon name="forge_logo" slot="logo"></forge-icon>
+      </forge-app-bar>
+
+      <forge-ai-threads id="threads" slot="body">
+        <forge-ai-chatbot id="chatbot"></forge-ai-chatbot>
+      </forge-ai-threads>
+    </forge-scaffold>
+
+    <script type="module" src="./threads-demo.ts"></script>
+  </body>
+</html>

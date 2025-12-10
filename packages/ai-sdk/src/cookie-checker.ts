@@ -1,3 +1,7 @@
+/**
+ * Check if third-party cookies are enabled in the browser.
+ * Required for proper authentication flow across domains.
+ */
 export async function checkThirdPartyCookies(): Promise<boolean> {
   return new Promise(resolve => {
     const iframe = document.createElement('iframe');

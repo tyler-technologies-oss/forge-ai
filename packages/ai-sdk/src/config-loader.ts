@@ -1,6 +1,10 @@
 import type { ChatbotConfig, AgentUIConfig, AuthStatus } from './types.js';
 import { applyTemplateVariables } from './utils.js';
 
+/**
+ * Load agent configuration from the backend service.
+ * Applies user-specific template variables to welcome messages.
+ */
 export async function loadAgentConfig(config: ChatbotConfig, authStatus: AuthStatus): Promise<AgentUIConfig> {
   const { agentId, teamId, baseUrl, credentials = 'include', headers = {} } = config;
 

@@ -6,129 +6,21 @@ settings:
 
 catalogs:
   default:
-    '@custom-elements-manifest/analyzer':
-      specifier: 0.11.0
-      version: 0.11.0
-    '@esm-bundle/chai':
-      specifier: 4.3.4-fix.0
-      version: 4.3.4-fix.0
-    '@open-wc/testing':
-      specifier: 4.0.0
-      version: 4.0.0
-    '@storybook/addon-a11y':
-      specifier: 9.1.16
-      version: 9.1.16
-    '@storybook/addon-docs':
-      specifier: 9.1.16
-      version: 9.1.16
-    '@storybook/addon-links':
-      specifier: 9.1.16
-      version: 9.1.16
-    '@storybook/addon-themes':
-      specifier: 9.1.16
-      version: 9.1.16
-    '@storybook/web-components-vite':
-      specifier: 9.1.16
-      version: 9.1.16
-    '@tylertech-eslint/eslint-plugin':
-      specifier: 3.0.0
-      version: 3.0.0
     '@tylertech/forge':
       specifier: 3.12.1
       version: 3.12.1
-    '@tylertech/stylelint-rules':
-      specifier: 5.1.2
-      version: 5.1.2
     '@tylertech/tyler-icons':
       specifier: 2.0.4
       version: 2.0.4
-    '@types/mocha':
-      specifier: 10.0.10
-      version: 10.0.10
-    '@types/node':
-      specifier: 24.10.1
-      version: 24.10.1
-    '@types/sinon':
-      specifier: 21.0.0
-      version: 21.0.0
-    '@vueless/storybook-dark-mode':
-      specifier: 9.0.10
-      version: 9.0.10
-    '@web/dev-server-esbuild':
-      specifier: 1.0.4
-      version: 1.0.4
-    '@web/dev-server-rollup':
-      specifier: 0.6.4
-      version: 0.6.4
-    '@web/test-runner':
-      specifier: 0.20.2
-      version: 0.20.2
-    '@web/test-runner-commands':
-      specifier: 0.9.0
-      version: 0.9.0
-    '@web/test-runner-junit-reporter':
-      specifier: 0.8.0
-      version: 0.8.0
-    '@web/test-runner-playwright':
-      specifier: 0.11.1
-      version: 0.11.1
     eslint:
       specifier: 9.39.1
       version: 9.39.1
-    eslint-plugin-prettier:
-      specifier: 5.5.4
-      version: 5.5.4
-    glob:
-      specifier: 13.0.0
-      version: 13.0.0
-    lit:
-      specifier: 3.3.1
-      version: 3.3.1
-    lit-analyzer:
-      specifier: 2.0.3
-      version: 2.0.3
-    plop:
-      specifier: 4.0.4
-      version: 4.0.4
-    postcss-lit:
-      specifier: 1.3.1
-      version: 1.3.1
-    prettier:
-      specifier: 3.7.4
-      version: 3.7.4
-    remark-gfm:
-      specifier: 4.0.1
-      version: 4.0.1
-    rimraf:
-      specifier: 6.1.2
-      version: 6.1.2
-    sass:
-      specifier: 1.94.2
-      version: 1.94.2
-    sinon:
-      specifier: 21.0.0
-      version: 21.0.0
-    storybook:
-      specifier: 9.1.16
-      version: 9.1.16
-    stylelint:
-      specifier: 16.26.1
-      version: 16.26.1
-    stylelint-config-standard:
-      specifier: 39.0.1
-      version: 39.0.1
-    tslib:
-      specifier: 2.8.1
-      version: 2.8.1
     vite:
       specifier: 7.2.7
       version: 7.2.7
     vite-plugin-dts:
       specifier: 4.5.4
       version: 4.5.4
-    vite-tsconfig-paths:
-      specifier: 5.1.4
-      version: 5.1.4
 
 overrides:
   reactify-wc>react: '>=17'
@@ -458,9 +350,6 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 9.39.1(jiti@2.6.1)
-      terser:
-        specifier: 5.44.1
-        version: 5.44.1
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
@@ -5998,6 +5887,7 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
+    optional: true
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
@@ -7482,7 +7372,8 @@ snapshots:
 
   buffer-crc32@0.2.13: {}
 
-  buffer-from@1.1.2: {}
+  buffer-from@1.1.2:
+    optional: true
 
   buffer@5.7.1:
     dependencies:
@@ -7668,7 +7559,8 @@ snapshots:
 
   commander@14.0.2: {}
 
-  commander@2.20.3: {}
+  commander@2.20.3:
+    optional: true
 
   comment-parser@1.2.4: {}
 
@@ -10109,6 +10001,7 @@ snapshots:
     dependencies:
       buffer-from: 1.1.2
       source-map: 0.6.1
+    optional: true
 
   source-map@0.6.1: {}
 
@@ -10360,6 +10253,7 @@ snapshots:
       acorn: 8.15.0
       commander: 2.20.3
       source-map-support: 0.5.21
+    optional: true
 
   text-decoder@1.2.3:
     dependencies:

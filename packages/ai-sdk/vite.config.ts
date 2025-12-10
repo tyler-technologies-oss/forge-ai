@@ -5,20 +5,20 @@ import dts from 'vite-plugin-dts';
 export default defineConfig({
   build: {
     lib: {
-      entry: {
-        sdk: resolve(__dirname, 'src/index.ts'),
-        bootstrap: resolve(__dirname, 'src/bootstrap.ts')
-      },
-      formats: ['es']
+      entry: resolve(__dirname, 'src/index.ts'),
+      formats: ['es'],
+      fileName: 'index'
     },
     rollupOptions: {
-      external: ['@tylertech/forge-ai'],
+      external: ['@tylertech/forge-ai', /@tylertech\/forge-ai\/.*/],
       output: {
-        preserveModules: false,
-        inlineDynamicImports: false
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js'
       }
     },
-    minify: 'terser',
+    minify: false,
     sourcemap: true,
     outDir: 'dist'
   },

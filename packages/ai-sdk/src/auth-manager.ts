@@ -3,6 +3,11 @@ import type { ChatbotConfig, AuthConfig, AuthStatus } from './types.js';
 const AUTH_POLL_INTERVAL = 1000;
 const AUTH_POLL_TIMEOUT = 300000;
 
+/**
+ * Check authentication status for the chatbot agent to determine if the user is authenticated or needs to authenticate.
+ * @param {ChatbotConfig} config - Configuration object for the chatbot.
+ * @returns {AuthStatus} indicating authentication status and user details if authenticated.
+ */
 export async function checkAuthentication(config: ChatbotConfig): Promise<AuthStatus> {
   const { agentId, baseUrl, credentials = 'include', headers = {} } = config;
 

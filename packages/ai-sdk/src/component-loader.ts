@@ -1,92 +1,153 @@
-import type { ChatbotConfig, AgentUIConfig, ChatbotAPI } from './types.js';
+import { AiFloatingChatComponent, AiSidebarChatComponent, AiThreadsComponent } from '@tylertech/forge-ai';
+import type { AgentRunner, AgUiAdapter, AiChatbotComponent, FileUploadEvent } from '@tylertech/forge-ai/ai-chatbot';
+import { setupFileUploadHandler } from './file-upload.js';
+import type {
+  AgentUIConfig,
+  ChatbotAPI,
+  ChatbotConfig,
+  FloatingChatAPI,
+  SidebarChatAPI,
+  ThreadsChatAPI
+} from './types.js';
 import { resolveMountPoint, waitForDOMReady } from './utils.js';
 
-function setupFileUploadHandler(
-  chatbot: HTMLElement,
-  config: ChatbotConfig,
-  agentId?: string,
-  threadId?: string
-): void {
-  if (!agentId || !threadId) {
-    return;
+interface AgentInfoConfig {
+  name?: string;
+  description?: string;
+  identifier?: string;
+  version?: string;
+  model?: string;
+  lastUpdated?: string;
+}
+
+interface OpenableElement {
+  show(): void;
+  close(): void;
+  toggle(): void;
+  open: boolean;
+}
+
+function createAdapterInstance(
+  AgentAdapterClass: typeof AgUiAdapter,
+  config: {
+    baseUrl: string;
+    agentId?: string;
+    headers?: Record<string, string>;
+    fileUploadHandler?: (event: FileUploadEvent) => Promise<void> | void;
+  }
+): AgUiAdapter {
+  const adapter = new AgentAdapterClass({
+    url: `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`,
+    headers: config.headers
+  });
+
+  if (config.fileUploadHandler) {
+    adapter.onFileUpload(config.fileUploadHandler);
   }
 
-  chatbot.addEventListener('forge-ai-chatbot-file-attached', async (event: Event) => {
-    const detail = (event as CustomEvent).detail;
-    const { file, updateProgress, markComplete, markError, onAbort } = detail;
-    const controller = new AbortController();
+  return adapter;
+}
 
-    onAbort(() => controller.abort());
+function createChatbotElement(config: {
+  adapter: AgUiAdapter;
+  enableFileUpload?: boolean;
+  placeholder?: string;
+  suggestions?: Array<{ text: string; value: string }>;
+}): AiChatbotComponent {
+  const chatbot = document.createElement('forge-ai-chatbot');
+  chatbot.adapter = config.adapter;
+  chatbot.enableFileUpload = config.enableFileUpload ?? false;
+  chatbot.placeholder = config.placeholder ?? 'Ask a question...';
+  chatbot.suggestions = config.suggestions;
+  return chatbot;
+}
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
+function createAgentInfo(agentConfig: AgentUIConfig): AgentInfoConfig | undefined {
+  if (
+    !agentConfig.name &&
+    !agentConfig.description &&
+    !agentConfig.version &&
+    !agentConfig.model?.model &&
+    !agentConfig.id &&
+    !agentConfig.metadata?.updatedAt
+  ) {
+    return undefined;
+  }
 
-      const uploadUrl = `${config.baseUrl}/api/agents/${agentId}/threads/${threadId}/upload`;
-      const response = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-        headers: config.headers || {},
-        signal: controller.signal
-      });
+  return {
+    name: agentConfig.name,
+    description: agentConfig.description,
+    identifier: agentConfig.id,
+    version: agentConfig.version,
+    model: agentConfig.model?.model,
+    lastUpdated: agentConfig.metadata?.updatedAt
+  };
+}
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Upload failed: ${response.statusText}`);
-      }
+function createFabElement(floatingChat: AiFloatingChatComponent): HTMLElement {
+  const fabElement = document.createElement('forge-ai-fab');
+  fabElement.style.position = 'absolute';
+  fabElement.style.bottom = '16px';
+  fabElement.style.right = '16px';
+  fabElement.style.zIndex = '1000';
+  fabElement.style.display = floatingChat.open ? 'none' : 'block';
 
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      if (!reader) {
-        throw new Error('Response body is not readable');
-      }
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-
-              if (data.type === 'progress' && data.progress !== undefined) {
-                updateProgress(data.progress);
-              } else if (data.type === 'complete') {
-                const { file_metadata, file_id } = data.file;
-                const uploadedFile = {
-                  fileId: file_id,
-                  fileName: file_metadata.fileName,
-                  fileType: file_metadata.fileType,
-                  fileSize: file_metadata.fileSize,
-                  uploadedAt: data.file.uploadedAt
-                };
-                markComplete(uploadedFile);
-              } else if (data.type === 'error') {
-                throw new Error(data.error || 'Upload failed');
-              }
-            } catch (parseError) {
-              console.error('Failed to parse SSE message:', parseError);
-            }
-          }
-        }
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        return;
-      }
-      markError(error instanceof Error ? error.message : 'Upload failed');
-    }
+  fabElement.addEventListener('click', () => {
+    floatingChat.toggle();
   });
+
+  floatingChat.addEventListener('forge-ai-floating-chat-open', () => {
+    fabElement.style.display = 'none';
+  });
+
+  floatingChat.addEventListener('forge-ai-floating-chat-close', () => {
+    fabElement.style.display = 'block';
+  });
+
+  return fabElement;
+}
+
+function createBaseChatbotAPI<T extends typeof AgentRunner>(
+  chatbot: AiChatbotComponent,
+  element: AiFloatingChatComponent | AiSidebarChatComponent | AiThreadsComponent,
+  adapter: AgUiAdapter,
+  agentRunner: T
+): ChatbotAPI {
+  return {
+    async sendMessage(message: string, files?: File[]): Promise<void> {
+      await chatbot.sendMessage(message, files);
+    },
+    clearMessages(): void {
+      chatbot.clearMessages();
+    },
+    getMessages() {
+      return chatbot.getMessages();
+    },
+    adapter,
+    agentRunner,
+    element,
+    destroy(): void {
+      adapter.disconnect();
+      element.remove();
+    }
+  };
+}
+
+function createOpenableMethods(element: OpenableElement): OpenableElement {
+  return {
+    show(): void {
+      element.show();
+    },
+    close(): void {
+      element.close();
+    },
+    toggle(): void {
+      element.toggle();
+    },
+    get open(): boolean {
+      return element.open;
+    }
+  };
 }
 
 export async function loadComponent(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
@@ -111,76 +172,58 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
 
-  const adapter = new AgUiAdapter({
-    url: `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`,
-    headers: config.headers
+  const adapter = createAdapterInstance(AgUiAdapter, {
+    baseUrl: config.baseUrl,
+    agentId: config.agentId,
+    headers: config.headers,
+    fileUploadHandler: config.fileUploadHandler
   });
 
-  if (config.fileUploadHandler) {
-    adapter.onFileUpload(config.fileUploadHandler);
+  const chatbot = createChatbotElement({
+    adapter,
+    enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
+  });
+
+  const agentInfo = createAgentInfo(agentConfig);
+  if (agentInfo) {
+    chatbot.agentInfo = agentInfo;
   }
 
-  const chatbot = document.createElement('forge-ai-chatbot');
-  chatbot.adapter = adapter;
-  chatbot.enableFileUpload = agentConfig.chatExperience?.enableFileUpload ?? false;
-  chatbot.placeholder = 'Ask a question...';
-  chatbot.suggestions = agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }));
+  const floatingChatElement = document.createElement('forge-ai-floating-chat');
+  floatingChatElement.appendChild(chatbot);
+  floatingChatElement.open = config.initialOpen ?? false;
 
-  if (
-    agentConfig.name ||
-    agentConfig.description ||
-    agentConfig.version ||
-    agentConfig.model?.model ||
-    agentConfig.id ||
-    agentConfig.metadata?.updatedAt
-  ) {
-    chatbot.agentInfo = {
-      name: agentConfig.name,
-      description: agentConfig.description,
-      identifier: agentConfig.id,
-      version: agentConfig.version,
-      model: agentConfig.model?.model,
-      lastUpdated: agentConfig.metadata?.updatedAt
-    };
-  }
+  document.body.appendChild(floatingChatElement);
 
-  const element = document.createElement('forge-ai-floating-chat');
-  element.appendChild(chatbot);
-  element.open = config.initialOpen ?? false;
-
-  document.body.appendChild(element);
-
-  if (!config.fileUploadHandler) {
-    setupFileUploadHandler(chatbot as HTMLElement, config, config.agentId, adapter.threadId);
+  if (agentConfig.chatExperience?.enableFileUpload) {
+    const handler = setupFileUploadHandler({
+      baseUrl: config.baseUrl,
+      agentId: config.agentId as string,
+      threadId: adapter.threadId,
+      headers: config.headers,
+      credentials: 'include'
+    });
+    adapter.onFileUpload(handler);
   }
 
   let fabElement: HTMLElement | undefined;
 
   if (config.showTriggerButton !== false) {
-    fabElement = document.createElement('forge-ai-fab');
-    fabElement.style.position = 'absolute';
-    fabElement.style.bottom = '16px';
-    fabElement.style.right = '16px';
-    fabElement.style.zIndex = '1000';
-
-    fabElement.style.display = element.open ? 'none' : 'block';
-
-    fabElement.addEventListener('click', () => {
-      element.toggle();
-    });
-
-    element.addEventListener('forge-ai-floating-chat-open', () => {
-      fabElement!.style.display = 'none';
-    });
-
-    element.addEventListener('forge-ai-floating-chat-close', () => {
-      fabElement!.style.display = 'block';
-    });
-
+    fabElement = createFabElement(floatingChatElement);
     document.body.appendChild(fabElement);
   }
 
-  return createAPI({ element, adapter, agentRunner: AgentRunner, fabElement });
+  return {
+    ...createBaseChatbotAPI(chatbot, floatingChatElement, adapter, AgentRunner),
+    ...createOpenableMethods(floatingChatElement),
+    fabElement,
+    destroy(): void {
+      adapter.disconnect();
+      floatingChatElement.remove();
+      fabElement?.remove();
+    }
+  } satisfies FloatingChatAPI;
 }
 
 async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
@@ -200,53 +243,48 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
 
-  const adapter = new AgUiAdapter({
-    url: `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`,
-    headers: config.headers
+  const adapter = createAdapterInstance(AgUiAdapter, {
+    baseUrl: config.baseUrl,
+    agentId: config.agentId,
+    headers: config.headers,
+    fileUploadHandler: config.fileUploadHandler
   });
 
-  if (config.fileUploadHandler) {
-    adapter.onFileUpload(config.fileUploadHandler);
+  const chatbot = createChatbotElement({
+    adapter,
+    enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
+  });
+
+  const agentInfo = createAgentInfo(agentConfig);
+  if (agentInfo) {
+    chatbot.agentInfo = agentInfo;
   }
 
-  const chatbot = document.createElement('forge-ai-chatbot');
-  chatbot.adapter = adapter;
-  chatbot.enableFileUpload = agentConfig.chatExperience?.enableFileUpload ?? false;
-  chatbot.placeholder = 'Ask a question...';
-  chatbot.suggestions = agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }));
+  const sidebarChatElement = document.createElement('forge-ai-sidebar-chat');
+  sidebarChatElement.appendChild(chatbot);
+  sidebarChatElement.open = true;
 
-  if (
-    agentConfig.name ||
-    agentConfig.description ||
-    agentConfig.version ||
-    agentConfig.model?.model ||
-    agentConfig.id ||
-    agentConfig.metadata?.updatedAt
-  ) {
-    chatbot.agentInfo = {
-      name: agentConfig.name,
-      description: agentConfig.description,
-      identifier: agentConfig.id,
-      version: agentConfig.version,
-      model: agentConfig.model?.model,
-      lastUpdated: agentConfig.metadata?.updatedAt
-    };
+  mountElement.appendChild(sidebarChatElement);
+
+  if (agentConfig.chatExperience?.enableFileUpload) {
+    const handler = setupFileUploadHandler({
+      baseUrl: config.baseUrl,
+      agentId: config.agentId as string,
+      threadId: adapter.threadId,
+      headers: config.headers,
+      credentials: 'include'
+    });
+    adapter.onFileUpload(handler);
   }
 
-  const element = document.createElement('forge-ai-sidebar-chat');
-  element.appendChild(chatbot);
-  element.open = true;
-
-  mountElement.appendChild(element);
-
-  if (!config.fileUploadHandler) {
-    setupFileUploadHandler(chatbot as HTMLElement, config, config.agentId, adapter.threadId);
-  }
-
-  return createAPI({ element, adapter, agentRunner: AgentRunner });
+  return {
+    ...createBaseChatbotAPI(chatbot, sidebarChatElement, adapter, AgentRunner),
+    ...createOpenableMethods(sidebarChatElement)
+  } satisfies SidebarChatAPI;
 }
 
-async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+async function loadThreadsChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
   if (!config.mountPoint) {
     throw new Error('mountPoint is required for threads chat');
   }
@@ -263,86 +301,43 @@ async function loadThreadsChat(config: ChatbotConfig, _agentConfig: AgentUIConfi
     import('@tylertech/forge-ai/ai-chatbot')
   ]);
 
-  const adapter = new AgUiAdapter({
-    url: `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`,
-    headers: config.headers
+  const adapter = createAdapterInstance(AgUiAdapter, {
+    baseUrl: config.baseUrl,
+    agentId: config.agentId,
+    headers: config.headers,
+    fileUploadHandler: config.fileUploadHandler
   });
 
-  if (config.fileUploadHandler) {
-    adapter.onFileUpload(config.fileUploadHandler);
+  const chatbot = createChatbotElement({
+    adapter,
+    enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
+  });
+
+  const agentInfo = createAgentInfo(agentConfig);
+  if (agentInfo) {
+    chatbot.agentInfo = agentInfo;
   }
 
-  await adapter.connect();
+  chatbot.showExpandButton = true;
 
-  const element = document.createElement('forge-ai-threads');
+  const threadsElement = document.createElement('forge-ai-threads');
+  threadsElement.appendChild(chatbot);
 
-  mountElement.appendChild(element);
+  mountElement.appendChild(threadsElement);
 
-  return createAPI({ element, adapter, agentRunner: AgentRunner });
-}
+  if (agentConfig.chatExperience?.enableFileUpload) {
+    const handler = setupFileUploadHandler({
+      baseUrl: config.baseUrl,
+      agentId: config.agentId as string,
+      threadId: adapter.threadId,
+      headers: config.headers,
+      credentials: 'include'
+    });
+    adapter.onFileUpload(handler);
+  }
 
-interface CreateAPIOptions {
-  element: HTMLElement;
-  adapter: any;
-  agentRunner: any;
-  fabElement?: HTMLElement;
-}
-
-function createAPI({ element, adapter, agentRunner, fabElement }: CreateAPIOptions): ChatbotAPI {
   return {
-    show() {
-      if ('show' in element && typeof element.show === 'function') {
-        element.show();
-      } else if ('open' in element) {
-        element.open = true;
-      }
-    },
-    close() {
-      if ('close' in element && typeof element.close === 'function') {
-        element.close();
-      } else if ('open' in element) {
-        element.open = false;
-      }
-    },
-    toggle() {
-      if ('toggle' in element && typeof element.toggle === 'function') {
-        element.toggle();
-      } else if ('open' in element) {
-        element.open = !element.open;
-      }
-    },
-    isOpen() {
-      return 'open' in element ? (element as any).open : false;
-    },
-    async sendMessage(message: string, files?: File[]) {
-      const chatbot =
-        'chatbot' in element ? (element as any).chatbot : element.shadowRoot?.querySelector('forge-ai-chatbot');
-      if (chatbot && 'sendMessage' in chatbot && typeof chatbot.sendMessage === 'function') {
-        await chatbot.sendMessage(message, files);
-      }
-    },
-    clearMessages() {
-      const chatbot =
-        'chatbot' in element ? (element as any).chatbot : element.shadowRoot?.querySelector('forge-ai-chatbot');
-      if (chatbot && 'clearMessages' in chatbot && typeof chatbot.clearMessages === 'function') {
-        chatbot.clearMessages();
-      }
-    },
-    getMessages() {
-      const chatbot =
-        'chatbot' in element ? (element as any).chatbot : element.shadowRoot?.querySelector('forge-ai-chatbot');
-      if (chatbot && 'getMessages' in chatbot && typeof chatbot.getMessages === 'function') {
-        return chatbot.getMessages();
-      }
-      return [];
-    },
-    adapter,
-    agentRunner,
-    element,
-    destroy() {
-      adapter.disconnect();
-      element.remove();
-      fabElement?.remove();
-    }
-  };
+    ...createBaseChatbotAPI(chatbot, threadsElement, adapter, AgentRunner)
+  } satisfies ThreadsChatAPI;
 }
