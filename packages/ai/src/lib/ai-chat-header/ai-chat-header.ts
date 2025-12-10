@@ -121,11 +121,7 @@ export class AiChatHeaderComponent extends LitElement {
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
   get #hasAvailableOptions(): boolean {
-    return (
-      this.exportOption === 'enabled' ||
-      this.clearOption === 'enabled' ||
-      !!this.agentInfo
-    );
+    return this.exportOption === 'enabled' || this.clearOption === 'enabled' || !!this.agentInfo;
   }
 
   public override render(): TemplateResult {
