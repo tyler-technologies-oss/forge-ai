@@ -37,7 +37,7 @@ import type {
   ToolResponseData,
   UploadedFileMetadata
 } from './types.js';
-import { generateId } from './utils.js';
+import { downloadFile, generateId } from './utils.js';
 import type { AgentInfo } from '../ai-agent-info';
 
 import '../ai-attachment';
@@ -688,16 +688,9 @@ export class AiChatbotComponent extends LitElement {
       })
       .join('\n');
 
-    // Create and download file
-    const blob: Blob = new Blob([chatText], { type: 'text/plain' });
-    const url: string = URL.createObjectURL(blob);
-    const link: HTMLAnchorElement = document.createElement('a');
-    link.href = url;
-    link.download = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // Generate filename and download
+    const filename: string = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+    downloadFile(chatText, filename, 'text/plain');
   }
 
   /**
