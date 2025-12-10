@@ -689,7 +689,7 @@ export class AiChatbotComponent extends LitElement {
       .join('\n');
 
     // Generate filename and download
-    const filename: string = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+    const filename = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
     downloadFile(chatText, filename, 'text/plain');
   }
 
