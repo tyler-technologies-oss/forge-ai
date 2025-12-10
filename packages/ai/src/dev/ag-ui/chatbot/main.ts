@@ -10,7 +10,9 @@ import {
 } from '../../../lib/ai-chatbot';
 
 import {
+  type ButtonComponent,
   defineAppBarComponent,
+  defineButtonComponent,
   defineCardComponent,
   defineIconButtonComponent,
   defineIconComponent,
@@ -18,6 +20,7 @@ import {
   defineListItemComponent,
   definePopoverComponent,
   defineScaffoldComponent,
+  defineTextFieldComponent,
   IconRegistry
 } from '@tylertech/forge';
 
@@ -31,15 +34,30 @@ defineListItemComponent();
 defineIconButtonComponent();
 definePopoverComponent();
 defineIconComponent();
+defineTextFieldComponent();
+defineButtonComponent();
 
 IconRegistry.define([tylIconForgeLogo, tylIconInfoOutline]);
 
-const BASE_URL = 'http://localhost:3001/api/agents';
-const AGENT_ID = 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c'; // OLD
-// const AGENT_ID = 'agent-360eae91-fa73-4890-b861-de91ae474d93'; // LATEST
-
 const chatbot = document.getElementById('chatbot') as AiChatbotComponent;
 const eventStreamEl = document.getElementById('eventStream') as HTMLElement;
+const baseUrlInput = document.getElementById('baseUrl') as HTMLInputElement;
+const agentIdInput = document.getElementById('agentId') as HTMLInputElement;
+const reconnectBtn = document.getElementById('reconnectBtn') as ButtonComponent;
+
+const urlParams = new URLSearchParams(window.location.search);
+const urlBaseUrl = urlParams.get('baseUrl');
+const urlAgentId = urlParams.get('agentId');
+
+if (urlBaseUrl) {
+  baseUrlInput.value = urlBaseUrl;
+}
+if (urlAgentId) {
+  agentIdInput.value = urlAgentId;
+}
+
+let initialBaseUrl = baseUrlInput.value;
+let initialAgentId = agentIdInput.value;
 
 let eventCounter = 0;
 
@@ -165,97 +183,138 @@ const displayRecipeTool: ToolDefinition = {
 
 const tools: Array<ToolDefinition<any>> = [showConfettiTool, displayRecipeTool];
 
-const threadId = generateId('thread');
+let threadId = generateId('thread');
+let adapter: AgUiAdapter;
 
-const adapter = new AgUiAdapter(
-  {
-    url: `${BASE_URL}/${AGENT_ID}/ag-ui`,
-    context: {
-      pageUrl: window.location.href,
-      userAgent: navigator.userAgent,
-      timestamp: new Date().toISOString()
+function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
+  const newAdapter = new AgUiAdapter(
+    {
+      url: `${baseUrl}/${agentId}/ag-ui`,
+      context: {
+        pageUrl: window.location.href,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString()
+      },
+      tools
     },
-    tools
-  },
-  threadId
-);
+    threadId
+  );
 
-adapter.onFileUpload(async ({ file, markComplete, markError, onAbort, updateProgress }) => {
-  console.log('Starting upload for file:', file.name);
+  newAdapter.onFileUpload(async ({ file, markComplete, markError, onAbort, updateProgress }) => {
+    console.log('Starting upload for file:', file.name);
 
-  onAbort(() => {
-    console.log('Upload aborted for file:', file.name);
-  });
+    onAbort(() => {
+      console.log('Upload aborted for file:', file.name);
+    });
 
-  const formData = new FormData();
-  formData.append('file', file);
+    const formData = new FormData();
+    formData.append('file', file);
 
-  const response = await fetch(`${BASE_URL}/${AGENT_ID}/threads/${threadId}/upload`, {
-    method: 'POST',
-    body: formData,
-    credentials: 'include'
-  });
+    const response = await fetch(`${baseUrl}/${agentId}/threads/${threadId}/upload`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
 
-  if (!response.ok) {
-    throw new Error(`Upload failed: ${response.statusText}`);
-  }
-
-  const reader = response.body!.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`);
     }
 
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
 
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const data = JSON.parse(line.slice(6));
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
 
-        switch (data.type) {
-          case 'progress':
-            updateProgress(data.progress);
-            break;
-          case 'complete':
-            markComplete({
-              fileId: data.file.file_id,
-              fileName: data.file.file_metadata.fileName,
-              fileType: data.file.file_metadata.fileType,
-              fileSize: data.file.file_metadata.fileSize,
-              uploadedAt: data.file.file_metadata.uploadedAt
-            });
-            return;
-          case 'error':
-            markError(data.error);
-            return;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = JSON.parse(line.slice(6));
+
+          switch (data.type) {
+            case 'progress':
+              updateProgress(data.progress);
+              break;
+            case 'complete':
+              markComplete({
+                fileId: data.file.file_id,
+                fileName: data.file.file_metadata.fileName,
+                fileType: data.file.file_metadata.fileType,
+                fileSize: data.file.file_metadata.fileSize,
+                uploadedAt: data.file.file_metadata.uploadedAt
+              });
+              return;
+            case 'error':
+              markError(data.error);
+              return;
+          }
         }
       }
     }
+  });
+
+  newAdapter.onRunStarted(() => addEventToStream('RUN_STARTED', { isRunning: true }));
+  newAdapter.onRunFinished(() => addEventToStream('RUN_FINISHED', { isRunning: false }));
+  newAdapter.onRunAborted(() => addEventToStream('RUN_ABORTED', { isRunning: false }));
+  newAdapter.onMessageStart(event => addEventToStream('TEXT_MESSAGE_START', event));
+  newAdapter.onMessageDelta(event => addEventToStream('TEXT_MESSAGE_CONTENT', event));
+  newAdapter.onMessageEnd(event => addEventToStream('TEXT_MESSAGE_END', event));
+  newAdapter.onToolCall(event => addEventToStream('TOOL_CALL', event));
+  newAdapter.onToolCallStart(event => addEventToStream('TOOL_CALL_START', event));
+  newAdapter.onToolCallArgs(event => addEventToStream('TOOL_CALL_ARGS', event));
+  newAdapter.onToolCallEnd(event => addEventToStream('TOOL_CALL_END', event));
+  newAdapter.onToolResult(event => addEventToStream('TOOL_RESULT', event));
+  newAdapter.onError(event => addEventToStream('RUN_ERROR', event));
+  newAdapter.onStateChange(state => addEventToStream('STATE_CHANGE', state));
+
+  return newAdapter;
+}
+
+function initializeAdapter(baseUrl: string, agentId: string): void {
+  adapter?.disconnect();
+
+  threadId = generateId('thread');
+  adapter = createAdapter(baseUrl, agentId);
+  chatbot.adapter = adapter;
+
+  initialBaseUrl = baseUrl;
+  initialAgentId = agentId;
+  reconnectBtn.disabled = true;
+
+  const params = new URLSearchParams(window.location.search);
+  params.set('baseUrl', baseUrl);
+  params.set('agentId', agentId);
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState({}, '', newUrl);
+}
+
+function checkForChanges(): void {
+  const hasChanges = baseUrlInput.value.trim() !== initialBaseUrl || agentIdInput.value.trim() !== initialAgentId;
+  reconnectBtn.disabled = !hasChanges;
+}
+
+baseUrlInput.addEventListener('input', checkForChanges);
+agentIdInput.addEventListener('input', checkForChanges);
+
+reconnectBtn.addEventListener('click', () => {
+  const baseUrl = baseUrlInput.value.trim();
+  const agentId = agentIdInput.value.trim();
+
+  if (!baseUrl || !agentId) {
+    return;
   }
+
+  initializeAdapter(baseUrl, agentId);
 });
 
-// Track SDK events via subscriber
-adapter.onRunStarted(() => addEventToStream('RUN_STARTED', { isRunning: true }));
-adapter.onRunFinished(() => addEventToStream('RUN_FINISHED', { isRunning: false }));
-adapter.onRunAborted(() => addEventToStream('RUN_ABORTED', { isRunning: false }));
-adapter.onMessageStart(event => addEventToStream('TEXT_MESSAGE_START', event));
-adapter.onMessageDelta(event => addEventToStream('TEXT_MESSAGE_CONTENT', event));
-adapter.onMessageEnd(event => addEventToStream('TEXT_MESSAGE_END', event));
-adapter.onToolCall(event => addEventToStream('TOOL_CALL', event));
-adapter.onToolCallStart(event => addEventToStream('TOOL_CALL_START', event));
-adapter.onToolCallArgs(event => addEventToStream('TOOL_CALL_ARGS', event));
-adapter.onToolCallEnd(event => addEventToStream('TOOL_CALL_END', event));
-adapter.onToolResult(event => addEventToStream('TOOL_RESULT', event));
-adapter.onError(event => addEventToStream('RUN_ERROR', event));
-adapter.onStateChange(state => addEventToStream('STATE_CHANGE', state));
-
-chatbot.adapter = adapter;
+initializeAdapter(baseUrlInput.value, agentIdInput.value);
 chatbot.suggestions = [
   { text: 'What can you help me with?', value: 'What can you help me with?' },
   { text: 'Show me confetti!', value: 'Show me confetti!' },

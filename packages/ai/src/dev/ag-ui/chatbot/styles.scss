@@ -13,7 +13,24 @@ main {
   padding: var(--forge-spacing-medium);
   display: flex;
   flex-direction: column;
+  gap: var(--forge-spacing-medium);
   max-width: 1440px;
+}
+
+.config-card {
+  .config-container {
+    max-width: 960px;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: var(--forge-spacing-medium);
+    align-items: center;
+    margin-block-start: var(--forge-spacing-medium);
+
+    > forge-button {
+      align-self: end;
+      margin-block-end: 2px;
+    }
+  }
 }
 
 .layout {
@@ -21,6 +38,7 @@ main {
   grid-template-columns: 1fr 400px;
   gap: var(--forge-spacing-medium);
   min-height: 0;
+  flex: 1;
 }
 
 forge-card {
