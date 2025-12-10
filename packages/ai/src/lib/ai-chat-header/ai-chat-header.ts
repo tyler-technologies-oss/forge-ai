@@ -89,6 +89,12 @@ export class AiChatHeaderComponent extends LitElement {
   public minimizeIcon: MinimizeIconType = 'default';
 
   /**
+   * The title text to display in the header (used when title slot is empty)
+   */
+  @property({ type: String })
+  public title = 'AI Assistant';
+
+  /**
    * Agent information to display in the info dialog
    */
   @property({ type: Object, attribute: false })
@@ -130,7 +136,7 @@ export class AiChatHeaderComponent extends LitElement {
             <forge-ai-icon></forge-ai-icon>
           </slot>
           <slot name="title">
-            <h1>AI Assistant</h1>
+            <h1>${this.title}</h1>
           </slot>
         </div>
         <div class="end">
