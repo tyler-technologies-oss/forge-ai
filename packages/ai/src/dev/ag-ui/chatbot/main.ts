@@ -41,6 +41,7 @@ IconRegistry.define([tylIconForgeLogo, tylIconInfoOutline]);
 
 const chatbot = document.getElementById('chatbot') as AiChatbotComponent;
 const eventStreamEl = document.getElementById('eventStream') as HTMLElement;
+const eventStreamHeader = document.getElementById('eventStreamHeader') as HTMLElement;
 const baseUrlInput = document.getElementById('baseUrl') as HTMLInputElement;
 const agentIdInput = document.getElementById('agentId') as HTMLInputElement;
 const reconnectBtn = document.getElementById('reconnectBtn') as ButtonComponent;
@@ -94,6 +95,7 @@ function addEventToStream(type: string, data: unknown): void {
     eventStreamEl.removeChild(eventStreamEl.firstChild as Node);
   }
 
+  eventStreamHeader.textContent = `Event Stream (${eventStreamEl.children.length})`;
   eventStreamEl.scrollTo({ top: eventStreamEl.scrollHeight });
 }
 
@@ -287,6 +289,10 @@ function initializeAdapter(baseUrl: string, agentId: string): void {
   initialBaseUrl = baseUrl;
   initialAgentId = agentId;
   reconnectBtn.disabled = true;
+
+  eventStreamEl.innerHTML = '';
+  eventCounter = 0;
+  eventStreamHeader.textContent = 'Event Stream (0)';
 
   const params = new URLSearchParams(window.location.search);
   params.set('baseUrl', baseUrl);
