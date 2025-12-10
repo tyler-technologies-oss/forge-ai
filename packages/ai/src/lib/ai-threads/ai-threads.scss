@@ -10,11 +10,13 @@
 
 :host {
   display: block;
+  height: 100%;
 }
 
 .threads-container {
   display: grid;
   grid-template-columns: auto 1fr;
+  height: 100%;
 }
 
 .forge-field {
