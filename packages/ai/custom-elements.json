@@ -299,87 +299,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-button/ai-button.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiButtonComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-button'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiButtonComponent",
-          "slots": [
-            {
-              "description": "Default slot for button content",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "attribute": "disabled",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "fieldName": "disabled"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-button",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiButtonComponentTagName",
-          "declaration": {
-            "name": "AiButtonComponentTagName",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiButtonComponent",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "declarations": [
         {
@@ -586,6 +505,87 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-button/ai-button.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiButtonComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-button'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiButtonComponent",
+          "slots": [
+            {
+              "description": "Default slot for button content",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-button",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiButtonComponentTagName",
+          "declaration": {
+            "name": "AiButtonComponentTagName",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiButtonComponent",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
       "declarations": [
         {
@@ -728,6 +728,17 @@
             },
             {
               "kind": "field",
+              "name": "title",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "'AI Assistant'",
+              "description": "The title text to display in the header (used when title slot is empty)",
+              "attribute": "title"
+            },
+            {
+              "kind": "field",
               "name": "agentInfo",
               "type": {
                 "text": "AgentInfo | undefined"
@@ -829,6 +840,15 @@
               "default": "'default'",
               "description": "Controls which minimize icon to display",
               "fieldName": "minimizeIcon"
+            },
+            {
+              "name": "title",
+              "type": {
+                "text": "string"
+              },
+              "default": "'AI Assistant'",
+              "description": "The title text to display in the header (used when title slot is empty)",
+              "fieldName": "title"
             },
             {
               "name": "options",
@@ -970,165 +990,6 @@
           "declaration": {
             "name": "AiChatInterfaceComponent",
             "module": "src/lib/ai-chat-interface/ai-chat-interface.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-dialog/ai-dialog.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiDialogComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-dialog'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiDialogComponent",
-          "slots": [
-            {
-              "description": "Default slot for dialog content (typically ai-chat-interface)",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Indicates whether the dialog is open.",
-              "attribute": "open"
-            },
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
-              "attribute": "expanded"
-            },
-            {
-              "kind": "field",
-              "name": "isFullscreen",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Gets the current fullscreen state (readonly)",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "show",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Opens the dialog."
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Closes the dialog."
-            },
-            {
-              "kind": "method",
-              "name": "toggle",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Toggles the dialog open state."
-            }
-          ],
-          "events": [
-            {
-              "type": {
-                "text": "CustomEvent<{ isFullscreen: boolean }>"
-              },
-              "description": "Fired when the fullscreen state changes due to viewport size",
-              "name": "forge-ai-dialog-fullscreen-change"
-            },
-            {
-              "type": {
-                "text": "CustomEvent<void>"
-              },
-              "description": "Fired when the dialog is closed",
-              "name": "forge-ai-dialog-close"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Indicates whether the dialog is open.",
-              "fieldName": "open"
-            },
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-dialog",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiDialogComponentTagName",
-          "declaration": {
-            "name": "AiDialogComponentTagName",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiDialogComponent",
-          "declaration": {
-            "name": "AiDialogComponent",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiDialogComponent",
-            "module": "src/lib/ai-dialog/ai-dialog.ts"
           }
         }
       ]
@@ -3537,6 +3398,165 @@
           "declaration": {
             "name": "renderMarkdown",
             "module": "src/lib/ai-chatbot/utils.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-dialog/ai-dialog.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiDialogComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-dialog'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiDialogComponent",
+          "slots": [
+            {
+              "description": "Default slot for dialog content (typically ai-chat-interface)",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Indicates whether the dialog is open.",
+              "attribute": "open"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "field",
+              "name": "isFullscreen",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "description": "Gets the current fullscreen state (readonly)",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "show",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Opens the dialog."
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the dialog."
+            },
+            {
+              "kind": "method",
+              "name": "toggle",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Toggles the dialog open state."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<{ isFullscreen: boolean }>"
+              },
+              "description": "Fired when the fullscreen state changes due to viewport size",
+              "name": "forge-ai-dialog-fullscreen-change"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when the dialog is closed",
+              "name": "forge-ai-dialog-close"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Indicates whether the dialog is open.",
+              "fieldName": "open"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Controls the dialog's positioning and size behavior.\nWhen true, the dialog will have an expanded width and be centered on the screen.\nWhen false, the dialog will be positioned at the bottom-right corner with a fixed width.",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-dialog",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiDialogComponentTagName",
+          "declaration": {
+            "name": "AiDialogComponentTagName",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiDialogComponent",
+          "declaration": {
+            "name": "AiDialogComponent",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiDialogComponent",
+            "module": "src/lib/ai-dialog/ai-dialog.ts"
           }
         }
       ]
@@ -6521,6 +6541,12 @@
           "kind": "class",
           "description": "",
           "name": "AiThreadsComponent",
+          "slots": [
+            {
+              "description": "Default slot for chatbot component",
+              "name": ""
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -7239,211 +7265,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/core/overlay/overlay.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ForgeAiOverlayComponent",
-          "cssProperties": [
-            {
-              "description": "The maximum width of the overlay.",
-              "name": "--ai-overlay-max-width"
-            },
-            {
-              "description": "The maximum height of the overlay.",
-              "name": "--ai-overlay-max-height"
-            },
-            {
-              "description": "The minimum width of the overlay.",
-              "name": "--ai-overlay-min-width"
-            },
-            {
-              "description": "The minimum height of the overlay.",
-              "name": "--ai-overlay-min-height"
-            }
-          ],
-          "slots": [
-            {
-              "description": "The default slot for overlay content.",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "privacy": "public",
-              "default": "null",
-              "description": "The anchor element to position the overlay relative to.",
-              "attribute": "anchor"
-            },
-            {
-              "kind": "field",
-              "name": "placement",
-              "type": {
-                "text": "OverlayPlacement"
-              },
-              "privacy": "public",
-              "default": "'bottom-start'",
-              "description": "The placement of the overlay relative to the anchor.",
-              "attribute": "placement"
-            },
-            {
-              "kind": "field",
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "true",
-              "description": "Whether the overlay should flip to the opposite side when there's no space.",
-              "attribute": "flip"
-            },
-            {
-              "kind": "field",
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the overlay should shift to stay in view.",
-              "attribute": "shift"
-            },
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the overlay is open.",
-              "attribute": "open",
-              "reflects": true
-            },
-            {
-              "kind": "field",
-              "name": "arrowElement",
-              "type": {
-                "text": "HTMLElement | null"
-              },
-              "privacy": "public",
-              "default": "null",
-              "description": "The arrow element to position relative to the overlay.",
-              "attribute": "arrowElement"
-            },
-            {
-              "kind": "field",
-              "name": "dismissMode",
-              "type": {
-                "text": "'auto' | 'manual'"
-              },
-              "privacy": "public",
-              "default": "'auto'",
-              "description": "The dismiss mode for the overlay.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
-              "attribute": "dismiss-mode"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "default": "null",
-              "description": "The anchor element to position the overlay relative to.",
-              "fieldName": "anchor"
-            },
-            {
-              "name": "placement",
-              "type": {
-                "text": "OverlayPlacement"
-              },
-              "default": "'bottom-start'",
-              "description": "The placement of the overlay relative to the anchor.",
-              "fieldName": "placement"
-            },
-            {
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "true",
-              "description": "Whether the overlay should flip to the opposite side when there's no space.",
-              "fieldName": "flip"
-            },
-            {
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the overlay should shift to stay in view.",
-              "fieldName": "shift"
-            },
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the overlay is open.",
-              "fieldName": "open"
-            },
-            {
-              "name": "arrowElement",
-              "type": {
-                "text": "HTMLElement | null"
-              },
-              "default": "null",
-              "description": "The arrow element to position relative to the overlay.",
-              "fieldName": "arrowElement"
-            },
-            {
-              "name": "dismiss-mode",
-              "type": {
-                "text": "'auto' | 'manual'"
-              },
-              "default": "'auto'",
-              "description": "The dismiss mode for the overlay.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
-              "fieldName": "dismissMode"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "summary": "A low-level overlay component for internal use within AI components.",
-          "tagName": "forge-ai-overlay",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ForgeAiOverlayComponent",
-          "declaration": {
-            "name": "ForgeAiOverlayComponent",
-            "module": "src/lib/core/overlay/overlay.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "name": "forge-ai-overlay",
-          "declaration": {
-            "name": "ForgeAiOverlayComponent",
-            "module": "src/lib/core/overlay/overlay.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/core/popover/popover.ts",
       "declarations": [
         {
@@ -7876,6 +7697,211 @@
           }
         }
       ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/core/overlay/overlay.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ForgeAiOverlayComponent",
+          "cssProperties": [
+            {
+              "description": "The maximum width of the overlay.",
+              "name": "--ai-overlay-max-width"
+            },
+            {
+              "description": "The maximum height of the overlay.",
+              "name": "--ai-overlay-max-height"
+            },
+            {
+              "description": "The minimum width of the overlay.",
+              "name": "--ai-overlay-min-width"
+            },
+            {
+              "description": "The minimum height of the overlay.",
+              "name": "--ai-overlay-min-height"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The default slot for overlay content.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "privacy": "public",
+              "default": "null",
+              "description": "The anchor element to position the overlay relative to.",
+              "attribute": "anchor"
+            },
+            {
+              "kind": "field",
+              "name": "placement",
+              "type": {
+                "text": "OverlayPlacement"
+              },
+              "privacy": "public",
+              "default": "'bottom-start'",
+              "description": "The placement of the overlay relative to the anchor.",
+              "attribute": "placement"
+            },
+            {
+              "kind": "field",
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "true",
+              "description": "Whether the overlay should flip to the opposite side when there's no space.",
+              "attribute": "flip"
+            },
+            {
+              "kind": "field",
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the overlay should shift to stay in view.",
+              "attribute": "shift"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the overlay is open.",
+              "attribute": "open",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "arrowElement",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "public",
+              "default": "null",
+              "description": "The arrow element to position relative to the overlay.",
+              "attribute": "arrowElement"
+            },
+            {
+              "kind": "field",
+              "name": "dismissMode",
+              "type": {
+                "text": "'auto' | 'manual'"
+              },
+              "privacy": "public",
+              "default": "'auto'",
+              "description": "The dismiss mode for the overlay.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
+              "attribute": "dismiss-mode"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The anchor element to position the overlay relative to.",
+              "fieldName": "anchor"
+            },
+            {
+              "name": "placement",
+              "type": {
+                "text": "OverlayPlacement"
+              },
+              "default": "'bottom-start'",
+              "description": "The placement of the overlay relative to the anchor.",
+              "fieldName": "placement"
+            },
+            {
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether the overlay should flip to the opposite side when there's no space.",
+              "fieldName": "flip"
+            },
+            {
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the overlay should shift to stay in view.",
+              "fieldName": "shift"
+            },
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the overlay is open.",
+              "fieldName": "open"
+            },
+            {
+              "name": "arrowElement",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "default": "null",
+              "description": "The arrow element to position relative to the overlay.",
+              "fieldName": "arrowElement"
+            },
+            {
+              "name": "dismiss-mode",
+              "type": {
+                "text": "'auto' | 'manual'"
+              },
+              "default": "'auto'",
+              "description": "The dismiss mode for the overlay.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
+              "fieldName": "dismissMode"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "summary": "A low-level overlay component for internal use within AI components.",
+          "tagName": "forge-ai-overlay",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ForgeAiOverlayComponent",
+          "declaration": {
+            "name": "ForgeAiOverlayComponent",
+            "module": "src/lib/core/overlay/overlay.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "forge-ai-overlay",
+          "declaration": {
+            "name": "ForgeAiOverlayComponent",
+            "module": "src/lib/core/overlay/overlay.ts"
+          }
+        }
+      ]
     }
   ],
   "branchName": "chatbot",
@@ -7908,10 +7934,6 @@
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "lineNumber": 23
     },
-    "AiButtonComponent": {
-      "path": "src/lib/ai-button/ai-button.ts",
-      "lineNumber": 22
-    },
     "ForgeAiAttachmentRemoveEventData": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 19
@@ -7919,6 +7941,10 @@
     "AiAttachmentComponent": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 41
+    },
+    "AiButtonComponent": {
+      "path": "src/lib/ai-button/ai-button.ts",
+      "lineNumber": 22
     },
     "AiChainOfThoughtComponent": {
       "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
@@ -7939,10 +7965,6 @@
     "AiChatInterfaceComponent": {
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
       "lineNumber": 24
-    },
-    "AiDialogComponent": {
-      "path": "src/lib/ai-dialog/ai-dialog.ts",
-      "lineNumber": 35
     },
     "AgUiAdapterConfig": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
@@ -8140,6 +8162,10 @@
       "path": "src/lib/ai-chatbot/types.ts",
       "lineNumber": 119
     },
+    "AiDialogComponent": {
+      "path": "src/lib/ai-dialog/ai-dialog.ts",
+      "lineNumber": 35
+    },
     "ForgeAiDropdownMenuItemGroupComponent": {
       "path": "src/lib/ai-dropdown-menu/ai-dropdown-menu-item-group.ts",
       "lineNumber": 29
@@ -8318,7 +8344,7 @@
     },
     "AiThreadsComponent": {
       "path": "src/lib/ai-threads/ai-threads.ts",
-      "lineNumber": 40
+      "lineNumber": 46
     },
     "AiUserMessageComponent": {
       "path": "src/lib/ai-user-message/ai-user-message.ts",
@@ -8388,14 +8414,6 @@
       "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
       "lineNumber": 17
     },
-    "OverlayPlacement": {
-      "path": "src/lib/core/overlay/overlay.ts",
-      "lineNumber": 30
-    },
-    "ForgeAiOverlayComponent": {
-      "path": "src/lib/core/overlay/overlay.ts",
-      "lineNumber": 42
-    },
     "PopoverToggleEventData": {
       "path": "src/lib/core/popover/popover.ts",
       "lineNumber": 18
@@ -8423,6 +8441,14 @@
     "ForgeAiTooltipComponent": {
       "path": "src/lib/core/tooltip/tooltip.ts",
       "lineNumber": 44
+    },
+    "OverlayPlacement": {
+      "path": "src/lib/core/overlay/overlay.ts",
+      "lineNumber": 30
+    },
+    "ForgeAiOverlayComponent": {
+      "path": "src/lib/core/overlay/overlay.ts",
+      "lineNumber": 42
     }
   }
 }
