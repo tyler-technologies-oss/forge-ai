@@ -51,6 +51,8 @@ function createAdapterInstance(
 function createChatbotElement(config: {
   adapter: AgUiAdapter;
   enableFileUpload?: boolean;
+  enableExpand?: boolean;
+  enableMinimize?: boolean;
   placeholder?: string;
   suggestions?: Array<{ text: string; value: string }>;
 }): AiChatbotComponent {
@@ -59,6 +61,8 @@ function createChatbotElement(config: {
   chatbot.enableFileUpload = config.enableFileUpload ?? false;
   chatbot.placeholder = config.placeholder ?? 'Ask a question...';
   chatbot.suggestions = config.suggestions;
+  chatbot.showExpandButton = config.enableExpand ?? false;
+  chatbot.showMinimizeButton = config.enableMinimize ?? false;
   return chatbot;
 }
 
@@ -150,22 +154,27 @@ function createOpenableMethods(element: OpenableElement): OpenableElement {
   };
 }
 
+type ValidatedChatbotConfig = ChatbotConfig & {
+  baseUrl: string;
+  agentId: string;
+};
+
 export async function loadComponent(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
   const { chatViewType = 'floating' } = config;
 
   switch (chatViewType) {
     case 'floating':
-      return await loadFloatingChat(config, agentConfig);
+      return await loadFloatingChat(config as ValidatedChatbotConfig, agentConfig);
     case 'sidebar':
-      return await loadSidebarChat(config, agentConfig);
+      return await loadSidebarChat(config as ValidatedChatbotConfig, agentConfig);
     case 'threads':
-      return await loadThreadsChat(config, agentConfig);
+      return await loadThreadsChat(config as ValidatedChatbotConfig, agentConfig);
     default:
       throw new Error(`Unknown chat view type: ${chatViewType}`);
   }
 }
 
-async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
   const [_, __, { AgUiAdapter, AgentRunner }] = await Promise.all([
     import('@tylertech/forge-ai/ai-floating-chat'),
     import('@tylertech/forge-ai/ai-fab'),
@@ -182,6 +191,8 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
   const chatbot = createChatbotElement({
     adapter,
     enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    enableExpand: true,
+    enableMinimize: true,
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
@@ -190,16 +201,24 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
     chatbot.agentInfo = agentInfo;
   }
 
+  if (agentConfig.name) {
+    chatbot.titleText = agentConfig.name;
+  }
+
   const floatingChatElement = document.createElement('forge-ai-floating-chat');
   floatingChatElement.appendChild(chatbot);
   floatingChatElement.open = config.initialOpen ?? false;
+
+  // Synchronize expanded state between chatbot and floating chat
+  floatingChatElement.addEventListener('forge-ai-floating-chat-expand', () => (chatbot.expanded = true));
+  floatingChatElement.addEventListener('forge-ai-floating-chat-collapse', () => (chatbot.expanded = false));
 
   document.body.appendChild(floatingChatElement);
 
   if (agentConfig.chatExperience?.enableFileUpload) {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
-      agentId: config.agentId as string,
+      agentId: config.agentId,
       threadId: adapter.threadId,
       headers: config.headers,
       credentials: 'include'
@@ -226,7 +245,7 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
   } satisfies FloatingChatAPI;
 }
 
-async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
   if (!config.mountPoint) {
     throw new Error('mountPoint is required for sidebar chat');
   }
@@ -253,6 +272,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
   const chatbot = createChatbotElement({
     adapter,
     enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    enableExpand: true,
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
@@ -261,16 +281,24 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
     chatbot.agentInfo = agentInfo;
   }
 
+  if (agentConfig.name) {
+    chatbot.titleText = agentConfig.name;
+  }
+
   const sidebarChatElement = document.createElement('forge-ai-sidebar-chat');
   sidebarChatElement.appendChild(chatbot);
   sidebarChatElement.open = true;
+
+  // Synchronize expanded state between chatbot and sidebar chat
+  sidebarChatElement.addEventListener('forge-ai-sidebar-chat-expand', () => (chatbot.expanded = true));
+  sidebarChatElement.addEventListener('forge-ai-sidebar-chat-collapse', () => (chatbot.expanded = false));
 
   mountElement.appendChild(sidebarChatElement);
 
   if (agentConfig.chatExperience?.enableFileUpload) {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
-      agentId: config.agentId as string,
+      agentId: config.agentId,
       threadId: adapter.threadId,
       headers: config.headers,
       credentials: 'include'
@@ -284,7 +312,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
   } satisfies SidebarChatAPI;
 }
 
-async function loadThreadsChat(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+async function loadThreadsChat(config: ValidatedChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
   if (!config.mountPoint) {
     throw new Error('mountPoint is required for threads chat');
   }
@@ -319,6 +347,10 @@ async function loadThreadsChat(config: ChatbotConfig, agentConfig: AgentUIConfig
     chatbot.agentInfo = agentInfo;
   }
 
+  if (agentConfig.name) {
+    chatbot.titleText = agentConfig.name;
+  }
+
   chatbot.showExpandButton = true;
 
   const threadsElement = document.createElement('forge-ai-threads');
@@ -329,7 +361,7 @@ async function loadThreadsChat(config: ChatbotConfig, agentConfig: AgentUIConfig
   if (agentConfig.chatExperience?.enableFileUpload) {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
-      agentId: config.agentId as string,
+      agentId: config.agentId,
       threadId: adapter.threadId,
       headers: config.headers,
       credentials: 'include'
