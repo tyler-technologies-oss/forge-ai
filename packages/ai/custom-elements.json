@@ -299,6 +299,87 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-button/ai-button.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiButtonComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-button'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiButtonComponent",
+          "slots": [
+            {
+              "description": "Default slot for button content",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-button",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiButtonComponentTagName",
+          "declaration": {
+            "name": "AiButtonComponentTagName",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiButtonComponent",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "declarations": [
         {
@@ -499,162 +580,6 @@
           "declaration": {
             "name": "AiAttachmentComponent",
             "module": "src/lib/ai-attachment/ai-attachment.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-button/ai-button.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiButtonComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-button'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiButtonComponent",
-          "slots": [
-            {
-              "description": "Default slot for button content",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "attribute": "disabled",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "fieldName": "disabled"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-button",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiButtonComponentTagName",
-          "declaration": {
-            "name": "AiButtonComponentTagName",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiButtonComponent",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChainOfThoughtComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chain-of-thought'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChainOfThoughtComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "attribute": "expanded",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chain-of-thought",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponentTagName",
-          "declaration": {
-            "name": "AiChainOfThoughtComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponent",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
           }
         }
       ]
@@ -909,6 +834,81 @@
           "declaration": {
             "name": "AiChatHeaderComponent",
             "module": "src/lib/ai-chat-header/ai-chat-header.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChainOfThoughtComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chain-of-thought'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChainOfThoughtComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chain-of-thought",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponentTagName",
+          "declaration": {
+            "name": "AiChainOfThoughtComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponent",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
           }
         }
       ]
@@ -7047,98 +7047,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ThoughtSearchResultComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thought-search-result'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ThoughtSearchResultComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "step",
-              "type": {
-                "text": "number | undefined"
-              },
-              "privacy": "public",
-              "description": "The step number for this thought search result",
-              "attribute": "step"
-            },
-            {
-              "kind": "field",
-              "name": "sources",
-              "type": {
-                "text": "Source[]"
-              },
-              "privacy": "public",
-              "default": "[]",
-              "description": "Array of sources for the search result",
-              "attribute": "sources"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "step",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "The step number for this thought search result",
-              "fieldName": "step"
-            },
-            {
-              "name": "sources",
-              "type": {
-                "text": "Source[]"
-              },
-              "default": "[]",
-              "description": "Array of sources for the search result",
-              "fieldName": "sources"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thought-search-result",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ThoughtSearchResultComponentTagName",
-          "declaration": {
-            "name": "ThoughtSearchResultComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ThoughtSearchResultComponent",
-          "declaration": {
-            "name": "ThoughtSearchResultComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ThoughtSearchResultComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
       "declarations": [
         {
@@ -7902,6 +7810,98 @@
           }
         }
       ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ThoughtSearchResultComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thought-search-result'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ThoughtSearchResultComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "step",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The step number for this thought search result",
+              "attribute": "step"
+            },
+            {
+              "kind": "field",
+              "name": "sources",
+              "type": {
+                "text": "Source[]"
+              },
+              "privacy": "public",
+              "default": "[]",
+              "description": "Array of sources for the search result",
+              "attribute": "sources"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "step",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The step number for this thought search result",
+              "fieldName": "step"
+            },
+            {
+              "name": "sources",
+              "type": {
+                "text": "Source[]"
+              },
+              "default": "[]",
+              "description": "Array of sources for the search result",
+              "fieldName": "sources"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thought-search-result",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ThoughtSearchResultComponentTagName",
+          "declaration": {
+            "name": "ThoughtSearchResultComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ThoughtSearchResultComponent",
+          "declaration": {
+            "name": "ThoughtSearchResultComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "ThoughtSearchResultComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts"
+          }
+        }
+      ]
     }
   ],
   "branchName": "chatbot",
@@ -7934,6 +7934,10 @@
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "lineNumber": 23
     },
+    "AiButtonComponent": {
+      "path": "src/lib/ai-button/ai-button.ts",
+      "lineNumber": 22
+    },
     "ForgeAiAttachmentRemoveEventData": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 19
@@ -7941,14 +7945,6 @@
     "AiAttachmentComponent": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 41
-    },
-    "AiButtonComponent": {
-      "path": "src/lib/ai-button/ai-button.ts",
-      "lineNumber": 22
-    },
-    "AiChainOfThoughtComponent": {
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "lineNumber": 17
     },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
@@ -7961,6 +7957,10 @@
     "AiChatHeaderComponent": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 63
+    },
+    "AiChainOfThoughtComponent": {
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "lineNumber": 17
     },
     "AiChatInterfaceComponent": {
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
@@ -8398,14 +8398,6 @@
       "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
       "lineNumber": 19
     },
-    "Source": {
-      "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
-      "lineNumber": 14
-    },
-    "ThoughtSearchResultComponent": {
-      "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
-      "lineNumber": 24
-    },
     "PromptButtonComponent": {
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
       "lineNumber": 17
@@ -8449,6 +8441,14 @@
     "ForgeAiOverlayComponent": {
       "path": "src/lib/core/overlay/overlay.ts",
       "lineNumber": 42
+    },
+    "Source": {
+      "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
+      "lineNumber": 14
+    },
+    "ThoughtSearchResultComponent": {
+      "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
+      "lineNumber": 24
     }
   }
 }

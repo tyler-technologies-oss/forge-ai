@@ -70,6 +70,7 @@ const meta = {
     const onExpand = action('forge-ai-chatbot-expand');
     const onMinimize = action('forge-ai-chatbot-minimize');
     const onClear = action('forge-ai-chatbot-clear');
+    const onExport = action('forge-ai-chatbot-export');
     const onInfo = action('forge-ai-chatbot-info');
 
     return html`
@@ -92,6 +93,7 @@ const meta = {
           @forge-ai-chatbot-expand=${onExpand}
           @forge-ai-chatbot-minimize=${onMinimize}
           @forge-ai-chatbot-clear=${onClear}
+          @forge-ai-chat-header-export=${onExport}
           @forge-ai-chatbot-info=${onInfo}>
         </forge-ai-chatbot>
       </div>

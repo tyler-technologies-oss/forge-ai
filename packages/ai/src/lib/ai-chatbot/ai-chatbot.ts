@@ -670,6 +670,33 @@ export class AiChatbotComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-info' });
   }
 
+  #handleExport(): void {
+    const messages: ChatMessage[] = this.getMessages();
+    if (messages.length === 0) {
+      return;
+    }
+
+    // Format chat history as text
+    const chatText: string = messages
+      .map((message: ChatMessage) => {
+        const timestamp: string = new Date(message.timestamp).toLocaleString();
+        const role: string = message.role === 'user' ? 'You' : 'Assistant';
+        return `[${timestamp}] ${role}:\n${message.content}\n`;
+      })
+      .join('\n');
+
+    // Create and download file
+    const blob: Blob = new Blob([chatText], { type: 'text/plain' });
+    const url: string = URL.createObjectURL(blob);
+    const link: HTMLAnchorElement = document.createElement('a');
+    link.href = url;
+    link.download = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   /**
    * Clears all messages from the chat history.
    */
@@ -904,6 +931,7 @@ export class AiChatbotComponent extends LitElement {
           @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
           @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}
+          @forge-ai-chat-header-export=${this.#handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
           <slot name="header-title" slot="title">AI Assistant</slot>
         </forge-ai-chat-header>
