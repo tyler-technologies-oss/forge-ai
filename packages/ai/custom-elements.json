@@ -505,6 +505,87 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-button/ai-button.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiButtonComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-button'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiButtonComponent",
+          "slots": [
+            {
+              "description": "Default slot for button content",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-button",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiButtonComponentTagName",
+          "declaration": {
+            "name": "AiButtonComponentTagName",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiButtonComponent",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "declarations": [
         {
@@ -828,87 +909,6 @@
           "declaration": {
             "name": "AiChainOfThoughtComponent",
             "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-button/ai-button.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiButtonComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-button'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiButtonComponent",
-          "slots": [
-            {
-              "description": "Default slot for button content",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "attribute": "disabled",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "fieldName": "disabled"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-button",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiButtonComponentTagName",
-          "declaration": {
-            "name": "AiButtonComponentTagName",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiButtonComponent",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
           }
         }
       ]
@@ -2159,23 +2159,23 @@
             },
             {
               "kind": "field",
-              "name": "enableFileUpload",
+              "name": "fileUpload",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
               "privacy": "public",
-              "default": "false",
-              "attribute": "enable-file-upload"
+              "default": "'off'",
+              "attribute": "file-upload"
             },
             {
               "kind": "field",
-              "name": "enableVoiceInput",
+              "name": "voiceInput",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
               "privacy": "public",
-              "default": "false",
-              "attribute": "enable-voice-input"
+              "default": "'on'",
+              "attribute": "voice-input"
             },
             {
               "kind": "field",
@@ -2440,20 +2440,20 @@
           ],
           "attributes": [
             {
-              "name": "enable-file-upload",
+              "name": "file-upload",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
-              "default": "false",
-              "fieldName": "enableFileUpload"
+              "default": "'off'",
+              "fieldName": "fileUpload"
             },
             {
-              "name": "enable-voice-input",
+              "name": "voice-input",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
-              "default": "false",
-              "fieldName": "enableVoiceInput"
+              "default": "'on'",
+              "fieldName": "voiceInput"
             },
             {
               "name": "placeholder",
@@ -4473,14 +4473,14 @@
             },
             {
               "kind": "field",
-              "name": "enableFileUpload",
+              "name": "fileUpload",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
               "privacy": "public",
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "attribute": "enable-file-upload"
+              "default": "'off'",
+              "description": "Enable file upload functionality (default: 'off')",
+              "attribute": "file-upload"
             },
             {
               "kind": "field",
@@ -4568,13 +4568,13 @@
               "fieldName": "threadId"
             },
             {
-              "name": "enable-file-upload",
+              "name": "file-upload",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "fieldName": "enableFileUpload"
+              "default": "'off'",
+              "description": "Enable file upload functionality (default: 'off')",
+              "fieldName": "fileUpload"
             },
             {
               "name": "placeholder",
@@ -6581,214 +6581,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-voice-input/ai-voice-input.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiVoiceInputComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-voice-input'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiVoiceInputComponent",
-          "members": [],
-          "events": [
-            {
-              "name": "forge-ai-voice-input-result",
-              "type": {
-                "text": "CustomEvent<AiVoiceInputResultEvent>"
-              },
-              "description": "Fired when speech recognition produces a result. The event detail contains the transcript and confidence score of the recognized speech."
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-voice-input",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiVoiceInputComponentTagName",
-          "declaration": {
-            "name": "AiVoiceInputComponentTagName",
-            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiVoiceInputComponent",
-          "declaration": {
-            "name": "AiVoiceInputComponent",
-            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiVoiceInputComponent",
-            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-user-message/ai-user-message.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiUserMessageComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-user-message'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiUserMessageComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-user-message",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiUserMessageComponentTagName",
-          "declaration": {
-            "name": "AiUserMessageComponentTagName",
-            "module": "src/lib/ai-user-message/ai-user-message.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiUserMessageComponent",
-          "declaration": {
-            "name": "AiUserMessageComponent",
-            "module": "src/lib/ai-user-message/ai-user-message.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiUserMessageComponent",
-            "module": "src/lib/ai-user-message/ai-user-message.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/core/drag-controller.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "DragController",
-          "members": [
-            {
-              "kind": "method",
-              "name": "hostConnected",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "hostDisconnected",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
-              "kind": "field",
-              "name": "isDragging",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "description": "Gets whether the element is currently being dragged",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "currentTransform",
-              "type": {
-                "text": "{ x: number; y: number }"
-              },
-              "privacy": "public",
-              "description": "Gets the current transform values",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "resetPosition",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Resets the drag position to original location"
-            },
-            {
-              "kind": "method",
-              "name": "cleanup",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Cleanup method for removing event listeners and resetting state"
-            },
-            {
-              "kind": "field",
-              "name": "handlePointerDown",
-              "privacy": "public",
-              "description": "Handle pointer down event to start dragging"
-            },
-            {
-              "kind": "field",
-              "name": "handleKeyDown",
-              "privacy": "public",
-              "description": "Handle keyboard navigation for drag handle"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "DragController",
-          "declaration": {
-            "name": "DragController",
-            "module": "src/lib/core/drag-controller.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-threads/ai-threads.ts",
       "declarations": [
         {
@@ -6892,6 +6684,265 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-user-message/ai-user-message.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiUserMessageComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-user-message'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiUserMessageComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-user-message",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiUserMessageComponentTagName",
+          "declaration": {
+            "name": "AiUserMessageComponentTagName",
+            "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiUserMessageComponent",
+          "declaration": {
+            "name": "AiUserMessageComponent",
+            "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiUserMessageComponent",
+            "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-voice-input/ai-voice-input.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiVoiceInputComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-voice-input'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiVoiceInputComponent",
+          "members": [],
+          "events": [
+            {
+              "name": "forge-ai-voice-input-result",
+              "type": {
+                "text": "CustomEvent<AiVoiceInputResultEvent>"
+              },
+              "description": "Fired when speech recognition produces a result. The event detail contains the transcript and confidence score of the recognized speech."
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-voice-input",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiVoiceInputComponentTagName",
+          "declaration": {
+            "name": "AiVoiceInputComponentTagName",
+            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiVoiceInputComponent",
+          "declaration": {
+            "name": "AiVoiceInputComponent",
+            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiVoiceInputComponent",
+            "module": "src/lib/ai-voice-input/ai-voice-input.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/core/drag-controller.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "DragController",
+          "members": [
+            {
+              "kind": "method",
+              "name": "hostConnected",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "hostDisconnected",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDragging",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "description": "Gets whether the element is currently being dragged",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "currentTransform",
+              "type": {
+                "text": "{ x: number; y: number }"
+              },
+              "privacy": "public",
+              "description": "Gets the current transform values",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "resetPosition",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Resets the drag position to original location"
+            },
+            {
+              "kind": "method",
+              "name": "cleanup",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Cleanup method for removing event listeners and resetting state"
+            },
+            {
+              "kind": "field",
+              "name": "handlePointerDown",
+              "privacy": "public",
+              "description": "Handle pointer down event to start dragging"
+            },
+            {
+              "kind": "field",
+              "name": "handleKeyDown",
+              "privacy": "public",
+              "description": "Handle keyboard navigation for drag handle"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DragController",
+          "declaration": {
+            "name": "DragController",
+            "module": "src/lib/core/drag-controller.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ThoughtDetailComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thought-detail'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ThoughtDetailComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thought-detail",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ThoughtDetailComponentTagName",
+          "declaration": {
+            "name": "ThoughtDetailComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ThoughtDetailComponent",
+          "declaration": {
+            "name": "ThoughtDetailComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "ThoughtDetailComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",
       "declarations": [
         {
@@ -6972,129 +7023,6 @@
           "declaration": {
             "name": "ThoughtBaseComponent",
             "module": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ThoughtDetailComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thought-detail'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ThoughtDetailComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thought-detail",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ThoughtDetailComponentTagName",
-          "declaration": {
-            "name": "ThoughtDetailComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ThoughtDetailComponent",
-          "declaration": {
-            "name": "ThoughtDetailComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ThoughtDetailComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ThoughtImageComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thought-image'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ThoughtImageComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "step",
-              "type": {
-                "text": "number | undefined"
-              },
-              "privacy": "public",
-              "description": "The step number for this thought image",
-              "attribute": "step"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "step",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "The step number for this thought image",
-              "fieldName": "step"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thought-image",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ThoughtImageComponentTagName",
-          "declaration": {
-            "name": "ThoughtImageComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ThoughtImageComponent",
-          "declaration": {
-            "name": "ThoughtImageComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ThoughtImageComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
           }
         }
       ]
@@ -7193,57 +7121,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ReasoningContentComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-reasoning-content'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ReasoningContentComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-reasoning-content",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ReasoningContentComponentTagName",
-          "declaration": {
-            "name": "ReasoningContentComponentTagName",
-            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ReasoningContentComponent",
-          "declaration": {
-            "name": "ReasoningContentComponent",
-            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ReasoningContentComponent",
-            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
       "declarations": [
         {
@@ -7313,6 +7190,129 @@
           "declaration": {
             "name": "PromptButtonComponent",
             "module": "src/lib/ai-prompt/prompt-button/prompt-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ThoughtImageComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thought-image'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ThoughtImageComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "step",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The step number for this thought image",
+              "attribute": "step"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "step",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The step number for this thought image",
+              "fieldName": "step"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thought-image",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ThoughtImageComponentTagName",
+          "declaration": {
+            "name": "ThoughtImageComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ThoughtImageComponent",
+          "declaration": {
+            "name": "ThoughtImageComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "ThoughtImageComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ReasoningContentComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-reasoning-content'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ReasoningContentComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-reasoning-content",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ReasoningContentComponentTagName",
+          "declaration": {
+            "name": "ReasoningContentComponentTagName",
+            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ReasoningContentComponent",
+          "declaration": {
+            "name": "ReasoningContentComponent",
+            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "ReasoningContentComponent",
+            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
           }
         }
       ]
@@ -7518,211 +7518,6 @@
           "declaration": {
             "name": "ForgeAiOverlayComponent",
             "module": "src/lib/core/overlay/overlay.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/core/popover/popover.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ForgeAiPopoverComponent",
-          "cssProperties": [
-            {
-              "description": "The maximum width of the popover.",
-              "name": "--ai-popover-max-width"
-            },
-            {
-              "description": "The maximum height of the popover.",
-              "name": "--ai-popover-max-height"
-            },
-            {
-              "description": "The minimum width of the popover.",
-              "name": "--ai-popover-min-width"
-            },
-            {
-              "description": "The minimum height of the popover.",
-              "name": "--ai-popover-min-height"
-            }
-          ],
-          "slots": [
-            {
-              "description": "The default slot for popover content.",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "privacy": "public",
-              "default": "null",
-              "description": "The anchor element to position the popover relative to.",
-              "attribute": "anchor"
-            },
-            {
-              "kind": "field",
-              "name": "placement",
-              "type": {
-                "text": "PopoverPlacement"
-              },
-              "privacy": "public",
-              "default": "'bottom-start'",
-              "description": "The placement of the popover relative to the anchor.",
-              "attribute": "placement"
-            },
-            {
-              "kind": "field",
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the popover should flip to the opposite side when there's no space.",
-              "attribute": "flip"
-            },
-            {
-              "kind": "field",
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the popover should shift to stay in view.",
-              "attribute": "shift"
-            },
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the popover is open.",
-              "attribute": "open",
-              "reflects": true
-            },
-            {
-              "kind": "field",
-              "name": "arrow",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether to show an arrow pointing to the anchor element.",
-              "attribute": "arrow"
-            },
-            {
-              "kind": "field",
-              "name": "dismissMode",
-              "type": {
-                "text": "'auto' | 'manual'"
-              },
-              "privacy": "public",
-              "default": "'auto'",
-              "description": "The dismiss mode for the popover.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
-              "attribute": "dismiss-mode"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "default": "null",
-              "description": "The anchor element to position the popover relative to.",
-              "fieldName": "anchor"
-            },
-            {
-              "name": "placement",
-              "type": {
-                "text": "PopoverPlacement"
-              },
-              "default": "'bottom-start'",
-              "description": "The placement of the popover relative to the anchor.",
-              "fieldName": "placement"
-            },
-            {
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the popover should flip to the opposite side when there's no space.",
-              "fieldName": "flip"
-            },
-            {
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the popover should shift to stay in view.",
-              "fieldName": "shift"
-            },
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the popover is open.",
-              "fieldName": "open"
-            },
-            {
-              "name": "arrow",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether to show an arrow pointing to the anchor element.",
-              "fieldName": "arrow"
-            },
-            {
-              "name": "dismiss-mode",
-              "type": {
-                "text": "'auto' | 'manual'"
-              },
-              "default": "'auto'",
-              "description": "The dismiss mode for the popover.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
-              "fieldName": "dismissMode"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "summary": "A popover component that provides styled overlay functionality.",
-          "tagName": "forge-ai-popover",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ForgeAiPopoverComponent",
-          "declaration": {
-            "name": "ForgeAiPopoverComponent",
-            "module": "src/lib/core/popover/popover.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "name": "forge-ai-popover",
-          "declaration": {
-            "name": "ForgeAiPopoverComponent",
-            "module": "src/lib/core/popover/popover.ts"
           }
         }
       ]
@@ -7956,6 +7751,211 @@
           }
         }
       ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/core/popover/popover.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ForgeAiPopoverComponent",
+          "cssProperties": [
+            {
+              "description": "The maximum width of the popover.",
+              "name": "--ai-popover-max-width"
+            },
+            {
+              "description": "The maximum height of the popover.",
+              "name": "--ai-popover-max-height"
+            },
+            {
+              "description": "The minimum width of the popover.",
+              "name": "--ai-popover-min-width"
+            },
+            {
+              "description": "The minimum height of the popover.",
+              "name": "--ai-popover-min-height"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The default slot for popover content.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "privacy": "public",
+              "default": "null",
+              "description": "The anchor element to position the popover relative to.",
+              "attribute": "anchor"
+            },
+            {
+              "kind": "field",
+              "name": "placement",
+              "type": {
+                "text": "PopoverPlacement"
+              },
+              "privacy": "public",
+              "default": "'bottom-start'",
+              "description": "The placement of the popover relative to the anchor.",
+              "attribute": "placement"
+            },
+            {
+              "kind": "field",
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the popover should flip to the opposite side when there's no space.",
+              "attribute": "flip"
+            },
+            {
+              "kind": "field",
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the popover should shift to stay in view.",
+              "attribute": "shift"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the popover is open.",
+              "attribute": "open",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "arrow",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to show an arrow pointing to the anchor element.",
+              "attribute": "arrow"
+            },
+            {
+              "kind": "field",
+              "name": "dismissMode",
+              "type": {
+                "text": "'auto' | 'manual'"
+              },
+              "privacy": "public",
+              "default": "'auto'",
+              "description": "The dismiss mode for the popover.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
+              "attribute": "dismiss-mode"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The anchor element to position the popover relative to.",
+              "fieldName": "anchor"
+            },
+            {
+              "name": "placement",
+              "type": {
+                "text": "PopoverPlacement"
+              },
+              "default": "'bottom-start'",
+              "description": "The placement of the popover relative to the anchor.",
+              "fieldName": "placement"
+            },
+            {
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popover should flip to the opposite side when there's no space.",
+              "fieldName": "flip"
+            },
+            {
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popover should shift to stay in view.",
+              "fieldName": "shift"
+            },
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popover is open.",
+              "fieldName": "open"
+            },
+            {
+              "name": "arrow",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to show an arrow pointing to the anchor element.",
+              "fieldName": "arrow"
+            },
+            {
+              "name": "dismiss-mode",
+              "type": {
+                "text": "'auto' | 'manual'"
+              },
+              "default": "'auto'",
+              "description": "The dismiss mode for the popover.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
+              "fieldName": "dismissMode"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "summary": "A popover component that provides styled overlay functionality.",
+          "tagName": "forge-ai-popover",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ForgeAiPopoverComponent",
+          "declaration": {
+            "name": "ForgeAiPopoverComponent",
+            "module": "src/lib/core/popover/popover.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "forge-ai-popover",
+          "declaration": {
+            "name": "ForgeAiPopoverComponent",
+            "module": "src/lib/core/popover/popover.ts"
+          }
+        }
+      ]
     }
   ],
   "branchName": "voice-input-functionality",
@@ -7996,6 +7996,10 @@
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 41
     },
+    "AiButtonComponent": {
+      "path": "src/lib/ai-button/ai-button.ts",
+      "lineNumber": 22
+    },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 33
@@ -8011,10 +8015,6 @@
     "AiChainOfThoughtComponent": {
       "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
       "lineNumber": 17
-    },
-    "AiButtonComponent": {
-      "path": "src/lib/ai-button/ai-button.ts",
-      "lineNumber": 22
     },
     "AiChatInterfaceComponent": {
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
@@ -8112,9 +8112,13 @@
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
       "lineNumber": 91
     },
+    "FeatureToggle": {
+      "path": "src/lib/ai-chatbot/ai-chatbot.ts",
+      "lineNumber": 100
+    },
     "AiChatbotComponent": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 122
+      "lineNumber": 127
     },
     "CreateToolRendererElementConfig": {
       "path": "src/lib/ai-chatbot/create-tool-renderer.ts",
@@ -8388,6 +8392,22 @@
       "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
       "lineNumber": 24
     },
+    "Thread": {
+      "path": "src/lib/ai-threads/ai-threads.ts",
+      "lineNumber": 19
+    },
+    "ForgeAiThreadsSelectEventData": {
+      "path": "src/lib/ai-threads/ai-threads.ts",
+      "lineNumber": 26
+    },
+    "AiThreadsComponent": {
+      "path": "src/lib/ai-threads/ai-threads.ts",
+      "lineNumber": 46
+    },
+    "AiUserMessageComponent": {
+      "path": "src/lib/ai-user-message/ai-user-message.ts",
+      "lineNumber": 17
+    },
     "SpeechRecognitionAlternative": {
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
       "lineNumber": 18
@@ -8416,10 +8436,6 @@
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
       "lineNumber": 74
     },
-    "AiUserMessageComponent": {
-      "path": "src/lib/ai-user-message/ai-user-message.ts",
-      "lineNumber": 17
-    },
     "DragControllerOptions": {
       "path": "src/lib/core/drag-controller.ts",
       "lineNumber": 4
@@ -8428,29 +8444,13 @@
       "path": "src/lib/core/drag-controller.ts",
       "lineNumber": 21
     },
-    "Thread": {
-      "path": "src/lib/ai-threads/ai-threads.ts",
-      "lineNumber": 19
-    },
-    "ForgeAiThreadsSelectEventData": {
-      "path": "src/lib/ai-threads/ai-threads.ts",
-      "lineNumber": 26
-    },
-    "AiThreadsComponent": {
-      "path": "src/lib/ai-threads/ai-threads.ts",
-      "lineNumber": 46
-    },
-    "ThoughtBaseComponent": {
-      "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",
-      "lineNumber": 21
-    },
     "ThoughtDetailComponent": {
       "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
       "lineNumber": 18
     },
-    "ThoughtImageComponent": {
-      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
-      "lineNumber": 19
+    "ThoughtBaseComponent": {
+      "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",
+      "lineNumber": 21
     },
     "Source": {
       "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
@@ -8460,12 +8460,16 @@
       "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
       "lineNumber": 24
     },
-    "ReasoningContentComponent": {
-      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
-      "lineNumber": 17
-    },
     "PromptButtonComponent": {
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
+      "lineNumber": 17
+    },
+    "ThoughtImageComponent": {
+      "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",
+      "lineNumber": 19
+    },
+    "ReasoningContentComponent": {
+      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
       "lineNumber": 17
     },
     "OverlayPlacement": {
@@ -8475,18 +8479,6 @@
     "ForgeAiOverlayComponent": {
       "path": "src/lib/core/overlay/overlay.ts",
       "lineNumber": 42
-    },
-    "PopoverToggleEventData": {
-      "path": "src/lib/core/popover/popover.ts",
-      "lineNumber": 18
-    },
-    "PopoverPlacement": {
-      "path": "src/lib/core/popover/popover.ts",
-      "lineNumber": 24
-    },
-    "ForgeAiPopoverComponent": {
-      "path": "src/lib/core/popover/popover.ts",
-      "lineNumber": 40
     },
     "TooltipToggleEventDetail": {
       "path": "src/lib/core/tooltip/tooltip.ts",
@@ -8503,6 +8495,18 @@
     "ForgeAiTooltipComponent": {
       "path": "src/lib/core/tooltip/tooltip.ts",
       "lineNumber": 44
+    },
+    "PopoverToggleEventData": {
+      "path": "src/lib/core/popover/popover.ts",
+      "lineNumber": 18
+    },
+    "PopoverPlacement": {
+      "path": "src/lib/core/popover/popover.ts",
+      "lineNumber": 24
+    },
+    "ForgeAiPopoverComponent": {
+      "path": "src/lib/core/popover/popover.ts",
+      "lineNumber": 40
     }
   }
 }

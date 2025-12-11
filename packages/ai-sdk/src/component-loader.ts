@@ -50,13 +50,13 @@ function createAdapterInstance(
 
 function createChatbotElement(config: {
   adapter: AgUiAdapter;
-  enableFileUpload?: boolean;
+  fileUpload?: 'on' | 'off';
   placeholder?: string;
   suggestions?: Array<{ text: string; value: string }>;
 }): AiChatbotComponent {
   const chatbot = document.createElement('forge-ai-chatbot');
   chatbot.adapter = config.adapter;
-  chatbot.enableFileUpload = config.enableFileUpload ?? false;
+  chatbot.fileUpload = config.fileUpload ?? 'off';
   chatbot.placeholder = config.placeholder ?? 'Ask a question...';
   chatbot.suggestions = config.suggestions;
   return chatbot;
@@ -181,7 +181,7 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
 
   const chatbot = createChatbotElement({
     adapter,
-    enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    fileUpload: agentConfig.chatExperience?.fileUpload,
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
@@ -196,7 +196,7 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
 
   document.body.appendChild(floatingChatElement);
 
-  if (agentConfig.chatExperience?.enableFileUpload) {
+  if (agentConfig.chatExperience?.fileUpload === 'on') {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
       agentId: config.agentId as string,
@@ -252,7 +252,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
 
   const chatbot = createChatbotElement({
     adapter,
-    enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    fileUpload: agentConfig.chatExperience?.fileUpload,
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
@@ -267,7 +267,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
 
   mountElement.appendChild(sidebarChatElement);
 
-  if (agentConfig.chatExperience?.enableFileUpload) {
+  if (agentConfig.chatExperience?.fileUpload === 'on') {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
       agentId: config.agentId as string,
@@ -310,7 +310,7 @@ async function loadThreadsChat(config: ChatbotConfig, agentConfig: AgentUIConfig
 
   const chatbot = createChatbotElement({
     adapter,
-    enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    fileUpload: agentConfig.chatExperience?.fileUpload,
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
@@ -326,7 +326,7 @@ async function loadThreadsChat(config: ChatbotConfig, agentConfig: AgentUIConfig
 
   mountElement.appendChild(threadsElement);
 
-  if (agentConfig.chatExperience?.enableFileUpload) {
+  if (agentConfig.chatExperience?.fileUpload === 'on') {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
       agentId: config.agentId as string,

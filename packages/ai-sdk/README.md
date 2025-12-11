@@ -187,7 +187,7 @@ await adapter.connect();
 
 const chatbot = document.createElement('forge-ai-chatbot');
 chatbot.adapter = adapter;
-chatbot.enableFileUpload = true;
+chatbot.fileUpload = 'on';
 chatbot.suggestions = [
   { text: 'How do I get started?' },
   { text: 'What features are available?' }

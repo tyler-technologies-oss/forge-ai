@@ -111,8 +111,8 @@ export interface AgentUIConfig {
     welcomeMessage?: string;
     /** Suggested questions or prompts to help users get started. */
     sampleQuestions?: string[];
-    /** Whether file uploads are enabled for this agent. */
-    enableFileUpload?: boolean;
+    /** File upload functionality toggle. */
+    fileUpload?: 'on' | 'off';
     /** ISO timestamp when chat experience settings were last updated. */
     updatedAt?: string;
   };
