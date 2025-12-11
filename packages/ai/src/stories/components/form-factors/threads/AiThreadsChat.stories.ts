@@ -17,8 +17,9 @@ const meta = {
       control: false,
       description: 'The adapter for communication with the AI service'
     },
-    enableFileUpload: {
-      control: { type: 'boolean' },
+    fileUpload: {
+      control: { type: 'select' },
+      options: ['enabled', 'disabled'],
       description: 'Enable file upload functionality'
     },
     placeholder: {
@@ -27,7 +28,7 @@ const meta = {
     }
   },
   args: {
-    enableFileUpload: false,
+    fileUpload: 'disabled',
     placeholder: 'Ask a question...'
   },
   render: args => {
@@ -68,7 +69,7 @@ const meta = {
           @forge-ai-threads-clear-history=${action('forge-ai-threads-clear-history')}>
           <forge-ai-chatbot
             .adapter=${adapter}
-            ?enable-file-upload=${args.enableFileUpload}
+            file-upload=${args.fileUpload}
             placeholder=${args.placeholder}
             @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
             @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}

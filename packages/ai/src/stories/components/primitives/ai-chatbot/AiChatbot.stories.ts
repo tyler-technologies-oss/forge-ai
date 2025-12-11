@@ -19,12 +19,14 @@ const meta = {
       control: 'text',
       description: 'Placeholder text for the input field'
     },
-    enableFileUpload: {
-      control: 'boolean',
+    fileUpload: {
+      control: 'select',
+      options: ['enabled', 'disabled'],
       description: 'Enable file upload functionality'
     },
-    enableVoiceInput: {
-      control: 'boolean',
+    voiceInput: {
+      control: 'select',
+      options: ['enabled', 'disabled'],
       description: 'Enable voice input functionality'
     },
     showExpandButton: {
@@ -51,8 +53,8 @@ const meta = {
   },
   args: {
     placeholder: 'Ask a question...',
-    enableFileUpload: false,
-    enableVoiceInput: true,
+    fileUpload: 'disabled',
+    voiceInput: 'enabled',
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,
@@ -84,8 +86,8 @@ const meta = {
         <forge-ai-chatbot
           .adapter=${adapter}
           placeholder=${args.placeholder}
-          ?enable-file-upload=${args.enableFileUpload}
-          ?enable-voice-input=${args.enableVoiceInput}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?expanded=${args.expanded}
@@ -137,8 +139,8 @@ export const WithSuggestions: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
-          ?enable-file-upload=${args.enableFileUpload}
-          ?enable-voice-input=${args.enableVoiceInput}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?expanded=${args.expanded}
@@ -207,8 +209,8 @@ export const WithTools: Story = {
         <forge-ai-chatbot
           .adapter=${adapter}
           placeholder=${args.placeholder}
-          ?enable-file-upload=${args.enableFileUpload}
-          ?enable-voice-input=${args.enableVoiceInput}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?expanded=${args.expanded}
@@ -284,8 +286,8 @@ export const WithPersistence: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
-          ?enable-file-upload=${args.enableFileUpload}
-          ?enable-voice-input=${args.enableVoiceInput}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?expanded=${args.expanded}

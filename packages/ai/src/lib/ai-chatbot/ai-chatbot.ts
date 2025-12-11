@@ -126,11 +126,11 @@ export class AiChatbotComponent extends LitElement {
   @property({ attribute: false })
   public adapter?: AgentAdapter;
 
-  @property({ type: Boolean, attribute: 'enable-file-upload' })
-  public enableFileUpload = false;
+  @property({ attribute: 'file-upload' })
+  public fileUpload: 'enabled' | 'disabled' = 'disabled';
 
-  @property({ type: Boolean, attribute: 'enable-voice-input' })
-  public enableVoiceInput = false;
+  @property({ attribute: 'voice-input' })
+  public voiceInput: 'enabled' | 'disabled' = 'enabled';
 
   @property()
   public placeholder = 'Ask a question...';
@@ -817,7 +817,7 @@ export class AiChatbotComponent extends LitElement {
         @forge-ai-prompt-cancel=${this.#handleCancel}>
         ${this.#pendingAttachmentsTemplate}
         ${when(
-          this.enableFileUpload,
+          this.fileUpload === 'enabled',
           () => html`
             <forge-ai-file-picker
               slot="actions"
@@ -831,7 +831,7 @@ export class AiChatbotComponent extends LitElement {
           `
         )}
         ${when(
-          this.enableVoiceInput,
+          this.voiceInput === 'enabled',
           () => html`
             <forge-ai-voice-input
               slot="actions"
