@@ -19,7 +19,7 @@ const meta = {
     },
     fileUpload: {
       control: { type: 'select' },
-      options: ['enabled', 'off'],
+      options: ['on', 'off'],
       description: 'Enable file upload functionality'
     },
     placeholder: {

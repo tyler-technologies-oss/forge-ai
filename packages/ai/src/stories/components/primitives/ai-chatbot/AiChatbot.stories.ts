@@ -21,12 +21,12 @@ const meta = {
     },
     fileUpload: {
       control: 'select',
-      options: ['enabled', 'off'],
+      options: ['on', 'off'],
       description: 'Enable file upload functionality'
     },
     voiceInput: {
       control: 'select',
-      options: ['enabled', 'off'],
+      options: ['on', 'off'],
       description: 'Enable voice input functionality'
     },
     showExpandButton: {
@@ -54,7 +54,7 @@ const meta = {
   args: {
     placeholder: 'Ask a question...',
     fileUpload: 'off',
-    voiceInput: 'enabled',
+    voiceInput: 'on',
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,

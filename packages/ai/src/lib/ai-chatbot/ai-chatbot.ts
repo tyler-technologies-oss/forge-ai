@@ -97,7 +97,7 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
 /**
  * Type for feature toggle values
  */
-export type FeatureToggle = 'enabled' | 'off';
+export type FeatureToggle = 'on' | 'off';
 
 /**
  * @tag forge-ai-chatbot
@@ -135,7 +135,7 @@ export class AiChatbotComponent extends LitElement {
   public fileUpload: FeatureToggle = 'off';
 
   @property({ attribute: 'voice-input' })
-  public voiceInput: FeatureToggle = 'enabled';
+  public voiceInput: FeatureToggle = 'on';
 
   @property()
   public placeholder = 'Ask a question...';
@@ -822,7 +822,7 @@ export class AiChatbotComponent extends LitElement {
         @forge-ai-prompt-cancel=${this.#handleCancel}>
         ${this.#pendingAttachmentsTemplate}
         ${when(
-          this.fileUpload === 'enabled',
+          this.fileUpload === 'on',
           () => html`
             <forge-ai-file-picker
               slot="actions"
@@ -836,7 +836,7 @@ export class AiChatbotComponent extends LitElement {
           `
         )}
         ${when(
-          this.voiceInput === 'enabled',
+          this.voiceInput === 'on',
           () => html`
             <forge-ai-voice-input
               slot="actions"
