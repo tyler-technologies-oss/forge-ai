@@ -206,8 +206,13 @@ async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: Age
   }
 
   const floatingChatElement = document.createElement('forge-ai-floating-chat');
+
+  // Check initial open state
+  if (config.initialOpen ?? agentConfig.chatExperience?.initialOpen) {
+    floatingChatElement.open = true;
+  }
+
   floatingChatElement.appendChild(chatbot);
-  floatingChatElement.open = config.initialOpen ?? false;
 
   // Synchronize expanded state between chatbot and floating chat
   floatingChatElement.addEventListener('forge-ai-floating-chat-expand', () => (chatbot.expanded = true));
@@ -286,7 +291,12 @@ async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: Agen
   }
 
   const sidebarChatElement = document.createElement('forge-ai-sidebar-chat');
-  sidebarChatElement.open = config.initialOpen ?? agentConfig.chatExperience?.initialOpen ?? true;
+
+  // Check initial open state
+  if (config.initialOpen ?? agentConfig.chatExperience?.initialOpen) {
+    sidebarChatElement.open = true;
+  }
+
   sidebarChatElement.appendChild(chatbot);
 
   // Synchronize expanded state between chatbot and sidebar chat

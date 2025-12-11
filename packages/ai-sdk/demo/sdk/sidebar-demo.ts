@@ -18,7 +18,6 @@ try {
   configureChatbot(chatbot, adapter);
 
   sidebarChat = document.getElementById('sidebar-chat') as AiSidebarChatComponent;
-  sidebarChat.open = true;
 
   console.log('Sidebar adapter created!', adapter);
   console.log('Agent config:', adapter.agentConfig);
