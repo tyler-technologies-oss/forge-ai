@@ -109,7 +109,13 @@ export class AgUiAdapter extends AgentAdapter {
   }
 
   public abort(): void {
-    this.#agent.abortRun();
+    if (this._state.isRunning) {
+      try {
+        this.#agent.abortRun();
+      } catch {
+        // Ignore abort errors
+      }
+    }
     this.#clearRunState();
   }
 
