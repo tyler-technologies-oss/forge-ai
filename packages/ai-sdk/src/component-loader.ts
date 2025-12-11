@@ -1,4 +1,4 @@
-import { AiFloatingChatComponent, AiSidebarChatComponent, AiThreadsComponent } from '@tylertech/forge-ai';
+import type { AiFloatingChatComponent, AiSidebarChatComponent, AiThreadsComponent } from '@tylertech/forge-ai';
 import type { AgentRunner, AgUiAdapter, AiChatbotComponent, FileUploadEvent } from '@tylertech/forge-ai/ai-chatbot';
 import { setupFileUploadHandler } from './file-upload.js';
 import type {
@@ -286,8 +286,8 @@ async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: Agen
   }
 
   const sidebarChatElement = document.createElement('forge-ai-sidebar-chat');
+  sidebarChatElement.open = config.initialOpen ?? agentConfig.chatExperience?.initialOpen ?? true;
   sidebarChatElement.appendChild(chatbot);
-  sidebarChatElement.open = true;
 
   // Synchronize expanded state between chatbot and sidebar chat
   sidebarChatElement.addEventListener('forge-ai-sidebar-chat-expand', () => (chatbot.expanded = true));

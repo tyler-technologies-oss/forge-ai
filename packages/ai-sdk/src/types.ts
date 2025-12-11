@@ -113,6 +113,8 @@ export interface AgentUIConfig {
     sampleQuestions?: string[];
     /** Whether file uploads are enabled for this agent. */
     enableFileUpload?: boolean;
+    /** Whether the chat interface should be open on initial load. */
+    initialOpen?: boolean;
     /** ISO timestamp when chat experience settings were last updated. */
     updatedAt?: string;
   };

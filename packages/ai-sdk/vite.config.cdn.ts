@@ -6,9 +6,11 @@ export default defineConfig({
     outDir: 'cdn',
     emptyOutDir: true,
     lib: {
-      entry: resolve(__dirname, 'src/bootstrap.ts'),
-      formats: ['es'],
-      fileName: 'bootstrap'
+      entry: {
+        bootstrap: resolve(__dirname, 'src/bootstrap.ts'),
+        'agent-runner': resolve(__dirname, 'src/agent-runner-bootstrap.ts')
+      },
+      formats: ['es']
     },
     rollupOptions: {
       output: {

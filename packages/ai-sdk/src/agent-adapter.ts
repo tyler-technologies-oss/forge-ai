@@ -47,7 +47,8 @@ export async function createAgentAdapter(config: {
 
   const adapter = new FoundryAgentAdapter(
     {
-      url: `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`,
+      baseUrl: config.baseUrl,
+      agentId: config.agentId,
       headers: authHeaders
     },
     agentConfig
