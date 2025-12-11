@@ -52,7 +52,7 @@ const meta = {
   args: {
     placeholder: 'Ask a question...',
     enableFileUpload: false,
-    enableVoiceInput: false,
+    enableVoiceInput: true,
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,
@@ -137,6 +137,13 @@ export const WithSuggestions: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
+          ?enable-file-upload=${args.enableFileUpload}
+          ?enable-voice-input=${args.enableVoiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
@@ -197,7 +204,17 @@ export const WithTools: Story = {
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
-        <forge-ai-chatbot .adapter=${adapter} placeholder=${args.placeholder} @forge-ai-chatbot-tool-call=${onToolCall}>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          ?enable-file-upload=${args.enableFileUpload}
+          ?enable-voice-input=${args.enableVoiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
+          @forge-ai-chatbot-tool-call=${onToolCall}>
           <span slot="header-title">AI Assistant with Tools</span>
         </forge-ai-chatbot>
       </div>
@@ -206,6 +223,9 @@ export const WithTools: Story = {
 };
 
 export const WithPersistence: Story = {
+  args: {
+    showMinimizeButton: true
+  },
   render: (args: any) => {
     const STORAGE_KEY = 'ai-chatbot-thread-state';
 
@@ -264,7 +284,13 @@ export const WithPersistence: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
-          show-minimize-button
+          ?enable-file-upload=${args.enableFileUpload}
+          ?enable-voice-input=${args.enableVoiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
           @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
@@ -275,56 +301,4 @@ export const WithPersistence: Story = {
   }
 };
 
-export const WithVoiceInput: Story = {
-  args: {
-    enableVoiceInput: true
-  },
-  render: (args: any) => {
-    const adapter = new MockAdapter({
-      simulateStreaming: true,
-      simulateTools: false,
-      streamingDelay: 50,
-      responseDelay: 500
-    });
 
-    const onConnected = action('forge-ai-chatbot-connected');
-    const onDisconnected = action('forge-ai-chatbot-disconnected');
-    const onMessageSent = action('forge-ai-chatbot-message-sent');
-    const onMessageReceived = action('forge-ai-chatbot-message-received');
-    const onToolCall = action('forge-ai-chatbot-tool-call');
-    const onError = action('forge-ai-chatbot-error');
-    const onExpand = action('forge-ai-chatbot-expand');
-    const onMinimize = action('forge-ai-chatbot-minimize');
-    const onClear = action('forge-ai-chatbot-clear');
-    const onExport = action('forge-ai-chatbot-export');
-    const onInfo = action('forge-ai-chatbot-info');
-
-    return html`
-      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
-
-        <forge-ai-chatbot
-          .adapter=${adapter}
-          placeholder=${args.placeholder}
-          ?enable-file-upload=${args.enableFileUpload}
-          ?enable-voice-input=${args.enableVoiceInput}
-          ?show-expand-button=${args.showExpandButton}
-          ?show-minimize-button=${args.showMinimizeButton}
-          ?expanded=${args.expanded}
-          ?enable-reactions=${args.enableReactions}
-          .minimizeIcon=${args.minimizeIcon}
-          @forge-ai-chatbot-connected=${onConnected}
-          @forge-ai-chatbot-disconnected=${onDisconnected}
-          @forge-ai-chatbot-message-sent=${onMessageSent}
-          @forge-ai-chatbot-message-received=${onMessageReceived}
-          @forge-ai-chatbot-tool-call=${onToolCall}
-          @forge-ai-chatbot-error=${onError}
-          @forge-ai-chatbot-expand=${onExpand}
-          @forge-ai-chatbot-minimize=${onMinimize}
-          @forge-ai-chatbot-clear=${onClear}
-          @forge-ai-chat-header-export=${onExport}
-          @forge-ai-chatbot-info=${onInfo}>
-        </forge-ai-chatbot>
-      </div>
-    `;
-  }
-};
