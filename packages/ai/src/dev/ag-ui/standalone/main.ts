@@ -41,8 +41,8 @@ defineListItemComponent();
 
 IconRegistry.define([tylIconForgeLogo, tylIconSparkles]);
 
-const BASE_URL = 'http://localhost:3001/api/agents';
-const AGENT_ID = 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c';
+const BASE_URL = 'https://foundry.tylertechai.com';
+const AGENT_ID = 'agent-f586a37b-5a2d-4984-b791-5301105854e9';
 
 const config: AgUiAdapterConfig = {
   url: `${BASE_URL}/${AGENT_ID}/ag-ui`,

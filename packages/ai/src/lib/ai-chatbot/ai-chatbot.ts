@@ -127,10 +127,10 @@ export class AiChatbotComponent extends LitElement {
   public adapter?: AgentAdapter;
 
   @property({ type: Boolean, attribute: 'enable-file-upload' })
-  public enableFileUpload = false;
+  public enableFileUpload = true;
 
   @property({ type: Boolean, attribute: 'enable-voice-input' })
-  public enableVoiceInput = false;
+  public enableVoiceInput = true;
 
   @property()
   public placeholder = 'Ask a question...';
