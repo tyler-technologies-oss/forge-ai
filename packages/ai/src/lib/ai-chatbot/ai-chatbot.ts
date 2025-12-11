@@ -29,6 +29,7 @@ import type {
   ChatMessage,
   FileAttachment,
   FileUploadCallbacks,
+  FileRemoveCallbacks,
   ForgeAiChatbotFileSelectEventData,
   HandlerContext,
   MessageItem,
@@ -73,6 +74,7 @@ declare global {
     'forge-ai-chatbot-clear': CustomEvent<void>;
     'forge-ai-chatbot-info': CustomEvent<void>;
     'forge-ai-chatbot-file-select': CustomEvent<ForgeAiChatbotFileSelectEventData>;
+    'forge-ai-chatbot-file-remove': CustomEvent<ForgeAiChatbotFileRemoveEventData>;
   }
 }
 
@@ -88,6 +90,10 @@ export interface ForgeAiChatbotToolCallEventData {
 
 export interface ForgeAiChatbotErrorEventData {
   error: string;
+}
+
+export interface ForgeAiChatbotFileRemoveEventData {
+  fileId: string;
 }
 
 export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-chatbot';
@@ -224,15 +230,14 @@ export class AiChatbotComponent extends LitElement {
   }
 
   async #setupAdapter(): Promise<void> {
-    if (!this.adapter) {
+    if (!this.adapter || this.adapter.isConnecting) {
       return;
     }
 
-    this.#adapterSubscriptions?.unsubscribe();
-    this.#adapterSubscriptions = new SubscriptionManager();
-
     await this.adapter.connect();
 
+    this.#adapterSubscriptions?.unsubscribe();
+    this.#adapterSubscriptions = new SubscriptionManager();
     this.#adapterSubscriptions.add(
       this.adapter.onMessageStart(this.#handleMessageStart.bind(this)),
       this.adapter.onMessageDelta(this.#handleMessageDelta.bind(this)),
@@ -653,10 +658,52 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleAttachmentRemove(evt: CustomEvent<ForgeAiAttachmentRemoveEventData>): void {
-    const attachment = this.#fileUploadManager.pendingAttachments.find(a => a.filename === evt.detail.filename);
-    if (attachment) {
-      this.#fileUploadManager.abort(attachment.id);
+    const { filename } = evt.detail;
+
+    // Check if this is a pending attachment (not yet uploaded)
+    const pendingAttachment = this.#fileUploadManager.pendingAttachments.find(a => a.filename === filename);
+    if (pendingAttachment) {
+      this.#fileUploadManager.abort(pendingAttachment.id);
+      return;
     }
+
+    // Check if this is a completed upload
+    const messages = this.getMessages();
+    for (const message of messages) {
+      if (message.uploadedFiles) {
+        const uploadedFile = message.uploadedFiles.find(f => f.fileName === filename);
+        if (uploadedFile) {
+          this.#handleCompletedFileRemove(uploadedFile.fileId);
+          return;
+        }
+      }
+    }
+  }
+
+  #handleCompletedFileRemove(fileId: string): void {
+    if (!this.adapter) {
+      return;
+    }
+
+    const callbacks: FileRemoveCallbacks = {
+      onSuccess: () => {
+        this.#messageStateController.removeUploadedFile(fileId);
+        this.requestUpdate();
+      },
+      onError: (error: string) => {
+        this.#dispatchEvent({
+          type: 'forge-ai-chatbot-error',
+          detail: { error }
+        });
+      }
+    };
+
+    this.adapter.emitFileRemove(fileId, callbacks);
+
+    this.#dispatchEvent({
+      type: 'forge-ai-chatbot-file-remove',
+      detail: { fileId }
+    });
   }
 
   #handleSuggestionSelect(evt: CustomEvent<ForgeAiSuggestionsEventData>): void {

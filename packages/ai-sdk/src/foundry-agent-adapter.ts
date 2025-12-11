@@ -21,9 +21,7 @@ export class FoundryAgentAdapter extends AgUiAdapter {
       throw new Error('Either agentId or teamId must be provided');
     }
 
-    const url = teamId
-      ? `${baseUrl}/api/teams/${teamId}/ag-ui`
-      : `${baseUrl}/api/agents/${agentId}/ag-ui`;
+    const url = teamId ? `${baseUrl}/api/team/${teamId}/ag-ui` : `${baseUrl}/api/agents/${agentId}/ag-ui`;
 
     super({ url, headers });
     this.#agentConfig = agentConfig;

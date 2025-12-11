@@ -18,6 +18,7 @@ export {
   type ToolCallArgsEvent,
   type ToolCallEndEvent,
   type FileUploadEvent,
+  type FileRemoveEvent,
   type AdapterState,
   type ErrorEvent
 } from './agent-adapter.js';
@@ -33,6 +34,7 @@ export type {
   UploadedFileMetadata,
   FileUploadCallbacks,
   FileUploadHandler,
+  FileRemoveCallbacks,
   ForgeAiChatbotFileSelectEventData
 } from './types.js';
 

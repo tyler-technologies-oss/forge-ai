@@ -11,17 +11,18 @@ import { setupFileUploadHandler } from './file-upload.js';
  */
 export async function createAgentAdapter(config: {
   baseUrl: string;
-  agentId: string;
+  agentId?: string;
+  teamId?: string;
   headers?: Record<string, string>;
   skipAuth?: boolean;
 }): Promise<FoundryAgentAdapter> {
-  if (!config.baseUrl || !config.agentId) {
-    throw new Error('baseUrl and agentId are required');
+  if (!config.baseUrl || (!config.agentId && !config.teamId)) {
+    throw new Error('baseUrl and either agentId or teamId are required');
   }
 
   let authHeaders = config.headers || {};
 
-  if (!config.skipAuth) {
+  if (!config.skipAuth && config.agentId) {
     const authStatus = await checkAuthentication({
       baseUrl: config.baseUrl,
       agentId: config.agentId,
@@ -40,6 +41,7 @@ export async function createAgentAdapter(config: {
     {
       baseUrl: config.baseUrl,
       agentId: config.agentId,
+      teamId: config.teamId,
       headers: authHeaders
     },
     { isAuthenticated: true }
@@ -49,6 +51,7 @@ export async function createAgentAdapter(config: {
     {
       baseUrl: config.baseUrl,
       agentId: config.agentId,
+      teamId: config.teamId,
       headers: authHeaders
     },
     agentConfig
@@ -58,6 +61,7 @@ export async function createAgentAdapter(config: {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
       agentId: config.agentId,
+      teamId: config.teamId,
       threadId: adapter.threadId,
       headers: authHeaders,
       credentials: 'include'

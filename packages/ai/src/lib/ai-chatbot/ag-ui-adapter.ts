@@ -64,7 +64,12 @@ export class AgUiAdapter extends AgentAdapter {
   }
 
   public async connect(): Promise<void> {
-    this._updateState({ isConnected: true });
+    if (this._state.isConnecting || this._state.isConnected) {
+      return;
+    }
+    this._updateState({ isConnecting: true, isConnected: true });
+    await Promise.resolve();
+    this._updateState({ isConnecting: false });
   }
 
   public async disconnect(): Promise<void> {
@@ -257,7 +262,7 @@ export class AgUiAdapter extends AgentAdapter {
 
   #handleRunFailed(): void {
     this.#clearRunState();
-    this._emitError('An unknown error occurred. Please try again.');
+    this._emitError('An unexpected error occurred. Please try again.');
   }
 
   #processTextDelta(messageId: string, buffer: string, isFinal: boolean): void {

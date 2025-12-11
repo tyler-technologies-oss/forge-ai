@@ -100,6 +100,15 @@ export interface FileUploadCallbacks {
 
 export type FileUploadHandler = (file: File, callbacks: FileUploadCallbacks) => Promise<void> | void;
 
+export interface FileRemoveCallbacks {
+  onSuccess: () => void;
+  onError: (error: string) => void;
+}
+
+export interface FileRemoveEvent extends FileRemoveCallbacks {
+  fileId: string;
+}
+
 export interface ForgeAiChatbotFileSelectEventData {
   fileId: string;
   file: File;

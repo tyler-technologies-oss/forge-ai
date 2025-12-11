@@ -50,6 +50,7 @@ export interface ToolResultEvent {
 
 export interface AdapterState {
   isConnected: boolean;
+  isConnecting: boolean;
   isRunning: boolean;
 }
 
@@ -57,12 +58,18 @@ export interface FileUploadEvent extends FileUploadCallbacks {
   file: File;
 }
 
+export interface FileRemoveEvent {
+  fileId: string;
+  onSuccess: () => void;
+  onError: (error: string) => void;
+}
+
 export interface ErrorEvent {
   message: string;
 }
 
 export abstract class AgentAdapter {
-  protected _state: AdapterState = { isConnected: false, isRunning: false };
+  protected _state: AdapterState = { isConnected: false, isConnecting: false, isRunning: false };
   protected _tools: ToolDefinition[] = [];
   protected _events = {
     runStarted: new EventEmitter<void>(),
@@ -77,6 +84,7 @@ export abstract class AgentAdapter {
     toolCallEnd: new EventEmitter<ToolCallEndEvent>(),
     toolResult: new EventEmitter<ToolResultEvent>(),
     fileUpload: new EventEmitter<FileUploadEvent>(),
+    fileRemove: new EventEmitter<FileRemoveEvent>(),
     error: new EventEmitter<ErrorEvent>(),
     stateChange: new EventEmitter<AdapterState>()
   };
@@ -104,6 +112,10 @@ export abstract class AgentAdapter {
 
   public get isConnected(): boolean {
     return this._state.isConnected;
+  }
+
+  public get isConnecting(): boolean {
+    return this._state.isConnecting;
   }
 
   public get isRunning(): boolean {
@@ -156,6 +168,10 @@ export abstract class AgentAdapter {
 
   public onFileUpload(callback: (event: FileUploadEvent) => void): Subscription {
     return this._events.fileUpload.subscribe(callback);
+  }
+
+  public onFileRemove(callback: (event: FileRemoveEvent) => void): Subscription {
+    return this._events.fileRemove.subscribe(callback);
   }
 
   public onError(callback: (event: ErrorEvent) => void): Subscription {
@@ -212,6 +228,10 @@ export abstract class AgentAdapter {
 
   public emitFileUpload(file: File, callbacks: FileUploadCallbacks): void {
     this._events.fileUpload.emit({ file, ...callbacks });
+  }
+
+  public emitFileRemove(fileId: string, callbacks: { onSuccess: () => void; onError: (error: string) => void }): void {
+    this._events.fileRemove.emit({ fileId, ...callbacks });
   }
 
   protected _emitError(message: string): void {
