@@ -1,6 +1,0 @@
-import{j as o,M as r,T as i,C as m}from"./blocks-Jv7wmX4b.js";import{useMDXComponents as e}from"./index-Bh16KFfY.js";import{C as p}from"./CustomArgTypes-DPZh7NZ5.js";import{A as a,D as c}from"./AiResponseMessage.stories-DxPoCucm.js";import"./preload-helper-PPVm8Dsz.js";import"./_commonjsHelpers-CqkleIqs.js";import"./iframe-DNPZiRV8.js";import"./ai-response-message-CY2znWhi.js";import"./custom-element-UsVr97OX.js";import"./property-_rIcp3E4.js";import"./ai-actions-toolbar-B4UBpQvr.js";import"./state-CgJGsGUT.js";import"./query-BpjciUlk.js";import"./base-DVmwUFg0.js";import"./when-CI7b_ccM.js";import"./tooltip-Do7jSokR.js";import"./class-map-BAXGTaLk.js";import"./overlay-Cza_ksMz.js";import"./popover-hTPuxKBs.js";function s(t){const n={h2:"h2",p:"p",...e(),...t.components};return o.jsxs(o.Fragment,{children:[o.jsx(r,{of:a}),`
-`,o.jsx(i,{}),`
-`,o.jsx(n.p,{children:"The AI Response Message component displays AI-generated responses with consistent styling and optional action toolbars for user interaction."}),`
-`,o.jsx(m,{of:c}),`
-`,o.jsx(n.h2,{id:"api",children:"API"}),`
-`,o.jsx(p,{})]})}function b(t={}){const{wrapper:n}={...e(),...t.components};return n?o.jsx(n,{...t,children:o.jsx(s,{...t})}):s(t)}export{b as default};
