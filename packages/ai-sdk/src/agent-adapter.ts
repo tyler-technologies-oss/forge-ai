@@ -53,7 +53,7 @@ export async function createAgentAdapter(config: {
     agentConfig
   );
 
-  if (agentConfig.chatExperience?.fileUpload === 'on') {
+  if (agentConfig.chatExperience?.enableFileUpload) {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
       agentId: config.agentId,
@@ -83,8 +83,8 @@ export function configureChatbot(chatbot: AiChatbotComponent, adapter: FoundryAg
 
   const { chatExperience } = agentConfig;
 
-  if (chatExperience.fileUpload !== undefined) {
-    chatbot.fileUpload = chatExperience.fileUpload;
+  if (chatExperience.enableFileUpload !== undefined) {
+    chatbot.fileUpload = chatExperience.enableFileUpload ? 'on' : 'off';
   }
 
   if (chatExperience.sampleQuestions) {

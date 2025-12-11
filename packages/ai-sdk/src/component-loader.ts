@@ -183,7 +183,7 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
 
   const chatbot = createChatbotElement({
     adapter,
-    fileUpload: agentConfig.chatExperience?.fileUpload,
+    fileUpload: agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off',
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
@@ -198,7 +198,7 @@ async function loadFloatingChat(config: ChatbotConfig, agentConfig: AgentUIConfi
 
   document.body.appendChild(floatingChatElement);
 
-  if (agentConfig.chatExperience?.fileUpload === 'on') {
+  if (agentConfig.chatExperience?.enableFileUpload) {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
       agentId: config.agentId as string,
@@ -254,7 +254,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
 
   const chatbot = createChatbotElement({
     adapter,
-    fileUpload: agentConfig.chatExperience?.fileUpload,
+    fileUpload: agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off',
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
@@ -269,7 +269,7 @@ async function loadSidebarChat(config: ChatbotConfig, agentConfig: AgentUIConfig
 
   mountElement.appendChild(sidebarChatElement);
 
-  if (agentConfig.chatExperience?.fileUpload === 'on') {
+  if (agentConfig.chatExperience?.enableFileUpload) {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
       agentId: config.agentId as string,
@@ -312,7 +312,7 @@ async function loadThreadsChat(config: ChatbotConfig, agentConfig: AgentUIConfig
 
   const chatbot = createChatbotElement({
     adapter,
-    fileUpload: agentConfig.chatExperience?.fileUpload,
+    fileUpload: agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off',
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
@@ -328,7 +328,7 @@ async function loadThreadsChat(config: ChatbotConfig, agentConfig: AgentUIConfig
 
   mountElement.appendChild(threadsElement);
 
-  if (agentConfig.chatExperience?.fileUpload === 'on') {
+  if (agentConfig.chatExperience?.enableFileUpload) {
     const handler = setupFileUploadHandler({
       baseUrl: config.baseUrl,
       agentId: config.agentId as string,
