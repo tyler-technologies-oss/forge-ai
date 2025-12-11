@@ -51,6 +51,7 @@ function createAdapterInstance(
 function createChatbotElement(config: {
   adapter: AgUiAdapter;
   fileUpload?: 'on' | 'off';
+  voiceInput?: 'on' | 'off';
   placeholder?: string;
   suggestions?: Array<{ text: string; value: string }>;
 }): AiChatbotComponent {
@@ -59,6 +60,7 @@ function createChatbotElement(config: {
   chatbot.fileUpload = config.fileUpload ?? 'off';
   chatbot.placeholder = config.placeholder ?? 'Ask a question...';
   chatbot.suggestions = config.suggestions;
+  chatbot.voiceInput = config.voiceInput ?? 'on';
   return chatbot;
 }
 
