@@ -95,6 +95,11 @@ export interface ForgeAiChatbotErrorEventData {
 export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-chatbot';
 
 /**
+ * Type for feature toggle values
+ */
+export type FeatureToggle = 'enabled' | 'off';
+
+/**
  * @tag forge-ai-chatbot
  *
  * @summary A complete, self-contained AI chatbot component that implements the AG-UI protocol using an adapter pattern.
@@ -127,10 +132,10 @@ export class AiChatbotComponent extends LitElement {
   public adapter?: AgentAdapter;
 
   @property({ attribute: 'file-upload' })
-  public fileUpload: 'enabled' | 'disabled' = 'disabled';
+  public fileUpload: FeatureToggle = 'off';
 
   @property({ attribute: 'voice-input' })
-  public voiceInput: 'enabled' | 'disabled' = 'enabled';
+  public voiceInput: FeatureToggle = 'enabled';
 
   @property()
   public placeholder = 'Ask a question...';

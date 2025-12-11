@@ -25,7 +25,7 @@ const meta = {
       description: 'Controls whether the chat is displayed in an expanded state'
     },
     fileUpload: {
-      control: { type: 'select' }, options: ['enabled', 'disabled'],
+      control: { type: 'select' }, options: ['enabled', 'off'],
       description: 'Enable file upload functionality'
     },
     placeholder: {
@@ -36,7 +36,7 @@ const meta = {
   args: {
     open: false,
     expanded: false,
-    fileUpload: 'disabled',
+    fileUpload: 'off',
     placeholder: 'Ask a question...'
   },
   render: args => {

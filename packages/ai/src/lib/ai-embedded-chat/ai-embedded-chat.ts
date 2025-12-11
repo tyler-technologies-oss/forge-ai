@@ -4,7 +4,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
 import '../ai-chatbot';
-import type { AgentAdapter, Suggestion } from '../ai-chatbot';
+import type { AgentAdapter, Suggestion, FeatureToggle } from '../ai-chatbot';
 import '../ai-gradient-container';
 import '../ai-modal';
 import type { AiModalComponent } from '../ai-modal';
@@ -39,7 +39,7 @@ export const AiEmbeddedChatComponentTagName: keyof HTMLElementTagNameMap = 'forg
  * All chatbot events (message-sent, message-received, tool-call, error, clear, info, connected, disconnected) bubble through unchanged.
  *
  * @property {AgentAdapter} adapter - Required. The adapter for communication with the AI service
- * @property {'enabled' | 'disabled'} fileUpload - Enable file upload functionality (default: 'disabled')
+ * @property {FeatureToggle} fileUpload - Enable file upload functionality (default: 'off')
  * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
  * @property {Suggestion[]} suggestions - Optional suggestions for empty state
  * @property {string} gradientVariant - Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium')
@@ -67,7 +67,7 @@ export class AiEmbeddedChatComponent extends LitElement {
   public threadId?: string;
 
   @property({ attribute: 'file-upload' })
-  public fileUpload: 'enabled' | 'disabled' = 'disabled';
+  public fileUpload: FeatureToggle = 'off';
 
   @property()
   public placeholder = 'Ask a question...';
