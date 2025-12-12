@@ -16,11 +16,12 @@ let fab: AiFabComponent | null = null;
 try {
   const adapter = await createAgentAdapter({
     agentId: DEFAULT_CONFIG.agentId,
+    // teamId: DEFAULT_CONFIG.teamId,
     baseUrl: DEFAULT_CONFIG.baseUrl
   });
 
   const chatbot = document.getElementById('chatbot') as AiChatbotComponent;
-  configureChatbot(chatbot, adapter);
+  configureChatbot({ chatbot, adapter });
   chatbot.titleText = adapter.agentConfig.name;
 
   floatingChat = document.getElementById('floating-chat') as AiFloatingChatComponent;

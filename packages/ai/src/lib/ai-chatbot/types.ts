@@ -26,6 +26,8 @@ export interface HandlerContext<TArgs = Record<string, unknown>> {
   signal?: AbortSignal;
 }
 
+export type ToolType = 'client' | 'agent';
+
 /**
  * Tool definition with optional type-safe handler.
  * @template TArgs - Type of the tool call arguments for type-safe handler context
@@ -68,6 +70,7 @@ export interface ToolCall {
   argsBuffer?: string;
   result?: unknown;
   status: 'pending' | 'parsing' | 'executing' | 'complete' | 'error';
+  type: ToolType;
 }
 
 export interface FileAttachment {

@@ -1,6 +1,6 @@
 import { createAgentAdapter, configureChatbot } from '../../src/index.js';
 import { setupForgeComponents, DEFAULT_CONFIG } from './shared.js';
-import type { AiChatbotComponent } from '@tylertech/forge-ai';
+import type { AiChatbotComponent, AiThreadsComponent } from '@tylertech/forge-ai';
 import '@tylertech/forge-ai/ai-chatbot';
 import '@tylertech/forge-ai/ai-threads';
 
@@ -13,7 +13,8 @@ try {
   });
 
   const chatbot = document.getElementById('chatbot') as AiChatbotComponent;
-  configureChatbot(chatbot, adapter);
+  const threads = document.getElementById('threads') as AiThreadsComponent;
+  configureChatbot({ chatbot, threads, adapter });
 
   console.log('Threads adapter created!', adapter);
   console.log('Agent config:', adapter.agentConfig);

@@ -1,5 +1,6 @@
 import type { AiFloatingChatComponent, AiSidebarChatComponent, AiThreadsComponent } from '@tylertech/forge-ai';
 import type { AgentRunner, AgUiAdapter, AiChatbotComponent, FileUploadEvent } from '@tylertech/forge-ai/ai-chatbot';
+import { configureChatbot } from './agent-adapter.js';
 import { setupFileUploadHandler, setupFileRemoveHandler } from './file-upload.js';
 import type {
   AgentUIConfig,
@@ -10,15 +11,6 @@ import type {
   ThreadsChatAPI
 } from './types.js';
 import { resolveMountPoint, waitForDOMReady } from './utils.js';
-
-interface AgentInfoConfig {
-  name?: string;
-  description?: string;
-  identifier?: string;
-  version?: string;
-  model?: string;
-  lastUpdated?: string;
-}
 
 interface OpenableElement {
   show(): void;
@@ -73,35 +65,20 @@ function createChatbotElement(config: {
   return chatbot;
 }
 
-function createAgentInfo(agentConfig: AgentUIConfig): AgentInfoConfig | undefined {
-  if (
-    !agentConfig.name &&
-    !agentConfig.description &&
-    !agentConfig.version &&
-    !agentConfig.model?.model &&
-    !agentConfig.id &&
-    !agentConfig.metadata?.updatedAt
-  ) {
-    return undefined;
-  }
-
-  return {
-    name: agentConfig.name,
-    description: agentConfig.description,
-    identifier: agentConfig.id,
-    version: agentConfig.version,
-    model: agentConfig.model?.model,
-    lastUpdated: agentConfig.metadata?.updatedAt
-  };
-}
-
-function createFabElement(floatingChat: AiFloatingChatComponent): HTMLElement {
+function createFabElement(floatingChat: AiFloatingChatComponent, options?: { text?: string }): HTMLElement {
   const fabElement = document.createElement('forge-ai-fab');
   fabElement.style.position = 'absolute';
   fabElement.style.bottom = '16px';
   fabElement.style.right = '16px';
   fabElement.style.zIndex = '1000';
   fabElement.style.display = floatingChat.open ? 'none' : 'block';
+
+  if (options?.text) {
+    fabElement.extended = true;
+    const text = document.createElement('span');
+    text.textContent = options.text;
+    fabElement.appendChild(text);
+  }
 
   fabElement.addEventListener('click', () => {
     floatingChat.toggle();
@@ -230,29 +207,21 @@ async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: Age
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
-  const agentInfo = createAgentInfo(agentConfig);
-  if (agentInfo) {
-    chatbot.agentInfo = agentInfo;
-  }
-
-  if (agentConfig.name) {
-    chatbot.titleText = agentConfig.name;
-  }
-
   const floatingChatElement = document.createElement('forge-ai-floating-chat');
+  floatingChatElement.appendChild(chatbot);
+  document.body.appendChild(floatingChatElement);
 
-  // Check initial open state
-  if (config.initialOpen ?? agentConfig.chatExperience?.initialOpen) {
+  configureChatbot({
+    chatbot,
+    adapter,
+    agentConfig,
+    floating: floatingChatElement
+  });
+
+  const initialOpen = config.initialOpen ?? agentConfig.chatExperience?.initialOpen;
+  if (initialOpen) {
     floatingChatElement.open = true;
   }
-
-  floatingChatElement.appendChild(chatbot);
-
-  // Synchronize expanded state between chatbot and floating chat
-  floatingChatElement.addEventListener('forge-ai-floating-chat-expand', () => (chatbot.expanded = true));
-  floatingChatElement.addEventListener('forge-ai-floating-chat-collapse', () => (chatbot.expanded = false));
-
-  document.body.appendChild(floatingChatElement);
 
   if (agentConfig.chatExperience?.enableFileUpload) {
     setupFileHandlers(adapter, config);
@@ -260,8 +229,8 @@ async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: Age
 
   let fabElement: HTMLElement | undefined;
 
-  if (config.showTriggerButton !== false) {
-    fabElement = createFabElement(floatingChatElement);
+  if (config.floatingConfig?.showTriggerButton !== false) {
+    fabElement = createFabElement(floatingChatElement, { text: config.floatingConfig?.triggerButtonText });
     document.body.appendChild(fabElement);
   }
 
@@ -309,29 +278,21 @@ async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: Agen
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
-  const agentInfo = createAgentInfo(agentConfig);
-  if (agentInfo) {
-    chatbot.agentInfo = agentInfo;
-  }
-
-  if (agentConfig.name) {
-    chatbot.titleText = agentConfig.name;
-  }
-
   const sidebarChatElement = document.createElement('forge-ai-sidebar-chat');
+  sidebarChatElement.appendChild(chatbot);
+  mountElement.appendChild(sidebarChatElement);
 
-  // Check initial open state
-  if (config.initialOpen ?? agentConfig.chatExperience?.initialOpen) {
+  configureChatbot({
+    chatbot,
+    adapter,
+    agentConfig,
+    sidebar: sidebarChatElement
+  });
+
+  const initialOpen = config.initialOpen ?? agentConfig.chatExperience?.initialOpen;
+  if (initialOpen) {
     sidebarChatElement.open = true;
   }
-
-  sidebarChatElement.appendChild(chatbot);
-
-  // Synchronize expanded state between chatbot and sidebar chat
-  sidebarChatElement.addEventListener('forge-ai-sidebar-chat-expand', () => (chatbot.expanded = true));
-  sidebarChatElement.addEventListener('forge-ai-sidebar-chat-collapse', () => (chatbot.expanded = false));
-
-  mountElement.appendChild(sidebarChatElement);
 
   if (agentConfig.chatExperience?.enableFileUpload) {
     setupFileHandlers(adapter, config);
@@ -374,21 +335,16 @@ async function loadThreadsChat(config: ValidatedChatbotConfig, agentConfig: Agen
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 
-  const agentInfo = createAgentInfo(agentConfig);
-  if (agentInfo) {
-    chatbot.agentInfo = agentInfo;
-  }
-
-  if (agentConfig.name) {
-    chatbot.titleText = agentConfig.name;
-  }
-
-  chatbot.showExpandButton = true;
-
   const threadsElement = document.createElement('forge-ai-threads');
   threadsElement.appendChild(chatbot);
-
   mountElement.appendChild(threadsElement);
+
+  configureChatbot({
+    chatbot,
+    adapter,
+    agentConfig,
+    threads: threadsElement
+  });
 
   if (agentConfig.chatExperience?.enableFileUpload) {
     setupFileHandlers(adapter, config);

@@ -23,6 +23,12 @@ export class FileUploadManager {
   }
 
   public get pendingAttachments(): FileAttachment[] {
+    return Array.from(this._attachments.values())
+      .filter(state => state.status === 'pending' || state.status === 'uploading')
+      .map(state => state.metadata);
+  }
+
+  public get allAttachments(): FileAttachment[] {
     return Array.from(this._attachments.values()).map(state => state.metadata);
   }
 

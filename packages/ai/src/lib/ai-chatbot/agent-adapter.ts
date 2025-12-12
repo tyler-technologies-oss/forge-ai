@@ -162,7 +162,7 @@ export abstract class AgentAdapter {
     return this._events.toolCallEnd.subscribe(callback);
   }
 
-  public onToolResult(callback: (event: ToolResultEvent) => void): Subscription {
+  public onToolCallResult(callback: (event: ToolResultEvent) => void): Subscription {
     return this._events.toolResult.subscribe(callback);
   }
 

@@ -87,6 +87,7 @@ forge-card {
 .tool_call_args,
 .tool_call_end,
 .tool_result,
+.tool_call_result,
 .run_started,
 .run_finished,
 .run_cancelled,
@@ -121,7 +122,8 @@ forge-card {
 .tool_call_start,
 .tool_call_args,
 .tool_call_end,
-.tool_result {
+.tool_result,
+.tool_call_result {
   background-color: var(--forge-theme-tertiary-container-low);
   color: var(--forge-theme-on-tertiary-container-low);
 }

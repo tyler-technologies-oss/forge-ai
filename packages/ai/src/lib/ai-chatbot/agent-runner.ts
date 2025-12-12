@@ -262,17 +262,18 @@ export class AgentRunner {
     const execution = (async (): Promise<void> => {
       let result: unknown;
 
+      const toolDef = tools?.find(t => t.name === event.name);
+
       const toolCall: ToolCall = {
         id: event.id,
         messageId: state.currentMessage?.id ?? '',
         name: event.name,
         args: event.args,
-        status: 'executing'
+        status: 'executing',
+        type: toolDef ? 'client' : 'agent'
       };
       state.toolCalls.push(toolCall);
       state.onToolCall?.(toolCall);
-
-      const toolDef = tools?.find(t => t.name === event.name);
 
       if (toolDef?.handler) {
         try {
