@@ -56,7 +56,6 @@
   padding-block-end: 0;
 }
 
-// variant = inline
 :host(:state(inline)) {
   .forge-field {
     --forge-field-height: 52px;
