@@ -191,7 +191,7 @@ let adapter: AgUiAdapter;
 function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
   const newAdapter = new AgUiAdapter(
     {
-      url: `${baseUrl}/${agentId}/ag-ui`,
+      url: `${baseUrl}/api/agents/${agentId}/ag-ui`,
       context: {
         pageUrl: window.location.href,
         userAgent: navigator.userAgent,
@@ -272,7 +272,7 @@ function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
   newAdapter.onToolCallStart(event => addEventToStream('TOOL_CALL_START', event));
   newAdapter.onToolCallArgs(event => addEventToStream('TOOL_CALL_ARGS', event));
   newAdapter.onToolCallEnd(event => addEventToStream('TOOL_CALL_END', event));
-  newAdapter.onToolResult(event => addEventToStream('TOOL_RESULT', event));
+  newAdapter.onToolCallResult(event => addEventToStream('TOOL_CALL_RESULT', event));
   newAdapter.onError(event => addEventToStream('RUN_ERROR', event));
   newAdapter.onStateChange(state => addEventToStream('STATE_CHANGE', state));
 

@@ -167,6 +167,41 @@ export class MessageStateController implements ReactiveController {
       result,
       status: 'complete'
     });
+    this.#tryReorderAssistantMessage(toolCallId);
+  }
+
+  /**
+   * Reorders the assistant message associated with the tool call to appear after the tool call.
+   *
+   * This can happen when tool calls come in before the assistant message is sent, which can
+   * cause the messages and tool calls to appear out of order otherwise.
+   *
+   * @param toolCallId The ID of the tool call whose assistant message should be reordered.
+   */
+  #tryReorderAssistantMessage(toolCallId: string): void {
+    const toolCall = this._toolCalls.get(toolCallId);
+    if (!toolCall) {
+      return;
+    }
+
+    const msgIdx = this._messageItems.findIndex(i => i.type === 'message' && i.data.id === toolCall.messageId);
+    if (msgIdx === -1) {
+      return;
+    }
+
+    const msgItem = this._messageItems[msgIdx];
+    if (msgItem.type !== 'message' || msgItem.data.content.trim()) {
+      return;
+    }
+
+    const toolIdx = this._messageItems.findIndex(i => i.type === 'toolCall' && i.data.id === toolCallId);
+    if (toolIdx === -1 || toolIdx <= msgIdx) {
+      return;
+    }
+
+    const [msg] = this._messageItems.splice(msgIdx, 1);
+    this._messageItems.splice(toolIdx, 0, msg);
+    this.#notifyStateChange();
   }
 
   public removeUploadedFile(fileId: string): void {

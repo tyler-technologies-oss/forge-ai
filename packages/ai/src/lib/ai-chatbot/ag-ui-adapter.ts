@@ -4,6 +4,7 @@ import type {
   Message,
   SystemMessage,
   Tool as AgUiTool,
+  ToolCallResultEvent,
   ToolMessage,
   UserMessage,
   Context
@@ -128,6 +129,7 @@ export class AgUiAdapter extends AgentAdapter {
       onToolCallStartEvent: this.#handleToolCallStart.bind(this),
       onToolCallArgsEvent: this.#handleToolCallArgs.bind(this),
       onToolCallEndEvent: this.#handleToolCallEnd.bind(this),
+      onToolCallResultEvent: this.#handleToolCallResult.bind(this),
       onRunFinishedEvent: this.#handleRunFinished.bind(this),
       onRunErrorEvent: this.#handleRunError.bind(this),
       onRunFailed: this.#handleRunFailed.bind(this)
@@ -248,6 +250,24 @@ export class AgUiAdapter extends AgentAdapter {
     this._emitToolCallEnd(toolCallEvent);
     this._emitToolCall(toolCallEvent);
     this.#toolCalls.delete(event.toolCallId);
+  }
+
+  #handleToolCallResult({ event }: { event: ToolCallResultEvent }): void {
+    const result = JSON.parse(event.content);
+    const toolMessage: ChatMessage = {
+      id: generateId('tool'),
+      role: 'tool',
+      content: event.content,
+      timestamp: Date.now(),
+      status: 'complete',
+      toolCallId: event.toolCallId
+    };
+
+    this._emitToolResult({
+      toolCallId: event.toolCallId,
+      result,
+      message: toolMessage
+    });
   }
 
   #handleRunFinished(): void {
