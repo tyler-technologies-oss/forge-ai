@@ -131,6 +131,7 @@ export class AiPromptComponent extends LitElement {
       () => html`
         <hr class="forge-divider" />
         <div class="actions">${this.#actionsSlot}</div>
+        <div class="vertical-divider"></div>
       `,
       () => html`${this.#actionsSlot}`
     );
@@ -245,6 +246,7 @@ export class AiPromptComponent extends LitElement {
         <div class="forge-card">
           ${this.#conditionalAttachments}
           <div class="forge-field">
+            ${when(this.variant === 'inline', () => html`${this.#conditionalActions}`)}
             <textarea
               id="chat-input"
               rows="1"
@@ -268,7 +270,7 @@ export class AiPromptComponent extends LitElement {
                   </svg>`}
             </button>
           </div>
-          ${this.#conditionalActions}
+          ${when(this.variant === 'stacked', () => html`${this.#conditionalActions}`)}
         </div>
       </div>
     `;
