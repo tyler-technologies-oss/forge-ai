@@ -89,7 +89,7 @@ export function configureChatbot(chatbot: AiChatbotComponent, adapter: FoundryAg
   const { chatExperience } = agentConfig;
 
   if (chatExperience.enableFileUpload !== undefined) {
-    chatbot.enableFileUpload = chatExperience.enableFileUpload;
+    chatbot.fileUpload = chatExperience.enableFileUpload ? 'on' : 'off';
   }
 
   if (chatExperience.sampleQuestions) {

@@ -24,8 +24,9 @@ const meta = {
       control: { type: 'boolean' },
       description: 'Controls whether the chat is displayed in an expanded state'
     },
-    enableFileUpload: {
-      control: { type: 'boolean' },
+    fileUpload: {
+      control: { type: 'select' },
+      options: ['on', 'off'],
       description: 'Enable file upload functionality'
     },
     placeholder: {
@@ -36,7 +37,7 @@ const meta = {
   args: {
     open: false,
     expanded: false,
-    enableFileUpload: false,
+    fileUpload: 'off',
     placeholder: 'Ask a question...'
   },
   render: args => {
@@ -73,7 +74,7 @@ const meta = {
         @forge-ai-floating-chat-collapse=${handleCollapse}>
         <forge-ai-chatbot
           .adapter=${adapter}
-          ?enable-file-upload=${args.enableFileUpload}
+          file-upload=${args.fileUpload}
           ?expanded=${args.expanded}
           placeholder=${args.placeholder}
           show-expand-button

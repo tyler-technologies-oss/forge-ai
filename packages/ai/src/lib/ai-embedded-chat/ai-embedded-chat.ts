@@ -4,7 +4,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
 import '../ai-chatbot';
-import type { AgentAdapter, Suggestion } from '../ai-chatbot';
+import type { AgentAdapter, Suggestion, FeatureToggle } from '../ai-chatbot';
 import '../ai-gradient-container';
 import '../ai-modal';
 import type { AiModalComponent } from '../ai-modal';
@@ -39,7 +39,7 @@ export const AiEmbeddedChatComponentTagName: keyof HTMLElementTagNameMap = 'forg
  * All chatbot events (message-sent, message-received, tool-call, error, clear, info, connected, disconnected) bubble through unchanged.
  *
  * @property {AgentAdapter} adapter - Required. The adapter for communication with the AI service
- * @property {boolean} enableFileUpload - Enable file upload functionality (default: false)
+ * @property {FeatureToggle} fileUpload - Enable file upload functionality (default: 'off')
  * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
  * @property {Suggestion[]} suggestions - Optional suggestions for empty state
  * @property {string} gradientVariant - Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium')
@@ -66,8 +66,8 @@ export class AiEmbeddedChatComponent extends LitElement {
   @property({ attribute: 'thread-id' })
   public threadId?: string;
 
-  @property({ type: Boolean, attribute: 'enable-file-upload' })
-  public enableFileUpload = false;
+  @property({ attribute: 'file-upload' })
+  public fileUpload: FeatureToggle = 'off';
 
   @property()
   public placeholder = 'Ask a question...';
@@ -92,7 +92,7 @@ export class AiEmbeddedChatComponent extends LitElement {
       <forge-ai-chatbot
         .adapter=${this.adapter}
         thread-id=${ifDefined(this.threadId)}
-        ?enable-file-upload=${this.enableFileUpload}
+        file-upload=${this.fileUpload}
         placeholder=${this.placeholder}
         .suggestions=${this.suggestions}
         show-expand-button

@@ -24,8 +24,9 @@ const meta = {
       options: ['low', 'medium', 'high'],
       description: 'Controls the gradient variant applied to the container'
     },
-    enableFileUpload: {
-      control: { type: 'boolean' },
+    fileUpload: {
+      control: { type: 'select' },
+      options: ['on', 'off'],
       description: 'Enable file upload functionality'
     },
     placeholder: {
@@ -36,7 +37,7 @@ const meta = {
   args: {
     expanded: false,
     gradientVariant: 'medium',
-    enableFileUpload: false,
+    fileUpload: 'off',
     placeholder: 'Ask a question...'
   },
   render: args => {
@@ -57,7 +58,7 @@ const meta = {
           .adapter=${adapter}
           ?expanded=${args.expanded}
           gradient-variant=${args.gradientVariant}
-          ?enable-file-upload=${args.enableFileUpload}
+          file-upload=${args.fileUpload}
           placeholder=${args.placeholder}
           @forge-ai-embedded-chat-expand=${action('forge-ai-embedded-chat-expand')}
           @forge-ai-embedded-chat-collapse=${action('forge-ai-embedded-chat-collapse')}

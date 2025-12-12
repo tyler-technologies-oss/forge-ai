@@ -273,7 +273,7 @@ chatbot.addEventListener('forge-ai-chatbot-tool-call', async e => {
 ### File Attachments
 
 ```typescript
-chatbot.enableFileUpload = true;
+chatbot.fileUpload = 'on';
 
 // Files are automatically attached when user selects them
 // They're sent with the next message
@@ -402,7 +402,7 @@ chatbot.addEventListener('forge-ai-chatbot-info', () => {
 | -------------------- | ---------------------- | --------------------- | ------------------------------ |
 | `adapter`            | `AgentAdapter`         | `undefined`           | Protocol adapter instance      |
 | `tools`              | `ToolDefinition[]`     | `undefined`           | Available tools                |
-| `enableFileUpload`   | `boolean`              | `false`               | Enable file picker             |
+| `fileUpload`         | `'on' \| 'off'`        | `'off'`               | File upload functionality      |
 | `placeholder`        | `string`               | `'Ask a question...'` | Input placeholder              |
 | `suggestions`        | `Suggestion[]`         | `undefined`           | Empty state suggestions        |
 | `showExpandButton`   | `boolean`              | `false`               | Show expand button in header   |
@@ -594,7 +594,7 @@ class ChatbotManager {
     this.chatbot.adapter = this.adapter;
     this.chatbot.tools = this.registry.getDefinitions();
     this.chatbot.suggestions = defaultSuggestions;
-    this.chatbot.enableFileUpload = true;
+    this.chatbot.fileUpload = 'on';
 
     // Setup event handlers
     this.setupEventListeners();

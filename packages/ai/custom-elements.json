@@ -299,6 +299,162 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChainOfThoughtComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chain-of-thought'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChainOfThoughtComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chain-of-thought",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponentTagName",
+          "declaration": {
+            "name": "AiChainOfThoughtComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponent",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-button/ai-button.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiButtonComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-button'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiButtonComponent",
+          "slots": [
+            {
+              "description": "Default slot for button content",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-button",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiButtonComponentTagName",
+          "declaration": {
+            "name": "AiButtonComponentTagName",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiButtonComponent",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "declarations": [
         {
@@ -2273,13 +2429,23 @@
             },
             {
               "kind": "field",
-              "name": "enableFileUpload",
+              "name": "fileUpload",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
               "privacy": "public",
-              "default": "false",
-              "attribute": "enable-file-upload"
+              "default": "'off'",
+              "attribute": "file-upload"
+            },
+            {
+              "kind": "field",
+              "name": "voiceInput",
+              "type": {
+                "text": "FeatureToggle"
+              },
+              "privacy": "public",
+              "default": "'on'",
+              "attribute": "voice-input"
             },
             {
               "kind": "field",
@@ -2554,12 +2720,20 @@
           ],
           "attributes": [
             {
-              "name": "enable-file-upload",
+              "name": "file-upload",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
-              "default": "false",
-              "fieldName": "enableFileUpload"
+              "default": "'off'",
+              "fieldName": "fileUpload"
+            },
+            {
+              "name": "voice-input",
+              "type": {
+                "text": "FeatureToggle"
+              },
+              "default": "'on'",
+              "fieldName": "voiceInput"
             },
             {
               "name": "placeholder",
@@ -4605,14 +4779,14 @@
             },
             {
               "kind": "field",
-              "name": "enableFileUpload",
+              "name": "fileUpload",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
               "privacy": "public",
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "attribute": "enable-file-upload"
+              "default": "'off'",
+              "description": "Enable file upload functionality (default: 'off')",
+              "attribute": "file-upload"
             },
             {
               "kind": "field",
@@ -4700,13 +4874,13 @@
               "fieldName": "threadId"
             },
             {
-              "name": "enable-file-upload",
+              "name": "file-upload",
               "type": {
-                "text": "boolean"
+                "text": "FeatureToggle"
               },
-              "default": "false",
-              "description": "Enable file upload functionality (default: false)",
-              "fieldName": "enableFileUpload"
+              "default": "'off'",
+              "description": "Enable file upload functionality (default: 'off')",
+              "fieldName": "fileUpload"
             },
             {
               "name": "placeholder",
@@ -6665,48 +6839,99 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "AiThinkingIndicatorComponentTagName",
+          "name": "AiSuggestionsComponentTagName",
           "type": {
             "text": "keyof HTMLElementTagNameMap"
           },
-          "default": "'forge-ai-thinking-indicator'"
+          "default": "'forge-ai-suggestions'"
         },
         {
           "kind": "class",
           "description": "",
-          "name": "AiThinkingIndicatorComponent",
-          "members": [],
+          "name": "AiSuggestionsComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "Suggestion[]"
+              },
+              "privacy": "public",
+              "default": "[]",
+              "description": "Array of suggestion objects to display"
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "AiSuggestionsVariant"
+              },
+              "privacy": "public",
+              "default": "'inline'",
+              "description": "Display variant for suggestions layout",
+              "attribute": "variant"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiSuggestionsEventData>"
+              },
+              "description": "Fired when a suggestion is selected.",
+              "name": "forge-ai-suggestions-select"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "AiSuggestionsVariant"
+              },
+              "default": "'inline'",
+              "description": "Display variant for suggestions layout",
+              "fieldName": "variant"
+            }
+          ],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "forge-ai-thinking-indicator",
+          "tagName": "forge-ai-suggestions",
           "customElement": true,
-          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
+          "states": [
+            {
+              "name": "inline",
+              "description": "The suggestions are displayed inline."
+            },
+            {
+              "name": "block",
+              "description": "The suggestions are displayed as blocks."
+            }
+          ]
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "AiThinkingIndicatorComponentTagName",
+          "name": "AiSuggestionsComponentTagName",
           "declaration": {
-            "name": "AiThinkingIndicatorComponentTagName",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+            "name": "AiSuggestionsComponentTagName",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
           }
         },
         {
           "kind": "js",
-          "name": "AiThinkingIndicatorComponent",
+          "name": "AiSuggestionsComponent",
           "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+            "name": "AiSuggestionsComponent",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
           }
         },
         {
           "kind": "custom-element-definition",
           "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+            "name": "AiSuggestionsComponent",
+            "module": "src/lib/ai-suggestions/ai-suggestions.ts"
           }
         }
       ]
@@ -6816,6 +7041,58 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thinking-indicator'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiThinkingIndicatorComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thinking-indicator",
+          "customElement": true,
+          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponentTagName",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponent",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-user-message/ai-user-message.ts",
       "declarations": [
         {
@@ -6861,6 +7138,57 @@
           "declaration": {
             "name": "AiUserMessageComponent",
             "module": "src/lib/ai-user-message/ai-user-message.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ThoughtDetailComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thought-detail'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ThoughtDetailComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thought-detail",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ThoughtDetailComponentTagName",
+          "declaration": {
+            "name": "ThoughtDetailComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ThoughtDetailComponent",
+          "declaration": {
+            "name": "ThoughtDetailComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "ThoughtDetailComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
           }
         }
       ]
@@ -6921,6 +7249,92 @@
           "declaration": {
             "name": "AiVoiceInputComponent",
             "module": "src/lib/ai-voice-input/ai-voice-input.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "ThoughtBaseComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thought-base'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ThoughtBaseComponent",
+          "slots": [
+            {
+              "description": "Icon to display in the header",
+              "name": "icon"
+            },
+            {
+              "description": "Title content for the header",
+              "name": "title"
+            },
+            {
+              "description": "Main content area",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "step",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "public",
+              "description": "The step number for this thought",
+              "attribute": "step"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "step",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The step number for this thought",
+              "fieldName": "step"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thought-base",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ThoughtBaseComponentTagName",
+          "declaration": {
+            "name": "ThoughtBaseComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ThoughtBaseComponent",
+          "declaration": {
+            "name": "ThoughtBaseComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "ThoughtBaseComponent",
+            "module": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts"
           }
         }
       ]
@@ -7018,143 +7432,6 @@
           "declaration": {
             "name": "DragController",
             "module": "src/lib/core/drag-controller.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ThoughtBaseComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thought-base'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ThoughtBaseComponent",
-          "slots": [
-            {
-              "description": "Icon to display in the header",
-              "name": "icon"
-            },
-            {
-              "description": "Title content for the header",
-              "name": "title"
-            },
-            {
-              "description": "Main content area",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "step",
-              "type": {
-                "text": "number | undefined"
-              },
-              "privacy": "public",
-              "description": "The step number for this thought",
-              "attribute": "step"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "step",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "The step number for this thought",
-              "fieldName": "step"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thought-base",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ThoughtBaseComponentTagName",
-          "declaration": {
-            "name": "ThoughtBaseComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ThoughtBaseComponent",
-          "declaration": {
-            "name": "ThoughtBaseComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ThoughtBaseComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ThoughtDetailComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thought-detail'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ThoughtDetailComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thought-detail",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ThoughtDetailComponentTagName",
-          "declaration": {
-            "name": "ThoughtDetailComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ThoughtDetailComponent",
-          "declaration": {
-            "name": "ThoughtDetailComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ThoughtDetailComponent",
-            "module": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts"
           }
         }
       ]
@@ -8120,6 +8397,14 @@
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "lineNumber": 23
     },
+    "AiChainOfThoughtComponent": {
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "lineNumber": 17
+    },
+    "AiButtonComponent": {
+      "path": "src/lib/ai-button/ai-button.ts",
+      "lineNumber": 22
+    },
     "ForgeAiAttachmentRemoveEventData": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 19
@@ -8544,9 +8829,17 @@
       "path": "src/lib/ai-threads/ai-threads.ts",
       "lineNumber": 46
     },
+    "AiThinkingIndicatorComponent": {
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "lineNumber": 24
+    },
     "AiUserMessageComponent": {
       "path": "src/lib/ai-user-message/ai-user-message.ts",
       "lineNumber": 17
+    },
+    "ThoughtDetailComponent": {
+      "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
+      "lineNumber": 18
     },
     "SpeechRecognitionAlternative": {
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
@@ -8576,6 +8869,10 @@
       "path": "src/lib/ai-voice-input/ai-voice-input.ts",
       "lineNumber": 74
     },
+    "ThoughtBaseComponent": {
+      "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",
+      "lineNumber": 21
+    },
     "DragControllerOptions": {
       "path": "src/lib/core/drag-controller.ts",
       "lineNumber": 4
@@ -8583,14 +8880,6 @@
     "DragController": {
       "path": "src/lib/core/drag-controller.ts",
       "lineNumber": 21
-    },
-    "ThoughtBaseComponent": {
-      "path": "src/lib/ai-chain-of-thought/thought-base/thought-base.ts",
-      "lineNumber": 21
-    },
-    "ThoughtDetailComponent": {
-      "path": "src/lib/ai-chain-of-thought/thought-detail/thought-detail.ts",
-      "lineNumber": 18
     },
     "ThoughtImageComponent": {
       "path": "src/lib/ai-chain-of-thought/thought-image/thought-image.ts",

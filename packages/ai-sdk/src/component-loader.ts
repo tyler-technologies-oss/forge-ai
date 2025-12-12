@@ -55,7 +55,8 @@ function createAdapterInstance(
 
 function createChatbotElement(config: {
   adapter: AgUiAdapter;
-  enableFileUpload?: boolean;
+  fileUpload?: 'on' | 'off';
+  voiceInput?: 'on' | 'off';
   enableExpand?: boolean;
   enableMinimize?: boolean;
   placeholder?: string;
@@ -63,9 +64,10 @@ function createChatbotElement(config: {
 }): AiChatbotComponent {
   const chatbot = document.createElement('forge-ai-chatbot');
   chatbot.adapter = config.adapter;
-  chatbot.enableFileUpload = config.enableFileUpload ?? false;
+  chatbot.fileUpload = config.fileUpload ?? 'off';
   chatbot.placeholder = config.placeholder ?? 'Ask a question...';
   chatbot.suggestions = config.suggestions;
+  chatbot.voiceInput = config.voiceInput ?? 'on';
   chatbot.showExpandButton = config.enableExpand ?? false;
   chatbot.showMinimizeButton = config.enableMinimize ?? false;
   return chatbot;
@@ -222,7 +224,7 @@ async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: Age
 
   const chatbot = createChatbotElement({
     adapter,
-    enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    fileUpload: agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off',
     enableExpand: true,
     enableMinimize: true,
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
@@ -302,7 +304,7 @@ async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: Agen
 
   const chatbot = createChatbotElement({
     adapter,
-    enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    fileUpload: agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off',
     enableExpand: true,
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
@@ -368,7 +370,7 @@ async function loadThreadsChat(config: ValidatedChatbotConfig, agentConfig: Agen
 
   const chatbot = createChatbotElement({
     adapter,
-    enableFileUpload: agentConfig.chatExperience?.enableFileUpload,
+    fileUpload: agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off',
     suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
   });
 

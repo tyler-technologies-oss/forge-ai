@@ -5,6 +5,7 @@ import { action } from 'storybook/actions';
 import '$lib/ai-chatbot';
 import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
+import '$lib/ai-voice-input';
 import { type ToolDefinition, type Suggestion } from '$lib/ai-chatbot';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
@@ -18,9 +19,15 @@ const meta = {
       control: 'text',
       description: 'Placeholder text for the input field'
     },
-    enableFileUpload: {
-      control: 'boolean',
+    fileUpload: {
+      control: 'select',
+      options: ['on', 'off'],
       description: 'Enable file upload functionality'
+    },
+    voiceInput: {
+      control: 'select',
+      options: ['on', 'off'],
+      description: 'Enable voice input functionality'
     },
     showExpandButton: {
       control: 'boolean',
@@ -46,7 +53,8 @@ const meta = {
   },
   args: {
     placeholder: 'Ask a question...',
-    enableFileUpload: false,
+    fileUpload: 'off',
+    voiceInput: 'on',
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,
@@ -78,7 +86,8 @@ const meta = {
         <forge-ai-chatbot
           .adapter=${adapter}
           placeholder=${args.placeholder}
-          ?enable-file-upload=${args.enableFileUpload}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?expanded=${args.expanded}
@@ -130,6 +139,13 @@ export const WithSuggestions: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
@@ -190,7 +206,17 @@ export const WithTools: Story = {
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
-        <forge-ai-chatbot .adapter=${adapter} placeholder=${args.placeholder} @forge-ai-chatbot-tool-call=${onToolCall}>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
+          @forge-ai-chatbot-tool-call=${onToolCall}>
           <span slot="header-title">AI Assistant with Tools</span>
         </forge-ai-chatbot>
       </div>
@@ -199,6 +225,9 @@ export const WithTools: Story = {
 };
 
 export const WithPersistence: Story = {
+  args: {
+    showMinimizeButton: true
+  },
   render: (args: any) => {
     const STORAGE_KEY = 'ai-chatbot-thread-state';
 
@@ -257,7 +286,13 @@ export const WithPersistence: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
-          show-minimize-button
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
           @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
