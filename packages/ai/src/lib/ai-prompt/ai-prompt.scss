@@ -56,6 +56,12 @@
   padding-block-end: 0;
 }
 
+:host(:state(stacked)) {
+  .vertical-divider {
+    display: none;
+  }
+}
+
 :host(:state(inline)) {
   .forge-field {
     --forge-field-height: 52px;
