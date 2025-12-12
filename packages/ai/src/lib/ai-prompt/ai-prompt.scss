@@ -37,35 +37,47 @@
 
     @include forge-scrollbar.base;
   }
-
-  .actions {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding: #{forge-spacing.variable(xxsmall)};
-    height: 52px;
-    overflow-x: auto;
-  }
-
-  .attachments {
-    display: flex;
-    flex-wrap: wrap;
-    gap: #{forge-spacing.variable(medium)};
-    padding: #{forge-spacing.variable(medium)};
-    padding-block-end: 0;
-  }
 }
 
+.actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: #{forge-spacing.variable(xxsmall)};
+  height: 52px;
+  overflow-x: auto;
+}
+
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: #{forge-spacing.variable(medium)};
+  padding: #{forge-spacing.variable(medium)};
+  padding-block-end: 0;
+}
+
+// variant = inline
 :host(:state(inline)) {
   .forge-field {
     --forge-field-height: 52px;
-  }
-
-  .forge-divider {
-    display: none;
+    --forge-field-padding-inline: 0;
+    gap: #{forge-spacing.variable(xxsmall)};
   }
 
   .actions {
+    overflow-x: visible;
+    padding: #{forge-spacing.variable(xxsmall)};
+    --forge-icon-button-size: 32px;
+  }
+
+  .vertical-divider {
+    width: 1px;
+    height: 32px;
+    background-color: #{forge-theme.variable(outline)};
+    margin-inline-end: #{forge-spacing.variable(xsmall)};
+  }
+
+  .forge-divider {
     display: none;
   }
 }
