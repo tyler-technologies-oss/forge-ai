@@ -258,7 +258,7 @@ export class AiChatbotComponent extends LitElement {
       this.adapter.onToolCallArgs(this.#handleToolCallArgs.bind(this)),
       this.adapter.onToolCallEnd(this.#handleToolCallEnd.bind(this)),
       this.adapter.onToolCall(this.#handleToolCall.bind(this)),
-      this.adapter.onToolResult(this.#handleToolResult.bind(this)),
+      this.adapter.onToolCallResult(this.#handleToolCallResult.bind(this)),
       this.adapter.onRunAborted(this.#handleRunAborted.bind(this)),
       this.adapter.onError(this.#handleError.bind(this)),
       this.adapter.onStateChange(this.#handleStateChange.bind(this))
@@ -328,7 +328,8 @@ export class AiChatbotComponent extends LitElement {
       name: event.name,
       args: {},
       argsBuffer: '',
-      status: 'parsing'
+      status: 'parsing',
+      type: this.#tools.has(event.name) ? 'client' : 'agent'
     };
 
     this.#messageStateController.addToolCall(toolCall);
@@ -376,41 +377,41 @@ export class AiChatbotComponent extends LitElement {
       this.#handleMessageStart({ messageId: event.messageId });
     }
 
-    const existingToolCall = this.#messageStateController.getToolCall(event.id);
-    if (existingToolCall) {
+    let toolCall = this.#messageStateController.getToolCall(event.id);
+    if (toolCall) {
       this.#messageStateController.updateToolCall(event.id, {
         args: event.args,
         status: 'executing'
       });
     } else {
-      const toolCall: ToolCall = {
+      toolCall = {
         id: event.id,
         messageId: event.messageId,
         name: event.name,
         args: event.args,
-        status: 'executing'
+        status: 'executing',
+        type: this.#tools.has(event.name) ? 'client' : 'agent'
       };
       this.#messageStateController.addToolCall(toolCall);
       this.#scrollAfterUpdate();
     }
 
-    const toolDef = this.#tools.get(event.name);
+    if (toolCall?.type === 'client') {
+      this.#dispatchEvent({
+        type: 'forge-ai-chatbot-tool-call',
+        detail: {
+          toolCallId: event.id,
+          toolName: event.name,
+          arguments: event.args
+        }
+      });
 
-    this.#dispatchEvent({
-      type: 'forge-ai-chatbot-tool-call',
-      detail: {
-        toolCallId: event.id,
-        toolName: event.name,
-        arguments: event.args
+      const toolDef = this.#tools.get(event.name);
+      if (toolDef?.handler) {
+        await Promise.resolve(this.#executeToolHandler(event.id, event.name, toolDef.handler, event.args));
+      } else {
+        this.#sendToolResult(event.id, this.#createToolResponse());
       }
-    });
-
-    // Execute handler if present
-    if (toolDef?.handler) {
-      await Promise.resolve(this.#executeToolHandler(event.id, event.name, toolDef.handler, event.args));
-    } else {
-      // No handler - send response immediately
-      void this.#sendToolResult(event.id, this.#createToolResponse());
     }
   }
 
@@ -471,7 +472,8 @@ export class AiChatbotComponent extends LitElement {
     this.requestUpdate();
   }
 
-  #handleToolResult(event: ToolResultEvent): void {
+  #handleToolCallResult(event: ToolResultEvent): void {
+    this.#messageStateController.completeToolCall(event.toolCallId, event.result);
     this.#messageStateController.addMessage(event.message);
     this.#scrollAfterUpdate();
   }
@@ -854,13 +856,13 @@ export class AiChatbotComponent extends LitElement {
   }
 
   get #pendingAttachmentsTemplate(): TemplateResult | typeof nothing {
-    const pendingAttachments = this.#fileUploadManager.pendingAttachments;
-    if (pendingAttachments.length === 0) {
+    const attachments = this.#fileUploadManager.allAttachments;
+    if (attachments.length === 0) {
       return nothing;
     }
 
     return html`
-      ${pendingAttachments.map(
+      ${attachments.map(
         attachment => html`
           <forge-ai-attachment
             slot="attachments"
