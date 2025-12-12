@@ -15,7 +15,8 @@ try {
   });
 
   const chatbot = document.getElementById('chatbot') as AiChatbotComponent;
-  configureChatbot(chatbot, adapter);
+  const sidebar = document.getElementById('sidebar-chat') as AiSidebarChatComponent;
+  configureChatbot({ chatbot, sidebar, adapter });
 
   sidebarChat = document.getElementById('sidebar-chat') as AiSidebarChatComponent;
 

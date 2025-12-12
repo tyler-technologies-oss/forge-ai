@@ -30,8 +30,12 @@ export interface ChatbotConfig {
   onReady?: (api: ChatbotAPI) => void;
   /** Callback invoked when an error occurs during initialization or runtime. */
   onError?: (error: Error) => void;
-  /** Whether to show the trigger button for floating/sidebar views. Defaults to true. */
-  showTriggerButton?: boolean;
+  floatingConfig?: {
+    /** Whether to show the trigger button for floating views. Defaults to true. */
+    showTriggerButton?: boolean;
+    /** Text for the trigger button tooltip. */
+    triggerButtonText?: string;
+  };
   /** Whether the chatbot should be open on initial load. Only applies to floating/sidebar views. */
   initialOpen?: boolean;
 }
