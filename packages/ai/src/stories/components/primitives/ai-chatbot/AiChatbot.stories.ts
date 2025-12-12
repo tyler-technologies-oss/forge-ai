@@ -302,5 +302,3 @@ export const WithPersistence: Story = {
     `;
   }
 };
-
-

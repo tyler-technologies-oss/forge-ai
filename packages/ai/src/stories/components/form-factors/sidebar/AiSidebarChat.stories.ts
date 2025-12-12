@@ -59,7 +59,8 @@ const meta = {
       description: 'Controls whether the chat is displayed in an expanded modal state'
     },
     fileUpload: {
-      control: { type: 'select' }, options: ['on', 'off'],
+      control: { type: 'select' },
+      options: ['on', 'off'],
       description: 'Enable file upload functionality'
     },
     placeholder: {

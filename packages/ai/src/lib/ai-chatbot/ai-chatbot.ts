@@ -908,9 +908,7 @@ export class AiChatbotComponent extends LitElement {
         ${when(
           this.voiceInput === 'on',
           () => html`
-            <forge-ai-voice-input
-              slot="actions"
-              @forge-ai-voice-input-result=${this.#handleVoiceInputResult}>
+            <forge-ai-voice-input slot="actions" @forge-ai-voice-input-result=${this.#handleVoiceInputResult}>
             </forge-ai-voice-input>
           `
         )}
