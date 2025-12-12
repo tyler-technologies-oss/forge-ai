@@ -1,0 +1,52 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '../mixins' as mixins;
+
+:host {
+  display: inline-block;
+}
+
+.ai-icon-button-gradient-container {
+  position: relative;
+  border-radius: #{forge-spacing.variable(xxlarge)};
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: #{forge-spacing.variable(xxlarge)};
+    padding: var(--forge-shape-small);
+    background-image: linear-gradient(
+      to top,
+      #{forge-theme.variable(tertiary-container)},
+      #{forge-theme.variable(outline)}
+    );
+    background-repeat: no-repeat;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+.ai-icon-button {
+  position: relative;
+  z-index: 1;
+}
+
+forge-ai-icon {
+  --forge-ai-icon-fill-color: currentColor;
+}
+
+:host(:state(disabled)) {
+  .ai-icon-button-gradient-container::before {
+    background: linear-gradient(to top, #{forge-theme.variable(text-low)}, #{forge-theme.variable(text-low)});
+  }
+
+  forge-ai-icon {
+    --forge-ai-icon-fill-color: var(--forge-theme-text-low);
+  }
+}
