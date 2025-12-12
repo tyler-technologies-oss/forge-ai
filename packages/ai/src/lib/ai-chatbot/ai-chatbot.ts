@@ -22,6 +22,7 @@ import {
   type ToolCallStartEvent,
   type ToolResultEvent
 } from './agent-adapter.js';
+import { SubscriptionManager } from './event-emitter.js';
 import { FileUploadManager } from './file-upload-manager.js';
 import { MarkdownStreamController } from './markdown-stream-controller.js';
 import { MessageStateController } from './message-state-controller.js';
@@ -161,12 +162,16 @@ export class AiChatbotComponent extends LitElement {
   @property({ type: Object, attribute: false })
   public agentInfo?: AgentInfo;
 
+  @property({ attribute: 'title-text' })
+  public titleText = 'AI Assistant';
+
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #promptRef = createRef<AiPromptComponent>();
   #messageStateController!: MessageStateController;
   #fileUploadManager!: FileUploadManager;
   #markdownController!: MarkdownStreamController;
   #toolsMap?: Map<string, ToolDefinition>;
+  #adapterSubscriptions?: SubscriptionManager;
 
   get #messageItems(): MessageItem[] {
     return this.#messageStateController?.messageItems ?? [];
@@ -211,10 +216,15 @@ export class AiChatbotComponent extends LitElement {
         this.requestUpdate();
       }
     });
+
+    if (this.adapter) {
+      void this.#setupAdapter();
+    }
   }
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
+    this.#adapterSubscriptions?.unsubscribe();
     this.adapter?.disconnect();
   }
 
@@ -230,19 +240,24 @@ export class AiChatbotComponent extends LitElement {
       return;
     }
 
+    this.#adapterSubscriptions?.unsubscribe();
+    this.#adapterSubscriptions = new SubscriptionManager();
+
     await this.adapter.connect();
 
-    this.adapter.onMessageStart(this.#handleMessageStart.bind(this));
-    this.adapter.onMessageDelta(this.#handleMessageDelta.bind(this));
-    this.adapter.onMessageEnd(this.#handleMessageEnd.bind(this));
-    this.adapter.onToolCallStart(this.#handleToolCallStart.bind(this));
-    this.adapter.onToolCallArgs(this.#handleToolCallArgs.bind(this));
-    this.adapter.onToolCallEnd(this.#handleToolCallEnd.bind(this));
-    this.adapter.onToolCall(this.#handleToolCall.bind(this));
-    this.adapter.onToolResult(this.#handleToolResult.bind(this));
-    this.adapter.onRunAborted(this.#handleRunAborted.bind(this));
-    this.adapter.onError(this.#handleError.bind(this));
-    this.adapter.onStateChange(this.#handleStateChange.bind(this));
+    this.#adapterSubscriptions.add(
+      this.adapter.onMessageStart(this.#handleMessageStart.bind(this)),
+      this.adapter.onMessageDelta(this.#handleMessageDelta.bind(this)),
+      this.adapter.onMessageEnd(this.#handleMessageEnd.bind(this)),
+      this.adapter.onToolCallStart(this.#handleToolCallStart.bind(this)),
+      this.adapter.onToolCallArgs(this.#handleToolCallArgs.bind(this)),
+      this.adapter.onToolCallEnd(this.#handleToolCallEnd.bind(this)),
+      this.adapter.onToolCall(this.#handleToolCall.bind(this)),
+      this.adapter.onToolResult(this.#handleToolResult.bind(this)),
+      this.adapter.onRunAborted(this.#handleRunAborted.bind(this)),
+      this.adapter.onError(this.#handleError.bind(this)),
+      this.adapter.onStateChange(this.#handleStateChange.bind(this))
+    );
 
     this.#toolsMap = undefined;
     this.#messageStateController?.updateConfig({ tools: this.#tools });
@@ -476,6 +491,9 @@ export class AiChatbotComponent extends LitElement {
     attachments?: FileAttachment[];
   }): Promise<void> {
     if (!config.content.trim() || !this.adapter || this.#isStreaming) {
+      if (!this.adapter) {
+        console.warn('No adapter configured.');
+      }
       return;
     }
 
@@ -705,7 +723,7 @@ export class AiChatbotComponent extends LitElement {
       .join('\n');
 
     // Generate filename and download
-    const filename: string = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+    const filename = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
     downloadFile(chatText, filename, 'text/plain');
   }
 
@@ -739,6 +757,11 @@ export class AiChatbotComponent extends LitElement {
    * @param files - Optional file objects to attach
    */
   public async sendMessage(content: string, files?: File[]): Promise<void> {
+    if (!this.adapter) {
+      console.warn('No adapter configured.');
+      return;
+    }
+
     if (files) {
       const timestamp = Date.now();
       for (const file of files) {
@@ -950,12 +973,15 @@ export class AiChatbotComponent extends LitElement {
           clear-option=${this.#hasMessages ? 'enabled' : 'off'}
           .minimizeIcon=${this.minimizeIcon}
           .agentInfo=${this.agentInfo}
+          .titleText=${this.titleText}
           @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
           @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}
           @forge-ai-chat-header-export=${this.#handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
-          <slot name="header-title" slot="title">AI Assistant</slot>
+          <slot name="header-title" slot="title">
+            <span class="header-title">${this.titleText}</span>
+          </slot>
         </forge-ai-chat-header>
         ${this.#emptyState} ${this.#messages} ${this.#thinkingIndicator} ${this.#promptSlot}
       </forge-ai-chat-interface>

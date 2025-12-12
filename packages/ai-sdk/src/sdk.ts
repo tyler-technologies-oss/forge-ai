@@ -9,8 +9,13 @@ import { loadComponent } from './component-loader.js';
  * @param {ChatbotConfig} config - Configuration object for the chatbot.
  * @returns {Promise<ChatbotAPI>} Promise that resolves to the chatbot API for the newly initialized chatbot instance.
  */
-export async function initChatbot(config: ChatbotConfig): Promise<ChatbotAPI> {
+export async function initChatbot(config: Partial<ChatbotConfig> = {}): Promise<ChatbotAPI> {
   try {
+    // Attempt to read configuration from the global window object and merge it with the provided config.
+    // This is optional and allows for easier integration in certain environments where config might be set dynamically.
+    const windowConfig = window.tylerAIConfig;
+    config = { ...windowConfig, ...config }; // Config that is passed directly takes precedence
+
     if (!config.baseUrl) {
       throw new Error('baseUrl is required');
     }

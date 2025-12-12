@@ -9,13 +9,15 @@ import {
 import { tylIconForgeLogo } from '@tylertech/tyler-icons';
 
 export interface DemoConfig {
+  teamId: string;
   agentId: string;
   baseUrl: string;
 }
 
 export const DEFAULT_CONFIG: DemoConfig = {
-  agentId: 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c',
-  baseUrl: 'http://localhost:3001'
+  teamId: '4381bb58-dbba-4667-a031-4370d2f28e2f',
+  agentId: 'agent-f586a37b-5a2d-4984-b791-5301105854e9',
+  baseUrl: 'https://foundry.tylertechai.com'
 };
 
 export function setupForgeComponents(): void {

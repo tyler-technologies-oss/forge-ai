@@ -21,6 +21,7 @@ try {
 
   const chatbot = document.getElementById('chatbot') as AiChatbotComponent;
   configureChatbot(chatbot, adapter);
+  chatbot.titleText = adapter.agentConfig.name;
 
   floatingChat = document.getElementById('floating-chat') as AiFloatingChatComponent;
   fab = document.getElementById('fab') as AiFabComponent;

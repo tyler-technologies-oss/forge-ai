@@ -49,7 +49,7 @@
       <main slot="body">
         <forge-card>
           <h2 class="forge-typography--heading4">Sidebar Chat (CDN Build)</h2>
-          <p>Demonstrates the CDN build with initChatbot() for sidebar chat.</p>
+          <p>Demonstrates window.tylerAIConfig pattern - baseUrl and agentId from window global.</p>
           <div class="button-group">
             <forge-button id="show-sidebar" variant="outlined">Show</forge-button>
             <forge-button id="close-sidebar" variant="outlined">Close</forge-button>
@@ -59,6 +59,13 @@
 
       <div id="sidebar-container" slot="body-right"></div>
     </forge-scaffold>
+
+    <script>
+      window.tylerAIConfig = {
+        baseUrl: 'https://foundry.tylertechai.com',
+        agentId: 'agent-f586a37b-5a2d-4984-b791-5301105854e9'
+      };
+    </script>
 
     <script type="module">
       import {
@@ -83,8 +90,6 @@
 
       try {
         chatbotApi = await initChatbot({
-          baseUrl: 'http://localhost:3001',
-          agentId: 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c',
           chatViewType: 'sidebar',
           mountPoint: '#sidebar-container',
           initialOpen: true,

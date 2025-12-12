@@ -5,7 +5,9 @@ export { loadAgentConfig } from './config-loader.js';
 export { applyTemplateVariables, waitForDOMReady, resolveMountPoint } from './utils.js';
 
 export { FoundryAgentAdapter } from './foundry-agent-adapter.js';
+export type { FoundryAdapterConfig } from './foundry-agent-adapter.js';
 export { FoundryAgentRunner } from './foundry-agent-runner.js';
+export type { FoundryAgentRunnerConfig } from './foundry-agent-runner.js';
 export { createAgentAdapter, configureChatbot } from './agent-adapter.js';
 export { setupFileUploadHandler } from './file-upload.js';
 

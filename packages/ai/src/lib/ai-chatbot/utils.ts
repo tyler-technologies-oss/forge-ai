@@ -27,9 +27,9 @@ export function renderMarkdown(content: string): string {
  * Downloads content as a file with specified MIME type
  */
 export function downloadFile(content: string, filename: string, mimeType = 'text/plain'): void {
-  const blob: Blob = new Blob([content], { type: mimeType });
-  const url: string = URL.createObjectURL(blob);
-  const link: HTMLAnchorElement = document.createElement('a');
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
   link.href = url;
   link.download = filename;
   document.body.appendChild(link);

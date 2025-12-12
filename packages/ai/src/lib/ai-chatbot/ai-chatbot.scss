@@ -8,6 +8,10 @@
   height: 100%;
 }
 
+.header-title {
+  @include forge-typography.style(subheading2);
+}
+
 .thinking-indicator {
   margin-block-start: #{forge-spacing.variable(xsmall)};
 }

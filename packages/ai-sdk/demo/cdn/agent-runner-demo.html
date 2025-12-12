@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.forge.tylertech.com/v1/css/tyler-font.css" />
+    <title>Agent Runner Demo - Tyler Forge AI SDK (CDN)</title>
+    <script>
+      window.TylerForgeGlobalConfiguration = {
+        'forge-field': {
+          labelPosition: 'block-start'
+        }
+      };
+    </script>
+    <style>
+      @import '@tylertech/forge/dist/forge-core.css';
+      @import '@tylertech/forge/dist/forge.css';
+
+      :not(:defined) {
+        visibility: hidden;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      main {
+        padding: var(--forge-spacing-medium);
+        display: flex;
+        flex-direction: column;
+        gap: var(--forge-spacing-medium);
+      }
+
+      forge-card h2 {
+        margin-block-start: 0;
+      }
+
+      forge-card p {
+        margin-block-start: 0;
+        margin-block-end: var(--forge-spacing-small);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--forge-spacing-medium);
+      }
+
+      .form-grid .full-width {
+        grid-column: 1 / -1;
+      }
+
+      forge-text-field {
+        width: 100%;
+      }
+
+      .button-container {
+        display: flex;
+        gap: var(--forge-spacing-small);
+        align-items: center;
+      }
+
+      code {
+        background: var(--forge-theme-surface-container-minimum);
+        padding: var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall);
+        border-radius: var(--forge-border-small);
+        font-family: monospace;
+        font-size: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <forge-scaffold>
+      <forge-app-bar slot="header" theme-mode="scoped" title-text="Agent Runner Demo - Tyler Forge AI SDK (CDN)">
+        <forge-icon name="forge_logo" slot="logo"></forge-icon>
+      </forge-app-bar>
+
+      <main slot="body">
+        <forge-card>
+          <h2>Form Extractor Demo</h2>
+          <p>
+            This demo shows how to use <code>FoundryAgentRunner</code> to extract structured data from unstructured
+            text. Edit the contact information below, and click "Extract Data" to populate the form fields.
+          </p>
+        </forge-card>
+
+        <forge-card>
+          <h2>Input Text</h2>
+          <forge-text-field>
+            <textarea id="input-text" rows="6">
+John Smith
+Acme Corporation
+john.smith@acme.com
+555-123-4567
+123 Main Street
+Springfield, IL 62701</textarea
+            >
+            <label slot="label">Contact Information</label>
+          </forge-text-field>
+          <div class="button-container" style="margin-block-start: var(--forge-spacing-medium)">
+            <forge-button id="extract-btn" variant="raised">
+              <span>Extract Data</span>
+              <forge-circular-progress id="progress" style="display: none"></forge-circular-progress>
+            </forge-button>
+          </div>
+        </forge-card>
+
+        <forge-card>
+          <h2>Extracted Form Data</h2>
+          <div class="form-grid">
+            <forge-text-field>
+              <input id="name" type="text" />
+              <label slot="label">Name</label>
+            </forge-text-field>
+            <forge-text-field>
+              <input id="company" type="text" />
+              <label slot="label">Company</label>
+            </forge-text-field>
+            <forge-text-field>
+              <input id="email" type="email" />
+              <label slot="label">Email</label>
+            </forge-text-field>
+            <forge-text-field>
+              <input id="phone" type="tel" />
+              <label slot="label">Phone</label>
+            </forge-text-field>
+            <forge-text-field class="full-width">
+              <input id="address" type="text" />
+              <label slot="label">Address</label>
+            </forge-text-field>
+            <forge-text-field>
+              <input id="city" type="text" />
+              <label slot="label">City</label>
+            </forge-text-field>
+            <forge-text-field>
+              <input id="state" type="text" />
+              <label slot="label">State</label>
+            </forge-text-field>
+            <forge-text-field>
+              <input id="zip" type="text" />
+              <label slot="label">ZIP Code</label>
+            </forge-text-field>
+          </div>
+        </forge-card>
+      </main>
+    </forge-scaffold>
+
+    <script type="module">
+      import {
+        defineScaffoldComponent,
+        defineAppBarComponent,
+        defineCardComponent,
+        defineIconComponent,
+        defineTextFieldComponent,
+        defineCircularProgressComponent,
+        IconRegistry,
+        ToastComponent
+      } from '@tylertech/forge';
+      import { tylIconForgeLogo } from '@tylertech/tyler-icons';
+      import { FoundryAgentRunner } from '../../cdn/agent-runner.js';
+
+      defineScaffoldComponent();
+      defineAppBarComponent();
+      defineCardComponent();
+      defineIconComponent();
+      defineTextFieldComponent();
+      defineCircularProgressComponent();
+      IconRegistry.define(tylIconForgeLogo);
+
+      const inputText = document.getElementById('input-text');
+      const extractBtn = document.getElementById('extract-btn');
+      const progress = document.getElementById('progress');
+      const nameInput = document.getElementById('name');
+      const companyInput = document.getElementById('company');
+      const emailInput = document.getElementById('email');
+      const phoneInput = document.getElementById('phone');
+      const addressInput = document.getElementById('address');
+      const cityInput = document.getElementById('city');
+      const stateInput = document.getElementById('state');
+      const zipInput = document.getElementById('zip');
+
+      const formInputs = [
+        inputText,
+        nameInput,
+        companyInput,
+        emailInput,
+        phoneInput,
+        addressInput,
+        cityInput,
+        stateInput,
+        zipInput
+      ];
+
+      function showToast(message, theme = 'info') {
+        ToastComponent.present({ message, duration: 3000, theme });
+      }
+
+      const fillContactFormTool = {
+        name: 'fillContactForm',
+        displayName: 'Fill Contact Form',
+        description: 'Fill contact form with extracted data',
+        parameters: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', description: 'Full name' },
+            company: { type: 'string', description: 'Company name' },
+            email: { type: 'string', description: 'Email address' },
+            phone: { type: 'string', description: 'Phone number' },
+            address: { type: 'string', description: 'Street address' },
+            city: { type: 'string', description: 'City' },
+            state: { type: 'string', description: 'State' },
+            zip: { type: 'string', description: 'ZIP code' }
+          }
+        },
+        handler: async context => {
+          const data = context.args;
+          nameInput.value = data.name || '';
+          companyInput.value = data.company || '';
+          emailInput.value = data.email || '';
+          phoneInput.value = data.phone || '';
+          addressInput.value = data.address || '';
+          cityInput.value = data.city || '';
+          stateInput.value = data.state || '';
+          zipInput.value = data.zip || '';
+
+          showToast('Form data extracted successfully!', 'success');
+          return { success: true, message: 'Form filled successfully' };
+        }
+      };
+
+      extractBtn.addEventListener('click', async () => {
+        const text = inputText.value.trim();
+        if (!text) {
+          showToast('Please enter some text to extract', 'warning');
+          return;
+        }
+
+        progress.style.removeProperty('display');
+        formInputs.forEach(input => (input.disabled = true));
+        extractBtn.disabled = true;
+
+        try {
+          const result = await FoundryAgentRunner.run({
+            baseUrl: 'https://foundry.tylertechai.com',
+            agentId: 'agent-f586a37b-5a2d-4984-b791-5301105854e9',
+            tools: [fillContactFormTool],
+            prompt: `Extract contact and address information from the following text and use the fillContactForm tool to populate the form:\n\n${text}`
+          });
+
+          console.log('Agent run completed:', result);
+        } catch (error) {
+          showToast(`Extraction failed: ${error.message}`, 'error');
+          throw error;
+        } finally {
+          progress.style.display = 'none';
+          formInputs.forEach(input => (input.disabled = false));
+          extractBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
