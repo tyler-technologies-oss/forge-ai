@@ -4,6 +4,7 @@ import type {
   Suggestion,
   UploadedFileMetadata,
   FileUploadEvent,
+  FileRemoveEvent,
   AgUiAdapter,
   AgentRunner
 } from '@tylertech/forge-ai/ai-chatbot';
@@ -146,4 +147,4 @@ declare global {
   }
 }
 
-export type { ChatMessage, ToolDefinition, Suggestion, UploadedFileMetadata };
+export type { ChatMessage, ToolDefinition, Suggestion, UploadedFileMetadata, FileRemoveEvent };

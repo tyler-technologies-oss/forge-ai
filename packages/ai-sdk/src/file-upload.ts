@@ -1,4 +1,4 @@
-import { FileUploadEvent } from '@tylertech/forge-ai';
+import { FileUploadEvent, FileRemoveEvent } from '@tylertech/forge-ai';
 
 /**
  * Create a file upload handler that streams uploads to the backend.
@@ -6,12 +6,17 @@ import { FileUploadEvent } from '@tylertech/forge-ai';
  */
 export function setupFileUploadHandler(config: {
   baseUrl: string;
-  agentId: string;
+  agentId?: string;
+  teamId?: string;
   threadId: string;
   headers?: Record<string, string>;
   credentials?: RequestCredentials;
 }): (event: FileUploadEvent) => Promise<void> {
-  const { baseUrl, agentId, threadId, headers = {}, credentials = 'include' } = config;
+  const { baseUrl, agentId, teamId, threadId, headers = {}, credentials = 'include' } = config;
+
+  if (!agentId && !teamId) {
+    throw new Error('Either agentId or teamId must be provided');
+  }
 
   return async ({ file, onAbort, updateProgress, markComplete, markError }: FileUploadEvent): Promise<void> => {
     const abortController = new AbortController();
@@ -23,7 +28,9 @@ export function setupFileUploadHandler(config: {
     const formData = new FormData();
     formData.append('file', file);
 
-    const uploadUrl = `${baseUrl}/api/agents/${agentId}/threads/${threadId}/upload`;
+    const uploadUrl = teamId
+      ? `${baseUrl}/api/teams/${teamId}/threads/${threadId}/upload`
+      : `${baseUrl}/api/agents/${agentId}/threads/${threadId}/upload`;
     const response = await fetch(uploadUrl, {
       method: 'POST',
       body: formData,
@@ -79,6 +86,48 @@ export function setupFileUploadHandler(config: {
           }
         }
       }
+    }
+  };
+}
+
+/**
+ * Create a file removal handler that deletes uploaded files from the backend.
+ */
+export function setupFileRemoveHandler(config: {
+  baseUrl: string;
+  agentId?: string;
+  teamId?: string;
+  threadId: string;
+  headers?: Record<string, string>;
+  credentials?: RequestCredentials;
+}): (event: FileRemoveEvent) => Promise<void> {
+  const { baseUrl, agentId, teamId, threadId, headers = {}, credentials = 'include' } = config;
+
+  if (!agentId && !teamId) {
+    throw new Error('Either agentId or teamId must be provided');
+  }
+
+  return async ({ fileId, onSuccess, onError }: FileRemoveEvent): Promise<void> => {
+    const deleteUrl = teamId
+      ? `${baseUrl}/api/teams/${teamId}/threads/${threadId}/files/${fileId}`
+      : `${baseUrl}/api/agents/${agentId}/threads/${threadId}/files/${fileId}`;
+
+    try {
+      const response = await fetch(deleteUrl, {
+        method: 'DELETE',
+        credentials,
+        headers
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Delete failed: ${response.statusText}`);
+      }
+
+      onSuccess();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete file';
+      onError(errorMessage);
     }
   };
 }

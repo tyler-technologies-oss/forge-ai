@@ -1,6 +1,6 @@
 import type { AiFloatingChatComponent, AiSidebarChatComponent, AiThreadsComponent } from '@tylertech/forge-ai';
 import type { AgentRunner, AgUiAdapter, AiChatbotComponent, FileUploadEvent } from '@tylertech/forge-ai/ai-chatbot';
-import { setupFileUploadHandler } from './file-upload.js';
+import { setupFileUploadHandler, setupFileRemoveHandler } from './file-upload.js';
 import type {
   AgentUIConfig,
   ChatbotAPI,
@@ -32,12 +32,17 @@ function createAdapterInstance(
   config: {
     baseUrl: string;
     agentId?: string;
+    teamId?: string;
     headers?: Record<string, string>;
     fileUploadHandler?: (event: FileUploadEvent) => Promise<void> | void;
   }
 ): AgUiAdapter {
+  const url = config.teamId
+    ? `${config.baseUrl}/api/team/${config.teamId}/ag-ui`
+    : `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`;
+
   const adapter = new AgentAdapterClass({
-    url: `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`,
+    url,
     headers: config.headers
   });
 
@@ -156,9 +161,35 @@ function createOpenableMethods(element: OpenableElement): OpenableElement {
   };
 }
 
+function setupFileHandlers(
+  adapter: AgUiAdapter,
+  config: { baseUrl: string; agentId?: string; teamId?: string; headers?: Record<string, string> }
+): void {
+  const uploadHandler = setupFileUploadHandler({
+    baseUrl: config.baseUrl,
+    agentId: config.agentId,
+    teamId: config.teamId,
+    threadId: adapter.threadId,
+    headers: config.headers,
+    credentials: 'include'
+  });
+  adapter.onFileUpload(uploadHandler);
+
+  const removeHandler = setupFileRemoveHandler({
+    baseUrl: config.baseUrl,
+    agentId: config.agentId,
+    teamId: config.teamId,
+    threadId: adapter.threadId,
+    headers: config.headers,
+    credentials: 'include'
+  });
+  adapter.onFileRemove(removeHandler);
+}
+
 type ValidatedChatbotConfig = ChatbotConfig & {
   baseUrl: string;
-  agentId: string;
+  agentId?: string;
+  teamId?: string;
 };
 
 export async function loadComponent(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
@@ -186,6 +217,7 @@ async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: Age
   const adapter = createAdapterInstance(AgUiAdapter, {
     baseUrl: config.baseUrl,
     agentId: config.agentId,
+    teamId: config.teamId,
     headers: config.headers,
     fileUploadHandler: config.fileUploadHandler
   });
@@ -223,14 +255,7 @@ async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: Age
   document.body.appendChild(floatingChatElement);
 
   if (agentConfig.chatExperience?.enableFileUpload) {
-    const handler = setupFileUploadHandler({
-      baseUrl: config.baseUrl,
-      agentId: config.agentId,
-      threadId: adapter.threadId,
-      headers: config.headers,
-      credentials: 'include'
-    });
-    adapter.onFileUpload(handler);
+    setupFileHandlers(adapter, config);
   }
 
   let fabElement: HTMLElement | undefined;
@@ -272,6 +297,7 @@ async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: Agen
   const adapter = createAdapterInstance(AgUiAdapter, {
     baseUrl: config.baseUrl,
     agentId: config.agentId,
+    teamId: config.teamId,
     headers: config.headers,
     fileUploadHandler: config.fileUploadHandler
   });
@@ -308,14 +334,7 @@ async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: Agen
   mountElement.appendChild(sidebarChatElement);
 
   if (agentConfig.chatExperience?.enableFileUpload) {
-    const handler = setupFileUploadHandler({
-      baseUrl: config.baseUrl,
-      agentId: config.agentId,
-      threadId: adapter.threadId,
-      headers: config.headers,
-      credentials: 'include'
-    });
-    adapter.onFileUpload(handler);
+    setupFileHandlers(adapter, config);
   }
 
   return {
@@ -344,6 +363,7 @@ async function loadThreadsChat(config: ValidatedChatbotConfig, agentConfig: Agen
   const adapter = createAdapterInstance(AgUiAdapter, {
     baseUrl: config.baseUrl,
     agentId: config.agentId,
+    teamId: config.teamId,
     headers: config.headers,
     fileUploadHandler: config.fileUploadHandler
   });
@@ -371,14 +391,7 @@ async function loadThreadsChat(config: ValidatedChatbotConfig, agentConfig: Agen
   mountElement.appendChild(threadsElement);
 
   if (agentConfig.chatExperience?.enableFileUpload) {
-    const handler = setupFileUploadHandler({
-      baseUrl: config.baseUrl,
-      agentId: config.agentId,
-      threadId: adapter.threadId,
-      headers: config.headers,
-      credentials: 'include'
-    });
-    adapter.onFileUpload(handler);
+    setupFileHandlers(adapter, config);
   }
 
   return {
