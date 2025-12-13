@@ -16,6 +16,7 @@ export * from './ai-file-picker';
 export * from './ai-floating-chat';
 export * from './ai-gradient-container';
 export * from './ai-icon';
+export * from './ai-message-thread';
 export * from './ai-modal';
 export * from './ai-prompt';
 export * from './ai-reasoning';

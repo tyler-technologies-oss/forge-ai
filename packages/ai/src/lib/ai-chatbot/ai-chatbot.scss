@@ -1,5 +1,3 @@
-@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
-@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 
 :host {
@@ -12,12 +10,12 @@
   @include forge-typography.style(subheading2);
 }
 
-.thinking-indicator {
-  margin-block-start: #{forge-spacing.variable(xsmall)};
-}
+forge-ai-chat-interface {
+  &::part(messages) {
+    overflow: hidden;
+  }
 
-.system-message {
-  @include forge-typography.style(subheading2);
-  color: #{forge-theme.variable(text-medium)};
-  padding-block: #{forge-spacing.variable(small)};
+  forge-ai-message-thread {
+    min-height: 0;
+  }
 }

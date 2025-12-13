@@ -166,71 +166,62 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-artifact/ai-artifact.ts",
+      "path": "src/lib/ai-agent-info/ai-agent-info.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "AiArtifactComponentTagName",
+          "name": "AiAgentInfoComponentTagName",
           "type": {
             "text": "keyof HTMLElementTagNameMap"
           },
-          "default": "'forge-ai-artifact'"
+          "default": "'forge-ai-agent-info'"
         },
         {
           "kind": "class",
           "description": "",
-          "name": "AiArtifactComponent",
-          "cssProperties": [
+          "name": "AiAgentInfoComponent",
+          "members": [
             {
-              "description": "Surface color override for the toolbar (defaults to transparent)",
-              "name": "--forge-theme-surface"
+              "kind": "field",
+              "name": "agentInfo",
+              "type": {
+                "text": "AgentInfo | undefined"
+              },
+              "privacy": "public",
+              "description": "Agent information to display"
             }
           ],
-          "slots": [
-            {
-              "description": "Content for the start (left) side of the toolbar, typically used for titles or headings",
-              "name": "start"
-            },
-            {
-              "description": "Action buttons for the end (right) side of the toolbar",
-              "name": "actions"
-            },
-            {
-              "description": "Main content area below the toolbar",
-              "name": ""
-            }
-          ],
-          "members": [],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "forge-ai-artifact",
-          "customElement": true
+          "tagName": "forge-ai-agent-info",
+          "customElement": true,
+          "summary": "Displays agent information in a grid layout"
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "AiArtifactComponentTagName",
+          "name": "AiAgentInfoComponentTagName",
           "declaration": {
-            "name": "AiArtifactComponentTagName",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
+            "name": "AiAgentInfoComponentTagName",
+            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
           }
         },
         {
           "kind": "js",
-          "name": "AiArtifactComponent",
+          "name": "AiAgentInfoComponent",
           "declaration": {
-            "name": "AiArtifactComponent",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
+            "name": "AiAgentInfoComponent",
+            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
           }
         },
         {
           "kind": "custom-element-definition",
           "declaration": {
-            "name": "AiArtifactComponent",
-            "module": "src/lib/ai-artifact/ai-artifact.ts"
+            "name": "AiAgentInfoComponent",
+            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
           }
         }
       ]
@@ -443,62 +434,71 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-agent-info/ai-agent-info.ts",
+      "path": "src/lib/ai-artifact/ai-artifact.ts",
       "declarations": [
         {
           "kind": "variable",
-          "name": "AiAgentInfoComponentTagName",
+          "name": "AiArtifactComponentTagName",
           "type": {
             "text": "keyof HTMLElementTagNameMap"
           },
-          "default": "'forge-ai-agent-info'"
+          "default": "'forge-ai-artifact'"
         },
         {
           "kind": "class",
           "description": "",
-          "name": "AiAgentInfoComponent",
-          "members": [
+          "name": "AiArtifactComponent",
+          "cssProperties": [
             {
-              "kind": "field",
-              "name": "agentInfo",
-              "type": {
-                "text": "AgentInfo | undefined"
-              },
-              "privacy": "public",
-              "description": "Agent information to display"
+              "description": "Surface color override for the toolbar (defaults to transparent)",
+              "name": "--forge-theme-surface"
             }
           ],
+          "slots": [
+            {
+              "description": "Content for the start (left) side of the toolbar, typically used for titles or headings",
+              "name": "start"
+            },
+            {
+              "description": "Action buttons for the end (right) side of the toolbar",
+              "name": "actions"
+            },
+            {
+              "description": "Main content area below the toolbar",
+              "name": ""
+            }
+          ],
+          "members": [],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "forge-ai-agent-info",
-          "customElement": true,
-          "summary": "Displays agent information in a grid layout"
+          "tagName": "forge-ai-artifact",
+          "customElement": true
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "AiAgentInfoComponentTagName",
+          "name": "AiArtifactComponentTagName",
           "declaration": {
-            "name": "AiAgentInfoComponentTagName",
-            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
+            "name": "AiArtifactComponentTagName",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
           }
         },
         {
           "kind": "js",
-          "name": "AiAgentInfoComponent",
+          "name": "AiArtifactComponent",
           "declaration": {
-            "name": "AiAgentInfoComponent",
-            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
+            "name": "AiArtifactComponent",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
           }
         },
         {
           "kind": "custom-element-definition",
           "declaration": {
-            "name": "AiAgentInfoComponent",
-            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
+            "name": "AiArtifactComponent",
+            "module": "src/lib/ai-artifact/ai-artifact.ts"
           }
         }
       ]
@@ -580,6 +580,81 @@
           "declaration": {
             "name": "AiButtonComponent",
             "module": "src/lib/ai-button/ai-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiChainOfThoughtComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-chain-of-thought'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiChainOfThoughtComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the chain of thought is expanded",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-chain-of-thought",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponentTagName",
+          "declaration": {
+            "name": "AiChainOfThoughtComponentTagName",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiChainOfThoughtComponent",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiChainOfThoughtComponent",
+            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
           }
         }
       ]
@@ -840,81 +915,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiChainOfThoughtComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-chain-of-thought'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiChainOfThoughtComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "attribute": "expanded",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the chain of thought is expanded",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-chain-of-thought",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponentTagName",
-          "declaration": {
-            "name": "AiChainOfThoughtComponentTagName",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiChainOfThoughtComponent",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiChainOfThoughtComponent",
-            "module": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
       "declarations": [
         {
@@ -957,6 +957,12 @@
                   "text": "void"
                 }
               },
+              "parameters": [
+                {
+                  "name": "force",
+                  "default": "false"
+                }
+              ],
               "description": "Scrolls the messages container to the bottom with smooth animation"
             }
           ],
@@ -1003,6 +1009,15 @@
           "description": "",
           "name": "AgUiAdapter",
           "members": [
+            {
+              "kind": "field",
+              "name": "agent",
+              "type": {
+                "text": "HttpAgent"
+              },
+              "privacy": "public",
+              "readonly": true
+            },
             {
               "kind": "field",
               "name": "threadId",
@@ -1444,7 +1459,7 @@
             },
             {
               "kind": "method",
-              "name": "onToolResult",
+              "name": "onToolCallResult",
               "privacy": "public",
               "return": {
                 "type": {
@@ -1972,7 +1987,7 @@
             },
             {
               "kind": "method",
-              "name": "onToolResult",
+              "name": "onToolCallResult",
               "privacy": "public",
               "return": {
                 "type": {
@@ -2196,6 +2211,14 @@
                 "text": "ToolDefinition | undefined"
               },
               "privacy": "public"
+            }
+          ],
+          "events": [
+            {
+              "name": "forge-ai-message-thread-scroll-request",
+              "type": {
+                "text": "CustomEvent"
+              }
             }
           ],
           "superclass": {
@@ -3118,6 +3141,57 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/inject-run-event-middleware.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "InjectRunEventMiddleware",
+          "members": [
+            {
+              "kind": "method",
+              "name": "run",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "Observable<BaseEvent>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "text": "RunAgentInput"
+                  }
+                },
+                {
+                  "name": "next",
+                  "type": {
+                    "text": "AbstractAgent"
+                  }
+                }
+              ]
+            }
+          ],
+          "superclass": {
+            "name": "Middleware",
+            "package": "@ag-ui/client"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "InjectRunEventMiddleware",
+          "declaration": {
+            "name": "InjectRunEventMiddleware",
+            "module": "src/lib/ai-chatbot/inject-run-event-middleware.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-chatbot/markdown-stream-controller.ts",
       "declarations": [
         {
@@ -3437,7 +3511,8 @@
                 "type": {
                   "text": "ChatMessage[]"
                 }
-              }
+              },
+              "description": "Reconstructs the message hierarchy by grouping tool calls under their parent messages.\n\nmessageItems stores messages and tool calls in a flat, chronologically ordered list.\nThis method rebuilds the hierarchical structure where each message contains its tool calls."
             },
             {
               "kind": "method",
@@ -4854,6 +4929,68 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-error-message/ai-error-message.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiErrorMessageComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-error-message'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiErrorMessageComponent",
+          "slots": [
+            {
+              "description": "The error title text",
+              "name": "title"
+            },
+            {
+              "description": "The error message content",
+              "name": ""
+            }
+          ],
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-error-message",
+          "customElement": true,
+          "summary": "Displays error messages using Forge inline message banner style."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiErrorMessageComponentTagName",
+          "declaration": {
+            "name": "AiErrorMessageComponentTagName",
+            "module": "src/lib/ai-error-message/ai-error-message.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiErrorMessageComponent",
+          "declaration": {
+            "name": "AiErrorMessageComponent",
+            "module": "src/lib/ai-error-message/ai-error-message.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiErrorMessageComponent",
+            "module": "src/lib/ai-error-message/ai-error-message.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-fab/ai-fab.ts",
       "declarations": [
         {
@@ -4950,68 +5087,6 @@
           "declaration": {
             "name": "AiFabComponent",
             "module": "src/lib/ai-fab/ai-fab.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-error-message/ai-error-message.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiErrorMessageComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-error-message'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiErrorMessageComponent",
-          "slots": [
-            {
-              "description": "The error title text",
-              "name": "title"
-            },
-            {
-              "description": "The error message content",
-              "name": ""
-            }
-          ],
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-error-message",
-          "customElement": true,
-          "summary": "Displays error messages using Forge inline message banner style."
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiErrorMessageComponentTagName",
-          "declaration": {
-            "name": "AiErrorMessageComponentTagName",
-            "module": "src/lib/ai-error-message/ai-error-message.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiErrorMessageComponent",
-          "declaration": {
-            "name": "AiErrorMessageComponent",
-            "module": "src/lib/ai-error-message/ai-error-message.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiErrorMessageComponent",
-            "module": "src/lib/ai-error-message/ai-error-message.ts"
           }
         }
       ]
@@ -5560,6 +5635,179 @@
           "declaration": {
             "name": "AiIconComponent",
             "module": "src/lib/ai-icon/ai-icon.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-message-thread/ai-message-thread.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiMessageThreadComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-message-thread'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiMessageThreadComponent",
+          "slots": [
+            {
+              "description": "Slot for custom empty state heading content",
+              "name": "empty-state-heading"
+            },
+            {
+              "description": "Slot for custom empty state actions (e.g., suggestions)",
+              "name": "empty-state-actions"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "messageItems",
+              "type": {
+                "text": "MessageItem[]"
+              },
+              "privacy": "public",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "tools",
+              "type": {
+                "text": "Map<string, ToolDefinition> | undefined"
+              },
+              "privacy": "public"
+            },
+            {
+              "kind": "field",
+              "name": "enableReactions",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "enable-reactions"
+            },
+            {
+              "kind": "field",
+              "name": "showThinking",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "show-thinking"
+            },
+            {
+              "kind": "field",
+              "name": "autoScroll",
+              "type": {
+                "text": "FeatureToggle"
+              },
+              "privacy": "public",
+              "default": "'on'",
+              "attribute": "auto-scroll"
+            }
+          ],
+          "events": [
+            {
+              "name": "forge-ai-message-thread-scroll-request",
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when content changes and auto-scroll is enabled"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiMessageThreadCopyEventData>"
+              },
+              "description": "Fired when user clicks copy on a message",
+              "name": "forge-ai-message-thread-copy"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiMessageThreadRefreshEventData>"
+              },
+              "description": "Fired when user clicks refresh on a message",
+              "name": "forge-ai-message-thread-refresh"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiMessageThreadThumbsEventData>"
+              },
+              "description": "Fired when user gives thumbs up",
+              "name": "forge-ai-message-thread-thumbs-up"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<ForgeAiMessageThreadThumbsEventData>"
+              },
+              "description": "Fired when user gives thumbs down",
+              "name": "forge-ai-message-thread-thumbs-down"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "enable-reactions",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "enableReactions"
+            },
+            {
+              "name": "show-thinking",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "showThinking"
+            },
+            {
+              "name": "auto-scroll",
+              "type": {
+                "text": "FeatureToggle"
+              },
+              "default": "'on'",
+              "fieldName": "autoScroll"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-message-thread",
+          "customElement": true,
+          "summary": "A primitive component for rendering a thread of chat messages, including user, assistant, system, and tool call messages."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiMessageThreadComponentTagName",
+          "declaration": {
+            "name": "AiMessageThreadComponentTagName",
+            "module": "src/lib/ai-message-thread/ai-message-thread.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiMessageThreadComponent",
+          "declaration": {
+            "name": "AiMessageThreadComponent",
+            "module": "src/lib/ai-message-thread/ai-message-thread.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiMessageThreadComponent",
+            "module": "src/lib/ai-message-thread/ai-message-thread.ts"
           }
         }
       ]
@@ -8135,9 +8383,13 @@
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
       "lineNumber": 41
     },
-    "AiArtifactComponent": {
-      "path": "src/lib/ai-artifact/ai-artifact.ts",
-      "lineNumber": 23
+    "AgentInfo": {
+      "path": "src/lib/ai-chat-header/ai-chat-header.ts",
+      "lineNumber": 37
+    },
+    "AiAgentInfoComponent": {
+      "path": "src/lib/ai-agent-info/ai-agent-info.ts",
+      "lineNumber": 29
     },
     "ForgeAiAttachmentRemoveEventData": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
@@ -8147,17 +8399,17 @@
       "path": "src/lib/ai-attachment/ai-attachment.ts",
       "lineNumber": 41
     },
-    "AgentInfo": {
-      "path": "src/lib/ai-chat-header/ai-chat-header.ts",
-      "lineNumber": 37
-    },
-    "AiAgentInfoComponent": {
-      "path": "src/lib/ai-agent-info/ai-agent-info.ts",
-      "lineNumber": 29
+    "AiArtifactComponent": {
+      "path": "src/lib/ai-artifact/ai-artifact.ts",
+      "lineNumber": 23
     },
     "AiButtonComponent": {
       "path": "src/lib/ai-button/ai-button.ts",
       "lineNumber": 22
+    },
+    "AiChainOfThoughtComponent": {
+      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
+      "lineNumber": 17
     },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
@@ -8170,10 +8422,6 @@
     "AiChatHeaderComponent": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 63
-    },
-    "AiChainOfThoughtComponent": {
-      "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
-      "lineNumber": 17
     },
     "AiChatInterfaceComponent": {
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
@@ -8233,7 +8481,7 @@
     },
     "FileRemoveEvent": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 116
+      "lineNumber": 111
     },
     "ErrorEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
@@ -8265,27 +8513,27 @@
     },
     "ForgeAiChatbotMessageEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 84
+      "lineNumber": 77
     },
     "ForgeAiChatbotToolCallEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 88
+      "lineNumber": 81
     },
     "ForgeAiChatbotErrorEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 94
+      "lineNumber": 87
     },
     "ForgeAiChatbotFileRemoveEventData": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 98
+      "lineNumber": 91
     },
     "FeatureToggle": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 107
+      "lineNumber": 100
     },
     "AiChatbotComponent": {
       "path": "src/lib/ai-chatbot/ai-chatbot.ts",
-      "lineNumber": 134
+      "lineNumber": 127
     },
     "CreateToolRendererElementConfig": {
       "path": "src/lib/ai-chatbot/create-tool-renderer.ts",
@@ -8323,6 +8571,10 @@
       "path": "src/lib/ai-chatbot/file-upload-manager.ts",
       "lineNumber": 16
     },
+    "InjectRunEventMiddleware": {
+      "path": "src/lib/ai-chatbot/inject-run-event-middleware.ts",
+      "lineNumber": 6
+    },
     "MarkdownStreamController": {
       "path": "src/lib/ai-chatbot/markdown-stream-controller.ts",
       "lineNumber": 8
@@ -8349,51 +8601,51 @@
     },
     "ToolType": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 34
+      "lineNumber": 29
     },
     "ToolDefinition": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 40
+      "lineNumber": 35
     },
     "ChatMessage": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 58
+      "lineNumber": 53
     },
     "ToolCall": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 70
+      "lineNumber": 65
     },
     "FileAttachment": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 81
+      "lineNumber": 76
     },
     "UploadedFileMetadata": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 94
+      "lineNumber": 89
     },
     "FileUploadCallbacks": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 102
+      "lineNumber": 97
     },
     "FileUploadHandler": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 109
+      "lineNumber": 104
     },
     "FileRemoveCallbacks": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 111
+      "lineNumber": 106
     },
     "ForgeAiChatbotFileSelectEventData": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 120
+      "lineNumber": 115
     },
     "MessageItem": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 134
+      "lineNumber": 129
     },
     "ThreadState": {
       "path": "src/lib/ai-chatbot/types.ts",
-      "lineNumber": 136
+      "lineNumber": 131
     },
     "AiDialogComponent": {
       "path": "src/lib/ai-dialog/ai-dialog.ts",
@@ -8467,12 +8719,12 @@
       "path": "src/lib/ai-empty-state/ai-empty-state.ts",
       "lineNumber": 23
     },
-    "AiFabComponent": {
-      "path": "src/lib/ai-fab/ai-fab.ts",
-      "lineNumber": 22
-    },
     "AiErrorMessageComponent": {
       "path": "src/lib/ai-error-message/ai-error-message.ts",
+      "lineNumber": 22
+    },
+    "AiFabComponent": {
+      "path": "src/lib/ai-fab/ai-fab.ts",
       "lineNumber": 22
     },
     "ForgeAiFilePickerChangeEventData": {
@@ -8506,6 +8758,22 @@
     "AiIconComponent": {
       "path": "src/lib/ai-icon/ai-icon.ts",
       "lineNumber": 23
+    },
+    "ForgeAiMessageThreadCopyEventData": {
+      "path": "src/lib/ai-message-thread/ai-message-thread.ts",
+      "lineNumber": 32
+    },
+    "ForgeAiMessageThreadRefreshEventData": {
+      "path": "src/lib/ai-message-thread/ai-message-thread.ts",
+      "lineNumber": 36
+    },
+    "ForgeAiMessageThreadThumbsEventData": {
+      "path": "src/lib/ai-message-thread/ai-message-thread.ts",
+      "lineNumber": 40
+    },
+    "AiMessageThreadComponent": {
+      "path": "src/lib/ai-message-thread/ai-message-thread.ts",
+      "lineNumber": 64
     },
     "AiModalComponent": {
       "path": "src/lib/ai-modal/ai-modal.ts",

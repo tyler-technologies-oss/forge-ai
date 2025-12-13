@@ -1,8 +1,8 @@
 import { LitElement, html, nothing, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { when } from 'lit/directives/when.js';
+import type { AgentInfo } from '../ai-agent-info';
 import type { ForgeAiAttachmentRemoveEventData } from '../ai-attachment';
 import type { AiChatInterfaceComponent } from '../ai-chat-interface';
 import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData } from '../ai-file-picker';
@@ -24,13 +24,12 @@ import {
 } from './agent-adapter.js';
 import { SubscriptionManager } from './event-emitter.js';
 import { FileUploadManager } from './file-upload-manager.js';
-import { MarkdownStreamController } from './markdown-stream-controller.js';
 import { MessageStateController } from './message-state-controller.js';
 import type {
   ChatMessage,
   FileAttachment,
-  FileUploadCallbacks,
   FileRemoveCallbacks,
+  FileUploadCallbacks,
   ForgeAiChatbotFileSelectEventData,
   HandlerContext,
   MessageItem,
@@ -41,21 +40,15 @@ import type {
   UploadedFileMetadata
 } from './types.js';
 import { downloadFile, generateId } from './utils.js';
-import type { AgentInfo } from '../ai-agent-info';
 
 import '../ai-attachment';
 import '../ai-chat-header';
 import '../ai-chat-interface';
-import '../ai-empty-state';
-import '../ai-error-message';
 import '../ai-file-picker';
+import '../ai-message-thread';
 import '../ai-prompt';
-import '../ai-response-message';
 import '../ai-suggestions';
-import '../ai-thinking-indicator';
-import '../ai-user-message';
 import '../ai-voice-input';
-import './ai-chatbot-tool-call.js';
 
 import styles from './ai-chatbot.scss?inline';
 
@@ -175,7 +168,6 @@ export class AiChatbotComponent extends LitElement {
   #promptRef = createRef<AiPromptComponent>();
   #messageStateController!: MessageStateController;
   #fileUploadManager!: FileUploadManager;
-  #markdownController!: MarkdownStreamController;
   #toolsMap?: Map<string, ToolDefinition>;
   #adapterSubscriptions?: SubscriptionManager;
 
@@ -208,8 +200,6 @@ export class AiChatbotComponent extends LitElement {
     this.#messageStateController = new MessageStateController(this, {
       tools: this.#tools
     });
-
-    this.#markdownController = new MarkdownStreamController(this);
 
     this.#fileUploadManager = new FileUploadManager({
       onError: error => {
@@ -284,7 +274,6 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(message);
-    this.#scrollAfterUpdate();
   }
 
   /**
@@ -299,7 +288,6 @@ export class AiChatbotComponent extends LitElement {
     }
 
     this.#messageStateController.appendToMessage(event.messageId, event.delta);
-    this.#markdownController.scheduleUpdate();
     this.#chatInterfaceRef.value?.scrollToBottom();
   }
 
@@ -333,7 +321,6 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addToolCall(toolCall);
-    this.#scrollAfterUpdate();
   }
 
   /**
@@ -393,7 +380,6 @@ export class AiChatbotComponent extends LitElement {
         type: this.#tools.has(event.name) ? 'client' : 'agent'
       };
       this.#messageStateController.addToolCall(toolCall);
-      this.#scrollAfterUpdate();
     }
 
     if (toolCall?.type === 'client') {
@@ -451,7 +437,6 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(errorMessage);
-    this.#scrollAfterUpdate();
     this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: event.message } });
   }
 
@@ -465,7 +450,6 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(abortMessage);
-    this.#scrollAfterUpdate();
   }
 
   #handleStateChange(_state: AdapterState): void {
@@ -475,7 +459,6 @@ export class AiChatbotComponent extends LitElement {
   #handleToolCallResult(event: ToolResultEvent): void {
     this.#messageStateController.completeToolCall(event.toolCallId, event.result);
     this.#messageStateController.addMessage(event.message);
-    this.#scrollAfterUpdate();
   }
 
   async #sendToolResult(toolCallId: string, result: unknown): Promise<void> {
@@ -522,7 +505,6 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(userMessage);
-    this.#scrollAfterUpdate();
     this.#dispatchEvent({ type: 'forge-ai-chatbot-message-sent', detail: { message: userMessage } });
 
     this.#fileUploadManager.consumeAttachments();
@@ -560,7 +542,8 @@ export class AiChatbotComponent extends LitElement {
     this.#handleStop();
   }
 
-  async #handleCopy(messageItemIndex: number): Promise<void> {
+  async #handleCopy(evt: CustomEvent<{ messageItemIndex: number }>): Promise<void> {
+    const messageItemIndex = evt.detail.messageItemIndex;
     const item = this.#messageItems[messageItemIndex];
     if (!item || item.type !== 'message') {
       return;
@@ -573,11 +556,12 @@ export class AiChatbotComponent extends LitElement {
     }
   }
 
-  #handleRefresh(messageItemIndex: number): void {
+  #handleRefresh(evt: CustomEvent<{ messageItemIndex: number }>): void {
     if (!this.adapter) {
       return;
     }
 
+    const messageItemIndex = evt.detail.messageItemIndex;
     let userMessageIndex = -1;
     for (let i = messageItemIndex - 1; i >= 0; i--) {
       const item = this.#messageItems[i];
@@ -596,14 +580,14 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.sendMessage(this.getMessages());
   }
 
-  #handleThumbsUp(messageId: string): void {
+  #handleThumbsUp(evt: CustomEvent<{ messageId: string }>): void {
     // TODO: Show popover thanking user for feedback
-    console.warn('thumbs-up', messageId);
+    console.warn('thumbs-up', evt.detail.messageId);
   }
 
-  #handleThumbsDown(messageId: string): void {
+  #handleThumbsDown(evt: CustomEvent<{ messageId: string }>): void {
     // TODO: Show popover asking for feedback details
-    console.warn('thumbs-down', messageId);
+    console.warn('thumbs-down', evt.detail.messageId);
   }
 
   #processFileUpload(file: File, timestamp: number, thumbnail?: string): void {
@@ -668,7 +652,6 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(errorMessage);
-    this.#scrollAfterUpdate();
   }
 
   #handleAttachmentRemove(evt: CustomEvent<ForgeAiAttachmentRemoveEventData>): void {
@@ -729,11 +712,6 @@ export class AiChatbotComponent extends LitElement {
     if (transcript && this.#promptRef.value) {
       this.#promptRef.value.value = transcript;
     }
-  }
-
-  async #scrollAfterUpdate(): Promise<void> {
-    await this.updateComplete;
-    this.#chatInterfaceRef.value?.scrollToBottom();
   }
 
   #handleHeaderExpand(): void {
@@ -918,89 +896,28 @@ export class AiChatbotComponent extends LitElement {
     `;
   }
 
-  get #thinkingIndicator(): TemplateResult | typeof nothing {
-    if (!this.#isStreaming) {
-      return nothing;
-    }
-
-    const lastItem = this.#messageItems[this.#messageItems.length - 1];
-    const hasAssistantContent =
-      lastItem?.type === 'message' && lastItem.data.role === 'assistant' && lastItem.data.content.trim().length > 0;
-
-    if (hasAssistantContent) {
-      return nothing;
-    }
-
-    return html`<div class="thinking-indicator">
-      <forge-ai-thinking-indicator class="status-indicator"></forge-ai-thinking-indicator>
-    </div>`;
-  }
-
-  #renderToolCall(toolCall: ToolCall): TemplateResult {
-    const toolDefinition = this.#tools.get(toolCall.name);
-    return html`<forge-ai-chatbot-tool-call
-      .toolCall=${toolCall}
-      .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
-  }
-
-  get #emptyState(): TemplateResult | typeof nothing {
-    if (this.#messageItems.length) {
-      return nothing;
-    }
-
+  get #messageThread(): TemplateResult {
     return html`
-      <forge-ai-empty-state>
-        <slot name="empty-state-heading" slot="heading">
+      <forge-ai-message-thread
+        .messageItems=${this.#messageItems}
+        .tools=${this.#tools}
+        ?enable-reactions=${this.enableReactions}
+        ?show-thinking=${this.#isStreaming}
+        @forge-ai-message-thread-copy=${this.#handleCopy}
+        @forge-ai-message-thread-refresh=${this.#handleRefresh}
+        @forge-ai-message-thread-thumbs-up=${this.#handleThumbsUp}
+        @forge-ai-message-thread-thumbs-down=${this.#handleThumbsDown}>
+        <slot name="empty-state-heading" slot="empty-state-heading">
           <span>How can I help you today?</span>
         </slot>
         <forge-ai-suggestions
-          slot="actions"
+          slot="empty-state-actions"
           variant="block"
           .suggestions=${this.suggestions ?? []}
-          @forge-ai-suggestions-select=${this.#handleSuggestionSelect}></forge-ai-suggestions>
-      </forge-ai-empty-state>
+          @forge-ai-suggestions-select=${this.#handleSuggestionSelect}>
+        </forge-ai-suggestions>
+      </forge-ai-message-thread>
     `;
-  }
-
-  get #messages(): TemplateResult[] {
-    return this.#messageItems
-      .filter(item => (item.type === 'message' ? item.data.role !== 'tool' : true))
-      .map((item, index) => {
-        if (item.type === 'toolCall') {
-          return this.#renderToolCall(item.data);
-        }
-
-        const msg = item.data;
-        if (msg.role === 'user') {
-          const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
-          return html`<forge-ai-user-message>${unsafeHTML(renderedHtml)}</forge-ai-user-message>`;
-        } else if (msg.role === 'system') {
-          return html`<div class="system-message">${msg.content}</div>`;
-        } else if (msg.status === 'error') {
-          const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
-          return html`
-            <forge-ai-error-message>
-              <span slot="title">Error</span>
-              ${unsafeHTML(renderedHtml)}
-            </forge-ai-error-message>
-          `;
-        } else {
-          return when(msg.content?.trim().length > 0, () => {
-            const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
-            return html`
-              <forge-ai-response-message
-                ?complete=${msg.status === 'complete'}
-                ?enable-reactions=${this.enableReactions}
-                @forge-ai-response-message-copy=${() => this.#handleCopy(index)}
-                @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
-                @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
-                @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
-                ${unsafeHTML(renderedHtml)}
-              </forge-ai-response-message>
-            `;
-          });
-        }
-      });
   }
 
   public override render(): TemplateResult {
@@ -1030,7 +947,7 @@ export class AiChatbotComponent extends LitElement {
             <span class="header-title">${this.titleText}</span>
           </slot>
         </forge-ai-chat-header>
-        ${this.#emptyState} ${this.#messages} ${this.#thinkingIndicator} ${this.#promptSlot}
+        ${this.#messageThread} ${this.#promptSlot}
       </forge-ai-chat-interface>
     `;
   }

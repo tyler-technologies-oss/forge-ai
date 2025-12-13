@@ -63,17 +63,12 @@ export class AiChatInterfaceComponent extends LitElement {
     }
   }
 
-  /**
-   * Scrolls the messages container to the bottom with smooth animation
-   */
   public scrollToBottom(): void {
-    const messagesContainer = this.shadowRoot?.querySelector('.messages-container') as HTMLElement;
-    if (messagesContainer) {
-      messagesContainer.scrollTo({
-        top: messagesContainer.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
+    const container = this.shadowRoot?.querySelector('.messages-container');
+    container?.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth'
+    });
   }
 
   public override render(): TemplateResult {

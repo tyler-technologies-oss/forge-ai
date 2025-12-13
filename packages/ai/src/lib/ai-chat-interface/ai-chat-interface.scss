@@ -8,8 +8,7 @@
   height: 100%;
   flex-grow: 1;
 
-  --forge-ai-chat-interface-message-container-padding: 0 #{forge-spacing.variable(medium)}
-    #{forge-spacing.variable(xxlarge)} #{forge-spacing.variable(medium)};
+  --_ai-chat-interface-message-container-padding: 0;
 }
 
 .ai-chat-interface {
@@ -23,7 +22,10 @@
 .messages-container {
   @include forge-scrollbar.base;
 
-  padding: var(--forge-ai-chat-interface-message-container-padding);
+  padding: var(
+    --forge-ai-chat-interface-message-container-padding,
+    var(--_ai-chat-interface-message-container-padding)
+  );
   overflow-y: auto;
   background: linear-gradient(
     to top,
@@ -31,8 +33,7 @@
     #{forge-theme.variable(surface)}
   );
   border-block-end: 1px solid #{forge-theme.variable(outline)};
-  display: flex;
-  flex-direction: column;
+  display: grid;
   flex-grow: 1;
   gap: #{forge-spacing.variable(medium)};
 

@@ -47,6 +47,15 @@ export class AiChatbotToolCallComponent extends LitElement {
     this._popoverOpen = evt.detail.newState === 'open';
   }
 
+  #dispatchScrollRequest(): void {
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-message-thread-scroll-request', {
+        bubbles: true,
+        composed: true
+      })
+    );
+  }
+
   get #statusIcon(): TemplateResult | typeof nothing {
     switch (this.toolCall.status) {
       case 'pending':
@@ -106,9 +115,11 @@ export class AiChatbotToolCallComponent extends LitElement {
           element.toolCall = this.toolCall;
           this.#renderedElement = element;
           container.appendChild(element);
+          this.#dispatchScrollRequest();
         } else if (renderer?.render) {
           this.#renderedElement = renderer.render(this.toolCall);
           container.appendChild(this.#renderedElement as Node);
+          this.#dispatchScrollRequest();
         }
       }
     }
