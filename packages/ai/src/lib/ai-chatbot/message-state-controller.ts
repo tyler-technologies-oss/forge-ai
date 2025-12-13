@@ -121,26 +121,37 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
+  /**
+   * Reconstructs the message hierarchy by grouping tool calls under their parent messages.
+   *
+   * messageItems stores messages and tool calls in a flat, chronologically ordered list.
+   * This method rebuilds the hierarchical structure where each message contains its tool calls.
+   */
   public getMessages(): ChatMessage[] {
-    const messages: ChatMessage[] = [];
-    let currentMessage: ChatMessage | null = null;
+    const messageMap = new Map<string, ChatMessage>();
+    const messageOrder: string[] = [];
 
+    // Extract all messages, track their order, initialize empty toolCalls arrays
     for (const item of this._messageItems) {
       if (item.type === 'message') {
-        if (currentMessage) {
-          messages.push(currentMessage);
-        }
-        currentMessage = { ...item.data, toolCalls: [] };
-      } else if (item.type === 'toolCall' && currentMessage?.id === item.data.messageId) {
-        currentMessage.toolCalls = [...(currentMessage.toolCalls || []), item.data];
+        const msg = { ...item.data, toolCalls: [] };
+        messageMap.set(msg.id, msg);
+        messageOrder.push(msg.id);
       }
     }
 
-    if (currentMessage) {
-      messages.push(currentMessage);
+    // Find tool calls and append them to their parent message's toolCalls array
+    for (const item of this._messageItems) {
+      if (item.type === 'toolCall') {
+        const parentMsg = messageMap.get(item.data.messageId);
+        if (parentMsg) {
+          parentMsg.toolCalls = [...(parentMsg.toolCalls || []), item.data];
+        }
+      }
     }
 
-    return messages;
+    // Return messages in original order with tool calls grouped under each message
+    return messageOrder.map(id => messageMap.get(id)).filter((msg): msg is ChatMessage => msg !== undefined);
   }
 
   public setMessages(messages: ChatMessage[]): void {
