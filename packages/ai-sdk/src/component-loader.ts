@@ -1,4 +1,4 @@
-import type { ChatbotAPI, ChatbotConfig, AgentUIConfig } from './types.js';
+import type { ChatbotAPI, ChatbotConfig } from './types.js';
 import { resolveMountPoint, waitForDOMReady } from './utils.js';
 
 type ValidatedChatbotConfig = ChatbotConfig & {
@@ -7,22 +7,22 @@ type ValidatedChatbotConfig = ChatbotConfig & {
   teamId?: string;
 };
 
-export async function loadComponent(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+export async function loadComponent(config: ChatbotConfig): Promise<ChatbotAPI> {
   const { chatViewType = 'floating' } = config;
 
   switch (chatViewType) {
     case 'floating':
-      return await loadFloatingChat(config as ValidatedChatbotConfig, agentConfig);
+      return await loadFloatingChat(config as ValidatedChatbotConfig);
     case 'sidebar':
-      return await loadSidebarChat(config as ValidatedChatbotConfig, agentConfig);
+      return await loadSidebarChat(config as ValidatedChatbotConfig);
     case 'threads':
-      return await loadThreadsChat(config as ValidatedChatbotConfig, agentConfig);
+      return await loadThreadsChat(config as ValidatedChatbotConfig);
     default:
       throw new Error(`Unknown chat view type: ${chatViewType}`);
   }
 }
 
-async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+async function loadFloatingChat(config: ValidatedChatbotConfig): Promise<ChatbotAPI> {
   await import('./ui/foundry-floating-chatbot/index.js');
 
   const element = document.createElement('foundry-floating-chatbot');
@@ -30,9 +30,7 @@ async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: Age
   element.agentId = config.agentId;
   element.teamId = config.teamId;
   element.headers = config.headers;
-  element.voiceInput = 'on';
-  element.fileUpload = agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off';
-  element.open = config.initialOpen ?? agentConfig.chatExperience?.initialOpen ?? false;
+  element.open = config.initialOpen ?? false;
 
   document.body.appendChild(element);
 
@@ -52,7 +50,7 @@ async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: Age
   return element as unknown as ChatbotAPI;
 }
 
-async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+async function loadSidebarChat(config: ValidatedChatbotConfig): Promise<ChatbotAPI> {
   if (!config.mountPoint) {
     throw new Error('mountPoint is required for sidebar chat');
   }
@@ -72,8 +70,7 @@ async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: Agen
   element.teamId = config.teamId;
   element.headers = config.headers;
   element.voiceInput = 'on';
-  element.fileUpload = agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off';
-  element.open = config.initialOpen ?? agentConfig.chatExperience?.initialOpen ?? false;
+  element.open = config.initialOpen ?? false;
 
   mountElement.appendChild(element);
 
@@ -85,7 +82,7 @@ async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: Agen
   return element as unknown as ChatbotAPI;
 }
 
-async function loadThreadsChat(config: ValidatedChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+async function loadThreadsChat(config: ValidatedChatbotConfig): Promise<ChatbotAPI> {
   if (!config.mountPoint) {
     throw new Error('mountPoint is required for threads chat');
   }
@@ -105,7 +102,6 @@ async function loadThreadsChat(config: ValidatedChatbotConfig, agentConfig: Agen
   element.teamId = config.teamId;
   element.headers = config.headers;
   element.voiceInput = 'on';
-  element.fileUpload = agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off';
 
   mountElement.appendChild(element);
 

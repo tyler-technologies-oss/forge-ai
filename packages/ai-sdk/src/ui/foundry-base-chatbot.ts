@@ -11,6 +11,9 @@ export interface FoundryChatbotAgentInfo {
   version: string;
   model?: string;
   lastUpdated?: string;
+  welcomeMessage?: string;
+  enableFileUpload?: boolean;
+  initialOpen?: boolean;
 }
 
 export interface IFoundryChatbot {
@@ -104,7 +107,10 @@ export abstract class FoundryBaseChatbotComponent extends LitElement implements 
       identifier: this.#controller.agentConfig.id ?? '',
       version: this.#controller.agentConfig.version ?? '',
       model: this.#controller.agentConfig.model?.model,
-      lastUpdated: this.#controller.agentConfig.metadata?.updatedAt
+      lastUpdated: this.#controller.agentConfig.metadata?.updatedAt,
+      welcomeMessage: this.#controller.agentConfig.chatExperience?.welcomeMessage,
+      enableFileUpload: this.#controller.agentConfig.chatExperience?.enableFileUpload ?? false,
+      initialOpen: this.#controller.agentConfig.chatExperience?.initialOpen ?? false
     };
   }
 

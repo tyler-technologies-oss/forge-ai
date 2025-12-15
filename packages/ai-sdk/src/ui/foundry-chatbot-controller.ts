@@ -1,8 +1,10 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import { FoundryAgentAdapter } from '../foundry-agent-adapter.js';
+import { checkAuthentication } from '../auth-manager.js';
 import { loadAgentConfig } from '../config-loader.js';
-import { setupFileUploadHandler, setupFileRemoveHandler } from '../file-upload.js';
-import type { AgentUIConfig, AuthStatus } from '../types.js';
+import { checkThirdPartyCookies } from '../cookie-checker.js';
+import { setupFileRemoveHandler, setupFileUploadHandler } from '../file-upload.js';
+import { FoundryAgentAdapter } from '../foundry-agent-adapter.js';
+import type { AgentUIConfig } from '../types.js';
 import { FoundryBaseChatbotComponent } from './foundry-base-chatbot.js';
 
 type InitState = 'pending' | 'initializing' | 'initialized' | 'error';
@@ -96,7 +98,20 @@ export class FoundryChatbotController implements ReactiveController {
       throw new Error('baseUrl and either agentId or teamId are required');
     }
 
-    const authStatus: AuthStatus = { isAuthenticated: true };
+    // Check for third-party cookies to ensure proper functionality
+    const cookiesEnabled = await checkThirdPartyCookies();
+    if (!cookiesEnabled) {
+      const error = new Error(
+        'Third-party cookies are disabled. Please enable cookies in your browser settings to use the Tyler AI chatbot.'
+      );
+      console.error(error);
+      throw error;
+    }
+
+    // Check authentication status
+    const authStatus = await checkAuthentication(this.#config);
+
+    // Load agent configuration
     this.#agentConfig = await loadAgentConfig({ baseUrl, agentId, teamId, headers }, authStatus);
 
     this.#adapter = new FoundryAgentAdapter({ baseUrl, agentId, teamId, headers }, this.#agentConfig);

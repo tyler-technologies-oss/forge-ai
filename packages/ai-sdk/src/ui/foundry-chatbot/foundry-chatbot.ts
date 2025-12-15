@@ -1,4 +1,4 @@
-import { html, unsafeCSS, type TemplateResult } from 'lit';
+import { html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { createRef, ref, type Ref } from 'lit/directives/ref.js';
 import { FoundryBaseChatbotComponent } from '../foundry-base-chatbot.js';
@@ -53,6 +53,7 @@ export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {
   }
 
   public override render(): TemplateResult {
+    const agentConfig = this._getAgentInfo();
     return html`
       <forge-ai-chatbot
         ${ref(this.#chatbotRef)}
@@ -60,12 +61,19 @@ export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {
         .showMinimizeButton=${this.showMinimizeButton}
         .minimizeIcon=${this.minimizeIcon}
         .adapter=${this._getAdapter()}
-        .fileUpload=${this.fileUpload}
+        .fileUpload=${agentConfig?.enableFileUpload ? 'on' : 'off'}
         .voiceInput=${this.voiceInput}
         .placeholder=${this.placeholder}
         .agentInfo=${this._getAgentInfo()}
         .titleText=${this._getTitleText() as string}
-        .suggestions=${this._getSuggestions()}></forge-ai-chatbot>
+        .suggestions=${this._getSuggestions()}>
+        ${agentConfig?.welcomeMessage
+          ? html`<span slot="empty-state-heading">${agentConfig.welcomeMessage}</span>`
+          : nothing}
+        <span slot="empty-state-message"
+          >Start a conversation by asking a question or describing what you'd like help with.</span
+        >
+      </forge-ai-chatbot>
     `;
   }
 }
