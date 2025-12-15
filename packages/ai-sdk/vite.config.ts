@@ -10,7 +10,7 @@ export default defineConfig({
       fileName: 'index'
     },
     rollupOptions: {
-      external: ['@tylertech/forge-ai', /@tylertech\/forge-ai\/.*/],
+      external: ['@tylertech/forge-ai', /@tylertech\/forge-ai\/.*/, 'lit', /lit\/.*/, 'rxjs', /rxjs\/.*/],
       output: {
         preserveModules: true,
         preserveModulesRoot: 'src',
@@ -25,8 +25,7 @@ export default defineConfig({
   plugins: [
     dts({
       include: ['src'],
-      outDir: 'dist',
-      rollupTypes: true
+      outDir: 'dist'
     })
   ]
 });

@@ -1,8 +1,5 @@
-import type { ChatbotConfig, ChatbotAPI } from './types.js';
-import { checkThirdPartyCookies } from './cookie-checker.js';
-import { checkAuthentication } from './auth-manager.js';
-import { loadAgentConfig } from './config-loader.js';
 import { loadComponent } from './component-loader.js';
+import type { ChatbotAPI, ChatbotConfig } from './types.js';
 
 /**
  * Initialize the Tyler AI chatbot with the provided configuration.
@@ -24,25 +21,7 @@ export async function initChatbot(config: Partial<ChatbotConfig> = {}): Promise<
       throw new Error('Either agentId or teamId is required');
     }
 
-    // Check for third-party cookies to ensure proper functionality
-    const cookiesEnabled = await checkThirdPartyCookies();
-    if (!cookiesEnabled) {
-      const error = new Error(
-        'Third-party cookies are disabled. Please enable cookies in your browser settings to use the Tyler AI chatbot.'
-      );
-      console.error(error);
-      config.onError?.(error);
-      throw error;
-    }
-
-    // Check authentication status
-    const authStatus = await checkAuthentication(config);
-
-    // Load agent configuration
-    const agentConfig = await loadAgentConfig(config, authStatus);
-
-    // Load the chatbot component and form factor based on provided config
-    const api = await loadComponent(config, agentConfig);
+    const api = await loadComponent(config);
 
     // Dispatch a global event indicating the chatbot is ready
     window.dispatchEvent(new CustomEvent('tyler-ai-chatbot-ready', { detail: { api } }));

@@ -161,6 +161,9 @@ export class AiMessageThreadComponent extends LitElement {
         <slot name="empty-state-heading" slot="heading">
           <span>How can I help you today?</span>
         </slot>
+        <slot name="empty-state-message" slot="body">
+          Start a conversation by asking a question or describing what you'd like help with.
+        </slot>
         <slot name="empty-state-actions" slot="actions"></slot>
       </forge-ai-empty-state>
     `;

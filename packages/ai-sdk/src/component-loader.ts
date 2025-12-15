@@ -1,167 +1,5 @@
-import type { AiFloatingChatComponent, AiSidebarChatComponent, AiThreadsComponent } from '@tylertech/forge-ai';
-import type { AgentRunner, AgUiAdapter, AiChatbotComponent, FileUploadEvent } from '@tylertech/forge-ai/ai-chatbot';
-import { configureChatbot } from './agent-adapter.js';
-import { setupFileUploadHandler, setupFileRemoveHandler } from './file-upload.js';
-import type {
-  AgentUIConfig,
-  ChatbotAPI,
-  ChatbotConfig,
-  FloatingChatAPI,
-  SidebarChatAPI,
-  ThreadsChatAPI
-} from './types.js';
+import type { ChatbotAPI, ChatbotConfig } from './types.js';
 import { resolveMountPoint, waitForDOMReady } from './utils.js';
-
-interface OpenableElement {
-  show(): void;
-  close(): void;
-  toggle(): void;
-  open: boolean;
-}
-
-function createAdapterInstance(
-  AgentAdapterClass: typeof AgUiAdapter,
-  config: {
-    baseUrl: string;
-    agentId?: string;
-    teamId?: string;
-    headers?: Record<string, string>;
-    fileUploadHandler?: (event: FileUploadEvent) => Promise<void> | void;
-  }
-): AgUiAdapter {
-  const url = config.teamId
-    ? `${config.baseUrl}/api/team/${config.teamId}/ag-ui`
-    : `${config.baseUrl}/api/agents/${config.agentId}/ag-ui`;
-
-  const adapter = new AgentAdapterClass({
-    url,
-    headers: config.headers
-  });
-
-  if (config.fileUploadHandler) {
-    adapter.onFileUpload(config.fileUploadHandler);
-  }
-
-  return adapter;
-}
-
-function createChatbotElement(config: {
-  adapter: AgUiAdapter;
-  fileUpload?: 'on' | 'off';
-  voiceInput?: 'on' | 'off';
-  enableExpand?: boolean;
-  enableMinimize?: boolean;
-  placeholder?: string;
-  suggestions?: Array<{ text: string; value: string }>;
-}): AiChatbotComponent {
-  const chatbot = document.createElement('forge-ai-chatbot');
-  chatbot.adapter = config.adapter;
-  chatbot.fileUpload = config.fileUpload ?? 'off';
-  chatbot.placeholder = config.placeholder ?? 'Ask a question...';
-  chatbot.suggestions = config.suggestions;
-  chatbot.voiceInput = config.voiceInput ?? 'on';
-  chatbot.showExpandButton = config.enableExpand ?? false;
-  chatbot.showMinimizeButton = config.enableMinimize ?? false;
-  return chatbot;
-}
-
-function createFabElement(floatingChat: AiFloatingChatComponent, options?: { text?: string }): HTMLElement {
-  const fabElement = document.createElement('forge-ai-fab');
-  fabElement.style.position = 'absolute';
-  fabElement.style.bottom = '16px';
-  fabElement.style.right = '16px';
-  fabElement.style.zIndex = '1000';
-  fabElement.style.display = floatingChat.open ? 'none' : 'block';
-
-  if (options?.text) {
-    fabElement.extended = true;
-    const text = document.createElement('span');
-    text.textContent = options.text;
-    fabElement.appendChild(text);
-  }
-
-  fabElement.addEventListener('click', () => {
-    floatingChat.toggle();
-  });
-
-  floatingChat.addEventListener('forge-ai-floating-chat-open', () => {
-    fabElement.style.display = 'none';
-  });
-
-  floatingChat.addEventListener('forge-ai-floating-chat-close', () => {
-    fabElement.style.display = 'block';
-  });
-
-  return fabElement;
-}
-
-function createBaseChatbotAPI<T extends typeof AgentRunner>(
-  chatbot: AiChatbotComponent,
-  element: AiFloatingChatComponent | AiSidebarChatComponent | AiThreadsComponent,
-  adapter: AgUiAdapter,
-  agentRunner: T
-): ChatbotAPI {
-  return {
-    async sendMessage(message: string, files?: File[]): Promise<void> {
-      await chatbot.sendMessage(message, files);
-    },
-    clearMessages(): void {
-      chatbot.clearMessages();
-    },
-    getMessages() {
-      return chatbot.getMessages();
-    },
-    adapter,
-    agentRunner,
-    element,
-    destroy(): void {
-      adapter.disconnect();
-      element.remove();
-    }
-  };
-}
-
-function createOpenableMethods(element: OpenableElement): OpenableElement {
-  return {
-    show(): void {
-      element.show();
-    },
-    close(): void {
-      element.close();
-    },
-    toggle(): void {
-      element.toggle();
-    },
-    get open(): boolean {
-      return element.open;
-    }
-  };
-}
-
-function setupFileHandlers(
-  adapter: AgUiAdapter,
-  config: { baseUrl: string; agentId?: string; teamId?: string; headers?: Record<string, string> }
-): void {
-  const uploadHandler = setupFileUploadHandler({
-    baseUrl: config.baseUrl,
-    agentId: config.agentId,
-    teamId: config.teamId,
-    threadId: adapter.threadId,
-    headers: config.headers,
-    credentials: 'include'
-  });
-  adapter.onFileUpload(uploadHandler);
-
-  const removeHandler = setupFileRemoveHandler({
-    baseUrl: config.baseUrl,
-    agentId: config.agentId,
-    teamId: config.teamId,
-    threadId: adapter.threadId,
-    headers: config.headers,
-    credentials: 'include'
-  });
-  adapter.onFileRemove(removeHandler);
-}
 
 type ValidatedChatbotConfig = ChatbotConfig & {
   baseUrl: string;
@@ -169,84 +7,50 @@ type ValidatedChatbotConfig = ChatbotConfig & {
   teamId?: string;
 };
 
-export async function loadComponent(config: ChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+export async function loadComponent(config: ChatbotConfig): Promise<ChatbotAPI> {
   const { chatViewType = 'floating' } = config;
 
   switch (chatViewType) {
     case 'floating':
-      return await loadFloatingChat(config as ValidatedChatbotConfig, agentConfig);
+      return await loadFloatingChat(config as ValidatedChatbotConfig);
     case 'sidebar':
-      return await loadSidebarChat(config as ValidatedChatbotConfig, agentConfig);
+      return await loadSidebarChat(config as ValidatedChatbotConfig);
     case 'threads':
-      return await loadThreadsChat(config as ValidatedChatbotConfig, agentConfig);
+      return await loadThreadsChat(config as ValidatedChatbotConfig);
     default:
       throw new Error(`Unknown chat view type: ${chatViewType}`);
   }
 }
 
-async function loadFloatingChat(config: ValidatedChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
-  const [_, __, { AgUiAdapter, AgentRunner }] = await Promise.all([
-    import('@tylertech/forge-ai/ai-floating-chat'),
-    import('@tylertech/forge-ai/ai-fab'),
-    import('@tylertech/forge-ai/ai-chatbot')
-  ]);
+async function loadFloatingChat(config: ValidatedChatbotConfig): Promise<ChatbotAPI> {
+  await import('./ui/foundry-floating-chatbot/index.js');
 
-  const adapter = createAdapterInstance(AgUiAdapter, {
-    baseUrl: config.baseUrl,
-    agentId: config.agentId,
-    teamId: config.teamId,
-    headers: config.headers,
-    fileUploadHandler: config.fileUploadHandler
-  });
+  const element = document.createElement('foundry-floating-chatbot');
+  element.baseUrl = config.baseUrl;
+  element.agentId = config.agentId;
+  element.teamId = config.teamId;
+  element.headers = config.headers;
+  element.open = config.initialOpen ?? false;
 
-  const chatbot = createChatbotElement({
-    adapter,
-    fileUpload: agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off',
-    enableExpand: true,
-    enableMinimize: true,
-    suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
-  });
-
-  const floatingChatElement = document.createElement('forge-ai-floating-chat');
-  floatingChatElement.appendChild(chatbot);
-  document.body.appendChild(floatingChatElement);
-
-  configureChatbot({
-    chatbot,
-    adapter,
-    agentConfig,
-    floating: floatingChatElement
-  });
-
-  const initialOpen = config.initialOpen ?? agentConfig.chatExperience?.initialOpen;
-  if (initialOpen) {
-    floatingChatElement.open = true;
-  }
-
-  if (agentConfig.chatExperience?.enableFileUpload) {
-    setupFileHandlers(adapter, config);
-  }
-
-  let fabElement: HTMLElement | undefined;
+  document.body.appendChild(element);
 
   if (config.floatingConfig?.showTriggerButton !== false) {
-    fabElement = createFabElement(floatingChatElement, { text: config.floatingConfig?.triggerButtonText });
-    document.body.appendChild(fabElement);
+    await import('./ui/foundry-fab/index.js');
+    const fab = document.createElement('foundry-fab');
+    fab.target = 'foundry-floating-chatbot';
+    fab.text = config.floatingConfig?.triggerButtonText;
+    document.body.appendChild(fab);
   }
 
-  return {
-    ...createBaseChatbotAPI(chatbot, floatingChatElement, adapter, AgentRunner),
-    ...createOpenableMethods(floatingChatElement),
-    fabElement,
-    destroy(): void {
-      adapter.disconnect();
-      floatingChatElement.remove();
-      fabElement?.remove();
-    }
-  } satisfies FloatingChatAPI;
+  await new Promise((resolve, reject) => {
+    element.addEventListener('foundry-chatbot-ready', resolve, { once: true });
+    element.addEventListener('foundry-chatbot-error', reject, { once: true });
+  });
+
+  return element as unknown as ChatbotAPI;
 }
 
-async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+async function loadSidebarChat(config: ValidatedChatbotConfig): Promise<ChatbotAPI> {
   if (!config.mountPoint) {
     throw new Error('mountPoint is required for sidebar chat');
   }
@@ -258,53 +62,27 @@ async function loadSidebarChat(config: ValidatedChatbotConfig, agentConfig: Agen
     throw new Error(`Mount point not found: ${config.mountPoint}`);
   }
 
-  const [_, { AgUiAdapter, AgentRunner }] = await Promise.all([
-    import('@tylertech/forge-ai/ai-sidebar-chat'),
-    import('@tylertech/forge-ai/ai-chatbot')
-  ]);
+  await import('./ui/foundry-sidebar-chatbot/index.js');
 
-  const adapter = createAdapterInstance(AgUiAdapter, {
-    baseUrl: config.baseUrl,
-    agentId: config.agentId,
-    teamId: config.teamId,
-    headers: config.headers,
-    fileUploadHandler: config.fileUploadHandler
+  const element = document.createElement('foundry-sidebar-chatbot');
+  element.baseUrl = config.baseUrl;
+  element.agentId = config.agentId;
+  element.teamId = config.teamId;
+  element.headers = config.headers;
+  element.voiceInput = 'on';
+  element.open = config.initialOpen ?? false;
+
+  mountElement.appendChild(element);
+
+  await new Promise((resolve, reject) => {
+    element.addEventListener('foundry-chatbot-ready', resolve, { once: true });
+    element.addEventListener('foundry-chatbot-error', reject, { once: true });
   });
 
-  const chatbot = createChatbotElement({
-    adapter,
-    fileUpload: agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off',
-    enableExpand: true,
-    suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
-  });
-
-  const sidebarChatElement = document.createElement('forge-ai-sidebar-chat');
-  sidebarChatElement.appendChild(chatbot);
-  mountElement.appendChild(sidebarChatElement);
-
-  configureChatbot({
-    chatbot,
-    adapter,
-    agentConfig,
-    sidebar: sidebarChatElement
-  });
-
-  const initialOpen = config.initialOpen ?? agentConfig.chatExperience?.initialOpen;
-  if (initialOpen) {
-    sidebarChatElement.open = true;
-  }
-
-  if (agentConfig.chatExperience?.enableFileUpload) {
-    setupFileHandlers(adapter, config);
-  }
-
-  return {
-    ...createBaseChatbotAPI(chatbot, sidebarChatElement, adapter, AgentRunner),
-    ...createOpenableMethods(sidebarChatElement)
-  } satisfies SidebarChatAPI;
+  return element as unknown as ChatbotAPI;
 }
 
-async function loadThreadsChat(config: ValidatedChatbotConfig, agentConfig: AgentUIConfig): Promise<ChatbotAPI> {
+async function loadThreadsChat(config: ValidatedChatbotConfig): Promise<ChatbotAPI> {
   if (!config.mountPoint) {
     throw new Error('mountPoint is required for threads chat');
   }
@@ -316,41 +94,21 @@ async function loadThreadsChat(config: ValidatedChatbotConfig, agentConfig: Agen
     throw new Error(`Mount point not found: ${config.mountPoint}`);
   }
 
-  const [_, { AgUiAdapter, AgentRunner }] = await Promise.all([
-    import('@tylertech/forge-ai/ai-threads'),
-    import('@tylertech/forge-ai/ai-chatbot')
-  ]);
+  await import('./ui/foundry-threaded-chatbot/index.js');
 
-  const adapter = createAdapterInstance(AgUiAdapter, {
-    baseUrl: config.baseUrl,
-    agentId: config.agentId,
-    teamId: config.teamId,
-    headers: config.headers,
-    fileUploadHandler: config.fileUploadHandler
+  const element = document.createElement('foundry-threaded-chatbot');
+  element.baseUrl = config.baseUrl;
+  element.agentId = config.agentId;
+  element.teamId = config.teamId;
+  element.headers = config.headers;
+  element.voiceInput = 'on';
+
+  mountElement.appendChild(element);
+
+  await new Promise((resolve, reject) => {
+    element.addEventListener('foundry-chatbot-ready', resolve, { once: true });
+    element.addEventListener('foundry-chatbot-error', reject, { once: true });
   });
 
-  const chatbot = createChatbotElement({
-    adapter,
-    fileUpload: agentConfig.chatExperience?.enableFileUpload ? 'on' : 'off',
-    suggestions: agentConfig.chatExperience?.sampleQuestions?.map(text => ({ text, value: text }))
-  });
-
-  const threadsElement = document.createElement('forge-ai-threads');
-  threadsElement.appendChild(chatbot);
-  mountElement.appendChild(threadsElement);
-
-  configureChatbot({
-    chatbot,
-    adapter,
-    agentConfig,
-    threads: threadsElement
-  });
-
-  if (agentConfig.chatExperience?.enableFileUpload) {
-    setupFileHandlers(adapter, config);
-  }
-
-  return {
-    ...createBaseChatbotAPI(chatbot, threadsElement, adapter, AgentRunner)
-  } satisfies ThreadsChatAPI;
+  return element as unknown as ChatbotAPI;
 }

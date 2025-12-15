@@ -94,6 +94,10 @@ export class DragController implements ReactiveController {
    * Handle pointer down event to start dragging
    */
   public handlePointerDown = (event: PointerEvent): void => {
+    if (event.button !== 0) {
+      return;
+    }
+
     event.preventDefault();
 
     const targetElement = this._options.targetElementRef.value;
