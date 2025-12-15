@@ -1,40 +1,25 @@
-import { createAgentAdapter, configureChatbot } from '../../src/index.js';
 import { setupForgeComponents, DEFAULT_CONFIG } from './shared.js';
-import type { AiChatbotComponent, AiSidebarChatComponent } from '@tylertech/forge-ai';
-import '@tylertech/forge-ai/ai-chatbot';
-import '@tylertech/forge-ai/ai-sidebar-chat';
+import type { FoundrySidebarChatbotComponent } from '../../src/ui/foundry-sidebar-chatbot';
+import '../../src/ui/foundry-sidebar-chatbot';
 
 setupForgeComponents();
 
-let sidebarChat: AiSidebarChatComponent | null = null;
-
-try {
-  const adapter = await createAgentAdapter({
-    agentId: DEFAULT_CONFIG.agentId,
-    baseUrl: DEFAULT_CONFIG.baseUrl
-  });
-
-  const chatbot = document.getElementById('chatbot') as AiChatbotComponent;
-  const sidebar = document.getElementById('sidebar-chat') as AiSidebarChatComponent;
-  configureChatbot({ chatbot, sidebar, adapter });
-
-  sidebarChat = document.getElementById('sidebar-chat') as AiSidebarChatComponent;
-
-  console.log('Sidebar adapter created!', adapter);
-  console.log('Agent config:', adapter.agentConfig);
-} catch (error) {
-  console.error('Failed to create adapter:', error);
-}
+const sidebarChatbot = document.getElementById('sidebar-chatbot') as FoundrySidebarChatbotComponent;
+sidebarChatbot.baseUrl = DEFAULT_CONFIG.baseUrl;
+sidebarChatbot.agentId = DEFAULT_CONFIG.agentId;
+sidebarChatbot.voiceInput = 'on';
+sidebarChatbot.fileUpload = 'off';
+sidebarChatbot.open = true;
 
 function showSidebarChat(): void {
-  if (sidebarChat) {
-    sidebarChat.open = true;
+  if (sidebarChatbot) {
+    sidebarChatbot.open = true;
   }
 }
 
 function closeSidebarChat(): void {
-  if (sidebarChat) {
-    sidebarChat.open = false;
+  if (sidebarChatbot) {
+    sidebarChatbot.open = false;
   }
 }
 

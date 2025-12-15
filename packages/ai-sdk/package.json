@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./ui/*": {
+      "types": "./dist/ui/*/.d.ts",
+      "default": "./dist/ui/*/index.js"
     }
   },
   "files": [
@@ -35,6 +39,9 @@
   ],
   "author": "Tyler Technologies",
   "license": "Apache-2.0",
+  "dependencies": {
+    "lit": "catalog:"
+  },
   "peerDependencies": {
     "@tylertech/forge-ai": "workspace:"
   },
