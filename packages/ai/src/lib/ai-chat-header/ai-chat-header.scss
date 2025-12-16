@@ -26,9 +26,17 @@
   display: flex;
   align-items: center;
   gap: #{forge-spacing.variable(medium)};
+  overflow: hidden;
 
-  h1 {
-    @include forge-typography.style(heading3);
+  .title {
+    @include forge-typography.style(heading1);
+  }
+
+  h1,
+  ::slotted([slot='title']) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
