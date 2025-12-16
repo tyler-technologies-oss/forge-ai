@@ -62,7 +62,7 @@ export default defineConfig({
         entryFileNames: '[name].js'
       }
     },
-    minify: false, // 'terser',
+    minify: 'terser',
     sourcemap: false
   }
 });
