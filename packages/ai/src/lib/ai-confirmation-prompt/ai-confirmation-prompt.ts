@@ -1,7 +1,7 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import styles from './ai-tool-confirmation.scss?inline';
+import styles from './ai-confirmation-prompt.scss?inline';
 
 declare global {
   interface HTMLElementTagNameMap {

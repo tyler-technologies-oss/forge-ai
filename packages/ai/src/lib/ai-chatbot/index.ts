@@ -40,16 +40,17 @@ export type {
 } from './types.js';
 
 // AG-UI adapter
-export { AgUiAdapter, type AgUiAdapterConfig } from './ag-ui-adapter.js';
+export * from './ag-ui-adapter.js';
+export * from './http-agent-with-credentials.js';
 
 // Event system
-export { EventEmitter, SubscriptionManager, type Subscription } from './event-emitter.js';
+export * from './event-emitter.js';
 
 // Agent runner
-export { AgentRunner, type AgentRunnerConfig, type AgentRunnerResult } from './agent-runner.js';
+export * from './agent-runner.js';
 
 // Tool renderer helper
-export { createToolRenderer, type CreateToolRendererConfig } from './create-tool-renderer.js';
+export * from './create-tool-renderer.js';
 
 // Controllers and managers
 export { MessageStateController, type MessageStateControllerConfig } from './message-state-controller.js';

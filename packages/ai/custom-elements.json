@@ -166,68 +166,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-agent-info/ai-agent-info.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiAgentInfoComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-agent-info'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiAgentInfoComponent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "agentInfo",
-              "type": {
-                "text": "AgentInfo | undefined"
-              },
-              "privacy": "public",
-              "description": "Agent information to display"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-agent-info",
-          "customElement": true,
-          "summary": "Displays agent information in a grid layout"
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiAgentInfoComponentTagName",
-          "declaration": {
-            "name": "AiAgentInfoComponentTagName",
-            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiAgentInfoComponent",
-          "declaration": {
-            "name": "AiAgentInfoComponent",
-            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiAgentInfoComponent",
-            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-artifact/ai-artifact.ts",
       "declarations": [
         {
@@ -293,6 +231,68 @@
           "declaration": {
             "name": "AiArtifactComponent",
             "module": "src/lib/ai-artifact/ai-artifact.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-agent-info/ai-agent-info.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiAgentInfoComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-agent-info'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiAgentInfoComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "agentInfo",
+              "type": {
+                "text": "AgentInfo | undefined"
+              },
+              "privacy": "public",
+              "description": "Agent information to display"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-agent-info",
+          "customElement": true,
+          "summary": "Displays agent information in a grid layout"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiAgentInfoComponentTagName",
+          "declaration": {
+            "name": "AiAgentInfoComponentTagName",
+            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiAgentInfoComponent",
+          "declaration": {
+            "name": "AiAgentInfoComponent",
+            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiAgentInfoComponent",
+            "module": "src/lib/ai-agent-info/ai-agent-info.ts"
           }
         }
       ]
@@ -580,87 +580,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-button/ai-button.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiButtonComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-button'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiButtonComponent",
-          "slots": [
-            {
-              "description": "Default slot for button content",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "attribute": "disabled",
-              "reflects": true
-            }
-          ],
-          "attributes": [
-            {
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the button is disabled",
-              "fieldName": "disabled"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-button",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiButtonComponentTagName",
-          "declaration": {
-            "name": "AiButtonComponentTagName",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiButtonComponent",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiButtonComponent",
-            "module": "src/lib/ai-button/ai-button.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "declarations": [
         {
@@ -909,6 +828,87 @@
           "declaration": {
             "name": "AiChatHeaderComponent",
             "module": "src/lib/ai-chat-header/ai-chat-header.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-button/ai-button.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiButtonComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-button'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiButtonComponent",
+          "slots": [
+            {
+              "description": "Default slot for button content",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "attribute": "disabled",
+              "reflects": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is disabled",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-button",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiButtonComponentTagName",
+          "declaration": {
+            "name": "AiButtonComponentTagName",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiButtonComponent",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiButtonComponent",
+            "module": "src/lib/ai-button/ai-button.ts"
           }
         }
       ]
@@ -3125,6 +3125,51 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-chatbot/http-agent-with-credentials.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "HttpAgent with configurable credentials support.",
+          "name": "HttpAgentWithCredentials",
+          "members": [
+            {
+              "kind": "method",
+              "name": "requestInit",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "RequestInit"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "text": "RunAgentInput"
+                  }
+                }
+              ]
+            }
+          ],
+          "superclass": {
+            "name": "HttpAgent",
+            "package": "@ag-ui/client"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "HttpAgentWithCredentials",
+          "declaration": {
+            "name": "HttpAgentWithCredentials",
+            "module": "src/lib/ai-chatbot/http-agent-with-credentials.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-chatbot/markdown-stream-controller.ts",
       "declarations": [
         {
@@ -3619,6 +3664,149 @@
           "declaration": {
             "name": "downloadFile",
             "module": "src/lib/ai-chatbot/utils.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-confirmation-prompt/ai-confirmation-prompt.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiConfirmationPromptComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-confirmation-prompt'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiConfirmationPromptComponent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "text",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "''",
+              "attribute": "text"
+            },
+            {
+              "kind": "field",
+              "name": "confirmText",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "'Confirm'",
+              "attribute": "confirm-text"
+            },
+            {
+              "kind": "field",
+              "name": "denyText",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "default": "'Deny'",
+              "attribute": "deny-text"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "disabled"
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when user confirms the prompt",
+              "name": "forge-ai-confirmation-prompt-confirm"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "Fired when user denies the prompt",
+              "name": "forge-ai-confirmation-prompt-deny"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "text"
+            },
+            {
+              "name": "confirm-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Confirm'",
+              "fieldName": "confirmText"
+            },
+            {
+              "name": "deny-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Deny'",
+              "fieldName": "denyText"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-confirmation-prompt",
+          "customElement": true,
+          "summary": "Displays a confirmation UI for requiring human approval."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiConfirmationPromptComponentTagName",
+          "declaration": {
+            "name": "AiConfirmationPromptComponentTagName",
+            "module": "src/lib/ai-confirmation-prompt/ai-confirmation-prompt.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiConfirmationPromptComponent",
+          "declaration": {
+            "name": "AiConfirmationPromptComponent",
+            "module": "src/lib/ai-confirmation-prompt/ai-confirmation-prompt.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiConfirmationPromptComponent",
+            "module": "src/lib/ai-confirmation-prompt/ai-confirmation-prompt.ts"
           }
         }
       ]
@@ -4789,68 +4977,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-error-message/ai-error-message.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiErrorMessageComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-error-message'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiErrorMessageComponent",
-          "slots": [
-            {
-              "description": "The error title text",
-              "name": "title"
-            },
-            {
-              "description": "The error message content",
-              "name": ""
-            }
-          ],
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-error-message",
-          "customElement": true,
-          "summary": "Displays error messages using Forge inline message banner style."
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiErrorMessageComponentTagName",
-          "declaration": {
-            "name": "AiErrorMessageComponentTagName",
-            "module": "src/lib/ai-error-message/ai-error-message.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiErrorMessageComponent",
-          "declaration": {
-            "name": "AiErrorMessageComponent",
-            "module": "src/lib/ai-error-message/ai-error-message.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiErrorMessageComponent",
-            "module": "src/lib/ai-error-message/ai-error-message.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-empty-state/ai-empty-state.ts",
       "declarations": [
         {
@@ -5020,6 +5146,232 @@
           "declaration": {
             "name": "AiFabComponent",
             "module": "src/lib/ai-fab/ai-fab.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-error-message/ai-error-message.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiErrorMessageComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-error-message'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiErrorMessageComponent",
+          "slots": [
+            {
+              "description": "The error title text",
+              "name": "title"
+            },
+            {
+              "description": "The error message content",
+              "name": ""
+            }
+          ],
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-error-message",
+          "customElement": true,
+          "summary": "Displays error messages using Forge inline message banner style."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiErrorMessageComponentTagName",
+          "declaration": {
+            "name": "AiErrorMessageComponentTagName",
+            "module": "src/lib/ai-error-message/ai-error-message.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiErrorMessageComponent",
+          "declaration": {
+            "name": "AiErrorMessageComponent",
+            "module": "src/lib/ai-error-message/ai-error-message.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiErrorMessageComponent",
+            "module": "src/lib/ai-error-message/ai-error-message.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-floating-chat/ai-floating-chat.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiFloatingChatComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-floating-chat'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiFloatingChatComponent",
+          "slots": [
+            {
+              "description": "Default slot for chatbot component",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "open"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "attribute": "expanded"
+            },
+            {
+              "kind": "method",
+              "name": "show",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "toggle",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "expand",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "collapse",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            }
+          ],
+          "events": [
+            {
+              "description": "Fired when the chat is opened",
+              "name": "forge-ai-floating-chat-open"
+            },
+            {
+              "description": "Fired when the chat is closed",
+              "name": "forge-ai-floating-chat-close"
+            },
+            {
+              "description": "Fired when the chat is expanded",
+              "name": "forge-ai-floating-chat-expand"
+            },
+            {
+              "description": "Fired when the chat is collapsed",
+              "name": "forge-ai-floating-chat-collapse"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "open"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-floating-chat",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiFloatingChatComponentTagName",
+          "declaration": {
+            "name": "AiFloatingChatComponentTagName",
+            "module": "src/lib/ai-floating-chat/ai-floating-chat.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiFloatingChatComponent",
+          "declaration": {
+            "name": "AiFloatingChatComponent",
+            "module": "src/lib/ai-floating-chat/ai-floating-chat.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiFloatingChatComponent",
+            "module": "src/lib/ai-floating-chat/ai-floating-chat.ts"
           }
         }
       ]
@@ -5226,170 +5578,6 @@
           "declaration": {
             "name": "AiFilePickerComponent",
             "module": "src/lib/ai-file-picker/ai-file-picker.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-floating-chat/ai-floating-chat.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiFloatingChatComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-floating-chat'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiFloatingChatComponent",
-          "slots": [
-            {
-              "description": "Default slot for chatbot component",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "attribute": "open"
-            },
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "attribute": "expanded"
-            },
-            {
-              "kind": "method",
-              "name": "show",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "toggle",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "expand",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "collapse",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            }
-          ],
-          "events": [
-            {
-              "description": "Fired when the chat is opened",
-              "name": "forge-ai-floating-chat-open"
-            },
-            {
-              "description": "Fired when the chat is closed",
-              "name": "forge-ai-floating-chat-close"
-            },
-            {
-              "description": "Fired when the chat is expanded",
-              "name": "forge-ai-floating-chat-expand"
-            },
-            {
-              "description": "Fired when the chat is collapsed",
-              "name": "forge-ai-floating-chat-collapse"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "fieldName": "open"
-            },
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "fieldName": "expanded"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-floating-chat",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiFloatingChatComponentTagName",
-          "declaration": {
-            "name": "AiFloatingChatComponentTagName",
-            "module": "src/lib/ai-floating-chat/ai-floating-chat.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiFloatingChatComponent",
-          "declaration": {
-            "name": "AiFloatingChatComponent",
-            "module": "src/lib/ai-floating-chat/ai-floating-chat.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiFloatingChatComponent",
-            "module": "src/lib/ai-floating-chat/ai-floating-chat.ts"
           }
         }
       ]
@@ -6250,6 +6438,121 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/lib/ai-reasoning-header/ai-reasoning-header.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiReasoningHeaderComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-reasoning-header'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiReasoningHeaderComponent",
+          "slots": [
+            {
+              "description": "Content for the header when in regular (non-reasoning) state",
+              "name": "title"
+            },
+            {
+              "description": "Content for the header when in reasoning state",
+              "name": "reasoning-title"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the header is expanded",
+              "attribute": "expanded",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "reasoning",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether this is a reasoning header",
+              "attribute": "reasoning",
+              "reflects": true
+            }
+          ],
+          "events": [
+            {
+              "name": "toggle",
+              "type": {
+                "text": "CustomEvent<{ expanded: boolean }>"
+              },
+              "description": "Fired when the header is clicked and the expanded state changes"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the header is expanded",
+              "fieldName": "expanded"
+            },
+            {
+              "name": "reasoning",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether this is a reasoning header",
+              "fieldName": "reasoning"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-reasoning-header",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiReasoningHeaderComponentTagName",
+          "declaration": {
+            "name": "AiReasoningHeaderComponentTagName",
+            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiReasoningHeaderComponent",
+          "declaration": {
+            "name": "AiReasoningHeaderComponent",
+            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiReasoningHeaderComponent",
+            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/lib/ai-response-message/ai-response-message.ts",
       "declarations": [
         {
@@ -6367,6 +6670,129 @@
           "declaration": {
             "name": "AiResponseMessageComponent",
             "module": "src/lib/ai-response-message/ai-response-message.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-sidebar/ai-sidebar.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiSidebarComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-sidebar'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiSidebarComponent",
+          "slots": [
+            {
+              "description": "Default slot for sidebar content (typically ai-chat-interface)",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Indicates whether the sidebar is open.",
+              "attribute": "open"
+            },
+            {
+              "kind": "method",
+              "name": "show",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Opens the sidebar."
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the sidebar."
+            },
+            {
+              "kind": "method",
+              "name": "toggle",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Toggles the sidebar open state."
+            }
+          ],
+          "events": [
+            {
+              "description": "Fired when the sidebar is opened",
+              "name": "forge-ai-sidebar-open"
+            },
+            {
+              "description": "Fired when the sidebar is closed",
+              "name": "forge-ai-sidebar-close"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Indicates whether the sidebar is open.",
+              "fieldName": "open"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-sidebar",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiSidebarComponentTagName",
+          "declaration": {
+            "name": "AiSidebarComponentTagName",
+            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiSidebarComponent",
+          "declaration": {
+            "name": "AiSidebarComponent",
+            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiSidebarComponent",
+            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
           }
         }
       ]
@@ -6537,296 +6963,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-reasoning-header/ai-reasoning-header.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiReasoningHeaderComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-reasoning-header'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiReasoningHeaderComponent",
-          "slots": [
-            {
-              "description": "Content for the header when in regular (non-reasoning) state",
-              "name": "title"
-            },
-            {
-              "description": "Content for the header when in reasoning state",
-              "name": "reasoning-title"
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the header is expanded",
-              "attribute": "expanded",
-              "reflects": true
-            },
-            {
-              "kind": "field",
-              "name": "reasoning",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether this is a reasoning header",
-              "attribute": "reasoning",
-              "reflects": true
-            }
-          ],
-          "events": [
-            {
-              "name": "toggle",
-              "type": {
-                "text": "CustomEvent<{ expanded: boolean }>"
-              },
-              "description": "Fired when the header is clicked and the expanded state changes"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "expanded",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the header is expanded",
-              "fieldName": "expanded"
-            },
-            {
-              "name": "reasoning",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether this is a reasoning header",
-              "fieldName": "reasoning"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-reasoning-header",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiReasoningHeaderComponentTagName",
-          "declaration": {
-            "name": "AiReasoningHeaderComponentTagName",
-            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiReasoningHeaderComponent",
-          "declaration": {
-            "name": "AiReasoningHeaderComponent",
-            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiReasoningHeaderComponent",
-            "module": "src/lib/ai-reasoning-header/ai-reasoning-header.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-sidebar/ai-sidebar.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiSidebarComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-sidebar'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiSidebarComponent",
-          "slots": [
-            {
-              "description": "Default slot for sidebar content (typically ai-chat-interface)",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Indicates whether the sidebar is open.",
-              "attribute": "open"
-            },
-            {
-              "kind": "method",
-              "name": "show",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Opens the sidebar."
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Closes the sidebar."
-            },
-            {
-              "kind": "method",
-              "name": "toggle",
-              "privacy": "public",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Toggles the sidebar open state."
-            }
-          ],
-          "events": [
-            {
-              "description": "Fired when the sidebar is opened",
-              "name": "forge-ai-sidebar-open"
-            },
-            {
-              "description": "Fired when the sidebar is closed",
-              "name": "forge-ai-sidebar-close"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Indicates whether the sidebar is open.",
-              "fieldName": "open"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-sidebar",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiSidebarComponentTagName",
-          "declaration": {
-            "name": "AiSidebarComponentTagName",
-            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiSidebarComponent",
-          "declaration": {
-            "name": "AiSidebarComponent",
-            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiSidebarComponent",
-            "module": "src/lib/ai-sidebar/ai-sidebar.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "AiThinkingIndicatorComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-thinking-indicator'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AiThinkingIndicatorComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-thinking-indicator",
-          "customElement": true,
-          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AiThinkingIndicatorComponentTagName",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponentTagName",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "AiThinkingIndicatorComponent",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "AiThinkingIndicatorComponent",
-            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "declarations": [
         {
@@ -6924,6 +7060,58 @@
           "declaration": {
             "name": "AiSuggestionsComponent",
             "module": "src/lib/ai-suggestions/ai-suggestions.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-thinking-indicator'"
+        },
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AiThinkingIndicatorComponent",
+          "members": [],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "forge-ai-thinking-indicator",
+          "customElement": true,
+          "summary": "A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponentTagName",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponentTagName",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AiThinkingIndicatorComponent",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "declaration": {
+            "name": "AiThinkingIndicatorComponent",
+            "module": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts"
           }
         }
       ]
@@ -7542,57 +7730,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
-      "declarations": [
-        {
-          "kind": "variable",
-          "name": "ReasoningContentComponentTagName",
-          "type": {
-            "text": "keyof HTMLElementTagNameMap"
-          },
-          "default": "'forge-ai-reasoning-content'"
-        },
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ReasoningContentComponent",
-          "members": [],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "tagName": "forge-ai-reasoning-content",
-          "customElement": true
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ReasoningContentComponentTagName",
-          "declaration": {
-            "name": "ReasoningContentComponentTagName",
-            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "ReasoningContentComponent",
-          "declaration": {
-            "name": "ReasoningContentComponent",
-            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "declaration": {
-            "name": "ReasoningContentComponent",
-            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
       "declarations": [
         {
@@ -7668,205 +7805,51 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/lib/core/popover/popover.ts",
+      "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
       "declarations": [
+        {
+          "kind": "variable",
+          "name": "ReasoningContentComponentTagName",
+          "type": {
+            "text": "keyof HTMLElementTagNameMap"
+          },
+          "default": "'forge-ai-reasoning-content'"
+        },
         {
           "kind": "class",
           "description": "",
-          "name": "ForgeAiPopoverComponent",
-          "cssProperties": [
-            {
-              "description": "The maximum width of the popover.",
-              "name": "--ai-popover-max-width"
-            },
-            {
-              "description": "The maximum height of the popover.",
-              "name": "--ai-popover-max-height"
-            },
-            {
-              "description": "The minimum width of the popover.",
-              "name": "--ai-popover-min-width"
-            },
-            {
-              "description": "The minimum height of the popover.",
-              "name": "--ai-popover-min-height"
-            }
-          ],
-          "slots": [
-            {
-              "description": "The default slot for popover content.",
-              "name": ""
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "privacy": "public",
-              "default": "null",
-              "description": "The anchor element to position the popover relative to.",
-              "attribute": "anchor"
-            },
-            {
-              "kind": "field",
-              "name": "placement",
-              "type": {
-                "text": "PopoverPlacement"
-              },
-              "privacy": "public",
-              "default": "'bottom-start'",
-              "description": "The placement of the popover relative to the anchor.",
-              "attribute": "placement"
-            },
-            {
-              "kind": "field",
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the popover should flip to the opposite side when there's no space.",
-              "attribute": "flip"
-            },
-            {
-              "kind": "field",
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the popover should shift to stay in view.",
-              "attribute": "shift"
-            },
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether the popover is open.",
-              "attribute": "open",
-              "reflects": true
-            },
-            {
-              "kind": "field",
-              "name": "arrow",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "public",
-              "default": "false",
-              "description": "Whether to show an arrow pointing to the anchor element.",
-              "attribute": "arrow"
-            },
-            {
-              "kind": "field",
-              "name": "dismissMode",
-              "type": {
-                "text": "'auto' | 'manual'"
-              },
-              "privacy": "public",
-              "default": "'auto'",
-              "description": "The dismiss mode for the popover.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
-              "attribute": "dismiss-mode"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "anchor",
-              "type": {
-                "text": "Element | null"
-              },
-              "default": "null",
-              "description": "The anchor element to position the popover relative to.",
-              "fieldName": "anchor"
-            },
-            {
-              "name": "placement",
-              "type": {
-                "text": "PopoverPlacement"
-              },
-              "default": "'bottom-start'",
-              "description": "The placement of the popover relative to the anchor.",
-              "fieldName": "placement"
-            },
-            {
-              "name": "flip",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the popover should flip to the opposite side when there's no space.",
-              "fieldName": "flip"
-            },
-            {
-              "name": "shift",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the popover should shift to stay in view.",
-              "fieldName": "shift"
-            },
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the popover is open.",
-              "fieldName": "open"
-            },
-            {
-              "name": "arrow",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether to show an arrow pointing to the anchor element.",
-              "fieldName": "arrow"
-            },
-            {
-              "name": "dismiss-mode",
-              "type": {
-                "text": "'auto' | 'manual'"
-              },
-              "default": "'auto'",
-              "description": "The dismiss mode for the popover.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
-              "fieldName": "dismissMode"
-            }
-          ],
+          "name": "ReasoningContentComponent",
+          "members": [],
           "superclass": {
             "name": "LitElement",
             "package": "lit"
           },
-          "summary": "A popover component that provides styled overlay functionality.",
-          "tagName": "forge-ai-popover",
+          "tagName": "forge-ai-reasoning-content",
           "customElement": true
         }
       ],
       "exports": [
         {
           "kind": "js",
-          "name": "ForgeAiPopoverComponent",
+          "name": "ReasoningContentComponentTagName",
           "declaration": {
-            "name": "ForgeAiPopoverComponent",
-            "module": "src/lib/core/popover/popover.ts"
+            "name": "ReasoningContentComponentTagName",
+            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ReasoningContentComponent",
+          "declaration": {
+            "name": "ReasoningContentComponent",
+            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
           }
         },
         {
           "kind": "custom-element-definition",
-          "name": "forge-ai-popover",
           "declaration": {
-            "name": "ForgeAiPopoverComponent",
-            "module": "src/lib/core/popover/popover.ts"
+            "name": "ReasoningContentComponent",
+            "module": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts"
           }
         }
       ]
@@ -8072,6 +8055,211 @@
           "declaration": {
             "name": "ForgeAiOverlayComponent",
             "module": "src/lib/core/overlay/overlay.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/lib/core/popover/popover.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ForgeAiPopoverComponent",
+          "cssProperties": [
+            {
+              "description": "The maximum width of the popover.",
+              "name": "--ai-popover-max-width"
+            },
+            {
+              "description": "The maximum height of the popover.",
+              "name": "--ai-popover-max-height"
+            },
+            {
+              "description": "The minimum width of the popover.",
+              "name": "--ai-popover-min-width"
+            },
+            {
+              "description": "The minimum height of the popover.",
+              "name": "--ai-popover-min-height"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The default slot for popover content.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "privacy": "public",
+              "default": "null",
+              "description": "The anchor element to position the popover relative to.",
+              "attribute": "anchor"
+            },
+            {
+              "kind": "field",
+              "name": "placement",
+              "type": {
+                "text": "PopoverPlacement"
+              },
+              "privacy": "public",
+              "default": "'bottom-start'",
+              "description": "The placement of the popover relative to the anchor.",
+              "attribute": "placement"
+            },
+            {
+              "kind": "field",
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the popover should flip to the opposite side when there's no space.",
+              "attribute": "flip"
+            },
+            {
+              "kind": "field",
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the popover should shift to stay in view.",
+              "attribute": "shift"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether the popover is open.",
+              "attribute": "open",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "arrow",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "default": "false",
+              "description": "Whether to show an arrow pointing to the anchor element.",
+              "attribute": "arrow"
+            },
+            {
+              "kind": "field",
+              "name": "dismissMode",
+              "type": {
+                "text": "'auto' | 'manual'"
+              },
+              "privacy": "public",
+              "default": "'auto'",
+              "description": "The dismiss mode for the popover.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
+              "attribute": "dismiss-mode"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "anchor",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The anchor element to position the popover relative to.",
+              "fieldName": "anchor"
+            },
+            {
+              "name": "placement",
+              "type": {
+                "text": "PopoverPlacement"
+              },
+              "default": "'bottom-start'",
+              "description": "The placement of the popover relative to the anchor.",
+              "fieldName": "placement"
+            },
+            {
+              "name": "flip",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popover should flip to the opposite side when there's no space.",
+              "fieldName": "flip"
+            },
+            {
+              "name": "shift",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popover should shift to stay in view.",
+              "fieldName": "shift"
+            },
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popover is open.",
+              "fieldName": "open"
+            },
+            {
+              "name": "arrow",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether to show an arrow pointing to the anchor element.",
+              "fieldName": "arrow"
+            },
+            {
+              "name": "dismiss-mode",
+              "type": {
+                "text": "'auto' | 'manual'"
+              },
+              "default": "'auto'",
+              "description": "The dismiss mode for the popover.\n- 'auto': Automatically closes on outside clicks and Escape key\n- 'manual': Requires manual control to close",
+              "fieldName": "dismissMode"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "summary": "A popover component that provides styled overlay functionality.",
+          "tagName": "forge-ai-popover",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ForgeAiPopoverComponent",
+          "declaration": {
+            "name": "ForgeAiPopoverComponent",
+            "module": "src/lib/core/popover/popover.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "forge-ai-popover",
+          "declaration": {
+            "name": "ForgeAiPopoverComponent",
+            "module": "src/lib/core/popover/popover.ts"
           }
         }
       ]
@@ -8307,7 +8495,7 @@
       ]
     }
   ],
-  "branchName": "chatbot-sdk-organize",
+  "branchName": "chatbot",
   "forgeTypes": {
     "ForgeAiActionsToolbarActionEventData": {
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
@@ -8325,6 +8513,10 @@
       "path": "src/lib/ai-actions-toolbar/ai-actions-toolbar.ts",
       "lineNumber": 41
     },
+    "AiArtifactComponent": {
+      "path": "src/lib/ai-artifact/ai-artifact.ts",
+      "lineNumber": 23
+    },
     "AgentInfo": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 37
@@ -8332,10 +8524,6 @@
     "AiAgentInfoComponent": {
       "path": "src/lib/ai-agent-info/ai-agent-info.ts",
       "lineNumber": 29
-    },
-    "AiArtifactComponent": {
-      "path": "src/lib/ai-artifact/ai-artifact.ts",
-      "lineNumber": 23
     },
     "ForgeAiAttachmentRemoveEventData": {
       "path": "src/lib/ai-attachment/ai-attachment.ts",
@@ -8349,10 +8537,6 @@
       "path": "src/lib/ai-chain-of-thought/ai-chain-of-thought.ts",
       "lineNumber": 17
     },
-    "AiButtonComponent": {
-      "path": "src/lib/ai-button/ai-button.ts",
-      "lineNumber": 22
-    },
     "MinimizeIconType": {
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 33
@@ -8365,21 +8549,25 @@
       "path": "src/lib/ai-chat-header/ai-chat-header.ts",
       "lineNumber": 63
     },
+    "AiButtonComponent": {
+      "path": "src/lib/ai-button/ai-button.ts",
+      "lineNumber": 22
+    },
     "AiChatInterfaceComponent": {
       "path": "src/lib/ai-chat-interface/ai-chat-interface.ts",
       "lineNumber": 24
     },
     "AgUiAdapterConfig": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 16
+      "lineNumber": 17
     },
     "ToolCallState": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 23
+      "lineNumber": 24
     },
     "AgUiAdapter": {
       "path": "src/lib/ai-chatbot/ag-ui-adapter.ts",
-      "lineNumber": 29
+      "lineNumber": 30
     },
     "MessageStartEvent": {
       "path": "src/lib/ai-chatbot/agent-adapter.ts",
@@ -8513,6 +8701,14 @@
       "path": "src/lib/ai-chatbot/file-upload-manager.ts",
       "lineNumber": 16
     },
+    "ForgeHttpAgentConfig": {
+      "path": "src/lib/ai-chatbot/http-agent-with-credentials.ts",
+      "lineNumber": 5
+    },
+    "HttpAgentWithCredentials": {
+      "path": "src/lib/ai-chatbot/http-agent-with-credentials.ts",
+      "lineNumber": 12
+    },
     "MarkdownStreamController": {
       "path": "src/lib/ai-chatbot/markdown-stream-controller.ts",
       "lineNumber": 8
@@ -8585,6 +8781,10 @@
       "path": "src/lib/ai-chatbot/types.ts",
       "lineNumber": 131
     },
+    "AiConfirmationPromptComponent": {
+      "path": "src/lib/ai-confirmation-prompt/ai-confirmation-prompt.ts",
+      "lineNumber": 27
+    },
     "AiDialogComponent": {
       "path": "src/lib/ai-dialog/ai-dialog.ts",
       "lineNumber": 35
@@ -8653,10 +8853,6 @@
       "path": "src/lib/ai-embedded-chat/ai-embedded-chat.ts",
       "lineNumber": 47
     },
-    "AiErrorMessageComponent": {
-      "path": "src/lib/ai-error-message/ai-error-message.ts",
-      "lineNumber": 22
-    },
     "AiEmptyStateComponent": {
       "path": "src/lib/ai-empty-state/ai-empty-state.ts",
       "lineNumber": 23
@@ -8664,6 +8860,14 @@
     "AiFabComponent": {
       "path": "src/lib/ai-fab/ai-fab.ts",
       "lineNumber": 22
+    },
+    "AiErrorMessageComponent": {
+      "path": "src/lib/ai-error-message/ai-error-message.ts",
+      "lineNumber": 22
+    },
+    "AiFloatingChatComponent": {
+      "path": "src/lib/ai-floating-chat/ai-floating-chat.ts",
+      "lineNumber": 38
     },
     "ForgeAiFilePickerChangeEventData": {
       "path": "src/lib/ai-file-picker/ai-file-picker.ts",
@@ -8680,10 +8884,6 @@
     "AiFilePickerComponent": {
       "path": "src/lib/ai-file-picker/ai-file-picker.ts",
       "lineNumber": 71
-    },
-    "AiFloatingChatComponent": {
-      "path": "src/lib/ai-floating-chat/ai-floating-chat.ts",
-      "lineNumber": 38
     },
     "AiGradientContainerVariant": {
       "path": "src/lib/ai-gradient-container/ai-gradient-container.ts",
@@ -8737,25 +8937,21 @@
       "path": "src/lib/ai-reasoning/ai-reasoning.ts",
       "lineNumber": 17
     },
-    "AiResponseMessageComponent": {
-      "path": "src/lib/ai-response-message/ai-response-message.ts",
-      "lineNumber": 33
-    },
-    "AiSidebarChatComponent": {
-      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
-      "lineNumber": 42
-    },
     "AiReasoningHeaderComponent": {
       "path": "src/lib/ai-reasoning-header/ai-reasoning-header.ts",
       "lineNumber": 22
+    },
+    "AiResponseMessageComponent": {
+      "path": "src/lib/ai-response-message/ai-response-message.ts",
+      "lineNumber": 33
     },
     "AiSidebarComponent": {
       "path": "src/lib/ai-sidebar/ai-sidebar.ts",
       "lineNumber": 28
     },
-    "AiThinkingIndicatorComponent": {
-      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
-      "lineNumber": 24
+    "AiSidebarChatComponent": {
+      "path": "src/lib/ai-sidebar-chat/ai-sidebar-chat.ts",
+      "lineNumber": 42
     },
     "Suggestion": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
@@ -8772,6 +8968,10 @@
     "AiSuggestionsComponent": {
       "path": "src/lib/ai-suggestions/ai-suggestions.ts",
       "lineNumber": 42
+    },
+    "AiThinkingIndicatorComponent": {
+      "path": "src/lib/ai-thinking-indicator/ai-thinking-indicator.ts",
+      "lineNumber": 24
     },
     "Thread": {
       "path": "src/lib/ai-threads/ai-threads.ts",
@@ -8845,13 +9045,21 @@
       "path": "src/lib/ai-chain-of-thought/thought-search-result/thought-search-result.ts",
       "lineNumber": 24
     },
+    "PromptButtonComponent": {
+      "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
+      "lineNumber": 17
+    },
     "ReasoningContentComponent": {
       "path": "src/lib/ai-reasoning/reasoning-content/reasoning-content.ts",
       "lineNumber": 17
     },
-    "PromptButtonComponent": {
-      "path": "src/lib/ai-prompt/prompt-button/prompt-button.ts",
-      "lineNumber": 17
+    "OverlayPlacement": {
+      "path": "src/lib/core/overlay/overlay.ts",
+      "lineNumber": 30
+    },
+    "ForgeAiOverlayComponent": {
+      "path": "src/lib/core/overlay/overlay.ts",
+      "lineNumber": 42
     },
     "PopoverToggleEventData": {
       "path": "src/lib/core/popover/popover.ts",
@@ -8864,14 +9072,6 @@
     "ForgeAiPopoverComponent": {
       "path": "src/lib/core/popover/popover.ts",
       "lineNumber": 40
-    },
-    "OverlayPlacement": {
-      "path": "src/lib/core/overlay/overlay.ts",
-      "lineNumber": 30
-    },
-    "ForgeAiOverlayComponent": {
-      "path": "src/lib/core/overlay/overlay.ts",
-      "lineNumber": 42
     },
     "TooltipToggleEventDetail": {
       "path": "src/lib/core/tooltip/tooltip.ts",
