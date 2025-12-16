@@ -4,44 +4,54 @@
  */
 export async function checkThirdPartyCookies(): Promise<boolean> {
   return new Promise(resolve => {
+    const testCookieName = 'third_party_test';
+    const testValue = `test_${Date.now()}`;
     const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = 'about:blank';
-
-    const timeout = setTimeout(() => {
-      cleanup();
-      resolve(false);
-    }, 3000);
 
     const cleanup = (): void => {
-      clearTimeout(timeout);
-      iframe.remove();
+      clearTimeout(timer);
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
     };
 
+    iframe.style.display = 'none';
+    iframe.src = 'about:blank';
     iframe.onload = (): void => {
       try {
         const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (!iframeDoc) {
-          cleanup();
+        if (iframeDoc) {
+          const isSecureContext = window.isSecureContext;
+          const cookieFlags = isSecureContext ? '; SameSite=None; Secure' : '';
+
+          iframeDoc.cookie = `${testCookieName}=${testValue}; path=/${cookieFlags}`;
+          const cookies = iframeDoc.cookie;
+          const hasTestCookie = cookies.includes(testCookieName);
+
+          if (hasTestCookie) {
+            iframeDoc.cookie = `${testCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/${cookieFlags}`;
+          }
+
+          resolve(hasTestCookie);
+        } else {
           resolve(false);
-          return;
         }
-
-        const isSecureContext = window.isSecureContext;
-        const cookieFlags = isSecureContext ? '; SameSite=None; Secure' : '';
-
-        document.cookie = `tyler_ai_cookie_test=1${cookieFlags}`;
-        const cookieSet = document.cookie.includes('tyler_ai_cookie_test=1');
-
-        document.cookie = `tyler_ai_cookie_test=; expires=Thu, 01 Jan 1970 00:00:00 UTC${cookieFlags}`;
-
-        cleanup();
-        resolve(cookieSet);
       } catch {
-        cleanup();
         resolve(false);
+      } finally {
+        cleanup();
       }
     };
+
+    iframe.onerror = (): void => {
+      resolve(false);
+      cleanup();
+    };
+
+    const timer = window.setTimeout(() => {
+      resolve(false);
+      cleanup();
+    }, 3000);
 
     document.body.appendChild(iframe);
   });
