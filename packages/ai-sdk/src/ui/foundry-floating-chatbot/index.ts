@@ -1,1 +1,1 @@
-export { FoundryFloatingChatbotComponent, FoundryFloatingChatbotComponentTagName } from './foundry-floating-chatbot.js';
+export * from './foundry-floating-chatbot.js';

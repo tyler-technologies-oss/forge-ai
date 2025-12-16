@@ -1,10 +1,10 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import { checkAuthentication } from '../auth-manager.js';
-import { loadAgentConfig } from '../config-loader.js';
-import { checkThirdPartyCookies } from '../cookie-checker.js';
-import { setupFileRemoveHandler, setupFileUploadHandler } from '../file-upload.js';
-import { FoundryAgentAdapter } from '../foundry-agent-adapter.js';
-import type { AgentUIConfig } from '../types.js';
+import { checkAuthentication } from '../core/auth-manager.js';
+import { loadAgentConfig } from '../core/config-loader.js';
+import { checkThirdPartyCookies } from '../core/cookie-checker.js';
+import { setupFileRemoveHandler, setupFileUploadHandler } from '../core/file-upload.js';
+import { FoundryAgentAdapter } from '../core/foundry-agent-adapter.js';
+import type { AgentUIConfig } from '../core/types.js';
 import { FoundryBaseChatbotComponent } from './foundry-base-chatbot.js';
 
 type InitState = 'pending' | 'initializing' | 'initialized' | 'error';

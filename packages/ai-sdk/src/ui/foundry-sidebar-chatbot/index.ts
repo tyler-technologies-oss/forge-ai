@@ -1,1 +1,1 @@
-export { FoundrySidebarChatbotComponent, FoundrySidebarChatbotComponentTagName } from './foundry-sidebar-chatbot.js';
+export * from './foundry-sidebar-chatbot.js';

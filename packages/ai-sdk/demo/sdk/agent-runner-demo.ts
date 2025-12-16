@@ -10,8 +10,7 @@ import {
 } from '@tylertech/forge';
 import { tylIconForgeLogo } from '@tylertech/tyler-icons';
 import '@tylertech/forge-ai/ai-button';
-import { FoundryAgentRunner } from '../../src/index.js';
-import type { ToolDefinition } from '../../src/types.js';
+import { FoundryAgentRunner, ToolDefinition } from '../../src/sdk';
 import { DEFAULT_CONFIG } from './shared.js';
 
 defineScaffoldComponent();

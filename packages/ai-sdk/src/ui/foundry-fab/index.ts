@@ -1,1 +1,1 @@
-export { FoundryFabComponent, FoundryFabComponentTagName } from './foundry-fab.js';
+export * from './foundry-fab.js';
