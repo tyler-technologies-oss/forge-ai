@@ -40,9 +40,7 @@
   "author": "Tyler Technologies",
   "license": "Apache-2.0",
   "dependencies": {
-    "lit": "catalog:"
-  },
-  "peerDependencies": {
+    "lit": "catalog:",
     "@tylertech/forge-ai": "workspace:"
   },
   "devDependencies": {
