@@ -127,11 +127,12 @@ export class AiChatHeaderComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="header forge-toolbar forge-toolbar--no-divider">
-        <div class="start">
+        <div class="start" id="title-text-container">
           <slot name="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>
           <slot name="title" class="title">${this.titleText}</slot>
+          <forge-ai-tooltip id="title-tooltip" for="title-text-container"> ${this.titleText} </forge-ai-tooltip>
         </div>
         <div class="end">
           ${when(

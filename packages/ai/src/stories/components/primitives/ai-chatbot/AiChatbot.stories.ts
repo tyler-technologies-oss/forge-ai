@@ -97,6 +97,7 @@ const meta = {
             ?show-expand-button=${args.showExpandButton}
             ?show-minimize-button=${args.showMinimizeButton}
             ?expanded=${args.expanded}
+            title-text=${args.headerTitle}
             ?enable-reactions=${args.enableReactions}
             .minimizeIcon=${args.minimizeIcon}
             @forge-ai-chatbot-connected=${onConnected}
