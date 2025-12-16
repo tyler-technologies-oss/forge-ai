@@ -6,10 +6,6 @@
   height: 100%;
 }
 
-.header-title {
-  @include forge-typography.style(subheading2);
-}
-
 forge-ai-chat-interface {
   &::part(messages) {
     overflow: hidden;
