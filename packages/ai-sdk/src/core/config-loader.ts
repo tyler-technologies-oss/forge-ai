@@ -35,11 +35,15 @@ export async function loadAgentConfig(config: ChatbotConfig, authStatus: AuthSta
 
     const agentConfig: AgentUIConfig = await response.json();
 
-    if (agentConfig.chatExperience?.welcomeMessage && authStatus.userDetails) {
-      agentConfig.chatExperience.welcomeMessage = applyTemplateVariables(
-        agentConfig.chatExperience.welcomeMessage,
-        authStatus.userDetails
-      );
+    if (agentConfig.chatExperience?.welcomeMessage) {
+      if (authStatus.userDetails) {
+        agentConfig.chatExperience.welcomeMessage = applyTemplateVariables(
+          agentConfig.chatExperience.welcomeMessage,
+          authStatus.userDetails
+        );
+      } else {
+        agentConfig.chatExperience.welcomeMessage = 'Welcome! How can I assist you today?';
+      }
     }
 
     return agentConfig;

@@ -1,4 +1,5 @@
 import { HttpAgent, type AgentSubscriber } from '@ag-ui/client';
+import { HttpAgentWithCredentials } from './http-agent-with-credentials.js';
 import type {
   AssistantMessage,
   Message,
@@ -37,7 +38,7 @@ export class AgUiAdapter extends AgentAdapter {
     super();
     this.#config = config;
     this.#threadId = threadId ?? generateId('thread');
-    this.#agent = new HttpAgent({
+    this.#agent = new HttpAgentWithCredentials({
       url: config.url,
       headers: config.headers
     });

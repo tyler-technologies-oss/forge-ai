@@ -8,9 +8,7 @@ export interface FoundryAdapterConfig {
   headers?: Record<string, string>;
 }
 
-/**
- * Adapter for connecting Tyler AI chatbot to Foundry backend services.
- */
+/** AG-UI adapter for Foundry agents with auth support. */
 export class FoundryAgentAdapter extends AgUiAdapter {
   readonly #agentConfig: AgentUIConfig;
 

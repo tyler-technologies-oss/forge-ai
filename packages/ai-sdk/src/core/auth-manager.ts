@@ -4,9 +4,8 @@ const AUTH_POLL_INTERVAL = 1000;
 const AUTH_POLL_TIMEOUT = 300000;
 
 /**
- * Check authentication status for the chatbot agent to determine if the user is authenticated or needs to authenticate.
- * @param {ChatbotConfig} config - Configuration object for the chatbot.
- * @returns {AuthStatus} indicating authentication status and user details if authenticated.
+ * Checks agent auth status and initiates OIDC login if needed.
+ * @throws If popup blocked, auth cancelled, or times out (5min)
  */
 export async function checkAuthentication(config: ChatbotConfig): Promise<AuthStatus> {
   const { agentId, baseUrl, credentials = 'include', headers = {} } = config;
@@ -48,6 +47,7 @@ export async function checkAuthentication(config: ChatbotConfig): Promise<AuthSt
   return authStatus;
 }
 
+/** Opens centered auth popup and polls for completion. */
 async function initiateAuthFlow(config: ChatbotConfig): Promise<AuthStatus> {
   const { agentId, baseUrl } = config;
 
@@ -69,6 +69,7 @@ async function initiateAuthFlow(config: ChatbotConfig): Promise<AuthStatus> {
   return await pollAuthStatus(config, popup);
 }
 
+/** Polls auth status every 1s until complete or timeout. */
 async function pollAuthStatus(config: ChatbotConfig, popup: Window): Promise<AuthStatus> {
   const { agentId, baseUrl, credentials = 'include', headers = {} } = config;
   const startTime = Date.now();

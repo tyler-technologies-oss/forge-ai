@@ -907,9 +907,8 @@ export class AiChatbotComponent extends LitElement {
         @forge-ai-message-thread-refresh=${this.#handleRefresh}
         @forge-ai-message-thread-thumbs-up=${this.#handleThumbsUp}
         @forge-ai-message-thread-thumbs-down=${this.#handleThumbsDown}>
-        <slot name="empty-state-heading" slot="empty-state-heading">
-          <span>How can I help you today?</span>
-        </slot>
+        <slot name="empty-state-heading" slot="empty-state-heading"></slot>
+        <slot name="empty-state-message" slot="empty-state-message"></slot>
         <forge-ai-suggestions
           slot="empty-state-actions"
           variant="block"
