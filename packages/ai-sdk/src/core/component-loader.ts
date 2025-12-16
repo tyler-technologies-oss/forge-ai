@@ -7,7 +7,34 @@ type ValidatedChatbotConfig = ChatbotConfig & {
   teamId?: string;
 };
 
-export async function loadComponent(config: ChatbotConfig): Promise<ChatbotAPI> {
+export async function initChatbot(config: Partial<ChatbotConfig> = {}): Promise<ChatbotAPI> {
+  try {
+    const windowConfig = window.tylerAIConfig;
+    config = { ...windowConfig, ...config };
+
+    if (!config.baseUrl) {
+      throw new Error('baseUrl is required');
+    }
+
+    if (!config.agentId && !config.teamId) {
+      throw new Error('Either agentId or teamId is required');
+    }
+
+    const api = await loadComponent(config);
+
+    window.dispatchEvent(new CustomEvent('tyler-ai-chatbot-ready', { detail: { api } }));
+    config.onReady?.(api);
+
+    return api;
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    console.error('Failed to initialize Tyler AI chatbot:', err);
+    config.onError?.(err);
+    throw err;
+  }
+}
+
+async function loadComponent(config: ChatbotConfig): Promise<ChatbotAPI> {
   const { chatViewType = 'floating' } = config;
 
   switch (chatViewType) {
@@ -23,7 +50,7 @@ export async function loadComponent(config: ChatbotConfig): Promise<ChatbotAPI> 
 }
 
 async function loadFloatingChat(config: ValidatedChatbotConfig): Promise<ChatbotAPI> {
-  await import('./ui/foundry-floating-chatbot/index.js');
+  await import('../ui/foundry-floating-chatbot/index.js');
 
   const element = document.createElement('foundry-floating-chatbot');
   element.baseUrl = config.baseUrl;
@@ -35,7 +62,7 @@ async function loadFloatingChat(config: ValidatedChatbotConfig): Promise<Chatbot
   document.body.appendChild(element);
 
   if (config.floatingConfig?.showTriggerButton !== false) {
-    await import('./ui/foundry-fab/index.js');
+    await import('../ui/foundry-fab/index.js');
     const fab = document.createElement('foundry-fab');
     fab.target = 'foundry-floating-chatbot';
     fab.text = config.floatingConfig?.triggerButtonText;
@@ -62,7 +89,7 @@ async function loadSidebarChat(config: ValidatedChatbotConfig): Promise<ChatbotA
     throw new Error(`Mount point not found: ${config.mountPoint}`);
   }
 
-  await import('./ui/foundry-sidebar-chatbot/index.js');
+  await import('../ui/foundry-sidebar-chatbot/index.js');
 
   const element = document.createElement('foundry-sidebar-chatbot');
   element.baseUrl = config.baseUrl;
@@ -94,7 +121,7 @@ async function loadThreadsChat(config: ValidatedChatbotConfig): Promise<ChatbotA
     throw new Error(`Mount point not found: ${config.mountPoint}`);
   }
 
-  await import('./ui/foundry-threaded-chatbot/index.js');
+  await import('../ui/foundry-threaded-chatbot/index.js');
 
   const element = document.createElement('foundry-threaded-chatbot');
   element.baseUrl = config.baseUrl;

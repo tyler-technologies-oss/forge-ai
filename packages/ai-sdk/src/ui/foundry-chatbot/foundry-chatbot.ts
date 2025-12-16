@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-export const FoundryChatbotComponentTagName: keyof HTMLElementTagNameMap = 'foundry-chatbot';
+const FoundryChatbotComponentTagName: keyof HTMLElementTagNameMap = 'foundry-chatbot';
 
 @customElement(FoundryChatbotComponentTagName)
 export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {

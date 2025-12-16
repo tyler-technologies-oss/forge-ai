@@ -27,10 +27,13 @@ export async function checkThirdPartyCookies(): Promise<boolean> {
           return;
         }
 
-        document.cookie = 'tyler_ai_cookie_test=1; SameSite=None; Secure';
+        const isSecureContext = window.isSecureContext;
+        const cookieFlags = isSecureContext ? '; SameSite=None; Secure' : '';
+
+        document.cookie = `tyler_ai_cookie_test=1${cookieFlags}`;
         const cookieSet = document.cookie.includes('tyler_ai_cookie_test=1');
 
-        document.cookie = 'tyler_ai_cookie_test=; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=None; Secure';
+        document.cookie = `tyler_ai_cookie_test=; expires=Thu, 01 Jan 1970 00:00:00 UTC${cookieFlags}`;
 
         cleanup();
         resolve(cookieSet);

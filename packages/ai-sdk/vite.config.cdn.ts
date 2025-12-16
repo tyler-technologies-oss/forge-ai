@@ -15,30 +15,54 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: id => {
-          // All SDK source files go into sdk-core
-          if (id.includes('/src/') && !id.includes('node_modules')) {
-            return 'sdk-core';
+          // Shared agent adapter/runner modules go into a shared chunk
+          if (id.includes('/src/core/foundry-agent-adapter') || id.includes('/src/core/foundry-agent-runner')) {
+            return 'foundry-agent-core';
           }
 
-          if (id.includes('ai-floating-chat') || id.includes('ai-fab')) {
-            return 'floating-chat';
-          }
-          if (id.includes('ai-sidebar-chat')) {
-            return 'sidebar-chat';
-          }
-          if (id.includes('ai-threads')) {
-            return 'threads-chat';
+          // Shared chatbot modules go into a core chunk
+          if (
+            id.includes('/src/ui/foundry-base-chatbot') ||
+            id.includes('/src/ui/foundry-chatbot-controller') ||
+            id.includes('/src/ui/foundry-chatbot/')
+          ) {
+            return 'foundry-chatbot-core';
           }
 
-          if (id.includes('@tylertech/forge-ai')) {
-            return 'shared-vendor';
+          // Foundry Floating Chatbot and FAB modules go into their own chunk
+          if (id.includes('/src/ui/foundry-floating-chatbot') || id.includes('src/ui/foundry-fab')) {
+            return 'foundry-floating';
           }
+
+          // Foundry Sidebar Chatbot module goes into its own chunk
+          if (id.includes('/src/ui/foundry-sidebar-chatbot')) {
+            return 'foundry-sidebar';
+          }
+
+          // Foundry Threads Chat module goes into its own chunk
+          if (id.includes('/src/ui/foundry-threaded-chatbot')) {
+            return 'foundry-threads';
+          }
+
+          // Forge AI modules go into their own chunk
+          if (id.includes('packages/ai/dist/') || id.includes('@tylertech/forge-ai')) {
+            return 'forge-ai';
+          }
+
+          // All other node_modules go into vendor chunk
+          if (id.includes('node_modules')) {
+            return 'foundry-vendor';
+          }
+
+          // console.log('UNMATCHED:', id.replace('/Users/kieran/Development/GitHub/tyler-technologies-oss/forge-ai', ''));
+
+          return undefined;
         },
         chunkFileNames: '[name].js',
         entryFileNames: '[name].js'
       }
     },
-    minify: 'terser',
+    minify: false, // 'terser',
     sourcemap: false
   }
 });

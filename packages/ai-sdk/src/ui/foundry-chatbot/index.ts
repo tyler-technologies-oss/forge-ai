@@ -1,1 +1,1 @@
-export { FoundryChatbotComponent, FoundryChatbotComponentTagName } from './foundry-chatbot.js';
+export * from './foundry-chatbot.js';

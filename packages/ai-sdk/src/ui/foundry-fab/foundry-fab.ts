@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-export const FoundryFabComponentTagName: keyof HTMLElementTagNameMap = 'foundry-fab';
+const FoundryFabComponentTagName: keyof HTMLElementTagNameMap = 'foundry-fab';
 
 @customElement(FoundryFabComponentTagName)
 export class FoundryFabComponent extends LitElement {
