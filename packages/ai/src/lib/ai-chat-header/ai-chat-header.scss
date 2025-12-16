@@ -30,10 +30,14 @@
 
   .title {
     @include forge-typography.style(heading1);
+    font-size: clamp(
+      #{forge-typography.variable(heading1, font-size)},
+      3vw,
+      #{forge-typography.variable(heading3, font-size)}
+    );
   }
 
-  h1,
-  ::slotted([slot='title']) {
+  ::slotted(*) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
