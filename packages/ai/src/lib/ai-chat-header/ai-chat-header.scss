@@ -37,20 +37,15 @@
     );
   }
 
-  .title ::slotted(h1),
-  .title ::slotted(h2),
-  .title ::slotted(h3),
-  .title ::slotted(h4),
-  .title ::slotted(h5),
-  .title ::slotted(h6),
-  .title ::slotted(p) {
-    all: unset;
-  }
-
   ::slotted(*) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    margin: 0;
+    padding: 0;
+    font-size: unset;
+    font-weight: unset;
   }
 }
 

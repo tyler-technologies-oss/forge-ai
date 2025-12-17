@@ -112,6 +112,8 @@ const meta = {
             @forge-ai-chat-header-export=${onExport}
             @forge-ai-chatbot-info=${onInfo}>
             ${args.headerTitle ? html`<span slot="header-title">${args.headerTitle}</span>` : ''}
+            <span slot="empty-state-heading">How can I help you today?</span>
+            <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
           </forge-ai-chatbot>
         </forge-ai-gradient-container>
       </div>
