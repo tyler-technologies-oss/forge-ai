@@ -31,7 +31,16 @@ export interface ForgeAiChatHeaderProps
   /** Indicates the current expanded state for displaying the appropriate expand/collapse icon */
   expanded?: boolean;
 
-  /** Controls which minimize icon to display */
+  /** Controls whether the dropdown menu is visible (default: true) */
+  showDropdownMenu?: boolean;
+
+  /** Controls whether the clear chat menu item is visible (default: true) */
+  showClearChat?: boolean;
+
+  /** Controls whether the info menu item is visible (default: true) */
+  showInfo?: boolean;
+
+  /** Controls which minimize icon to display ('default' | 'panel') */
   minimizeIcon?: ForgeAiChatHeaderElement["minimizeIcon"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
@@ -80,6 +89,7 @@ export interface ForgeAiChatHeaderProps
  * - **forge-ai-chat-header-minimize** - Fired when the minimize button is clicked
  *
  * ### **Slots:**
- *  - **title** - Slot for custom title text (default: "AI Assistant")
+ *  - **icon** - Slot for custom icon (default: forge-ai-icon)
+ * - **title** - Slot for custom title text (default: "AI Assistant")
  */
 export const ForgeAiChatHeader: React.ForwardRefExoticComponent<ForgeAiChatHeaderProps>;

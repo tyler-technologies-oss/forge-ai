@@ -8,6 +8,9 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
     showExpandButton,
     showMinimizeButton,
     expanded,
+    showDropdownMenu,
+    showClearChat,
+    showInfo,
     minimizeIcon,
     ...filteredProps
   } = props;
@@ -55,6 +58,9 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
       "show-expand-button": props.showExpandButton ? true : undefined,
       "show-minimize-button": props.showMinimizeButton ? true : undefined,
       expanded: props.expanded ? true : undefined,
+      "show-dropdown-menu": props.showDropdownMenu ? true : undefined,
+      "show-clear-chat": props.showClearChat ? true : undefined,
+      "show-info": props.showInfo ? true : undefined,
       style: { ...props.style },
     },
     props.children,

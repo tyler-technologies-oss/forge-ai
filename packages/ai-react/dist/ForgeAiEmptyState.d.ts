@@ -47,7 +47,8 @@ export interface ForgeAiEmptyStateProps
  *
  *
  * ### **Slots:**
- *  - _default_ - The custom welcome message content.
+ *  - _default_ - The welcome message content (default: "Welcome to AI Assistant! Start a conversation by asking a question or describing what you'd like help with.").
+ * - **icon** - The custom icon to display instead of the default books graphic.
  * - **actions** - The actions or suggestions to display below the message.
  */
 export const ForgeAiEmptyState: React.ForwardRefExoticComponent<ForgeAiEmptyStateProps>;
