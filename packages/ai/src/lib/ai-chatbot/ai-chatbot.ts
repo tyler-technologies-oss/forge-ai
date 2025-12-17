@@ -161,9 +161,6 @@ export class AiChatbotComponent extends LitElement {
   @property({ type: Object, attribute: false })
   public agentInfo?: AgentInfo;
 
-  @property({ attribute: 'title-text' })
-  public titleText = 'AI Assistant';
-
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #promptRef = createRef<AiPromptComponent>();
   #messageStateController!: MessageStateController;
@@ -936,15 +933,12 @@ export class AiChatbotComponent extends LitElement {
           clear-option=${this.#hasMessages ? 'enabled' : 'off'}
           .minimizeIcon=${this.minimizeIcon}
           .agentInfo=${this.agentInfo}
-          .titleText=${this.titleText}
           @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
           @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}
           @forge-ai-chat-header-export=${this.#handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
-          <slot name="header-title" slot="title">
-            <span>${this.titleText}</span>
-          </slot>
+          <slot name="header-title" slot="title"></slot>
         </forge-ai-chat-header>
         ${this.#messageThread} ${this.#promptSlot}
       </forge-ai-chat-interface>

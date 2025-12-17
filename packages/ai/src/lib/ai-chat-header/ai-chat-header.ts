@@ -54,7 +54,7 @@ export interface AgentInfo {
  * @tag forge-ai-chat-header
  *
  * @slot icon - Slot for custom icon (default: forge-ai-icon)
- * @slot title - Slot for custom title text (default: "AI Assistant")
+ * @slot title - Required slot for title content
  *
  * @event forge-ai-chat-header-expand - Fired when the expand button is clicked
  * @event forge-ai-chat-header-minimize - Fired when the minimize button is clicked
@@ -89,11 +89,6 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ attribute: 'minimize-icon' })
   public minimizeIcon: MinimizeIconType = 'default';
 
-  /**
-   * The title text to display in the header (used when title slot is empty)
-   */
-  @property({ type: String, attribute: 'title-text' })
-  public titleText = 'AI Assistant';
 
   /**
    * Agent information to display in the info dialog
@@ -125,30 +120,16 @@ export class AiChatHeaderComponent extends LitElement {
     return this.exportOption === 'enabled' || this.clearOption === 'enabled' || !!this.agentInfo;
   }
 
-  get #titleSlot(): TemplateResult {
-    return html`
-      <slot name="title" class="title" @slotchange=${this.#handleSlotChange}>
-        ${this.titleText}
-      </slot>
-    `;
-  }
-
-  #handleSlotChange(evt: Event): void {
-    const slotName = (evt.target as HTMLSlotElement).name;
-    if (slotName === 'title') {
-      this.requestUpdate();
-    }
-  }
+  readonly #titleSlot = html`<slot name="title" class="title"></slot>`;
 
   public override render(): TemplateResult {
     return html`
       <div class="header">
-        <div class="start" id="title-text-container">
+        <div class="start">
           <slot name="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>
           ${this.#titleSlot}
-          <forge-ai-tooltip id="title-tooltip" for="title-text-container"> ${this.titleText} </forge-ai-tooltip>
         </div>
         <div class="end">
           ${when(
