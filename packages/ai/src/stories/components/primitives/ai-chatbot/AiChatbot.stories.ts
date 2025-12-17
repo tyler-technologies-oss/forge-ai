@@ -97,7 +97,6 @@ const meta = {
             ?show-expand-button=${args.showExpandButton}
             ?show-minimize-button=${args.showMinimizeButton}
             ?expanded=${args.expanded}
-            title-text=${args.headerTitle}
             ?enable-reactions=${args.enableReactions}
             .minimizeIcon=${args.minimizeIcon}
             @forge-ai-chatbot-connected=${onConnected}
@@ -162,6 +161,7 @@ export const WithSuggestions: Story = {
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
           @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
           @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}>
+          <span slot="header-title">AI Assistant with Suggestions</span>
         </forge-ai-chatbot>
       </div>
     `;
