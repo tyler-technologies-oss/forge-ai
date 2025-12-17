@@ -131,7 +131,9 @@ export class AiChatHeaderComponent extends LitElement {
           <slot name="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>
-          <slot name="title" class="title">${this.titleText}</slot>
+          <div class="title">
+            <slot name="title">${this.titleText}</slot>
+          </div>
           <forge-ai-tooltip id="title-tooltip" for="title-text-container"> ${this.titleText} </forge-ai-tooltip>
         </div>
         <div class="end">

@@ -29,12 +29,21 @@
   overflow: hidden;
 
   .title {
-    @include forge-typography.style(heading1);
     font-size: clamp(
       #{forge-typography.variable(heading1, font-size)},
       3vw,
       #{forge-typography.variable(heading3, font-size)}
     );
+  }
+
+  .title ::slotted(h1),
+  .title ::slotted(h2),
+  .title ::slotted(h3),
+  .title ::slotted(h4),
+  .title ::slotted(h5),
+  .title ::slotted(h6),
+  .title ::slotted(p) {
+    all: unset;
   }
 
   ::slotted(*) {
