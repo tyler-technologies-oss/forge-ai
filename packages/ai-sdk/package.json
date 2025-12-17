@@ -1,14 +1,18 @@
 {
-  "name": "@tylertech/forge-ai-sdk",
+  "name": "@ai-foundry/sdk",
   "version": "0.1.0",
-  "description": "Bootstrap and SDK for embedding Tyler Forge AI chatbot components",
+  "description": "SDK for integrating Tyler AI Foundry capabilities into applications.",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/sdk.js",
+  "types": "./dist/sdk.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/sdk.d.ts",
+      "default": "./dist/sdk.js"
+    },
+    "./ui/*": {
+      "types": "./dist/ui/*/.d.ts",
+      "default": "./dist/ui/*/index.js"
     }
   },
   "files": [
@@ -35,7 +39,8 @@
   ],
   "author": "Tyler Technologies",
   "license": "Apache-2.0",
-  "peerDependencies": {
+  "dependencies": {
+    "lit": "catalog:",
     "@tylertech/forge-ai": "workspace:"
   },
   "devDependencies": {

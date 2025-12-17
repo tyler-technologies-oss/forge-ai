@@ -28,13 +28,6 @@
         }
       }
 
-      forge-ai-fab {
-        position: fixed;
-        bottom: var(--forge-spacing-medium);
-        right: var(--forge-spacing-medium);
-        z-index: 1000;
-      }
-
       forge-card h2 {
         margin: 0;
       }
@@ -71,10 +64,8 @@
       </main>
     </forge-scaffold>
 
-    <forge-ai-fab id="fab"></forge-ai-fab>
-    <forge-ai-floating-chat id="floating-chat">
-      <forge-ai-chatbot id="chatbot" show-expand-button show-minimize-button></forge-ai-chatbot>
-    </forge-ai-floating-chat>
+    <foundry-fab id="fab" target="#floating-chatbot"></foundry-fab>
+    <foundry-floating-chatbot id="floating-chatbot"></foundry-floating-chatbot>
 
     <script type="module" src="./floating-demo.ts"></script>
   </body>
