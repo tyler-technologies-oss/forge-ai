@@ -125,6 +125,21 @@ export class AiChatHeaderComponent extends LitElement {
     return this.exportOption === 'enabled' || this.clearOption === 'enabled' || !!this.agentInfo;
   }
 
+  get #titleSlot(): TemplateResult {
+    return html`
+      <slot name="title" class="title" @slotchange=${this.#handleSlotChange}>
+        ${this.titleText}
+      </slot>
+    `;
+  }
+
+  #handleSlotChange(evt: Event): void {
+    const slotName = (evt.target as HTMLSlotElement).name;
+    if (slotName === 'title') {
+      this.requestUpdate();
+    }
+  }
+
   public override render(): TemplateResult {
     return html`
       <div class="header">
@@ -132,7 +147,7 @@ export class AiChatHeaderComponent extends LitElement {
           <slot name="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>
-          <slot name="title" class="title">${this.titleText}</slot>
+          ${this.#titleSlot}
           <forge-ai-tooltip id="title-tooltip" for="title-text-container"> ${this.titleText} </forge-ai-tooltip>
         </div>
         <div class="end">
