@@ -89,7 +89,6 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ attribute: 'minimize-icon' })
   public minimizeIcon: MinimizeIconType = 'default';
 
-
   /**
    * Agent information to display in the info dialog
    */
