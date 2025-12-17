@@ -1,6 +1,5 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/typography' as forge-typography;
-@use '@tylertech/forge/dist/toolbar/forge-toolbar';
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/icon/forge-icon';
 @use '@tylertech/forge/dist/scaffold/forge-scaffold';
@@ -16,9 +15,8 @@
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr;
   padding-inline: #{forge-spacing.variable(medium)};
 }
 
@@ -60,6 +58,7 @@
 .end {
   display: flex;
   align-items: center;
+  justify-content: end;
 }
 
 forge-ai-dropdown-menu-item > svg[slot='start'].forge-icon {

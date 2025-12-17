@@ -127,7 +127,7 @@ export class AiChatHeaderComponent extends LitElement {
 
   public override render(): TemplateResult {
     return html`
-      <div class="header forge-toolbar forge-toolbar--no-divider">
+      <div class="header">
         <div class="start" id="title-text-container">
           <slot name="icon">
             <forge-ai-icon></forge-ai-icon>
