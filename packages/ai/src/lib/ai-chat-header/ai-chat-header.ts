@@ -53,6 +53,7 @@ export interface AgentInfo {
  *
  * @tag forge-ai-chat-header
  *
+ * @slot icon - Slot for custom icon (default: forge-ai-icon)
  * @slot title - Slot for custom title text (default: "AI Assistant")
  *
  * @event forge-ai-chat-header-expand - Fired when the expand button is clicked

@@ -94,6 +94,7 @@ export interface ForgeAiChatHeaderProps extends Pick<
  * - **forge-ai-chat-header-minimize** - Fired when the minimize button is clicked
  *
  * ### **Slots:**
- *  - **title** - Slot for custom title text (default: "AI Assistant")
+ *  - **icon** - Slot for custom icon (default: forge-ai-icon)
+ * - **title** - Slot for custom title text (default: "AI Assistant")
  */
 export const ForgeAiChatHeader: React.ForwardRefExoticComponent<ForgeAiChatHeaderProps>;
