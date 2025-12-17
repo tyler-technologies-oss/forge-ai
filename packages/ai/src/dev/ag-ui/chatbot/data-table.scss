@@ -1,0 +1,13 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/dist/table/forge-table.css';
+
+:host {
+  display: block;
+  margin-block-start: #{forge-spacing.variable(small)};
+}
+
+.table-container {
+  padding: #{forge-spacing.variable(medium)};
+  overflow-x: auto;
+}

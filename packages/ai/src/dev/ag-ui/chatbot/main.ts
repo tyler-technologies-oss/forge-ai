@@ -25,6 +25,7 @@ import {
 } from '@tylertech/forge';
 
 import './recipe-card.js';
+import './data-table.js';
 
 defineScaffoldComponent();
 defineAppBarComponent();
@@ -183,7 +184,37 @@ const displayRecipeTool: ToolDefinition = {
   })
 };
 
-const tools: Array<ToolDefinition<any>> = [showConfettiTool, displayRecipeTool];
+const displayDataTableTool: ToolDefinition = {
+  name: 'displayDataTable',
+  displayName: 'Display Data Table',
+  description:
+    'Display tabular data in a formatted table with headers and rows. Use this tool when you want to present structured data, statistics, or any information that works well in a table format.',
+  parameters: {
+    type: 'object' as const,
+    properties: {
+      title: { type: 'string', description: 'Optional table title or caption' },
+      headers: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Column headers for the table'
+      },
+      rows: {
+        type: 'array',
+        items: {
+          type: 'array',
+          items: { type: ['string', 'number'] }
+        },
+        description: 'Table data rows - each row is an array of cell values'
+      }
+    },
+    required: ['headers', 'rows']
+  },
+  renderer: createToolRenderer({
+    elementTag: 'data-table'
+  })
+};
+
+const tools: Array<ToolDefinition<any>> = [showConfettiTool, displayRecipeTool, displayDataTableTool];
 
 let threadId = generateId('thread');
 let adapter: AgUiAdapter;
@@ -324,11 +355,12 @@ initializeAdapter(baseUrlInput.value, agentIdInput.value);
 chatbot.suggestions = [
   { text: 'What can you help me with?', value: 'What can you help me with?' },
   { text: 'Show me confetti!', value: 'Show me confetti!' },
-  { text: 'Show me a recipe for chocolate chip cookies', value: 'Show me a recipe for chocolate chip cookies' }
+  { text: 'Show me a recipe for chocolate chip cookies', value: 'Show me a recipe for chocolate chip cookies' },
+  { text: 'Show me a data table with sales information', value: 'Show me a data table with sales information' }
 ];
 chatbot.agentInfo = {
   name: 'My Agent',
-  description: 'A helpful AI assistant with access to recipes and celebration tools',
+  description: 'A helpful AI assistant with access to recipes, data tables, and celebration tools',
   identifier: 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c',
   version: '1.0.0',
   model: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
