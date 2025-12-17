@@ -1,0 +1,6 @@
+import{x as o}from"./iframe-Xk4OwnQ8.js";import"./ai-reasoning-header-BsH9M3my.js";const{action:n}=__STORYBOOK_MODULE_ACTIONS__,r="forge-ai-reasoning-header",a={title:"AI Components/Primitives/Reasoning Header",component:r,argTypes:{expanded:{control:"boolean",description:"Whether the header is expanded"},reasoning:{control:"boolean",description:"Whether this is a reasoning header"},titleText:{control:"text",description:"Title text for the header (slotted content)"},reasoningText:{control:"text",description:"Reasoning text for the header (slotted content when reasoning=true)"}},args:{expanded:!0,reasoning:!1,titleText:"Reasoning Process",reasoningText:"AI is analyzing the problem..."},render:t=>o`
+      <forge-ai-reasoning-header .expanded=${t.expanded} .reasoning=${t.reasoning} @toggle=${n("toggle")}>
+        <span slot="reasoning-title">${t.reasoningText}</span>
+        <span slot="title">${t.titleText}</span>
+      </forge-ai-reasoning-header>
+    `},e={};e.parameters={...e.parameters,docs:{...e.parameters?.docs,source:{originalSource:"{}",...e.parameters?.docs?.source}}};const s=["Demo"],l=Object.freeze(Object.defineProperty({__proto__:null,Demo:e,__namedExportsOrder:s,default:a},Symbol.toStringTag,{value:"Module"}));export{l as A,e as D};
