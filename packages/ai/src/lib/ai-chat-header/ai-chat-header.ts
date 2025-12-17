@@ -1,5 +1,5 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, queryAssignedElements } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import type { AiModalComponent } from '../ai-modal';
@@ -115,20 +115,36 @@ export class AiChatHeaderComponent extends LitElement {
 
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
+  @queryAssignedElements({ slot: 'title', flatten: true })
+  private _titleSlottedElements!: Element[];
+
   get #hasAvailableOptions(): boolean {
     return this.exportOption === 'enabled' || this.clearOption === 'enabled' || !!this.agentInfo;
   }
 
-  readonly #titleSlot = html`<slot name="title" class="title"></slot>`;
+  get #titleText(): string {
+    if (this._titleSlottedElements?.length > 0) {
+      return this._titleSlottedElements
+        .map(el => el.textContent?.trim() || '')
+        .join(' ')
+        .trim();
+    }
+    return '';
+  }
+
+  readonly #titleSlot = html`<slot name="title" class="title" @slotchange=${this.#handleSlotChange}></slot>`;
 
   public override render(): TemplateResult {
     return html`
       <div class="header">
-        <div class="start">
+        <div class="start" id="title-container">
           <slot name="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>
           ${this.#titleSlot}
+          <forge-ai-tooltip id="title-tooltip" for="title-container" placement="bottom">
+            ${this.#titleText}
+          </forge-ai-tooltip>
         </div>
         <div class="end">
           ${when(
@@ -338,5 +354,12 @@ export class AiChatHeaderComponent extends LitElement {
 
   #handleModalClose(): void {
     this.#agentInfoModalRef.value?.close();
+  }
+
+  #handleSlotChange(evt: Event): void {
+    const slotName = (evt.target as HTMLSlotElement).name;
+    if (slotName === 'title') {
+      this.requestUpdate();
+    }
   }
 }
