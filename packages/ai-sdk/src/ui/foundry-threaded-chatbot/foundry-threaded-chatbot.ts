@@ -26,8 +26,6 @@ declare global {
     'foundry-threaded-chatbot-thread-changed': CustomEvent<{ threadId: string }>;
     'foundry-threaded-chatbot-thread-created': CustomEvent<{ threadId: string }>;
     'foundry-threaded-chatbot-thread-deleted': CustomEvent<{ threadId: string }>;
-    'foundry-chatbot-ready': CustomEvent<{ adapter: unknown }>;
-    'foundry-chatbot-error': CustomEvent<{ error: string; type: string; details?: unknown }>;
   }
 }
 

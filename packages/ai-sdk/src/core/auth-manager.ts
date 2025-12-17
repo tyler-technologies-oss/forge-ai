@@ -1,4 +1,5 @@
 import type { ChatbotConfig, AuthConfig, AuthStatus } from './types.js';
+import { ChatbotError, ChatbotErrorCode } from './error-codes.js';
 
 const AUTH_POLL_INTERVAL = 1000;
 const AUTH_POLL_TIMEOUT = 300000;
@@ -20,7 +21,10 @@ export async function checkAuthentication(config: ChatbotConfig): Promise<AuthSt
   });
 
   if (!authConfigResponse.ok) {
-    throw new Error(`Failed to fetch auth config: ${authConfigResponse.statusText}`);
+    throw new ChatbotError(
+      ChatbotErrorCode.AUTH_CONFIG_FETCH_FAILED,
+      `Failed to fetch auth config: ${authConfigResponse.statusText}`
+    );
   }
 
   const authConfig: AuthConfig = await authConfigResponse.json();
@@ -35,7 +39,10 @@ export async function checkAuthentication(config: ChatbotConfig): Promise<AuthSt
   });
 
   if (!statusResponse.ok) {
-    throw new Error(`Failed to fetch auth status: ${statusResponse.statusText}`);
+    throw new ChatbotError(
+      ChatbotErrorCode.AUTH_STATUS_FETCH_FAILED,
+      `Failed to fetch auth status: ${statusResponse.statusText}`
+    );
   }
 
   const authStatus: AuthStatus = await statusResponse.json();
@@ -47,9 +54,37 @@ export async function checkAuthentication(config: ChatbotConfig): Promise<AuthSt
   return authStatus;
 }
 
-/** Opens centered auth popup and polls for completion. */
+async function requestStorageAccess(): Promise<boolean> {
+  if (!document.requestStorageAccess) {
+    return true;
+  }
+
+  try {
+    await document.requestStorageAccess();
+    return true;
+  } catch (error) {
+    console.error('[Auth] Storage Access API denied:', error);
+    return false;
+  }
+}
+
+function isSafari(): boolean {
+  const ua = navigator.userAgent.toLowerCase();
+  return ua.includes('safari') && !ua.includes('chrome') && !ua.includes('chromium');
+}
+
 async function initiateAuthFlow(config: ChatbotConfig): Promise<AuthStatus> {
   const { agentId, baseUrl } = config;
+
+  if (isSafari()) {
+    const accessGranted = await requestStorageAccess();
+    if (!accessGranted) {
+      throw new ChatbotError(
+        ChatbotErrorCode.AUTH_STORAGE_ACCESS_DENIED,
+        'Storage access required for authentication. Please grant permission and try again.'
+      );
+    }
+  }
 
   const width = 500;
   const height = 600;
@@ -63,7 +98,10 @@ async function initiateAuthFlow(config: ChatbotConfig): Promise<AuthStatus> {
   );
 
   if (!popup) {
-    throw new Error('Failed to open authentication popup. Please allow popups for this site.');
+    throw new ChatbotError(
+      ChatbotErrorCode.AUTH_POPUP_BLOCKED,
+      'Failed to open authentication popup. Please allow popups for this site.'
+    );
   }
 
   return await pollAuthStatus(config, popup);
@@ -78,14 +116,33 @@ async function pollAuthStatus(config: ChatbotConfig, popup: Window): Promise<Aut
     const interval = setInterval(async () => {
       if (popup.closed) {
         clearInterval(interval);
-        reject(new Error('Authentication cancelled by user'));
+
+        try {
+          // Final check in case closed after auth
+          const statusResponse = await fetch(`${baseUrl}/api/agents/${agentId}/auth-status`, {
+            credentials,
+            headers
+          });
+
+          if (statusResponse.ok) {
+            const authStatus: AuthStatus = await statusResponse.json();
+            if (authStatus.isAuthenticated) {
+              resolve(authStatus);
+              return;
+            }
+          }
+        } catch {
+          // Ignore final check errors
+        }
+
+        reject(new ChatbotError(ChatbotErrorCode.AUTH_CANCELLED, 'Authentication cancelled or failed.'));
         return;
       }
 
       if (Date.now() - startTime > AUTH_POLL_TIMEOUT) {
         clearInterval(interval);
         popup.close();
-        reject(new Error('Authentication timeout'));
+        reject(new ChatbotError(ChatbotErrorCode.AUTH_TIMEOUT, 'Authentication timeout'));
         return;
       }
 

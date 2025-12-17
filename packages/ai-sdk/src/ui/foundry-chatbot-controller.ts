@@ -1,7 +1,8 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { checkAuthentication } from '../core/auth-manager.js';
 import { loadAgentConfig } from '../core/config-loader.js';
-import { checkThirdPartyCookies } from '../core/cookie-checker.js';
+import { checkAuthCookieSupport } from '../core/cookie-checker.js';
+import { ChatbotError, ChatbotErrorCode, isChatbotError } from '../core/error-codes.js';
 import { setupFileRemoveHandler, setupFileUploadHandler } from '../core/file-upload.js';
 import { FoundryAgentAdapter } from '../core/foundry-agent-adapter.js';
 import type { AgentUIConfig } from '../core/types.js';
@@ -95,23 +96,16 @@ export class FoundryChatbotController implements ReactiveController {
     const { baseUrl, agentId, teamId, headers } = this.#config;
 
     if (!baseUrl || (!agentId && !teamId)) {
-      throw new Error('baseUrl and either agentId or teamId are required');
+      throw new ChatbotError(ChatbotErrorCode.CONFIG_INVALID, 'baseUrl and either agentId or teamId are required');
     }
 
-    // Check for third-party cookies to ensure proper functionality
-    const cookiesEnabled = await checkThirdPartyCookies();
-    if (!cookiesEnabled) {
-      const error = new Error(
-        'Third-party cookies are disabled. Please enable cookies in your browser settings to use the Tyler AI chatbot.'
-      );
-      console.error(error);
-      throw error;
+    const cookieCheckResult = await checkAuthCookieSupport(baseUrl, agentId);
+    if (!cookieCheckResult.authSupported) {
+      console.warn('[FoundryChatbot] Cookie check warning:', cookieCheckResult.message);
     }
 
-    // Check authentication status
     const authStatus = await checkAuthentication(this.#config);
 
-    // Load agent configuration
     this.#agentConfig = await loadAgentConfig({ baseUrl, agentId, teamId, headers }, authStatus);
 
     this.#adapter = new FoundryAgentAdapter({ baseUrl, agentId, teamId, headers }, this.#agentConfig);
@@ -142,10 +136,13 @@ export class FoundryChatbotController implements ReactiveController {
   #handleError(error: Error, type: string): void {
     console.error(`[FoundryChatbot] ${type} error:`, error);
 
+    const chatbotError = isChatbotError(error)
+      ? error
+      : new ChatbotError(ChatbotErrorCode.CONFIG_INVALID, error.message, error);
+
     this.#dispatchEvent('foundry-chatbot-error', {
-      error: error.message,
-      type,
-      details: error
+      error: chatbotError,
+      type
     });
   }
 

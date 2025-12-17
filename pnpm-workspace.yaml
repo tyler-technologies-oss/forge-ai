@@ -11,11 +11,11 @@ catalog:
   '@storybook/addon-themes': 9.1.16
   '@storybook/web-components-vite': 9.1.16
   '@tylertech-eslint/eslint-plugin': 3.0.0
-  '@tylertech/forge': 3.12.1
+  '@tylertech/forge': 3.13.0
   '@tylertech/stylelint-rules': 5.1.2
   '@tylertech/tyler-icons': 2.0.4
   '@types/mocha': 10.0.10
-  '@types/node': 24.10.1
+  '@types/node': 24.10.4
   '@types/sinon': 21.0.0
   '@vueless/storybook-dark-mode': 9.0.10
   '@web/dev-server-esbuild': 1.0.4
@@ -24,7 +24,7 @@ catalog:
   '@web/test-runner-commands': 0.9.0
   '@web/test-runner-junit-reporter': 0.8.0
   '@web/test-runner-playwright': 0.11.1
-  eslint: 9.39.1
+  eslint: 9.39.2
   eslint-config-prettier: 10.1.8
   eslint-plugin-prettier: 5.5.4
   glob: 13.0.0
@@ -41,6 +41,6 @@ catalog:
   stylelint: 16.26.1
   stylelint-config-standard: 39.0.1
   tslib: 2.8.1
-  vite: 7.2.7
+  vite: 7.3.0
   vite-plugin-dts: 4.5.4
-  vite-tsconfig-paths: 5.1.4
+  vite-tsconfig-paths: 6.0.2

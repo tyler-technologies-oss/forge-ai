@@ -41,13 +41,14 @@
   "license": "Apache-2.0",
   "dependencies": {
     "lit": "catalog:",
+    "@tylertech/forge": "catalog:",
     "@tylertech/forge-ai": "workspace:"
   },
   "devDependencies": {
     "@repo/prettier-config": "workspace:",
     "@tylertech/forge": "catalog:",
     "@tylertech/tyler-icons": "catalog:",
-    "@types/node": "^24.10.1",
+    "@types/node": "^24.10.4",
     "eslint": "catalog:",
     "typescript": "~5.9.3",
     "vite": "catalog:",

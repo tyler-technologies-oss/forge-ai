@@ -1,58 +1,146 @@
-/**
- * Check if third-party cookies are enabled in the browser.
- * Required for proper authentication flow across domains.
- */
-export async function checkThirdPartyCookies(): Promise<boolean> {
-  return new Promise(resolve => {
-    const testCookieName = 'third_party_test';
-    const testValue = `test_${Date.now()}`;
-    const iframe = document.createElement('iframe');
+import type { ChatbotErrorCode } from './error-codes.js';
 
-    const cleanup = (): void => {
-      clearTimeout(timer);
-      if (document.body.contains(iframe)) {
-        document.body.removeChild(iframe);
+export interface CookieCheckResult {
+  authSupported: boolean;
+  requiresStorageAccess: boolean;
+  browser: string;
+  message?: string;
+  code?: ChatbotErrorCode;
+  details?: {
+    endpointReachable: boolean;
+    corsConfigured: boolean;
+    browserPolicy: string;
+  };
+}
+
+function detectBrowser(): { name: string; requiresStorageAccess: boolean; policy: string } {
+  const ua = navigator.userAgent.toLowerCase();
+
+  if (ua.includes('safari') && !ua.includes('chrome') && !ua.includes('chromium')) {
+    return {
+      name: 'Safari',
+      requiresStorageAccess: true,
+      policy: 'Intelligent Tracking Prevention blocks third-party cookies by default'
+    };
+  }
+
+  if (ua.includes('firefox')) {
+    return {
+      name: 'Firefox',
+      requiresStorageAccess: false,
+      policy: 'Enhanced Tracking Protection may block third-party cookies'
+    };
+  }
+
+  if (ua.includes('chrome') || ua.includes('chromium') || ua.includes('edg')) {
+    return {
+      name: 'Chrome',
+      requiresStorageAccess: false,
+      policy: 'Third-party cookies supported (being phased out)'
+    };
+  }
+
+  return {
+    name: 'Unknown',
+    requiresStorageAccess: false,
+    policy: 'Unknown cookie policy'
+  };
+}
+
+async function testAuthEndpoint(
+  baseUrl: string,
+  agentId: string
+): Promise<{ reachable: boolean; corsConfigured: boolean }> {
+  try {
+    const response = await fetch(`${baseUrl}/api/agents/${agentId}/auth-config`, {
+      method: 'GET',
+      credentials: 'include',
+      mode: 'cors'
+    });
+
+    return {
+      reachable: true,
+      corsConfigured: response.ok || response.status === 401 || response.status === 403
+    };
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('CORS')) {
+      return { reachable: true, corsConfigured: false };
+    }
+    return { reachable: false, corsConfigured: false };
+  }
+}
+
+export async function checkAuthCookieSupport(baseUrl: string, agentId?: string): Promise<CookieCheckResult> {
+  const browser = detectBrowser();
+
+  if (!agentId) {
+    return {
+      authSupported: true,
+      requiresStorageAccess: false,
+      browser: browser.name,
+      message: 'No agent ID provided, skipping auth endpoint check'
+    };
+  }
+
+  const endpointTest = await testAuthEndpoint(baseUrl, agentId);
+
+  if (!endpointTest.reachable) {
+    return {
+      authSupported: false,
+      requiresStorageAccess: false,
+      browser: browser.name,
+      message: `Cannot connect to authentication server at ${baseUrl}`,
+      code: 'AUTH_SERVER_UNREACHABLE',
+      details: {
+        endpointReachable: false,
+        corsConfigured: false,
+        browserPolicy: browser.policy
       }
     };
+  }
 
-    iframe.style.display = 'none';
-    iframe.src = 'about:blank';
-    iframe.onload = (): void => {
-      try {
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (iframeDoc) {
-          const isSecureContext = window.isSecureContext;
-          const cookieFlags = isSecureContext ? '; SameSite=None; Secure' : '';
-
-          iframeDoc.cookie = `${testCookieName}=${testValue}; path=/${cookieFlags}`;
-          const cookies = iframeDoc.cookie;
-          const hasTestCookie = cookies.includes(testCookieName);
-
-          if (hasTestCookie) {
-            iframeDoc.cookie = `${testCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/${cookieFlags}`;
-          }
-
-          resolve(hasTestCookie);
-        } else {
-          resolve(false);
-        }
-      } catch {
-        resolve(false);
-      } finally {
-        cleanup();
+  if (!endpointTest.corsConfigured) {
+    return {
+      authSupported: false,
+      requiresStorageAccess: false,
+      browser: browser.name,
+      message: 'Authentication server not properly configured for cross-origin requests',
+      code: 'AUTH_CORS_MISCONFIGURED',
+      details: {
+        endpointReachable: true,
+        corsConfigured: false,
+        browserPolicy: browser.policy
       }
     };
+  }
 
-    iframe.onerror = (): void => {
-      resolve(false);
-      cleanup();
+  if (browser.requiresStorageAccess) {
+    return {
+      authSupported: true,
+      requiresStorageAccess: true,
+      browser: browser.name,
+      message: 'Cross-domain authentication requires Storage Access API permission',
+      code: 'AUTH_REQUIRES_STORAGE_ACCESS',
+      details: {
+        endpointReachable: true,
+        corsConfigured: true,
+        browserPolicy: browser.policy
+      }
     };
+  }
 
-    const timer = window.setTimeout(() => {
-      resolve(false);
-      cleanup();
-    }, 3000);
+  const mayHaveRestrictions = browser.name === 'Firefox';
 
-    document.body.appendChild(iframe);
-  });
+  return {
+    authSupported: true,
+    requiresStorageAccess: false,
+    browser: browser.name,
+    message: mayHaveRestrictions ? 'Authentication may require disabling tracking protection' : undefined,
+    code: mayHaveRestrictions ? 'AUTH_TRACKING_PROTECTION' : undefined,
+    details: {
+      endpointReachable: true,
+      corsConfigured: true,
+      browserPolicy: browser.policy
+    }
+  };
 }

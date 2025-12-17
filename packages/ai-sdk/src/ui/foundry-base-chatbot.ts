@@ -133,6 +133,10 @@ export abstract class FoundryBaseChatbotComponent extends LitElement implements 
     return this.#controller.initialized;
   }
 
+  protected get _controller(): FoundryChatbotController {
+    return this.#controller;
+  }
+
   public abstract sendMessage(message: string, files?: File[]): Promise<void>;
   public abstract clearMessages(): void;
   public abstract getMessages(): ChatMessage[];
