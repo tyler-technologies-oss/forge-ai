@@ -1,3 +1,37 @@
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+
 :host {
   display: contents;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.error-state {
+  @include forge-scrollbar.base;
+
+  padding: #{forge-spacing.variable(large)};
+  text-align: center;
+  overflow-y: auto;
+  height: 100%;
+
+  .error-graphic {
+    width: 150px;
+    height: auto;
+    margin-block-start: #{forge-spacing.variable(medium)};
+  }
+
+  .error-title {
+    @include forge-typography.style(heading4);
+  }
+
+  .error-message {
+    @include forge-typography.style(body1);
+
+    text-align: start;
+    margin: #{forge-spacing.variable(medium)} auto;
+  }
 }

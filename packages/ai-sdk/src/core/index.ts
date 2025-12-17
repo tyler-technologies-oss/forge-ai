@@ -1,5 +1,6 @@
 export * from './types.js';
 export * from './utils.js';
+export * from './error-codes.js';
 export * from './foundry-agent-adapter.js';
 export * from './foundry-agent-runner.js';
 export * from './auth-manager.js';

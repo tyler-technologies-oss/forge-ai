@@ -17,8 +17,6 @@ declare global {
   interface HTMLElementEventMap {
     'foundry-sidebar-chatbot-open': CustomEvent<void>;
     'foundry-sidebar-chatbot-close': CustomEvent<void>;
-    'foundry-chatbot-ready': CustomEvent<{ adapter: unknown }>;
-    'foundry-chatbot-error': CustomEvent<{ error: string; type: string; details?: unknown }>;
   }
 }
 
