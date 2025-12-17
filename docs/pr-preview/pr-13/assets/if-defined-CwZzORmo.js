@@ -1,1 +1,0 @@
-import{e as s}from"./base-DVmwUFg0.js";import{E as m}from"./iframe-CU9UeogD.js";function a(t){return(e,r)=>{const{slot:o}=t??{},n="slot"+(o?`[name=${o}]`:":not([name])");return s(e,r,{get(){return this.renderRoot?.querySelector(n)?.assignedNodes(t)??[]}})}}const d=t=>t??m;export{a as n,d as o};
