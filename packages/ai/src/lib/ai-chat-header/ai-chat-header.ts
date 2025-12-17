@@ -37,7 +37,16 @@ export type MinimizeIconType = 'default' | 'panel';
  *
  * @tag forge-ai-chat-header
  *
+ * @slot icon - Slot for custom icon (default: forge-ai-icon)
  * @slot title - Slot for custom title text (default: "AI Assistant")
+ *
+ * @property {boolean} showExpandButton - Controls whether the expand button is visible
+ * @property {boolean} showMinimizeButton - Controls whether the minimize button is visible
+ * @property {boolean} expanded - Indicates the current expanded state for displaying the appropriate expand/collapse icon
+ * @property {MinimizeIconType} minimizeIcon - Controls which minimize icon to display ('default' | 'panel')
+ * @property {boolean} showDropdownMenu - Controls whether the dropdown menu is visible (default: true)
+ * @property {boolean} showClearChat - Controls whether the clear chat menu item is visible (default: true)
+ * @property {boolean} showInfo - Controls whether the info menu item is visible (default: true)
  *
  * @event forge-ai-chat-header-expand - Fired when the expand button is clicked
  * @event forge-ai-chat-header-minimize - Fired when the minimize button is clicked
@@ -72,36 +81,75 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ attribute: 'minimize-icon' })
   public minimizeIcon: MinimizeIconType = 'default';
 
+  /**
+   * Controls whether the dropdown menu is visible
+   */
+  @property({ type: Boolean, attribute: 'show-dropdown-menu' })
+  public showDropdownMenu = true;
+
+  /**
+   * Controls whether the clear chat menu item is visible
+   */
+  @property({ type: Boolean, attribute: 'show-clear-chat' })
+  public showClearChat = true;
+
+  /**
+   * Controls whether the info menu item is visible
+   */
+  @property({ type: Boolean, attribute: 'show-info' })
+  public showInfo = true;
+
+  readonly #iconSlot = html`
+    <slot name="icon">
+      <forge-ai-icon></forge-ai-icon>
+    </slot>
+  `;
+
   public override render(): TemplateResult {
     return html`
       <div class="header forge-toolbar forge-toolbar--no-divider">
         <div class="start">
-          <forge-ai-icon></forge-ai-icon>
+          ${this.#iconSlot}
           <slot name="title">
             <h1>AI Assistant</h1>
           </slot>
         </div>
         <div class="end">
-          <forge-ai-dropdown-menu
-            variant="icon-button"
-            selection-mode="none"
-            @forge-ai-dropdown-menu-change=${this.#handleDropdownChange}>
-            <svg
-              slot="trigger-content"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="forge-icon ai-icon-button">
-              <path fill="none" d="M0 0h24v24H0z" />
-              <path
-                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2" />
-            </svg>
-            <forge-ai-dropdown-menu-item value="clear-chat">
-              <span>Clear chat</span>
-            </forge-ai-dropdown-menu-item>
-            <forge-ai-dropdown-menu-item value="info">
-              <span>Info</span>
-            </forge-ai-dropdown-menu-item>
-          </forge-ai-dropdown-menu>
+          ${when(
+            this.showDropdownMenu && (this.showClearChat || this.showInfo),
+            () => html`
+              <forge-ai-dropdown-menu
+                variant="icon-button"
+                selection-mode="none"
+                @forge-ai-dropdown-menu-change=${this.#handleDropdownChange}>
+                <svg
+                  slot="trigger-content"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  class="forge-icon ai-icon-button">
+                  <path fill="none" d="M0 0h24v24H0z" />
+                  <path
+                    d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2" />
+                </svg>
+                ${when(
+                  this.showClearChat,
+                  () => html`
+                    <forge-ai-dropdown-menu-item value="clear-chat">
+                      <span>Clear chat</span>
+                    </forge-ai-dropdown-menu-item>
+                  `
+                )}
+                ${when(
+                  this.showInfo,
+                  () => html`
+                    <forge-ai-dropdown-menu-item value="info">
+                      <span>Info</span>
+                    </forge-ai-dropdown-menu-item>
+                  `
+                )}
+              </forge-ai-dropdown-menu>
+            `
+          )}
           ${when(
             this.showExpandButton,
             () => html`
