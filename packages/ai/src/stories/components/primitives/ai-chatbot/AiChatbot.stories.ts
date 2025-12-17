@@ -19,6 +19,10 @@ const meta = {
       control: 'text',
       description: 'Placeholder text for the input field'
     },
+    headerTitle: {
+      control: 'text',
+      description: 'Custom title for the chatbot header'
+    },
     fileUpload: {
       control: 'select',
       options: ['on', 'off'],
@@ -53,6 +57,7 @@ const meta = {
   },
   args: {
     placeholder: 'Ask a question...',
+    headerTitle: 'AI Assistant',
     fileUpload: 'off',
     voiceInput: 'on',
     showExpandButton: false,
@@ -83,28 +88,34 @@ const meta = {
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
-        <forge-ai-chatbot
-          .adapter=${adapter}
-          placeholder=${args.placeholder}
-          file-upload=${args.fileUpload}
-          voice-input=${args.voiceInput}
-          ?show-expand-button=${args.showExpandButton}
-          ?show-minimize-button=${args.showMinimizeButton}
-          ?expanded=${args.expanded}
-          ?enable-reactions=${args.enableReactions}
-          .minimizeIcon=${args.minimizeIcon}
-          @forge-ai-chatbot-connected=${onConnected}
-          @forge-ai-chatbot-disconnected=${onDisconnected}
-          @forge-ai-chatbot-message-sent=${onMessageSent}
-          @forge-ai-chatbot-message-received=${onMessageReceived}
-          @forge-ai-chatbot-tool-call=${onToolCall}
-          @forge-ai-chatbot-error=${onError}
-          @forge-ai-chatbot-expand=${onExpand}
-          @forge-ai-chatbot-minimize=${onMinimize}
-          @forge-ai-chatbot-clear=${onClear}
-          @forge-ai-chat-header-export=${onExport}
-          @forge-ai-chatbot-info=${onInfo}>
-        </forge-ai-chatbot>
+        <forge-ai-gradient-container>
+          <forge-ai-chatbot
+            .adapter=${adapter}
+            placeholder=${args.placeholder}
+            file-upload=${args.fileUpload}
+            voice-input=${args.voiceInput}
+            ?show-expand-button=${args.showExpandButton}
+            ?show-minimize-button=${args.showMinimizeButton}
+            ?expanded=${args.expanded}
+            title-text=${args.headerTitle}
+            ?enable-reactions=${args.enableReactions}
+            .minimizeIcon=${args.minimizeIcon}
+            @forge-ai-chatbot-connected=${onConnected}
+            @forge-ai-chatbot-disconnected=${onDisconnected}
+            @forge-ai-chatbot-message-sent=${onMessageSent}
+            @forge-ai-chatbot-message-received=${onMessageReceived}
+            @forge-ai-chatbot-tool-call=${onToolCall}
+            @forge-ai-chatbot-error=${onError}
+            @forge-ai-chatbot-expand=${onExpand}
+            @forge-ai-chatbot-minimize=${onMinimize}
+            @forge-ai-chatbot-clear=${onClear}
+            @forge-ai-chat-header-export=${onExport}
+            @forge-ai-chatbot-info=${onInfo}>
+            ${args.headerTitle ? html`<span slot="header-title">${args.headerTitle}</span>` : ''}
+            <span slot="empty-state-heading">How can I help you today?</span>
+            <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+          </forge-ai-chatbot>
+        </forge-ai-gradient-container>
       </div>
     `;
   }

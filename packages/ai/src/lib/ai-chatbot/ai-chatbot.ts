@@ -943,7 +943,7 @@ export class AiChatbotComponent extends LitElement {
           @forge-ai-chat-header-export=${this.#handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
           <slot name="header-title" slot="title">
-            <span class="header-title">${this.titleText}</span>
+            <span>${this.titleText}</span>
           </slot>
         </forge-ai-chat-header>
         ${this.#messageThread} ${this.#promptSlot}
