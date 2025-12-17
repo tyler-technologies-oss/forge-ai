@@ -17,7 +17,7 @@
 .header {
   display: grid;
   grid-template-columns: 1fr auto;
-  padding-inline: #{forge-spacing.variable(medium)};
+  padding-inline: #{forge-spacing.variable(xsmall)};
 }
 
 .start {
