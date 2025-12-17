@@ -29,6 +29,7 @@
   overflow: hidden;
 
   .title {
+    @include forge-typography.style(heading1);
     font-size: clamp(
       #{forge-typography.variable(heading1, font-size)},
       3vw,
