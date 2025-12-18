@@ -54,7 +54,7 @@ export class DataTable extends LitElement {
               ${data.rows.map(
                 row => html`
                   <tr class="table-row">
-                    ${row.map(cell => html` <td class="table-cell">${cell}</td> `)}
+                    ${row.map(cell => html` <td>${cell}</td> `)}
                   </tr>
                 `
               )}
