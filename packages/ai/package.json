@@ -67,14 +67,10 @@
     "@ag-ui/core": "^0.0.42",
     "@floating-ui/dom": "^1.7.4",
     "@lit/context": "^1.1.6",
-    "@tylertech/tyler-icons": "catalog:",
     "dompurify": "^3.3.1",
     "lit": "catalog:",
     "marked": "^17.0.1",
     "remend": "^1.0.1"
-  },
-  "peerDependencies": {
-    "@tylertech/forge": "^3.1.0"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "catalog:",
@@ -88,6 +84,7 @@
     "@storybook/web-components-vite": "catalog:",
     "@tylertech/forge": "catalog:",
     "@tylertech/stylelint-rules": "catalog:",
+    "@tylertech/tyler-icons": "catalog:",
     "@types/cssbeautify": "^0.3.5",
     "@types/dompurify": "^3.2.0",
     "@types/mocha": "catalog:",

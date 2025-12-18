@@ -11,7 +11,7 @@
       "default": "./dist/sdk.js"
     },
     "./ui/*": {
-      "types": "./dist/ui/*/.d.ts",
+      "types": "./dist/ui/*/index.d.ts",
       "default": "./dist/ui/*/index.js"
     }
   },
@@ -27,7 +27,8 @@
     "sri": "node scripts/sri-generator.js",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "inspect-bundle": "vite-bundle-visualizer --config vite.config.cdn.ts"
   },
   "keywords": [
     "ai",
@@ -40,9 +41,11 @@
   "author": "Tyler Technologies",
   "license": "Apache-2.0",
   "dependencies": {
-    "lit": "catalog:",
-    "@tylertech/forge": "catalog:",
-    "@tylertech/forge-ai": "workspace:"
+    "@tylertech/forge-ai": "workspace:",
+    "lit": "catalog:"
+  },
+  "peerDependencies": {
+    "@tylertech/forge": "^3.0.0"
   },
   "devDependencies": {
     "@repo/prettier-config": "workspace:",
@@ -50,8 +53,10 @@
     "@tylertech/tyler-icons": "catalog:",
     "@types/node": "^24.10.4",
     "eslint": "catalog:",
+    "glob": "catalog:",
     "typescript": "~5.9.3",
     "vite": "catalog:",
+    "vite-bundle-visualizer": "^1.2.1",
     "vite-plugin-dts": "catalog:"
   }
 }

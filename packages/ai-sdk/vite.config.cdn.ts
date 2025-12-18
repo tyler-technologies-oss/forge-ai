@@ -1,6 +1,14 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
+/**
+ * Vite configuration for building the AI SDK for CDN usage only.
+ *
+ * This build outputs ES modules optimized for loading via CDN, with
+ * manual chunking to ensure optimal caching and loading performance.
+ *
+ * These bundles include *all* dependencies.
+ */
 export default defineConfig({
   build: {
     outDir: 'cdn',
@@ -8,12 +16,25 @@ export default defineConfig({
     lib: {
       entry: {
         bootstrap: resolve(__dirname, 'src/bootstrap.ts'),
-        'agent-runner': resolve(__dirname, 'src/agent-runner-bootstrap.ts')
+        'agent-runner': resolve(__dirname, 'src/agent-runner-bootstrap.ts'),
+        'forge-ai-button': resolve(__dirname, 'src/ui/forge-ai/button.ts'),
+        'forge-ai-icon': resolve(__dirname, 'src/ui/forge-ai/icon.ts')
       },
       formats: ['es']
     },
     rollupOptions: {
       output: {
+        /**
+         * IMPORTANT:
+         *
+         * We manually chunk the build output to optimize loading performance when
+         * used via CDN. This ensures that shared dependencies are grouped together
+         * and can be cached effectively by the browser.
+         *
+         * The UI components are loaded dynamically as needed, so we want to ensure that
+         * each component is only loading the chunks it needs, without duplicating code
+         * across multiple chunks.
+         */
         manualChunks: id => {
           // Shared agent adapter/runner modules go into a shared chunk
           if (id.includes('/src/core/foundry-agent-adapter') || id.includes('/src/core/foundry-agent-runner')) {
@@ -44,17 +65,10 @@ export default defineConfig({
             return 'foundry-threads';
           }
 
-          // Forge AI modules go into their own chunk
-          if (id.includes('packages/ai/dist/') || id.includes('@tylertech/forge-ai')) {
-            return 'forge-ai';
-          }
-
           // All other node_modules go into vendor chunk
           if (id.includes('node_modules')) {
             return 'foundry-vendor';
           }
-
-          // console.log('UNMATCHED:', id.replace('/Users/kieran/Development/GitHub/tyler-technologies-oss/forge-ai', ''));
 
           return undefined;
         },

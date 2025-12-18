@@ -98,10 +98,10 @@ Springfield, IL 62701</textarea
             <label slot="label">Contact Information</label>
           </forge-text-field>
           <div class="button-container" style="margin-block-start: var(--forge-spacing-medium)">
-            <forge-button id="extract-btn" variant="raised">
+            <forge-ai-button id="extract-btn" variant="raised">
               <span>Extract Data</span>
               <forge-circular-progress id="progress" style="display: none"></forge-circular-progress>
-            </forge-button>
+            </forge-ai-button>
           </div>
         </forge-card>
 
@@ -158,6 +158,7 @@ Springfield, IL 62701</textarea
       } from '@tylertech/forge';
       import { tylIconForgeLogo } from '@tylertech/tyler-icons';
       import { FoundryAgentRunner } from '../../cdn/agent-runner.js';
+      import '../../cdn/forge-ai-button.js';
 
       defineScaffoldComponent();
       defineAppBarComponent();
