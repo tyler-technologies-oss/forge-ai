@@ -1,6 +1,6 @@
 import { LitElement, TemplateResult, html, unsafeCSS, PropertyValues } from 'lit';
 import { html as staticHtml, unsafeStatic } from 'lit/static-html.js';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import type { AiModalComponent } from '../ai-modal';
@@ -129,7 +129,9 @@ export class AiChatHeaderComponent extends LitElement {
   public titleText = 'AI Assistant';
 
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
-  #isTitleOverflowing = false;
+
+  @state()
+  private isTitleOverflowing = false;
 
   public override updated(changedProperties: PropertyValues<this>): void {
     if (changedProperties.has('titleText') || changedProperties.has('headingLevel')) {
@@ -146,7 +148,7 @@ export class AiChatHeaderComponent extends LitElement {
     return staticHtml`
       <${tagName} class="title" id="title-container">${this.titleText}</${tagName}>
       ${when(
-        this.#isTitleOverflowing,
+        this.isTitleOverflowing,
         () => html`<forge-ai-tooltip for="title-container" placement="bottom">${this.titleText}</forge-ai-tooltip>`
       )}
     `;
@@ -330,9 +332,8 @@ export class AiChatHeaderComponent extends LitElement {
       const titleElement = this.shadowRoot?.querySelector('.title') as HTMLElement;
       if (titleElement) {
         const isOverflowing = titleElement.scrollWidth > titleElement.offsetWidth;
-        if (this.#isTitleOverflowing !== isOverflowing) {
-          this.#isTitleOverflowing = isOverflowing;
-          this.requestUpdate();
+        if (this.isTitleOverflowing !== isOverflowing) {
+          this.isTitleOverflowing = isOverflowing;
         }
       }
     });
