@@ -1,4 +1,4 @@
-import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
+import { LitElement, TemplateResult, html, unsafeCSS, PropertyValues } from 'lit';
 import { html as staticHtml, unsafeStatic } from 'lit/static-html.js';
 import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
@@ -129,6 +129,13 @@ export class AiChatHeaderComponent extends LitElement {
   public titleText = 'AI Assistant';
 
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
+  #isTitleOverflowing = false;
+
+  public override updated(changedProperties: PropertyValues<this>): void {
+    if (changedProperties.has('titleText') || changedProperties.has('headingLevel')) {
+      this.#checkTitleOverflow();
+    }
+  }
 
   get #hasAvailableOptions(): boolean {
     return this.exportOption === 'enabled' || this.clearOption === 'enabled' || !!this.agentInfo;
@@ -138,8 +145,11 @@ export class AiChatHeaderComponent extends LitElement {
     const tagName = unsafeStatic(`h${this.headingLevel}`);
     return staticHtml`
       <${tagName} class="title" id="title-container">${this.titleText}</${tagName}>
-       <forge-ai-tooltip for="title-container" placement="bottom">${this.titleText}</forge-ai-tooltip>
-      `;
+      ${when(
+        this.#isTitleOverflowing,
+        () => html`<forge-ai-tooltip for="title-container" placement="bottom">${this.titleText}</forge-ai-tooltip>`
+      )}
+    `;
   }
 
   public override render(): TemplateResult {
@@ -313,6 +323,19 @@ export class AiChatHeaderComponent extends LitElement {
         `
       )}
     `;
+  }
+
+  #checkTitleOverflow(): void {
+    setTimeout(() => {
+      const titleElement = this.shadowRoot?.querySelector('.title') as HTMLElement;
+      if (titleElement) {
+        const isOverflowing = titleElement.scrollWidth > titleElement.offsetWidth;
+        if (this.#isTitleOverflowing !== isOverflowing) {
+          this.#isTitleOverflowing = isOverflowing;
+          this.requestUpdate();
+        }
+      }
+    });
   }
 
   #handleExpandClick(): void {
