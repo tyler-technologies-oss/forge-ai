@@ -50,7 +50,6 @@ import '../ai-message-thread';
 import '../ai-prompt';
 import '../ai-suggestions';
 import '../ai-voice-input';
-import '../core/tooltip/tooltip.js';
 
 import styles from './ai-chatbot.scss?inline';
 
