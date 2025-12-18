@@ -1,7 +1,7 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
-@use '@tylertech/forge/dist/table/forge-table.css';
+@use '@tylertech/forge/sass/table/core' as forge-table-core;
 
 :host {
   display: block;
@@ -21,19 +21,37 @@
   overflow-x: auto;
 }
 
+.data-table {
+  @include forge-table-core.base;
+}
+
+.table-head {
+  @include forge-table-core.head-cell;
+}
+
 .column-header {
   width: max-content;
-  @include forge-typography.style(subheading1);
+  @include forge-typography.style(label2);
+  font-weight: 600;
 }
 
-.forge-data-table tbody tr {
+.table-row {
+  @include forge-table-core.row-dense;
   height: 32px;
+
+  &:nth-child(even) {
+    background-color: #{forge-theme.variable(surface-dim)};
+  }
 }
 
-.forge-data-table thead tr th,
-.forge-data-table tbody tr td {
+th,
+td {
   @include forge-typography.style(label1);
-  padding-block: 8px;
-  padding-inline-start: 8px;
-  padding-inline-end: 16px;
+  padding-block: #{forge-spacing.variable(xsmall)};
+  padding-inline-start: #{forge-spacing.variable(xsmall)};
+  padding-inline-end: #{forge-spacing.variable(medium)};
+
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #{forge-theme.variable(outline)};
 }

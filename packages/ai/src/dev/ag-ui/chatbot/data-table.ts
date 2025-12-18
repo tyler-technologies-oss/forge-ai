@@ -38,12 +38,12 @@ export class DataTable extends LitElement {
           : ''}
 
         <div class="table-container">
-          <table class="forge-data-table">
-            <thead>
-              <tr>
+          <table class="data-table">
+            <thead class="table-head">
+              <tr class="table-row">
                 ${data.headers.map(
                   header => html`
-                    <th class="forge-typography--label2">
+                    <th>
                       <div class="column-header">${header}</div>
                     </th>
                   `
