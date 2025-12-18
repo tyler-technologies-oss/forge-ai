@@ -19,7 +19,7 @@ const meta = {
       control: 'text',
       description: 'Placeholder text for the input field'
     },
-    title: {
+    titleText: {
       control: 'text',
       description: 'Custom title for the chatbot header'
     },
@@ -57,7 +57,7 @@ const meta = {
   },
   args: {
     placeholder: 'Ask a question...',
-    title: 'AI Assistant',
+    titleText: 'AI Assistant',
     fileUpload: 'off',
     voiceInput: 'on',
     showExpandButton: false,
@@ -92,7 +92,7 @@ const meta = {
           <forge-ai-chatbot
             .adapter=${adapter}
             placeholder=${args.placeholder}
-            .title=${args.title}
+            title-text=${args.titleText}
             file-upload=${args.fileUpload}
             voice-input=${args.voiceInput}
             ?show-expand-button=${args.showExpandButton}
@@ -149,7 +149,7 @@ export const WithSuggestions: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
-          title="AI Assistant with Suggestions"
+          title-text="AI Assistant with Suggestions"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
@@ -220,7 +220,7 @@ export const WithTools: Story = {
         <forge-ai-chatbot
           .adapter=${adapter}
           placeholder=${args.placeholder}
-          title="AI Assistant with Tools"
+          title-text="AI Assistant with Tools"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
@@ -297,7 +297,7 @@ export const WithPersistence: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
-          title="Persistent Chat"
+          title-text="Persistent Chat"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}

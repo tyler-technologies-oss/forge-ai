@@ -164,7 +164,7 @@ export class AiChatbotComponent extends LitElement {
   @property({ type: Object, attribute: false })
   public agentInfo?: AgentInfo;
 
-  @property()
+  @property({ attribute: 'title-text' })
   public titleText = 'AI Assistant';
 
   @property({ attribute: 'heading-level', type: Number })
