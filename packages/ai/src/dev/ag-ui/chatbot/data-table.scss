@@ -1,4 +1,5 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/dist/table/forge-table.css';
 
@@ -7,7 +8,32 @@
   margin-block-start: #{forge-spacing.variable(small)};
 }
 
+.table-toolbar {
+  --forge-toolbar-height: 48px;
+  --forge-toolbar-padding: #{forge-spacing.variable(xsmall)};
+}
+
+.title {
+  @include forge-typography.style(heading1);
+}
+
 .table-container {
-  padding: #{forge-spacing.variable(medium)};
   overflow-x: auto;
+}
+
+.column-header {
+  width: max-content;
+  @include forge-typography.style(subheading1);
+}
+
+.forge-data-table tbody tr {
+  height: 32px;
+}
+
+.forge-data-table thead tr th,
+.forge-data-table tbody tr td {
+  @include forge-typography.style(label1);
+  padding-block: 8px;
+  padding-inline-start: 8px;
+  padding-inline-end: 16px;
 }

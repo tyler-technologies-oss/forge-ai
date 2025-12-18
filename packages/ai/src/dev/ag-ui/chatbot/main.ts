@@ -354,9 +354,9 @@ reconnectBtn.addEventListener('click', () => {
 initializeAdapter(baseUrlInput.value, agentIdInput.value);
 chatbot.suggestions = [
   { text: 'What can you help me with?', value: 'What can you help me with?' },
-  { text: 'Show me confetti!', value: 'Show me confetti!' },
+  // { text: 'Show me confetti!', value: 'Show me confetti!' },
   { text: 'Show me a recipe for chocolate chip cookies', value: 'Show me a recipe for chocolate chip cookies' },
-  { text: 'Show me a data table with sales information', value: 'Show me a data table with sales information' }
+  { text: 'Show me a data table with random data', value: 'Show me a data table with random data' }
 ];
 chatbot.agentInfo = {
   name: 'My Agent',

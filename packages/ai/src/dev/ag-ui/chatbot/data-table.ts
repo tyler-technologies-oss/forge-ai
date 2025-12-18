@@ -27,8 +27,12 @@ export class DataTable extends LitElement {
       <forge-card>
         ${data.title
           ? html`
-              <forge-toolbar>
-                <h2 class="forge-typography--heading4" slot="start">${data.title}</h2>
+              <forge-toolbar class="table-toolbar">
+                <h2 class="title" slot="start">${data.title}</h2>
+                <forge-stack slot="end" alignment="center" inline>
+                  <forge-icon name="filter_list" external></forge-icon>
+                  <forge-icon name="more_vert" external></forge-icon>
+                </forge-stack>
               </forge-toolbar>
             `
           : ''}
@@ -37,14 +41,20 @@ export class DataTable extends LitElement {
           <table class="forge-data-table">
             <thead>
               <tr>
-                ${data.headers.map(header => html` <th class="forge-typography--label2">${header}</th> `)}
+                ${data.headers.map(
+                  header => html`
+                    <th class="forge-typography--label2">
+                      <div class="column-header">${header}</div>
+                    </th>
+                  `
+                )}
               </tr>
             </thead>
             <tbody>
               ${data.rows.map(
                 row => html`
-                  <tr>
-                    ${row.map(cell => html` <td class="forge-typography--body2">${cell}</td> `)}
+                  <tr class="table-row">
+                    ${row.map(cell => html` <td class="table-cell">${cell}</td> `)}
                   </tr>
                 `
               )}
