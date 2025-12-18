@@ -131,7 +131,7 @@ export class AiChatHeaderComponent extends LitElement {
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
   @state()
-  private isTitleOverflowing = false;
+  private _isTitleOverflowing = false;
 
   public override updated(changedProperties: PropertyValues<this>): void {
     if (changedProperties.has('titleText') || changedProperties.has('headingLevel')) {
@@ -148,7 +148,7 @@ export class AiChatHeaderComponent extends LitElement {
     return staticHtml`
       <${tagName} class="title" id="title-container">${this.titleText}</${tagName}>
       ${when(
-        this.isTitleOverflowing,
+        this._isTitleOverflowing,
         () => html`<forge-ai-tooltip for="title-container" placement="bottom">${this.titleText}</forge-ai-tooltip>`
       )}
     `;
@@ -332,8 +332,8 @@ export class AiChatHeaderComponent extends LitElement {
       const titleElement = this.shadowRoot?.querySelector('.title') as HTMLElement;
       if (titleElement) {
         const isOverflowing = titleElement.scrollWidth > titleElement.offsetWidth;
-        if (this.isTitleOverflowing !== isOverflowing) {
-          this.isTitleOverflowing = isOverflowing;
+        if (this._isTitleOverflowing !== isOverflowing) {
+          this._isTitleOverflowing = isOverflowing;
         }
       }
     });
