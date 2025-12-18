@@ -35,8 +35,10 @@ export class AiArtifactComponent extends LitElement {
             <slot name="actions"></slot>
           </div>
         </div>
-        <div class="content">
-          <slot></slot>
+        <div class="content-container">
+          <div class="content">
+            <slot></slot>
+          </div>
         </div>
       </div>
     `;

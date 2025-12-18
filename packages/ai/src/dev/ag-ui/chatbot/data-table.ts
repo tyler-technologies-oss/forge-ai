@@ -1,6 +1,7 @@
 import { LitElement, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type { ToolCall } from '../../../lib/ai-chatbot';
+import '../../../lib/ai-artifact';
 import styles from './data-table.scss?inline';
 
 interface TableData {
@@ -20,22 +21,17 @@ export class DataTable extends LitElement {
     // For pure rendering tools, data comes from LLM via args, not result
     const data = this.toolCall.args as unknown as TableData;
     if (!data || !data.headers || !data.rows) {
-      return html`<forge-card><p class="forge-typography--body2">No table data available</p></forge-card>`;
+      return html`<forge-ai-artifact><p class="forge-typography--body2">No table data available</p></forge-ai-artifact>`;
     }
 
     return html`
-      <forge-card>
-        ${data.title
-          ? html`
-              <forge-toolbar class="table-toolbar">
-                <h2 class="title" slot="start">${data.title}</h2>
-                <forge-stack slot="end" alignment="center" inline>
-                  <forge-icon name="filter_list" external></forge-icon>
-                  <forge-icon name="more_vert" external></forge-icon>
-                </forge-stack>
-              </forge-toolbar>
-            `
-          : ''}
+      <forge-ai-artifact>
+        ${data.title ? html`<h2 class="title" slot="start">${data.title}</h2>` : ''}
+
+        <forge-stack slot="actions" alignment="center" inline>
+          <forge-icon name="filter_list" external></forge-icon>
+          <forge-icon name="more_vert" external></forge-icon>
+        </forge-stack>
 
         <div class="table-container">
           <table class="data-table">
@@ -61,7 +57,7 @@ export class DataTable extends LitElement {
             </tbody>
           </table>
         </div>
-      </forge-card>
+      </forge-ai-artifact>
     `;
   }
 }

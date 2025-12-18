@@ -22,3 +22,14 @@
 .forge-toolbar__end {
   color: #{forge-theme.variable(text-medium)};
 }
+
+.content-container {
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.content {
+  border: 1px solid #{forge-theme.variable(outline)};
+  border-radius: #{forge-shape.variable(large)};
+  background-color: white;
+}

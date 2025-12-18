@@ -8,11 +8,6 @@
   margin-block-start: #{forge-spacing.variable(small)};
 }
 
-.table-toolbar {
-  --forge-toolbar-height: 48px;
-  --forge-toolbar-padding: #{forge-spacing.variable(xsmall)};
-}
-
 .title {
   @include forge-typography.style(heading1);
 }
@@ -23,6 +18,7 @@
 
 .data-table {
   @include forge-table-core.base;
+  overflow: hidden;
 }
 
 .table-head {
@@ -41,6 +37,12 @@
 
   &:nth-child(even) {
     background-color: #{forge-theme.variable(surface-dim)};
+  }
+
+  &:last-child td {
+    border-bottom: none;
+    border-end-start-radius: 8px;
+    border-end-end-radius: #{forge-spacing.variable(xsmall)};
   }
 }
 
