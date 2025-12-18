@@ -32,6 +32,7 @@ import type {
   FileUploadCallbacks,
   ForgeAiChatbotFileSelectEventData,
   HandlerContext,
+  HeadingLevel,
   MessageItem,
   ThreadState,
   ToolCall,
@@ -110,8 +111,10 @@ export type FeatureToggle = 'on' | 'off';
  * It uses an adapter pattern to abstract communication, allowing for AG-UI or custom protocol implementations.
  *
  * @slot header - Slot for custom header content
- * @slot header-title - Slot for custom header title content (default: "AI Assistant")
  * @slot empty-state - Slot for custom empty state content (overrides default suggestions)
+ *
+ * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
+ * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  *
  * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
  * @event {CustomEvent<void>} forge-ai-chatbot-disconnected - Fired when adapter disconnects
@@ -163,6 +166,9 @@ export class AiChatbotComponent extends LitElement {
 
   @property({ attribute: 'title-text' })
   public titleText = 'AI Assistant';
+
+  @property({ attribute: 'heading-level', type: Number })
+  public headingLevel: HeadingLevel = 2;
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #promptRef = createRef<AiPromptComponent>();
@@ -936,15 +942,13 @@ export class AiChatbotComponent extends LitElement {
           clear-option=${this.#hasMessages ? 'enabled' : 'off'}
           .minimizeIcon=${this.minimizeIcon}
           .agentInfo=${this.agentInfo}
+          .headingLevel=${this.headingLevel}
           .titleText=${this.titleText}
           @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
           @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}
           @forge-ai-chat-header-export=${this.#handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
-          <slot name="header-title" slot="title">
-            <span>${this.titleText}</span>
-          </slot>
         </forge-ai-chat-header>
         ${this.#messageThread} ${this.#promptSlot}
       </forge-ai-chat-interface>

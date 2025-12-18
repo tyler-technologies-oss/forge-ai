@@ -1,8 +1,10 @@
-import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { LitElement, TemplateResult, html, unsafeCSS, PropertyValues } from 'lit';
+import { html as staticHtml, unsafeStatic } from 'lit/static-html.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import type { AiModalComponent } from '../ai-modal';
+import type { HeadingLevel } from '../ai-chatbot/types';
 import '../ai-icon/ai-icon';
 import '../core/tooltip/tooltip.js';
 import '../ai-dropdown-menu/ai-dropdown-menu.js';
@@ -54,7 +56,9 @@ export interface AgentInfo {
  * @tag forge-ai-chat-header
  *
  * @slot icon - Slot for custom icon (default: forge-ai-icon)
- * @slot title - Slot for custom title text (default: "AI Assistant")
+ *
+ * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
+ * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  *
  * @event forge-ai-chat-header-expand - Fired when the expand button is clicked
  * @event forge-ai-chat-header-minimize - Fired when the minimize button is clicked
@@ -90,12 +94,6 @@ export class AiChatHeaderComponent extends LitElement {
   public minimizeIcon: MinimizeIconType = 'default';
 
   /**
-   * The title text to display in the header (used when title slot is empty)
-   */
-  @property({ type: String, attribute: 'title-text' })
-  public titleText = 'AI Assistant';
-
-  /**
    * Agent information to display in the info dialog
    */
   @property({ type: Object, attribute: false })
@@ -119,21 +117,52 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ attribute: 'clear-option' })
   public clearOption: OptionState = 'enabled';
 
+  /**
+   * Controls the heading level for the title content
+   */
+  @property({ attribute: 'heading-level', type: Number })
+  public headingLevel: HeadingLevel = 2;
+
+  /**
+   * The title text to display in the header
+   */
+  @property({ attribute: 'title-text' })
+  public titleText = 'AI Assistant';
+
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
+
+  @state()
+  private _isTitleOverflowing = false;
+
+  public override updated(changedProperties: PropertyValues<this>): void {
+    if (changedProperties.has('titleText') || changedProperties.has('headingLevel')) {
+      this.#checkTitleOverflow();
+    }
+  }
 
   get #hasAvailableOptions(): boolean {
     return this.exportOption === 'enabled' || this.clearOption === 'enabled' || !!this.agentInfo;
   }
 
+  get #titleElement(): TemplateResult {
+    const tagName = unsafeStatic(`h${this.headingLevel}`);
+    return staticHtml`
+      <${tagName} class="title" id="title-container">${this.titleText}</${tagName}>
+      ${when(
+        this._isTitleOverflowing,
+        () => html`<forge-ai-tooltip for="title-container" placement="bottom">${this.titleText}</forge-ai-tooltip>`
+      )}
+    `;
+  }
+
   public override render(): TemplateResult {
     return html`
-      <div class="header forge-toolbar forge-toolbar--no-divider">
-        <div class="start" id="title-text-container">
+      <div class="header">
+        <div class="start" id="title-container">
           <slot name="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>
-          <slot name="title" class="title">${this.titleText}</slot>
-          <forge-ai-tooltip id="title-tooltip" for="title-text-container"> ${this.titleText} </forge-ai-tooltip>
+          ${this.#titleElement}
         </div>
         <div class="end">
           ${when(
@@ -297,6 +326,16 @@ export class AiChatHeaderComponent extends LitElement {
         `
       )}
     `;
+  }
+
+  #checkTitleOverflow(): void {
+    const titleElement = this.shadowRoot?.querySelector('.title') as HTMLElement;
+    if (titleElement) {
+      const isOverflowing = titleElement.scrollWidth > titleElement.offsetWidth;
+      if (this._isTitleOverflowing !== isOverflowing) {
+        this._isTitleOverflowing = isOverflowing;
+      }
+    }
   }
 
   #handleExpandClick(): void {

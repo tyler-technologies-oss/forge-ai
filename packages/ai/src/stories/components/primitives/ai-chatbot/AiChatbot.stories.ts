@@ -19,7 +19,7 @@ const meta = {
       control: 'text',
       description: 'Placeholder text for the input field'
     },
-    headerTitle: {
+    titleText: {
       control: 'text',
       description: 'Custom title for the chatbot header'
     },
@@ -57,7 +57,7 @@ const meta = {
   },
   args: {
     placeholder: 'Ask a question...',
-    headerTitle: 'AI Assistant',
+    titleText: 'AI Assistant',
     fileUpload: 'off',
     voiceInput: 'on',
     showExpandButton: false,
@@ -92,12 +92,12 @@ const meta = {
           <forge-ai-chatbot
             .adapter=${adapter}
             placeholder=${args.placeholder}
+            title-text=${args.titleText}
             file-upload=${args.fileUpload}
             voice-input=${args.voiceInput}
             ?show-expand-button=${args.showExpandButton}
             ?show-minimize-button=${args.showMinimizeButton}
             ?expanded=${args.expanded}
-            title-text=${args.headerTitle}
             ?enable-reactions=${args.enableReactions}
             .minimizeIcon=${args.minimizeIcon}
             @forge-ai-chatbot-connected=${onConnected}
@@ -111,7 +111,6 @@ const meta = {
             @forge-ai-chatbot-clear=${onClear}
             @forge-ai-chat-header-export=${onExport}
             @forge-ai-chatbot-info=${onInfo}>
-            ${args.headerTitle ? html`<span slot="header-title">${args.headerTitle}</span>` : ''}
             <span slot="empty-state-heading">How can I help you today?</span>
             <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
           </forge-ai-chatbot>
@@ -150,6 +149,7 @@ export const WithSuggestions: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
+          title-text="AI Assistant with Suggestions"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
@@ -220,6 +220,7 @@ export const WithTools: Story = {
         <forge-ai-chatbot
           .adapter=${adapter}
           placeholder=${args.placeholder}
+          title-text="AI Assistant with Tools"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
@@ -228,7 +229,6 @@ export const WithTools: Story = {
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
           @forge-ai-chatbot-tool-call=${onToolCall}>
-          <span slot="header-title">AI Assistant with Tools</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -297,6 +297,7 @@ export const WithPersistence: Story = {
           .adapter=${adapter}
           .suggestions=${suggestions}
           placeholder=${args.placeholder}
+          title-text="Persistent Chat"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?show-expand-button=${args.showExpandButton}
@@ -307,7 +308,6 @@ export const WithPersistence: Story = {
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
           @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
-          <span slot="header-title">Persistent Chat</span>
         </forge-ai-chatbot>
       </div>
     `;
