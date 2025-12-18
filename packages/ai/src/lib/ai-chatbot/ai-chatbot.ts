@@ -32,6 +32,7 @@ import type {
   FileUploadCallbacks,
   ForgeAiChatbotFileSelectEventData,
   HandlerContext,
+  HeadingLevel,
   MessageItem,
   ThreadState,
   ToolCall,
@@ -114,7 +115,7 @@ export type FeatureToggle = 'on' | 'off';
  * @slot empty-state - Slot for custom empty state content (overrides default suggestions)
  *
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
- * @property {1 | 2 | 3 | 4 | 5 | 6} headingLevel - Controls the heading level for the title content (default: 2)
+ * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  *
  * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
  * @event {CustomEvent<void>} forge-ai-chatbot-disconnected - Fired when adapter disconnects
@@ -168,7 +169,7 @@ export class AiChatbotComponent extends LitElement {
   public titleText = 'AI Assistant';
 
   @property({ attribute: 'heading-level', type: Number })
-  public headingLevel: 1 | 2 | 3 | 4 | 5 | 6 = 2;
+  public headingLevel: HeadingLevel = 2;
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #promptRef = createRef<AiPromptComponent>();

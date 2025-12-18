@@ -4,6 +4,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import type { AiModalComponent } from '../ai-modal';
+import type { HeadingLevel } from '../ai-chatbot/types';
 import '../ai-icon/ai-icon';
 import '../core/tooltip/tooltip.js';
 import '../ai-dropdown-menu/ai-dropdown-menu.js';
@@ -56,7 +57,7 @@ export interface AgentInfo {
  *
  * @slot icon - Slot for custom icon (default: forge-ai-icon)
  *
- * @property {1 | 2 | 3 | 4 | 5 | 6} headingLevel - Controls the heading level for the title content (default: 2)
+ * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  *
  * @event forge-ai-chat-header-expand - Fired when the expand button is clicked
@@ -120,7 +121,7 @@ export class AiChatHeaderComponent extends LitElement {
    * Controls the heading level for the title content
    */
   @property({ attribute: 'heading-level', type: Number })
-  public headingLevel: 1 | 2 | 3 | 4 | 5 | 6 = 2;
+  public headingLevel: HeadingLevel = 2;
 
   /**
    * The title text to display in the header
