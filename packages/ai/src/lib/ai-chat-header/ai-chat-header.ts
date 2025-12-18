@@ -1,5 +1,6 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property, queryAssignedElements } from 'lit/decorators.js';
+import { html as staticHtml, unsafeStatic } from 'lit/static-html.js';
+import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import type { AiModalComponent } from '../ai-modal';
@@ -54,7 +55,9 @@ export interface AgentInfo {
  * @tag forge-ai-chat-header
  *
  * @slot icon - Slot for custom icon (default: forge-ai-icon)
- * @slot title - Required slot for title content
+ *
+ * @property {1 | 2 | 3 | 4 | 5 | 6} headingLevel - Controls the heading level for the title content (default: 2)
+ * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  *
  * @event forge-ai-chat-header-expand - Fired when the expand button is clicked
  * @event forge-ai-chat-header-minimize - Fired when the minimize button is clicked
@@ -113,26 +116,31 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ attribute: 'clear-option' })
   public clearOption: OptionState = 'enabled';
 
-  #agentInfoModalRef: Ref<AiModalComponent> = createRef();
+  /**
+   * Controls the heading level for the title content
+   */
+  @property({ attribute: 'heading-level', type: Number })
+  public headingLevel: 1 | 2 | 3 | 4 | 5 | 6 = 2;
 
-  @queryAssignedElements({ slot: 'title', flatten: true })
-  private _titleSlottedElements!: Element[];
+  /**
+   * The title text to display in the header
+   */
+  @property({ attribute: 'title-text' })
+  public titleText = 'AI Assistant';
+
+  #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
   get #hasAvailableOptions(): boolean {
     return this.exportOption === 'enabled' || this.clearOption === 'enabled' || !!this.agentInfo;
   }
 
-  get #titleText(): string {
-    if (this._titleSlottedElements?.length > 0) {
-      return this._titleSlottedElements
-        .map(el => el.textContent?.trim() || '')
-        .join(' ')
-        .trim();
-    }
-    return '';
+  get #titleElement(): TemplateResult {
+    const tagName = unsafeStatic(`h${this.headingLevel}`);
+    return staticHtml`
+      <${tagName} class="title" id="title-container">${this.titleText}</${tagName}>
+       <forge-ai-tooltip for="title-container" placement="bottom">${this.titleText}</forge-ai-tooltip>
+      `;
   }
-
-  readonly #titleSlot = html`<slot name="title" class="title" @slotchange=${this.#handleSlotChange}></slot>`;
 
   public override render(): TemplateResult {
     return html`
@@ -141,10 +149,7 @@ export class AiChatHeaderComponent extends LitElement {
           <slot name="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>
-          ${this.#titleSlot}
-          <forge-ai-tooltip id="title-tooltip" for="title-container" placement="bottom">
-            ${this.#titleText}
-          </forge-ai-tooltip>
+          ${this.#titleElement}
         </div>
         <div class="end">
           ${when(
@@ -354,12 +359,5 @@ export class AiChatHeaderComponent extends LitElement {
 
   #handleModalClose(): void {
     this.#agentInfoModalRef.value?.close();
-  }
-
-  #handleSlotChange(evt: Event): void {
-    const slotName = (evt.target as HTMLSlotElement).name;
-    if (slotName === 'title') {
-      this.requestUpdate();
-    }
   }
 }
