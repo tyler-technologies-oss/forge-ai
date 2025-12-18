@@ -328,15 +328,13 @@ export class AiChatHeaderComponent extends LitElement {
   }
 
   #checkTitleOverflow(): void {
-    setTimeout(() => {
-      const titleElement = this.shadowRoot?.querySelector('.title') as HTMLElement;
-      if (titleElement) {
-        const isOverflowing = titleElement.scrollWidth > titleElement.offsetWidth;
-        if (this._isTitleOverflowing !== isOverflowing) {
-          this._isTitleOverflowing = isOverflowing;
-        }
+    const titleElement = this.shadowRoot?.querySelector('.title') as HTMLElement;
+    if (titleElement) {
+      const isOverflowing = titleElement.scrollWidth > titleElement.offsetWidth;
+      if (this._isTitleOverflowing !== isOverflowing) {
+        this._isTitleOverflowing = isOverflowing;
       }
-    });
+    }
   }
 
   #handleExpandClick(): void {
