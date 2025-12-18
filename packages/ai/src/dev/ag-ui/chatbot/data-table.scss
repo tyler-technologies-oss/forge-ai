@@ -41,7 +41,7 @@
 
   &:last-child td {
     border-bottom: none;
-    border-end-start-radius: 8px;
+    border-end-start-radius: #{forge-spacing.variable(xsmall)};
     border-end-end-radius: #{forge-spacing.variable(xsmall)};
   }
 }

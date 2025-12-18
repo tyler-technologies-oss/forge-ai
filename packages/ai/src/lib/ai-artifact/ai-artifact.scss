@@ -26,6 +26,8 @@
 .content-container {
   padding: 16px;
   background-color: #fafafa;
+  border-end-start-radius: #{forge-spacing.variable(xsmall)};
+  border-end-end-radius: #{forge-spacing.variable(xsmall)};
 }
 
 .content {
