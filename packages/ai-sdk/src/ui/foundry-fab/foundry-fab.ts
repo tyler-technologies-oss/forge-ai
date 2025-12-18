@@ -13,6 +13,9 @@ declare global {
 
 const FoundryFabComponentTagName: keyof HTMLElementTagNameMap = 'foundry-fab';
 
+/**
+ * @tag foundry-fab
+ */
 @customElement(FoundryFabComponentTagName)
 export class FoundryFabComponent extends LitElement {
   public static override styles = unsafeCSS(styles);

@@ -22,6 +22,9 @@ declare global {
 
 const FoundryFloatingChatbotComponentTagName: keyof HTMLElementTagNameMap = 'foundry-floating-chatbot';
 
+/**
+ * @tag foundry-floating-chatbot
+ */
 @customElement(FoundryFloatingChatbotComponentTagName)
 export class FoundryFloatingChatbotComponent extends LitElement implements IFoundryChatbot {
   public static override styles = unsafeCSS(styles);

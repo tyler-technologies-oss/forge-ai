@@ -31,6 +31,9 @@ declare global {
 
 export const FoundryThreadedChatbotComponentTagName: keyof HTMLElementTagNameMap = 'foundry-threaded-chatbot';
 
+/**
+ * @tag foundry-threaded-chatbot
+ */
 @customElement(FoundryThreadedChatbotComponentTagName)
 export class FoundryThreadedChatbotComponent extends LitElement implements IFoundryChatbot {
   public static override styles = unsafeCSS(styles);

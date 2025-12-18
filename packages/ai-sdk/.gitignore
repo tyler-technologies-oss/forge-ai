@@ -1,4 +1,6 @@
 dist/
 /cdn/
+/react/
 node_modules/
 /*.tgz
+/custom-elements.json

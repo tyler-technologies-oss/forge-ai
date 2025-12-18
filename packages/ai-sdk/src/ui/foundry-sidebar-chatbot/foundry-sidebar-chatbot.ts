@@ -22,6 +22,9 @@ declare global {
 
 const FoundrySidebarChatbotComponentTagName: keyof HTMLElementTagNameMap = 'foundry-sidebar-chatbot';
 
+/**
+ * @tag foundry-sidebar-chatbot
+ */
 @customElement(FoundrySidebarChatbotComponentTagName)
 export class FoundrySidebarChatbotComponent extends LitElement implements IFoundryChatbot {
   public static override styles = unsafeCSS(styles);

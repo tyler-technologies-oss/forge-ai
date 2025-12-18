@@ -13,21 +13,27 @@
     "./ui/*": {
       "types": "./dist/ui/*/index.d.ts",
       "default": "./dist/ui/*/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
     }
   },
   "files": [
     "dist"
   ],
+  "customElements": "custom-elements.json",
   "scripts": {
     "dev": "vite",
-    "build": "pnpm run build:npm && pnpm run build:cdn",
+    "build": "pnpm run build:npm && pnpm run build:cdn && pnpm run cem",
     "build:npm": "tsc && vite build",
     "build:cdn": "vite build --config vite.config.cdn.ts",
     "preview": "vite preview",
-    "sri": "node scripts/sri-generator.js",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "cem": "cem analyze --config custom-elements-manifest.config.js --litelement && pnpm run generate-proxies",
+    "generate-proxies": "node scripts/generate-proxies.mjs",
     "inspect-bundle": "vite-bundle-visualizer --config vite.config.cdn.ts"
   },
   "keywords": [
@@ -48,10 +54,13 @@
     "@tylertech/forge": "^3.0.0"
   },
   "devDependencies": {
+    "@custom-elements-manifest/analyzer": "catalog:",
     "@repo/prettier-config": "workspace:",
     "@tylertech/forge": "catalog:",
     "@tylertech/tyler-icons": "catalog:",
     "@types/node": "^24.10.4",
+    "change-case": "^5.4.4",
+    "custom-element-react-wrappers": "^1.7.3",
     "eslint": "catalog:",
     "glob": "catalog:",
     "typescript": "~5.9.3",
