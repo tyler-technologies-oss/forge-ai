@@ -214,5 +214,4 @@ export class MessageStateController implements ReactiveController {
     this._messageItems.splice(toolIdx, 0, msg);
     this.#notifyStateChange();
   }
-
 }

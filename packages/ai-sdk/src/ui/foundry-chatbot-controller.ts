@@ -1,11 +1,11 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { checkAuthentication } from '../core/auth-manager.js';
 import { loadAgentConfig } from '../core/config-loader.js';
-import { checkAuthCookieSupport } from '../core/cookie-checker.js';
 import { ChatbotError, ChatbotErrorCode, isChatbotError } from '../core/error-codes.js';
 import { setupFileRemoveHandler, setupFileUploadHandler } from '../core/file-upload.js';
 import { FoundryAgentAdapter } from '../core/foundry-agent-adapter.js';
-import type { AgentUIConfig } from '../core/types.js';
+import { establishAnonymousSession } from '../core/session.js';
+import type { AgentUIConfig, AuthStatus, SessionInfo } from '../core/types.js';
 import { FoundryBaseChatbotComponent } from './foundry-base-chatbot.js';
 
 type InitState = 'pending' | 'initializing' | 'initialized' | 'error';
@@ -26,6 +26,8 @@ export class FoundryChatbotController implements ReactiveController {
   #state: InitState = 'pending';
   #adapter: FoundryAgentAdapter | null = null;
   #agentConfig: AgentUIConfig | null = null;
+  #authStatus: AuthStatus | null = null;
+  #sessionInfo: SessionInfo | null = null;
   #initializing: Promise<void> | null = null;
   #config: FoundryChatbotControllerConfig = {};
   #callbacks: FoundryChatbotControllerCallbacks;
@@ -74,6 +76,8 @@ export class FoundryChatbotController implements ReactiveController {
     this.#adapter?.disconnect();
     this.#adapter = null;
     this.#agentConfig = null;
+    this.#authStatus = null;
+    this.#sessionInfo = null;
     this.#state = 'pending';
     this.#initializing = null;
     this.#uploadedFileCount = 0;
@@ -114,16 +118,22 @@ export class FoundryChatbotController implements ReactiveController {
       throw new ChatbotError(ChatbotErrorCode.CONFIG_INVALID, 'baseUrl and either agentId or teamId are required');
     }
 
-    const cookieCheckResult = await checkAuthCookieSupport(baseUrl, agentId);
-    if (!cookieCheckResult.authSupported) {
-      console.warn('[FoundryChatbot] Cookie check warning:', cookieCheckResult.message);
+    this.#authStatus = await checkAuthentication(this.#config);
+
+    this.#agentConfig = await loadAgentConfig({ baseUrl, agentId, teamId, headers }, this.#authStatus);
+
+    const isMemoryEnabled =
+      this.#agentConfig?.memory?.sessionMemory && (this.#agentConfig?.memory.maxMessages ?? 0) > 0;
+    if (isMemoryEnabled && (!this.#authStatus.isAuthenticated || !this.#authStatus.userDetails)) {
+      this.#sessionInfo = await establishAnonymousSession(this.#config, this.#authStatus);
     }
 
-    const authStatus = await checkAuthentication(this.#config);
-
-    this.#agentConfig = await loadAgentConfig({ baseUrl, agentId, teamId, headers }, authStatus);
-
-    this.#adapter = new FoundryAgentAdapter({ baseUrl, agentId, teamId, headers }, this.#agentConfig);
+    this.#adapter = new FoundryAgentAdapter(
+      { baseUrl, agentId, teamId, headers },
+      this.#agentConfig,
+      this.#authStatus,
+      this.#sessionInfo
+    );
 
     if (this.#agentConfig.chatExperience?.enableFileUpload) {
       const getThreadId = (): string => {

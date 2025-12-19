@@ -1,5 +1,5 @@
 import { AgUiAdapter } from '@tylertech/forge-ai/ai-chatbot';
-import type { AgentUIConfig } from './types.js';
+import type { AgentUIConfig, AuthStatus, SessionInfo } from './types.js';
 
 export interface FoundryAdapterConfig {
   baseUrl: string;
@@ -12,8 +12,15 @@ export interface FoundryAdapterConfig {
 export class FoundryAgentAdapter extends AgUiAdapter {
   readonly #agentConfig: AgentUIConfig;
   readonly #config: FoundryAdapterConfig;
+  readonly #authStatus: AuthStatus | null;
+  readonly #sessionInfo: SessionInfo | null;
 
-  constructor(config: FoundryAdapterConfig, agentConfig: AgentUIConfig = {}) {
+  constructor(
+    config: FoundryAdapterConfig,
+    agentConfig: AgentUIConfig = {},
+    authStatus?: AuthStatus | null,
+    sessionInfo?: SessionInfo | null
+  ) {
     const { baseUrl, agentId, teamId, headers } = config;
 
     if (!agentId && !teamId) {
@@ -25,6 +32,8 @@ export class FoundryAgentAdapter extends AgUiAdapter {
     super({ url, headers });
     this.#agentConfig = agentConfig;
     this.#config = config;
+    this.#authStatus = authStatus ?? null;
+    this.#sessionInfo = sessionInfo ?? null;
   }
 
   public get agentConfig(): AgentUIConfig {
@@ -34,9 +43,19 @@ export class FoundryAgentAdapter extends AgUiAdapter {
   public async clearMemory(): Promise<void> {
     const { baseUrl, agentId, teamId, headers } = this.#config;
 
-    const memoryEndpoint = teamId
-      ? `${baseUrl}/api/team/${teamId}/conversation-memory/clear`
-      : `${baseUrl}/api/conversation-memory/clear/agent/${agentId}`;
+    const userId = this.#authStatus?.userDetails?.id ?? this.#sessionInfo?.anonymousUserId;
+
+    let memoryEndpoint: string;
+    if (teamId) {
+      memoryEndpoint = `${baseUrl}/api/team/${teamId}/conversation-memory/clear`;
+    } else if (agentId && userId) {
+      memoryEndpoint = `${baseUrl}/api/conversation-memory/clear/agent/${agentId}/user/${userId}`;
+    } else if (agentId) {
+      memoryEndpoint = `${baseUrl}/api/conversation-memory/clear/agent/${agentId}`;
+    } else {
+      console.warn('[FoundryAgentAdapter] Cannot clear memory: missing agentId or teamId');
+      return;
+    }
 
     const memoryResponse = await fetch(memoryEndpoint, {
       method: 'DELETE',

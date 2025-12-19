@@ -138,7 +138,6 @@ export class FileUploadManager {
       .map(state => state.uploadedFile) as UploadedFileMetadata[];
   }
 
-
   public clear(): void {
     this._attachments.clear();
     this._abortCallbacks.clear();

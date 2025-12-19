@@ -13,7 +13,7 @@ export interface CookieCheckResult {
   };
 }
 
-function detectBrowser(): { name: string; requiresStorageAccess: boolean; policy: string } {
+export function detectBrowser(): { name: string; requiresStorageAccess: boolean; policy: string } {
   const ua = navigator.userAgent.toLowerCase();
 
   if (ua.includes('safari') && !ua.includes('chrome') && !ua.includes('chromium')) {
@@ -47,7 +47,7 @@ function detectBrowser(): { name: string; requiresStorageAccess: boolean; policy
   };
 }
 
-async function testAuthEndpoint(
+export async function testAuthEndpoint(
   baseUrl: string,
   agentId: string
 ): Promise<{ reachable: boolean; corsConfigured: boolean }> {
@@ -70,20 +70,11 @@ async function testAuthEndpoint(
   }
 }
 
-export async function checkAuthCookieSupport(baseUrl: string, agentId?: string): Promise<CookieCheckResult> {
-  const browser = detectBrowser();
-
-  if (!agentId) {
-    return {
-      authSupported: true,
-      requiresStorageAccess: false,
-      browser: browser.name,
-      message: 'No agent ID provided, skipping auth endpoint check'
-    };
-  }
-
-  const endpointTest = await testAuthEndpoint(baseUrl, agentId);
-
+export function buildCookieCheckResult(
+  browser: { name: string; requiresStorageAccess: boolean; policy: string },
+  endpointTest: { reachable: boolean; corsConfigured: boolean },
+  baseUrl: string
+): CookieCheckResult {
   if (!endpointTest.reachable) {
     return {
       authSupported: false,
@@ -143,4 +134,20 @@ export async function checkAuthCookieSupport(baseUrl: string, agentId?: string):
       browserPolicy: browser.policy
     }
   };
+}
+
+export async function checkAuthCookieSupport(baseUrl: string, agentId?: string): Promise<CookieCheckResult> {
+  const browser = detectBrowser();
+
+  if (!agentId) {
+    return {
+      authSupported: true,
+      requiresStorageAccess: false,
+      browser: browser.name,
+      message: 'No agent ID provided, skipping auth endpoint check'
+    };
+  }
+
+  const endpointTest = await testAuthEndpoint(baseUrl, agentId);
+  return buildCookieCheckResult(browser, endpointTest, baseUrl);
 }

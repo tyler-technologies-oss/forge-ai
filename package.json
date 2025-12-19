@@ -18,7 +18,7 @@
     "build:ai-react": "turbo run @tylertech/forge-ai-react#build",
     "build:ai-sdk": "pnpm run --filter=@tylertech/forge-ai-sdk build",
     "lint": "turbo run lint",
-    "release": "pnpm run build && changeset publish",
+    "release": "pnpm run build && pnpm changeset publish",
     "test": "turbo run test:ci",
     "test:ai": "pnpm run --filter=@tylertech/forge-ai test",
     "test:ai:focus": "pnpm run --filter=@tylertech/forge-ai test:focus",

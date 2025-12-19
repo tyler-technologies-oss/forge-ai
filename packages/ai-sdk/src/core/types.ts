@@ -8,6 +8,7 @@ import type {
   AgUiAdapter,
   AgentRunner
 } from '@tylertech/forge-ai/ai-chatbot';
+import type { CookieCheckResult } from './cookie-checker.js';
 
 export interface ChatbotConfig {
   /** Unique identifier for the agent. Either agentId or teamId is required. */
@@ -91,6 +92,14 @@ export interface AgentUIConfig {
   /** Version identifier for the agent. */
   version?: string;
   /** Configuration for the underlying AI model. */
+  memory?: {
+    /** Whether user memory is enabled for the agent. */
+    userMemory?: boolean;
+    /** Whether session memory is enabled for the agent. */
+    sessionMemory?: boolean;
+    /** Maximum number of messages to retain in memory. */
+    maxMessages?: number;
+  };
   model?: {
     /** AI provider (e.g., 'openai', 'anthropic'). */
     provider?: string;
@@ -142,6 +151,17 @@ export interface AuthStatus {
     /** User's display name. */
     name: string;
   };
+  /** Cookie check results from authentication flow. */
+  cookieCheck?: CookieCheckResult;
+}
+
+export interface SessionInfo {
+  /** Unique session identifier from the server. */
+  sessionId: string;
+  /** Generated anonymous user identifier (anon_${sessionId}_${agentId}). */
+  anonymousUserId: string;
+  /** Timestamp when the session was created. */
+  createdAt: number;
 }
 
 declare global {

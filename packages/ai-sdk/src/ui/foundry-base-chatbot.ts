@@ -68,9 +68,10 @@ export abstract class FoundryBaseChatbotComponent extends LitElement implements 
     super();
     this.#controller = new FoundryChatbotController(this, {
       onFilesUploaded: async (fileNames: string[]) => {
-        const message = fileNames.length === 1
-          ? `I uploaded a file: ${fileNames[0]}. Please analyze it.`
-          : `I uploaded files: ${fileNames.join(', ')}. Please analyze them.`;
+        const message =
+          fileNames.length === 1
+            ? `I uploaded a file: ${fileNames[0]}. Please analyze it.`
+            : `I uploaded files: ${fileNames.join(', ')}. Please analyze them.`;
         await this.sendMessage(message);
       }
     });

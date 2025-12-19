@@ -1,5 +1,6 @@
 import type { ChatbotConfig, AuthConfig, AuthStatus } from './types.js';
 import { ChatbotError, ChatbotErrorCode } from './error-codes.js';
+import { detectBrowser, buildCookieCheckResult } from './cookie-checker.js';
 
 const AUTH_POLL_INTERVAL = 1000;
 const AUTH_POLL_TIMEOUT = 300000;
@@ -9,11 +10,13 @@ const AUTH_POLL_TIMEOUT = 300000;
  * @throws If popup blocked, auth cancelled, or times out (5min)
  */
 export async function checkAuthentication(config: ChatbotConfig): Promise<AuthStatus> {
-  const { agentId, baseUrl, credentials = 'include', headers = {} } = config;
+  const { agentId, baseUrl = '', credentials = 'include', headers = {} } = config;
 
   if (!agentId) {
     return { isAuthenticated: true };
   }
+
+  const browser = detectBrowser();
 
   const authConfigResponse = await fetch(`${baseUrl}/api/agents/${agentId}/auth-config`, {
     credentials,
@@ -29,8 +32,19 @@ export async function checkAuthentication(config: ChatbotConfig): Promise<AuthSt
 
   const authConfig: AuthConfig = await authConfigResponse.json();
 
+  const endpointTest = {
+    reachable: true,
+    corsConfigured: authConfigResponse.ok || authConfigResponse.status === 401 || authConfigResponse.status === 403
+  };
+
+  const cookieCheck = buildCookieCheckResult(browser, endpointTest, baseUrl);
+
+  if (cookieCheck.message) {
+    console.warn('[FoundryChatbot] Cookie check warning:', cookieCheck.message);
+  }
+
   if (!authConfig.authEnabled) {
-    return { isAuthenticated: true };
+    return { isAuthenticated: true, cookieCheck };
   }
 
   const statusResponse = await fetch(`${baseUrl}/api/agents/${agentId}/auth-status`, {
@@ -48,10 +62,10 @@ export async function checkAuthentication(config: ChatbotConfig): Promise<AuthSt
   const authStatus: AuthStatus = await statusResponse.json();
 
   if (!authStatus.isAuthenticated) {
-    return await initiateAuthFlow(config);
+    return await initiateAuthFlow(config, cookieCheck);
   }
 
-  return authStatus;
+  return { ...authStatus, cookieCheck };
 }
 
 async function requestStorageAccess(): Promise<boolean> {
@@ -73,7 +87,7 @@ function isSafari(): boolean {
   return ua.includes('safari') && !ua.includes('chrome') && !ua.includes('chromium');
 }
 
-async function initiateAuthFlow(config: ChatbotConfig): Promise<AuthStatus> {
+async function initiateAuthFlow(config: ChatbotConfig, cookieCheck?: AuthStatus['cookieCheck']): Promise<AuthStatus> {
   const { agentId, baseUrl } = config;
 
   if (isSafari()) {
@@ -104,11 +118,15 @@ async function initiateAuthFlow(config: ChatbotConfig): Promise<AuthStatus> {
     );
   }
 
-  return await pollAuthStatus(config, popup);
+  return await pollAuthStatus(config, popup, cookieCheck);
 }
 
 /** Polls auth status every 1s until complete or timeout. */
-async function pollAuthStatus(config: ChatbotConfig, popup: Window): Promise<AuthStatus> {
+async function pollAuthStatus(
+  config: ChatbotConfig,
+  popup: Window,
+  cookieCheck?: AuthStatus['cookieCheck']
+): Promise<AuthStatus> {
   const { agentId, baseUrl, credentials = 'include', headers = {} } = config;
   const startTime = Date.now();
 
@@ -127,7 +145,7 @@ async function pollAuthStatus(config: ChatbotConfig, popup: Window): Promise<Aut
           if (statusResponse.ok) {
             const authStatus: AuthStatus = await statusResponse.json();
             if (authStatus.isAuthenticated) {
-              resolve(authStatus);
+              resolve({ ...authStatus, cookieCheck });
               return;
             }
           }
@@ -161,7 +179,7 @@ async function pollAuthStatus(config: ChatbotConfig, popup: Window): Promise<Aut
         if (authStatus.isAuthenticated) {
           clearInterval(interval);
           popup.close();
-          resolve(authStatus);
+          resolve({ ...authStatus, cookieCheck });
         }
       } catch {
         // Continue polling on error
