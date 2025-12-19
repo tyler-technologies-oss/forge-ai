@@ -45,6 +45,7 @@ export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {
   public override connectedCallback(): void {
     super.connectedCallback();
     this.addEventListener('foundry-chatbot-error', this.#handleErrorEvent);
+    this.addEventListener('forge-ai-chatbot-clear', this.#handleClearEvent);
   }
 
   #handleErrorEvent = (event: CustomEvent<FoundryChatbotErrorEventData>): void => {
@@ -53,14 +54,18 @@ export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {
     this.requestUpdate();
   };
 
-  public override async sendMessage(message: string, files?: File[]): Promise<void> {
-    const chatbot = this.#chatbotRef.value;
-    if (chatbot) {
-      await chatbot.sendMessage(message, files);
+  #handleClearEvent = async (event: CustomEvent): Promise<void> => {
+    if (!event.defaultPrevented) {
+      await this.clearMessages();
     }
+  };
+
+  public override async sendMessage(message: string, files?: File[]): Promise<void> {
+    await this.#chatbotRef.value?.sendMessage(message, files);
   }
 
-  public override clearMessages(): void {
+  public override async clearMessages(): Promise<void> {
+    await this._controller.clearMemory();
     this.#chatbotRef.value?.clearMessages();
   }
 

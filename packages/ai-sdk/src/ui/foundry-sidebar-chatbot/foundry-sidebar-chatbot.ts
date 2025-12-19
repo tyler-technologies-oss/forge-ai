@@ -64,8 +64,8 @@ export class FoundrySidebarChatbotComponent extends LitElement implements IFound
     return this.#foundryChatbotRef.value?.sendMessage(message, files);
   }
 
-  public clearMessages(): void {
-    this.#foundryChatbotRef.value?.clearMessages();
+  public async clearMessages(): Promise<void> {
+    await this.#foundryChatbotRef.value?.clearMessages();
   }
 
   public getMessages(): ChatMessage[] {

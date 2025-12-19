@@ -69,7 +69,7 @@ export class FoundryChatbotController implements ReactiveController {
   }
 
   async #reinitialize(): Promise<void> {
-    this.#host.clearMessages();
+    await this.#host.clearMessages();
 
     this.#adapter?.disconnect();
     this.#adapter = null;
@@ -195,6 +195,20 @@ export class FoundryChatbotController implements ReactiveController {
 
   public disconnect(): void {
     this.#adapter?.disconnect();
+  }
+
+  public async clearMemory(): Promise<void> {
+    if (!this.#adapter) {
+      return;
+    }
+
+    try {
+      if (this.#adapter.clearMemory) {
+        await this.#adapter.clearMemory();
+      }
+    } catch (error) {
+      console.error('[FoundryChatbot] Failed to clear conversation memory:', error);
+    }
   }
 
   public get adapter(): FoundryAgentAdapter | null {

@@ -26,7 +26,7 @@ export interface IFoundryChatbot {
   fileUpload?: FeatureToggle;
 
   sendMessage(message: string, files?: File[]): Promise<void>;
-  clearMessages(): void;
+  clearMessages(): Promise<void>;
   getMessages(): ChatMessage[];
   readonly isInitialized: boolean;
 }
@@ -145,6 +145,6 @@ export abstract class FoundryBaseChatbotComponent extends LitElement implements 
   }
 
   public abstract sendMessage(message: string, files?: File[]): Promise<void>;
-  public abstract clearMessages(): void;
+  public abstract clearMessages(): Promise<void>;
   public abstract getMessages(): ChatMessage[];
 }

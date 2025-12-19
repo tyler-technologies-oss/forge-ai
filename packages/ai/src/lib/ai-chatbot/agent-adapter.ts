@@ -98,6 +98,8 @@ export abstract class AgentAdapter {
   public abstract get threadId(): string;
   public abstract set threadId(value: string);
 
+  public clearMemory?(): Promise<void>;
+
   public setTools(tools: ToolDefinition[]): void {
     this._tools = tools;
   }
