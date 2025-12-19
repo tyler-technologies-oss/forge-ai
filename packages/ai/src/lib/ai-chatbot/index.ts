@@ -36,7 +36,8 @@ export type {
   FileUploadCallbacks,
   FileUploadHandler,
   FileRemoveCallbacks,
-  ForgeAiChatbotFileSelectEventData
+  ForgeAiChatbotFileSelectEventData,
+  ThreadState
 } from './types.js';
 
 // AG-UI adapter

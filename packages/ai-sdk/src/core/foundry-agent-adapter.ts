@@ -19,7 +19,8 @@ export class FoundryAgentAdapter extends AgUiAdapter {
     config: FoundryAdapterConfig,
     agentConfig: AgentUIConfig = {},
     authStatus?: AuthStatus | null,
-    sessionInfo?: SessionInfo | null
+    sessionInfo?: SessionInfo | null,
+    threadId?: string
   ) {
     const { baseUrl, agentId, teamId, headers } = config;
 
@@ -29,7 +30,7 @@ export class FoundryAgentAdapter extends AgUiAdapter {
 
     const url = teamId ? `${baseUrl}/api/team/${teamId}/ag-ui` : `${baseUrl}/api/agents/${agentId}/ag-ui`;
 
-    super({ url, headers });
+    super({ url, headers }, threadId);
     this.#agentConfig = agentConfig;
     this.#config = config;
     this.#authStatus = authStatus ?? null;

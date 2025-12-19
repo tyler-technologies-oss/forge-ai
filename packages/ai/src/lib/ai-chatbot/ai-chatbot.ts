@@ -5,6 +5,7 @@ import { when } from 'lit/directives/when.js';
 import type { AgentInfo } from '../ai-agent-info';
 import type { ForgeAiAttachmentRemoveEventData } from '../ai-attachment';
 import type { AiChatInterfaceComponent } from '../ai-chat-interface';
+import type { AiMessageThreadComponent } from '../ai-message-thread';
 import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData } from '../ai-file-picker';
 import type { AiPromptComponent, ForgeAiPromptSendEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData, Suggestion } from '../ai-suggestions';
@@ -171,6 +172,7 @@ export class AiChatbotComponent extends LitElement {
   public headingLevel: HeadingLevel = 2;
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
+  #messageThreadRef = createRef<AiMessageThreadComponent>();
   #promptRef = createRef<AiPromptComponent>();
   #messageStateController!: MessageStateController;
   #fileUploadManager!: FileUploadManager;
@@ -294,7 +296,7 @@ export class AiChatbotComponent extends LitElement {
     }
 
     this.#messageStateController.appendToMessage(event.messageId, event.delta);
-    this.#chatInterfaceRef.value?.scrollToBottom();
+    this.scrollToBottom();
   }
 
   #handleMessageEnd(event: MessageEndEvent): void {
@@ -338,7 +340,7 @@ export class AiChatbotComponent extends LitElement {
       argsBuffer: event.argsBuffer,
       args: event.partialArgs ?? {}
     });
-    this.#chatInterfaceRef.value?.scrollToBottom();
+    this.scrollToBottom();
   }
 
   /**
@@ -781,6 +783,15 @@ export class AiChatbotComponent extends LitElement {
   }
 
   /**
+   * Scrolls the chat interface to the bottom.
+   */
+  public async scrollToBottom({ behavior }: { behavior?: ScrollBehavior } = {}): Promise<void> {
+    await this.#messageThreadRef.value?.updateComplete;
+    await new Promise(requestAnimationFrame);
+    this.#messageThreadRef.value?.scrollToBottom({ behavior });
+  }
+
+  /**
    * Gets the complete serializable thread state including threadId and messages.
    * @returns ThreadState object containing threadId, messages, and timestamp
    */
@@ -873,6 +884,7 @@ export class AiChatbotComponent extends LitElement {
   get #messageThread(): TemplateResult {
     return html`
       <forge-ai-message-thread
+        ${ref(this.#messageThreadRef)}
         .messageItems=${this.#messageItems}
         .tools=${this.#tools}
         ?enable-reactions=${this.enableReactions}

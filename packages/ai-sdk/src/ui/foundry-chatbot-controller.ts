@@ -4,9 +4,12 @@ import { loadAgentConfig } from '../core/config-loader.js';
 import { ChatbotError, ChatbotErrorCode, isChatbotError } from '../core/error-codes.js';
 import { setupFileRemoveHandler, setupFileUploadHandler } from '../core/file-upload.js';
 import { FoundryAgentAdapter } from '../core/foundry-agent-adapter.js';
+import { fetchMemory } from '../core/memory.js';
 import { establishAnonymousSession } from '../core/session.js';
+import { buildStorageKey, getItemWithExpiry, removeItem, setItemWithExpiry } from '../core/storage-utils.js';
 import type { AgentUIConfig, AuthStatus, SessionInfo } from '../core/types.js';
 import { FoundryBaseChatbotComponent } from './foundry-base-chatbot.js';
+import type { ThreadState } from '@tylertech/forge-ai/ai-chatbot';
 
 type InitState = 'pending' | 'initializing' | 'initialized' | 'error';
 
@@ -34,6 +37,10 @@ export class FoundryChatbotController implements ReactiveController {
   #uploadedFileCount = 0;
   #pendingUploads = new Set<string>();
   #completedUploadNames: string[] = [];
+  #stateStorageKey: string | null = null;
+  #threadIdStorageKey: string | null = null;
+  #isPersistenceEnabled = false;
+  #pendingStateRestore: ThreadState | null = null;
 
   constructor(
     host: ReactiveControllerHost & FoundryBaseChatbotComponent,
@@ -72,6 +79,13 @@ export class FoundryChatbotController implements ReactiveController {
 
   async #reinitialize(): Promise<void> {
     await this.#host.clearMessages();
+
+    if (this.#threadIdStorageKey) {
+      removeItem(this.#threadIdStorageKey);
+    }
+    if (this.#stateStorageKey) {
+      removeItem(this.#stateStorageKey);
+    }
 
     this.#adapter?.disconnect();
     this.#adapter = null;
@@ -128,11 +142,29 @@ export class FoundryChatbotController implements ReactiveController {
       this.#sessionInfo = await establishAnonymousSession(this.#config, this.#authStatus);
     }
 
+    let restoredThreadId: string | undefined;
+    if (isMemoryEnabled) {
+      this.#isPersistenceEnabled = true;
+      this.#threadIdStorageKey = buildStorageKey(teamId, agentId, 'thread');
+      this.#stateStorageKey = buildStorageKey(teamId, agentId, 'state');
+
+      restoredThreadId = getItemWithExpiry<string>(this.#threadIdStorageKey) ?? undefined;
+      if (!restoredThreadId) {
+        restoredThreadId = crypto.randomUUID();
+      }
+    } else {
+      const threadKey = buildStorageKey(teamId, agentId, 'thread');
+      const stateKey = buildStorageKey(teamId, agentId, 'state');
+      removeItem(threadKey);
+      removeItem(stateKey);
+    }
+
     this.#adapter = new FoundryAgentAdapter(
       { baseUrl, agentId, teamId, headers },
       this.#agentConfig,
       this.#authStatus,
-      this.#sessionInfo
+      this.#sessionInfo,
+      restoredThreadId
     );
 
     if (this.#agentConfig.chatExperience?.enableFileUpload) {
@@ -179,6 +211,85 @@ export class FoundryChatbotController implements ReactiveController {
       });
       this.#adapter.onFileRemove(removeHandler);
     }
+
+    if (this.#isPersistenceEnabled) {
+      await this.#restoreThreadState();
+    }
+  }
+
+  async #restoreThreadState(): Promise<void> {
+    if (!this.#stateStorageKey || !this.#adapter) {
+      return;
+    }
+
+    try {
+      const state = getItemWithExpiry<ThreadState>(this.#stateStorageKey);
+      if (state && state.messages?.length > 0) {
+        this.#pendingStateRestore = state;
+        return;
+      }
+
+      const userId = this.#authStatus?.userDetails?.id ?? this.#sessionInfo?.anonymousUserId;
+      if (!userId) {
+        return;
+      }
+
+      const { baseUrl, agentId, headers } = this.#config;
+      if (!baseUrl || !agentId) {
+        return;
+      }
+
+      const maxMessages = this.#agentConfig?.memory?.maxMessages ?? 10;
+      const backendState = await fetchMemory({
+        baseUrl,
+        agentId,
+        userId,
+        maxMessages,
+        headers,
+        credentials: 'include'
+      });
+
+      if (backendState && backendState.messages?.length > 0) {
+        this.#pendingStateRestore = backendState;
+      }
+    } catch (error) {
+      console.warn('[FoundryChatbot] Failed to restore thread state:', error);
+    }
+  }
+
+  public async restorePendingState(): Promise<void> {
+    if (!this.#pendingStateRestore) {
+      return;
+    }
+
+    this.#host.setThreadState?.(this.#pendingStateRestore);
+    this.#dispatchEvent('foundry-chatbot-state-restored', { state: this.#pendingStateRestore });
+    this.#pendingStateRestore = null;
+
+    await this.#host.updateComplete;
+    await this.#host.scrollToBottom?.();
+  }
+
+  public saveThreadState(): void {
+    if (!this.#isPersistenceEnabled || !this.#stateStorageKey || !this.#adapter) {
+      return;
+    }
+
+    try {
+      if (this.#threadIdStorageKey) {
+        const existingThreadId = getItemWithExpiry<string>(this.#threadIdStorageKey);
+        if (!existingThreadId && this.#adapter.threadId) {
+          setItemWithExpiry(this.#threadIdStorageKey, this.#adapter.threadId);
+        }
+      }
+
+      const state = this.#host.getThreadState?.();
+      if (state) {
+        setItemWithExpiry(this.#stateStorageKey, state);
+      }
+    } catch (error) {
+      console.warn('[FoundryChatbot] Failed to save thread state:', error);
+    }
   }
 
   #handleError(error: Error, type: string): void {
@@ -210,6 +321,13 @@ export class FoundryChatbotController implements ReactiveController {
   public async clearMemory(): Promise<void> {
     if (!this.#adapter) {
       return;
+    }
+
+    if (this.#threadIdStorageKey) {
+      removeItem(this.#threadIdStorageKey);
+    }
+    if (this.#stateStorageKey) {
+      removeItem(this.#stateStorageKey);
     }
 
     try {

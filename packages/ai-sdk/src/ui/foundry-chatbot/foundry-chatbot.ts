@@ -2,7 +2,7 @@ import { html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { createRef, ref, type Ref } from 'lit/directives/ref.js';
 import { FoundryBaseChatbotComponent } from '../foundry-base-chatbot.js';
-import type { AiChatbotComponent, ChatMessage } from '@tylertech/forge-ai/ai-chatbot';
+import type { AiChatbotComponent, ChatMessage, ThreadState } from '@tylertech/forge-ai/ai-chatbot';
 import { ChatbotError, ChatbotErrorCode } from '../../core/error-codes.js';
 import { getErrorTitle, getErrorMessage } from './error-content.js';
 import '@tylertech/forge-ai/ai-chatbot';
@@ -46,6 +46,9 @@ export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {
     super.connectedCallback();
     this.addEventListener('foundry-chatbot-error', this.#handleErrorEvent);
     this.addEventListener('forge-ai-chatbot-clear', this.#handleClearEvent);
+    this.addEventListener('forge-ai-chatbot-message-sent', this.#handleMessageEvent);
+    this.addEventListener('forge-ai-chatbot-message-received', this.#handleMessageEvent);
+    this.addEventListener('forge-ai-chatbot-connected', this.#handleChatbotConnected);
   }
 
   #handleErrorEvent = (event: CustomEvent<FoundryChatbotErrorEventData>): void => {
@@ -59,6 +62,19 @@ export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {
       await this.clearMessages();
     }
   };
+
+  #handleMessageEvent = (): void => {
+    this._controller.saveThreadState();
+  };
+
+  #handleChatbotConnected = (): void => {
+    this._controller.restorePendingState();
+  };
+
+  public override async scrollToBottom(): Promise<void> {
+    await this.#chatbotRef.value?.updateComplete;
+    this.#chatbotRef.value?.scrollToBottom({ behavior: 'instant' });
+  }
 
   public override async sendMessage(message: string, files?: File[]): Promise<void> {
     await this.#chatbotRef.value?.sendMessage(message, files);
@@ -82,6 +98,14 @@ export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {
 
   public get expanded(): boolean {
     return this.#chatbotRef.value?.expanded ?? false;
+  }
+
+  public getThreadState(): ThreadState {
+    return this.#chatbotRef.value?.getThreadState() ?? { messages: [] };
+  }
+
+  public setThreadState(state: ThreadState): void {
+    this.#chatbotRef.value?.setThreadState(state);
   }
 
   get #errorStateContent(): TemplateResult {

@@ -1,7 +1,7 @@
 import { LitElement, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import { FoundryChatbotController } from './foundry-chatbot-controller.js';
-import type { AgentAdapter, ChatMessage, FeatureToggle } from '@tylertech/forge-ai/ai-chatbot';
+import type { AgentAdapter, ChatMessage, FeatureToggle, ThreadState } from '@tylertech/forge-ai/ai-chatbot';
 import type { MinimizeIconType } from '@tylertech/forge-ai/ai-chat-header';
 
 export interface FoundryChatbotAgentInfo {
@@ -28,6 +28,9 @@ export interface IFoundryChatbot {
   sendMessage(message: string, files?: File[]): Promise<void>;
   clearMessages(): Promise<void>;
   getMessages(): ChatMessage[];
+  scrollToBottom?(): Promise<void>;
+  getThreadState?(): ThreadState;
+  setThreadState?(state: ThreadState): void;
   readonly isInitialized: boolean;
 }
 
@@ -148,4 +151,16 @@ export abstract class FoundryBaseChatbotComponent extends LitElement implements 
   public abstract sendMessage(message: string, files?: File[]): Promise<void>;
   public abstract clearMessages(): Promise<void>;
   public abstract getMessages(): ChatMessage[];
+
+  public async scrollToBottom?(): Promise<void> {
+    // Override in concrete implementations
+  }
+
+  public getThreadState?(): ThreadState {
+    return { messages: [] };
+  }
+
+  public setThreadState?(_state: ThreadState): void {
+    // Override in concrete implementations
+  }
 }

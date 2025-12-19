@@ -104,7 +104,10 @@ export class AiMessageThreadComponent extends LitElement {
     this.#canAutoScroll = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
   };
 
-  public scrollToBottom(force = false): void {
+  public scrollToBottom({
+    force = false,
+    behavior = 'smooth'
+  }: { force?: boolean; behavior?: ScrollBehavior } = {}): void {
     if (!force && !this.#canAutoScroll) {
       return;
     }
@@ -112,7 +115,7 @@ export class AiMessageThreadComponent extends LitElement {
     const container = this._messageThreadContainer;
     container.scrollTo({
       top: container.scrollHeight,
-      behavior: 'smooth'
+      behavior
     });
   }
 
