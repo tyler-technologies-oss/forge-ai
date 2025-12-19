@@ -18,11 +18,55 @@ export class RecipeCard extends LitElement {
   static styles = unsafeCSS(styles);
 
   @property({ attribute: false })
-  public toolCall!: ToolCall;
+  public toolCall?: ToolCall;
+
+  // Support for standalone usage without toolCall
+  @property({ type: String })
+  public title?: string;
+
+  @property({ type: String })
+  public description?: string;
+
+  @property({ type: String })
+  public prepTime?: string;
+
+  @property({ type: String })
+  public cookTime?: string;
+
+  @property({ type: Number })
+  public servings?: number;
+
+  @property({ attribute: false })
+  public ingredients?: string[];
+
+  @property({ attribute: false })
+  public instructions?: string[];
+
+  private get recipeData(): RecipeData | null {
+    // If toolCall is provided, use its args (chatbot mode)
+    if (this.toolCall) {
+      return this.toolCall.args as unknown as RecipeData;
+    }
+
+    // Otherwise use direct properties (standalone mode)
+    if (this.title && this.prepTime && this.cookTime &&
+        this.servings && this.ingredients && this.instructions) {
+      return {
+        title: this.title,
+        description: this.description,
+        prepTime: this.prepTime,
+        cookTime: this.cookTime,
+        servings: this.servings,
+        ingredients: this.ingredients,
+        instructions: this.instructions
+      };
+    }
+
+    return null;
+  }
 
   render() {
-    // For pure rendering tools, data comes from LLM via args, not result
-    const data = this.toolCall.args as unknown as RecipeData;
+    const data = this.recipeData;
     if (!data) {
       return html`<forge-card><p class="forge-typography--body2">No recipe data available</p></forge-card>`;
     }

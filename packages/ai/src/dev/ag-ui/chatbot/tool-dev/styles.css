@@ -1,0 +1,12 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  padding: 36px;
+}
+.chat-container {
+  flex: 1;
+  overflow: hidden;
+  width: 360px;
+  height: 600px;
+}

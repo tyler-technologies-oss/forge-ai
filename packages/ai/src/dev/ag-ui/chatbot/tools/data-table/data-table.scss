@@ -5,7 +5,10 @@
 
 :host {
   display: block;
-  margin-block-start: #{forge-spacing.variable(small)};
+}
+
+.artifact {
+  --forge-ai-artifact-content-padding: 0;
 }
 
 .title {

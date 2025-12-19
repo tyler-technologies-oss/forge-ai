@@ -24,8 +24,8 @@ import {
   IconRegistry
 } from '@tylertech/forge';
 
-import './recipe-card.js';
-import './data-table.js';
+import './tools/recipe-card/recipe-card.js';
+import './tools/data-table/data-table.js';
 
 defineScaffoldComponent();
 defineAppBarComponent();

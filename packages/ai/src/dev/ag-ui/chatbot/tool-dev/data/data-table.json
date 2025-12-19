@@ -1,0 +1,14 @@
+{
+  "title": "Sample Sales Data",
+  "headers": ["Product", "Region", "Sales ($)", "Units Sold", "Month"],
+  "rows": [
+    ["Laptop Pro", "North", "45,200", "113", "January"],
+    ["Wireless Mouse", "South", "8,750", "350", "January"],
+    ["Monitor 24\"", "East", "32,400", "108", "February"],
+    ["Keyboard RGB", "West", "15,600", "260", "February"],
+    ["Tablet Air", "North", "28,900", "85", "March"],
+    ["Headphones", "South", "12,300", "205", "March"],
+    ["Webcam HD", "East", "9,800", "140", "April"],
+    ["Smartphone", "West", "67,500", "150", "April"]
+  ]
+}

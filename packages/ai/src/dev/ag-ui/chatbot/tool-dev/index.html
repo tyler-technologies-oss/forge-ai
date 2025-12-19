@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Table Tool Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <forge-ai-gradient-container variant="high">
+      <forge-ai-chat-interface>
+        <forge-ai-chat-header slot="header"> Data Table Tool Demo </forge-ai-chat-header>
+        <div style="padding: 16px">
+          <data-table id="demo-table"></data-table>
+        </div>
+        <forge-ai-prompt slot="prompt" placeholder="Ask about the data..."></forge-ai-prompt>
+      </forge-ai-chat-interface>
+    </forge-ai-gradient-container>
+
+    <script type="module">
+      import '../../../../lib/ai-chat-interface';
+      import '../../../../lib/ai-gradient-container';
+      import '../../../../lib/ai-chat-header';
+      import '../../../../lib/ai-prompt';
+      import '../../../../lib/ai-user-message';
+      import '../../../../lib/ai-response-message';
+      import '../tools/data-table/data-table.js';
+
+      async function loadDemo() {
+        try {
+          const response = await fetch('./data/data-table.json');
+          const tableData = await response.json();
+
+          const dataTable = document.getElementById('demo-table');
+
+          // Create a mock tool call object with the JSON data
+          const mockToolCall = {
+            id: 'demo-call',
+            name: 'displayDataTable',
+            args: tableData,
+            result: null,
+            status: 'completed'
+          };
+
+          // Set the tool call data on the component
+          dataTable.toolCall = mockToolCall;
+        } catch (error) {
+          console.error('Failed to load demo data:', error);
+          document.body.innerHTML =
+            '<p>Error loading demo data. Make sure data-table.json exists in the data folder.</p>';
+        }
+      }
+
+      loadDemo();
+    </script>
+  </body>
+</html>
