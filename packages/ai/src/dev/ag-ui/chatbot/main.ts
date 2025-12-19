@@ -123,6 +123,10 @@ const showConfettiTool: ToolDefinition<ConfettiArgs> = {
       particleCount: confettiArgs?.particleCount || 100,
       spread: confettiArgs?.spread || 100
     });
+
+    return {
+      result: `Confetti animation displayed with ${confettiArgs?.particleCount || 100} particles and ${confettiArgs?.spread || 100}° spread`
+    };
   }
   // renderer: createToolRenderer({
   //   render: toolCall => {
@@ -177,6 +181,15 @@ const displayRecipeTool: ToolDefinition = {
       }
     },
     required: ['title', 'prepTime', 'cookTime', 'servings', 'ingredients', 'instructions']
+  },
+  handler: async (context: HandlerContext) => {
+    const { title, ingredients, instructions } = context.args;
+    const ingredientsArray = ingredients as string[] | undefined;
+    const instructionsArray = instructions as string[] | undefined;
+
+    return {
+      result: `Recipe for "${title}" has been displayed with ${ingredientsArray?.length || 0} ingredients and ${instructionsArray?.length || 0} steps`
+    };
   },
   renderer: createToolRenderer({
     elementTag: 'recipe-card'

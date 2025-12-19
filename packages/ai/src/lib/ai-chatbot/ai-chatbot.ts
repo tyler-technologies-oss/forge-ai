@@ -36,7 +36,7 @@ import type {
   ThreadState,
   ToolCall,
   ToolDefinition,
-  ToolResponseData,
+  ToolResult,
   UploadedFileMetadata
 } from './types.js';
 import { downloadFile, generateId } from './utils.js';
@@ -353,12 +353,12 @@ export class AiChatbotComponent extends LitElement {
     });
   }
 
-  #createToolResponse({
-    metadata
-  }: {
-    metadata?: Record<string, unknown> | void;
-  } = {}): Record<string, unknown> {
-    return { metadata, success: true };
+  #createToolResponse(toolName: string, handlerReturn?: ToolResult | void): string {
+    if (handlerReturn?.result) {
+      return handlerReturn.result;
+    }
+
+    return `Tool '${toolName}' executed successfully`;
   }
 
   /**
@@ -402,7 +402,7 @@ export class AiChatbotComponent extends LitElement {
       if (toolDef?.handler) {
         await Promise.resolve(this.#executeToolHandler(event.id, event.name, toolDef.handler, event.args));
       } else {
-        this.#sendToolResult(event.id, this.#createToolResponse());
+        this.#sendToolResult(event.id, this.#createToolResponse(event.name));
       }
     }
   }
@@ -413,7 +413,7 @@ export class AiChatbotComponent extends LitElement {
   async #executeToolHandler(
     toolCallId: string,
     toolName: string,
-    handler: (context: HandlerContext) => Promise<ToolResponseData | void> | ToolResponseData | void,
+    handler: (context: HandlerContext) => Promise<ToolResult | void> | ToolResult | void,
     args: Record<string, unknown>
   ): Promise<void> {
     try {
@@ -423,8 +423,8 @@ export class AiChatbotComponent extends LitElement {
         toolName,
         signal: undefined
       };
-      const metadata = await handler(context);
-      await this.#sendToolResult(toolCallId, this.#createToolResponse({ metadata }));
+      const handlerReturn = await handler(context);
+      await this.#sendToolResult(toolCallId, this.#createToolResponse(toolName, handlerReturn));
     } catch (error) {
       this.#messageStateController.updateToolCall(toolCallId, {
         status: 'error',

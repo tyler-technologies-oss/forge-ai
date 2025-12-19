@@ -9,11 +9,11 @@ export interface ToolRenderer {
 }
 
 /**
- * Optional data that can be returned from tool handlers to include in the tool response.
- * This data will be sent as metadata in the tool call result response.
+ * Tool result with custom response string.
+ * Return this from tool handlers to provide a custom result message to the LLM.
  */
-export interface ToolResponseData {
-  [key: string]: unknown;
+export interface ToolResult {
+  result: string;
 }
 
 /**
@@ -50,9 +50,9 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
   renderer?: ToolRenderer;
   /**
    * Optional handler function invoked when tool is called.
-   * Can return metadata to include in tool response.
+   * Can return a custom result string to include in tool response.
    */
-  handler?: (context: HandlerContext<THandlerArgs>) => Promise<ToolResponseData | void> | ToolResponseData | void;
+  handler?: (context: HandlerContext<THandlerArgs>) => Promise<ToolResult | void> | ToolResult | void;
 }
 
 export interface ChatMessage {
