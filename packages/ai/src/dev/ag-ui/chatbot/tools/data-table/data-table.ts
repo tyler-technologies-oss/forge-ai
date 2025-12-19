@@ -5,6 +5,7 @@ import '../../../../../lib/ai-artifact';
 import styles from './data-table.scss?inline';
 import { IconRegistry } from '@tylertech/forge';
 import { tylIconFilterList } from '@tylertech/tyler-icons';
+import './paginator.ts';
 
 IconRegistry.define([tylIconFilterList]);
 
@@ -30,6 +31,36 @@ export class DataTable extends LitElement {
 
   @property({ attribute: false })
   public rows?: (string | number)[][];
+
+  @property({ type: Boolean, attribute: 'show-paginator' })
+  public showPaginator = false;
+
+  @property({ type: Number, attribute: 'max-number-of-rows' })
+  public maxNumberOfRows = 10;
+
+  @property({ type: Number, attribute: 'current-page' })
+  public currentPage = 1;
+
+  private get totalPages(): number {
+    const data = this.tableData;
+    if (!data || !data.rows) return 1;
+    return Math.ceil(data.rows.length / this.maxNumberOfRows);
+  }
+
+  private get paginatedRows(): (string | number)[][] {
+    const data = this.tableData;
+    if (!data || !data.rows || !this.showPaginator) {
+      return data?.rows || [];
+    }
+
+    const startIndex = (this.currentPage - 1) * this.maxNumberOfRows;
+    const endIndex = startIndex + this.maxNumberOfRows;
+    return data.rows.slice(startIndex, endIndex);
+  }
+
+  #handlePageChange(event: CustomEvent): void {
+    this.currentPage = event.detail.currentPage;
+  }
 
   private get tableData(): TableData | null {
     // If toolCall is provided, use its args (chatbot mode)
@@ -81,7 +112,7 @@ export class DataTable extends LitElement {
               </tr>
             </thead>
             <tbody>
-              ${data.rows.map(
+              ${this.paginatedRows.map(
                 row => html`
                   <tr class="table-row">
                     ${row.map(cell => html` <td>${cell}</td> `)}
@@ -91,6 +122,12 @@ export class DataTable extends LitElement {
             </tbody>
           </table>
         </div>
+
+        ${this.showPaginator ? html`<data-table-paginator
+          current-page="${this.currentPage}"
+          total-pages="${this.totalPages}"
+          @page-change=${this.#handlePageChange}
+        ></data-table-paginator>` : ''}
       </forge-ai-artifact>
     `;
   }

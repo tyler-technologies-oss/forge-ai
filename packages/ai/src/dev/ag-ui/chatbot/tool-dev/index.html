@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Tools Demo</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdn.forge.tylertech.com/v1/libs/@tylertech/forge@3.13.1/forge.css" />
   </head>
   <body>
     <!-- Table of Contents Sidebar -->
@@ -24,7 +25,7 @@
           <forge-ai-chat-interface>
             <forge-ai-chat-header slot="header">Data Table Tool</forge-ai-chat-header>
             <div class="tool-container">
-              <data-table id="demo-data-table"></data-table>
+              <data-table id="demo-data-table" show-paginator max-number-of-rows="10"></data-table>
             </div>
             <forge-ai-prompt slot="prompt" placeholder="Ask about the sales data..."></forge-ai-prompt>
           </forge-ai-chat-interface>
@@ -33,15 +34,17 @@
 
       <!-- Recipe Card Demo Section -->
       <section id="recipe-card-section" class="tool-demo-section">
-        <forge-ai-gradient-container variant="medium">
-          <forge-ai-chat-interface>
-            <forge-ai-chat-header slot="header">Recipe Card Tool</forge-ai-chat-header>
-            <div class="tool-container">
-              <recipe-card id="demo-recipe-card"></recipe-card>
-            </div>
-            <forge-ai-prompt slot="prompt" placeholder="Ask about the recipe..."></forge-ai-prompt>
-          </forge-ai-chat-interface>
-        </forge-ai-gradient-container>
+        <div class="chat-container">
+          <forge-ai-gradient-container variant="high">
+            <forge-ai-chat-interface>
+              <forge-ai-chat-header slot="header">Recipe Card Tool</forge-ai-chat-header>
+              <div class="tool-container">
+                <recipe-card id="demo-recipe-card"></recipe-card>
+              </div>
+              <forge-ai-prompt slot="prompt" placeholder="Ask about the recipe..."></forge-ai-prompt>
+            </forge-ai-chat-interface>
+          </forge-ai-gradient-container>
+        </div>
       </section>
     </main>
 
@@ -90,7 +93,7 @@
 
       // Handle TOC link clicks
       document.querySelectorAll('.toc-link').forEach(link => {
-        link.addEventListener('click', (e) => {
+        link.addEventListener('click', e => {
           e.preventDefault();
           const targetId = link.getAttribute('href').substring(1);
           scrollToSection(targetId, true);

@@ -2,11 +2,16 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background-color: var(--forge-theme-surface-dim);
 }
 
 body {
@@ -90,14 +95,6 @@ body {
   justify-content: center;
 }
 
-.tool-demo-section:nth-child(even) {
-  background: #fafafa;
-}
-
-.tool-demo-section:nth-child(odd) {
-  background: #ffffff;
-}
-
 /* Tool Container */
 .tool-container {
   padding: 24px;
@@ -108,7 +105,7 @@ body {
 /* Chat Interface Styling */
 forge-ai-chat-interface {
   width: 100%;
-  max-width: 900px;
+  width: 768px;
   height: 80vh;
   border-radius: 12px;
   overflow: hidden;
