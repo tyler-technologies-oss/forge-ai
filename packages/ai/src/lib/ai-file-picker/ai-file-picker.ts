@@ -24,8 +24,6 @@ export interface ForgeAiFilePickerChangeEventData {
   file: File;
   /** Timestamp when the file was selected */
   timestamp: number;
-  /** Optional thumbnail data URL for image files */
-  thumbnail?: string;
 }
 
 /**
@@ -33,7 +31,7 @@ export interface ForgeAiFilePickerChangeEventData {
  */
 export interface ForgeAiFilePickerErrorEventData {
   /** The error type */
-  type: 'size' | 'duplicate' | 'thumbnail';
+  type: 'size' | 'duplicate';
   /** The error message */
   message: string;
   /** The file that caused the error */
@@ -107,12 +105,6 @@ export class AiFilePickerComponent extends LitElement {
    */
   @property({ attribute: false })
   public selectedFiles: string[] = [];
-
-  /**
-   * Whether to generate thumbnails for image files.
-   */
-  @property({ type: Boolean, attribute: 'generate-thumbnails' })
-  public generateThumbnails = true;
 
   @state()
   private _isDragOver = false;
@@ -202,16 +194,7 @@ export class AiFilePickerComponent extends LitElement {
         continue;
       }
 
-      let thumbnail: string | undefined;
-      if (this.generateThumbnails && file.type.startsWith('image/')) {
-        try {
-          thumbnail = await this.#generateThumbnail(file);
-        } catch {
-          this.#emitError('thumbnail', `Failed to generate thumbnail for ${file.name}`, file.name);
-        }
-      }
-
-      this.#emitFileChangeEvent(file, thumbnail);
+      this.#emitFileChangeEvent(file);
     }
   }
 
@@ -239,56 +222,12 @@ export class AiFilePickerComponent extends LitElement {
     return true;
   }
 
-  async #generateThumbnail(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Failed to get canvas context'));
-            return;
-          }
-
-          const maxSize = 100;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > maxSize) {
-              height = (height * maxSize) / width;
-              width = maxSize;
-            }
-          } else {
-            if (height > maxSize) {
-              width = (width * maxSize) / height;
-              height = maxSize;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
-
-          resolve(canvas.toDataURL(file.type));
-        };
-        img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  #emitFileChangeEvent(file: File, thumbnail?: string): void {
+  #emitFileChangeEvent(file: File): void {
     this.dispatchEvent(
       new CustomEvent<ForgeAiFilePickerChangeEventData>('forge-ai-file-picker-change', {
         detail: {
           file,
-          timestamp: Date.now(),
-          thumbnail
+          timestamp: Date.now()
         },
         bubbles: true,
         composed: true

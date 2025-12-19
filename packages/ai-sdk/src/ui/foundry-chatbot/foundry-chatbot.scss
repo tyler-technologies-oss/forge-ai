@@ -1,6 +1,7 @@
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 
 :host {
   display: contents;
@@ -8,6 +9,21 @@
 
 * {
   box-sizing: border-box;
+}
+
+.initializing-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: #{forge-spacing.variable(medium)};
+  justify-content: center;
+  height: 100%;
+  padding: #{forge-spacing.variable(xlarge)};
+
+  .initializing-message {
+    @include forge-typography.style(body2);
+    color: #{forge-theme.variable(text-medium)};
+  }
 }
 
 .error-state {

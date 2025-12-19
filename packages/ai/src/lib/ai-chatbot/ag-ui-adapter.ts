@@ -1,4 +1,4 @@
-import { HttpAgent, type AgentSubscriber } from '@ag-ui/client';
+import { AbstractAgent as AgUiAgent, type AgentSubscriber } from '@ag-ui/client';
 import { HttpAgentWithCredentials } from './http-agent-with-credentials.js';
 import type {
   AssistantMessage,
@@ -29,7 +29,7 @@ interface ToolCallState {
 
 export class AgUiAdapter extends AgentAdapter {
   #config: AgUiAdapterConfig;
-  #agent: HttpAgent;
+  #agent: AgUiAgent;
   #toolCalls = new Map<string, ToolCallState>();
   #threadId: string;
   #textBuffers = new Map<string, string>();
@@ -42,6 +42,7 @@ export class AgUiAdapter extends AgentAdapter {
       url: config.url,
       headers: config.headers
     });
+    this.#agent.threadId = this.#threadId;
     if (config.tools) {
       this.setTools(config.tools);
     }
@@ -360,14 +361,11 @@ export class AgUiAdapter extends AgentAdapter {
       .map(msg => {
         switch (msg.role) {
           case 'user': {
-            const userMsg: UserMessage & { fileIds?: string[] } = {
+            const userMsg: UserMessage = {
               id: msg.id,
               role: 'user',
               content: msg.content
             };
-            if (msg.uploadedFiles?.length) {
-              userMsg.fileIds = msg.uploadedFiles.map(f => f.fileId);
-            }
             return userMsg;
           }
           case 'assistant': {

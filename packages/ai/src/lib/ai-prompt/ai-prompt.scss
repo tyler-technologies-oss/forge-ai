@@ -48,14 +48,6 @@
   overflow-x: auto;
 }
 
-.attachments {
-  display: flex;
-  flex-wrap: wrap;
-  gap: #{forge-spacing.variable(medium)};
-  padding: #{forge-spacing.variable(medium)};
-  padding-block-end: 0;
-}
-
 :host(:state(stacked)) {
   .vertical-divider {
     display: none;

@@ -6,6 +6,7 @@ import type { AiChatbotComponent, ChatMessage } from '@tylertech/forge-ai/ai-cha
 import { ChatbotError, ChatbotErrorCode } from '../../core/error-codes.js';
 import { getErrorTitle, getErrorMessage } from './error-content.js';
 import '@tylertech/forge-ai/ai-chatbot';
+import '@tylertech/forge-ai/ai-spinner';
 
 import styles from './foundry-chatbot.scss?inline';
 
@@ -41,8 +42,8 @@ export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {
   #chatbotRef: Ref<AiChatbotComponent> = createRef();
   #errorDetails: ChatbotError | null = null;
 
-  constructor() {
-    super();
+  public override connectedCallback(): void {
+    super.connectedCallback();
     this.addEventListener('foundry-chatbot-error', this.#handleErrorEvent);
   }
 
@@ -126,7 +127,10 @@ export class FoundryChatbotComponent extends FoundryBaseChatbotComponent {
     }
 
     if (state === 'initializing' || state === 'pending') {
-      return html`<div style="padding: 2rem; text-align: center;">Initializing...</div>`;
+      return html`<div class="initializing-container">
+        <forge-ai-spinner></forge-ai-spinner>
+        <span class="initializing-message">Initializing...</span>
+      </div>`;
     }
 
     return this.#chatbotContent;

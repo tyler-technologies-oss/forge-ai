@@ -28,7 +28,6 @@ import { MessageStateController } from './message-state-controller.js';
 import type {
   ChatMessage,
   FileAttachment,
-  FileRemoveCallbacks,
   FileUploadCallbacks,
   ForgeAiChatbotFileSelectEventData,
   HandlerContext,
@@ -48,6 +47,7 @@ import '../ai-chat-interface';
 import '../ai-file-picker';
 import '../ai-message-thread';
 import '../ai-prompt';
+import '../ai-spinner';
 import '../ai-suggestions';
 import '../ai-voice-input';
 
@@ -497,23 +497,16 @@ export class AiChatbotComponent extends LitElement {
       return;
     }
 
-    const attachments = config.attachments ?? [];
-    const uploadedFiles = this.#fileUploadManager.getCompletedUploads();
-
     const userMessage: ChatMessage = {
       id: generateId('msg'),
       role: 'user',
       content: config.content,
       timestamp: config.timestamp ?? Date.now(),
-      status: 'pending',
-      attachments,
-      uploadedFiles
+      status: 'pending'
     };
 
     this.#messageStateController.addMessage(userMessage);
     this.#dispatchEvent({ type: 'forge-ai-chatbot-message-sent', detail: { message: userMessage } });
-
-    this.#fileUploadManager.consumeAttachments();
 
     try {
       this.adapter.sendMessage(this.getMessages());
@@ -596,15 +589,14 @@ export class AiChatbotComponent extends LitElement {
     console.warn('thumbs-down', evt.detail.messageId);
   }
 
-  #processFileUpload(file: File, timestamp: number, thumbnail?: string): void {
+  #processFileUpload(file: File, timestamp: number): void {
     const fileId = generateId('file');
 
     this.#fileUploadManager.addAttachment(fileId, {
       filename: file.name,
       size: file.size,
       mimeType: file.type,
-      timestamp,
-      thumbnail
+      timestamp
     });
 
     const callbacks = this.#createFileUploadCallbacks(fileId);
@@ -620,15 +612,14 @@ export class AiChatbotComponent extends LitElement {
         size: file.size,
         mimeType: file.type,
         timestamp,
-        thumbnail,
         ...callbacks
       }
     });
   }
 
   #handleFileSelect(evt: CustomEvent<ForgeAiFilePickerChangeEventData>): void {
-    const { file, timestamp, thumbnail } = evt.detail;
-    this.#processFileUpload(file, timestamp, thumbnail);
+    const { file, timestamp } = evt.detail;
+    this.#processFileUpload(file, timestamp);
   }
 
   #createFileUploadCallbacks(fileId: string): FileUploadCallbacks {
@@ -663,50 +654,24 @@ export class AiChatbotComponent extends LitElement {
   #handleAttachmentRemove(evt: CustomEvent<ForgeAiAttachmentRemoveEventData>): void {
     const { filename } = evt.detail;
 
-    // Check if this is a pending attachment (not yet uploaded)
     const pendingAttachment = this.#fileUploadManager.pendingAttachments.find(a => a.filename === filename);
     if (pendingAttachment) {
       this.#fileUploadManager.abort(pendingAttachment.id);
       return;
     }
 
-    // Check if this is a completed upload
-    const messages = this.getMessages();
-    for (const message of messages) {
-      if (message.uploadedFiles) {
-        const uploadedFile = message.uploadedFiles.find(f => f.fileName === filename);
-        if (uploadedFile) {
-          this.#handleCompletedFileRemove(uploadedFile.fileId);
-          return;
+    const completedAttachment = this.#fileUploadManager.completedAttachments.find(a => a.filename === filename);
+    if (completedAttachment && completedAttachment.fileId) {
+      this.#fileUploadManager.removeCompletedAttachment(completedAttachment.id);
+      this.requestUpdate();
+
+      this.adapter?.emitFileRemove(completedAttachment.fileId, {
+        onSuccess: () => {},
+        onError: (error: string) => {
+          console.error(`Failed to remove file ${filename}:`, error);
         }
-      }
+      });
     }
-  }
-
-  #handleCompletedFileRemove(fileId: string): void {
-    if (!this.adapter) {
-      return;
-    }
-
-    const callbacks: FileRemoveCallbacks = {
-      onSuccess: () => {
-        this.#messageStateController.removeUploadedFile(fileId);
-        this.requestUpdate();
-      },
-      onError: (error: string) => {
-        this.#dispatchEvent({
-          type: 'forge-ai-chatbot-error',
-          detail: { error }
-        });
-      }
-    };
-
-    this.adapter.emitFileRemove(fileId, callbacks);
-
-    this.#dispatchEvent({
-      type: 'forge-ai-chatbot-file-remove',
-      detail: { fileId }
-    });
   }
 
   #handleSuggestionSelect(evt: CustomEvent<ForgeAiSuggestionsEventData>): void {
@@ -839,28 +804,32 @@ export class AiChatbotComponent extends LitElement {
     }
   }
 
-  get #pendingAttachmentsTemplate(): TemplateResult | typeof nothing {
-    const attachments = this.#fileUploadManager.allAttachments;
-    if (attachments.length === 0) {
+  get #sessionFilesTemplate(): TemplateResult | typeof nothing {
+    const completed = this.#fileUploadManager.completedAttachments;
+    const uploading = this.#fileUploadManager.pendingAttachments;
+    const allFiles = [...uploading, ...completed];
+
+    if (allFiles.length === 0) {
       return nothing;
     }
 
     return html`
-      ${attachments.map(
-        attachment => html`
-          <forge-ai-attachment
-            slot="attachments"
-            .filename=${attachment.filename}
-            .size=${attachment.size}
-            .mimeType=${attachment.mimeType}
-            .thumbnail=${attachment.thumbnail ?? ''}
-            ?uploading=${attachment.uploading}
-            .progress=${attachment.progress}
-            removable
-            @forge-ai-attachment-remove=${this.#handleAttachmentRemove}>
-          </forge-ai-attachment>
-        `
-      )}
+      <div class="session-files" slot="attachments">
+        <div class="session-files-header">Session Files (${allFiles.length})</div>
+        <div class="session-files-list">
+          ${allFiles.map(
+            attachment => html`
+              <forge-ai-attachment
+                .filename=${attachment.filename}
+                .size=${attachment.size}
+                ?uploading=${attachment.uploading ?? false}
+                removable
+                @forge-ai-attachment-remove=${this.#handleAttachmentRemove}>
+              </forge-ai-attachment>
+            `
+          )}
+        </div>
+      </div>
     `;
   }
 
@@ -876,7 +845,6 @@ export class AiChatbotComponent extends LitElement {
         @forge-ai-prompt-send=${this.#handleSend}
         @forge-ai-prompt-stop=${this.#handleStop}
         @forge-ai-prompt-cancel=${this.#handleCancel}>
-        ${this.#pendingAttachmentsTemplate}
         ${when(
           this.fileUpload === 'on',
           () => html`
@@ -950,7 +918,7 @@ export class AiChatbotComponent extends LitElement {
           @forge-ai-chat-header-export=${this.#handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
         </forge-ai-chat-header>
-        ${this.#messageThread} ${this.#promptSlot}
+        ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
       </forge-ai-chat-interface>
     `;
   }

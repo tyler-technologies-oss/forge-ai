@@ -66,7 +66,14 @@ export abstract class FoundryBaseChatbotComponent extends LitElement implements 
 
   constructor() {
     super();
-    this.#controller = new FoundryChatbotController(this);
+    this.#controller = new FoundryChatbotController(this, {
+      onFilesUploaded: async (fileNames: string[]) => {
+        const message = fileNames.length === 1
+          ? `I uploaded a file: ${fileNames[0]}. Please analyze it.`
+          : `I uploaded files: ${fileNames.join(', ')}. Please analyze them.`;
+        await this.sendMessage(message);
+      }
+    });
   }
 
   public override disconnectedCallback(): void {

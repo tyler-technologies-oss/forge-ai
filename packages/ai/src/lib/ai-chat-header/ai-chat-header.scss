@@ -3,6 +3,7 @@
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/icon/forge-icon';
 @use '@tylertech/forge/dist/scaffold/forge-scaffold';
+@use '@tylertech/forge/dist/toolbar/forge-toolbar';
 @use '@tylertech/forge/dist/button/forge-button';
 
 :host {
@@ -17,6 +18,8 @@
 .header {
   display: grid;
   grid-template-columns: 1fr auto;
+  align-items: center;
+  min-height: 56px;
   padding-inline: #{forge-spacing.variable(xsmall)};
 }
 

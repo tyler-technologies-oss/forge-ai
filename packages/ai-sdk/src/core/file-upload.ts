@@ -1,4 +1,5 @@
 import { FileUploadEvent, FileRemoveEvent } from '@tylertech/forge-ai';
+import { UPLOAD_MAX_BYTES, UPLOAD_MAX_MB, MAX_FILE_COUNT } from './constants.js';
 
 /**
  * Create a file upload handler that streams uploads to the backend.
@@ -8,17 +9,52 @@ export function setupFileUploadHandler(config: {
   baseUrl: string;
   agentId?: string;
   teamId?: string;
-  threadId: string;
+  getThreadId: () => string;
   headers?: Record<string, string>;
   credentials?: RequestCredentials;
+  maxFileSize?: number;
+  maxFileCount?: number;
+  existingFileCount?: number;
+  onStart?: (fileId: string) => void;
+  onComplete?: (fileId: string, fileName: string) => Promise<void>;
 }): (event: FileUploadEvent) => Promise<void> {
-  const { baseUrl, agentId, teamId, threadId, headers = {}, credentials = 'include' } = config;
+  const {
+    baseUrl,
+    agentId,
+    teamId,
+    getThreadId,
+    headers = {},
+    credentials = 'include',
+    maxFileSize,
+    maxFileCount,
+    existingFileCount,
+    onStart,
+    onComplete
+  } = config;
 
   if (!agentId && !teamId) {
     throw new Error('Either agentId or teamId must be provided');
   }
 
   return async ({ file, onAbort, updateProgress, markComplete, markError }: FileUploadEvent): Promise<void> => {
+    const maxSize = maxFileSize ?? UPLOAD_MAX_BYTES;
+    const maxCount = maxFileCount ?? MAX_FILE_COUNT;
+    const currentCount = existingFileCount ?? 0;
+
+    if (file.size > maxSize) {
+      markError(`File too large. Maximum size is ${UPLOAD_MAX_MB}MB.`);
+      return;
+    }
+
+    if (currentCount >= maxCount) {
+      markError(`Maximum ${maxCount} files allowed`);
+      return;
+    }
+
+    const fileId = `upload-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    onStart?.(fileId);
+
     const abortController = new AbortController();
 
     onAbort(() => {
@@ -28,6 +64,7 @@ export function setupFileUploadHandler(config: {
     const formData = new FormData();
     formData.append('file', file);
 
+    const threadId = getThreadId();
     const uploadUrl = teamId
       ? `${baseUrl}/api/teams/${teamId}/threads/${threadId}/upload`
       : `${baseUrl}/api/agents/${agentId}/threads/${threadId}/upload`;
@@ -79,6 +116,7 @@ export function setupFileUploadHandler(config: {
                 fileSize: data.file.file_metadata.fileSize,
                 uploadedAt: data.file.file_metadata.uploadedAt
               });
+              await onComplete?.(fileId, data.file.file_metadata.fileName);
               return;
             case 'error':
               markError(data.error);
@@ -97,17 +135,18 @@ export function setupFileRemoveHandler(config: {
   baseUrl: string;
   agentId?: string;
   teamId?: string;
-  threadId: string;
+  getThreadId: () => string;
   headers?: Record<string, string>;
   credentials?: RequestCredentials;
 }): (event: FileRemoveEvent) => Promise<void> {
-  const { baseUrl, agentId, teamId, threadId, headers = {}, credentials = 'include' } = config;
+  const { baseUrl, agentId, teamId, getThreadId, headers = {}, credentials = 'include' } = config;
 
   if (!agentId && !teamId) {
     throw new Error('Either agentId or teamId must be provided');
   }
 
   return async ({ fileId, onSuccess, onError }: FileRemoveEvent): Promise<void> => {
+    const threadId = getThreadId();
     const deleteUrl = teamId
       ? `${baseUrl}/api/teams/${teamId}/threads/${threadId}/files/${fileId}`
       : `${baseUrl}/api/agents/${agentId}/threads/${threadId}/files/${fileId}`;

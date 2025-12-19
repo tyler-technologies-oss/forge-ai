@@ -62,8 +62,6 @@ export interface ChatMessage {
   timestamp: number;
   status: 'pending' | 'streaming' | 'complete' | 'error';
   toolCalls?: ToolCall[];
-  attachments?: FileAttachment[];
-  uploadedFiles?: UploadedFileMetadata[];
   toolCallId?: string;
 }
 
@@ -84,11 +82,11 @@ export interface FileAttachment {
   size: number;
   mimeType: string;
   timestamp: number;
-  thumbnail?: string;
   uploading?: boolean;
   progress?: number;
   status?: 'pending' | 'uploading' | 'success' | 'error';
   error?: string;
+  fileId?: string;
 }
 
 export interface UploadedFileMetadata {
@@ -124,7 +122,6 @@ export interface ForgeAiChatbotFileSelectEventData {
   size: number;
   mimeType: string;
   timestamp: number;
-  thumbnail?: string;
   updateProgress: (progress: number) => void;
   markComplete: (metadata: UploadedFileMetadata) => void;
   markError: (error: string) => void;

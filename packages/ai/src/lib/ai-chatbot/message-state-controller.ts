@@ -215,19 +215,4 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
-  public removeUploadedFile(fileId: string): void {
-    this._messageItems = this._messageItems.map(item => {
-      if (item.type === 'message' && item.data.uploadedFiles) {
-        return {
-          ...item,
-          data: {
-            ...item.data,
-            uploadedFiles: item.data.uploadedFiles.filter(f => f.fileId !== fileId)
-          }
-        };
-      }
-      return item;
-    });
-    this.#notifyStateChange();
-  }
 }

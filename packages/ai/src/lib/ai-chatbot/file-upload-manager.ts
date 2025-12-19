@@ -28,6 +28,12 @@ export class FileUploadManager {
       .map(state => state.metadata);
   }
 
+  public get completedAttachments(): FileAttachment[] {
+    return Array.from(this._attachments.values())
+      .filter(state => state.status === 'complete')
+      .map(state => state.metadata);
+  }
+
   public get allAttachments(): FileAttachment[] {
     return Array.from(this._attachments.values()).map(state => state.metadata);
   }
@@ -62,6 +68,14 @@ export class FileUploadManager {
     this._config.onStateChange?.();
   }
 
+  public removeCompletedAttachment(attachmentId: string): void {
+    const state = this._attachments.get(attachmentId);
+    if (state?.status === 'complete') {
+      this._attachments.delete(attachmentId);
+      this._config.onStateChange?.();
+    }
+  }
+
   public updateProgress(fileId: string, progress: number): void {
     const state = this._attachments.get(fileId);
     if (state) {
@@ -81,6 +95,7 @@ export class FileUploadManager {
       state.metadata.uploading = false;
       state.metadata.progress = 100;
       state.metadata.status = 'success';
+      state.metadata.fileId = uploadedFile.fileId;
       this._config.onStateChange?.();
     }
   }
@@ -123,13 +138,6 @@ export class FileUploadManager {
       .map(state => state.uploadedFile) as UploadedFileMetadata[];
   }
 
-  public consumeAttachments(): FileAttachment[] {
-    const attachments = Array.from(this._attachments.values()).map(state => state.metadata);
-    this._attachments.clear();
-    this._abortCallbacks.clear();
-    this._config.onStateChange?.();
-    return attachments;
-  }
 
   public clear(): void {
     this._attachments.clear();

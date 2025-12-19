@@ -16,7 +16,8 @@
   gap: #{forge-spacing.variable(medium)};
   padding-block-end: #{forge-spacing.variable(large)};
   overflow-y: auto;
-  padding: 0 #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxlarge)} #{forge-spacing.variable(medium)};
+  padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxlarge)}
+    #{forge-spacing.variable(medium)};
 
   // Safari-specific: force scrollbar to always show
   @media not all and (min-resolution: 0.001dpcm) {

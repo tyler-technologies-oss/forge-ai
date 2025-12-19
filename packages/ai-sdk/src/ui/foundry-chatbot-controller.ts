@@ -17,6 +17,10 @@ export interface FoundryChatbotControllerConfig {
   headers?: Record<string, string>;
 }
 
+export interface FoundryChatbotControllerCallbacks {
+  onFilesUploaded?: (fileNames: string[]) => Promise<void>;
+}
+
 export class FoundryChatbotController implements ReactiveController {
   #host: ReactiveControllerHost & FoundryBaseChatbotComponent;
   #state: InitState = 'pending';
@@ -24,9 +28,17 @@ export class FoundryChatbotController implements ReactiveController {
   #agentConfig: AgentUIConfig | null = null;
   #initializing: Promise<void> | null = null;
   #config: FoundryChatbotControllerConfig = {};
+  #callbacks: FoundryChatbotControllerCallbacks;
+  #uploadedFileCount = 0;
+  #pendingUploads = new Set<string>();
+  #completedUploadNames: string[] = [];
 
-  constructor(host: ReactiveControllerHost & FoundryBaseChatbotComponent) {
+  constructor(
+    host: ReactiveControllerHost & FoundryBaseChatbotComponent,
+    callbacks: FoundryChatbotControllerCallbacks = {}
+  ) {
     this.#host = host;
+    this.#callbacks = callbacks;
     host.addController(this);
   }
 
@@ -64,6 +76,9 @@ export class FoundryChatbotController implements ReactiveController {
     this.#agentConfig = null;
     this.#state = 'pending';
     this.#initializing = null;
+    this.#uploadedFileCount = 0;
+    this.#pendingUploads.clear();
+    this.#completedUploadNames = [];
 
     await this.#initialize();
   }
@@ -111,13 +126,36 @@ export class FoundryChatbotController implements ReactiveController {
     this.#adapter = new FoundryAgentAdapter({ baseUrl, agentId, teamId, headers }, this.#agentConfig);
 
     if (this.#agentConfig.chatExperience?.enableFileUpload) {
+      const getThreadId = (): string => {
+        if (!this.#adapter) {
+          throw new Error('Adapter not initialized');
+        }
+        return this.#adapter.threadId;
+      };
+
       const uploadHandler = setupFileUploadHandler({
         baseUrl,
         agentId,
         teamId,
-        threadId: this.#adapter.threadId,
+        getThreadId,
         headers,
-        credentials: 'include'
+        credentials: 'include',
+        existingFileCount: this.#uploadedFileCount,
+        onStart: (fileId: string) => {
+          this.#pendingUploads.add(fileId);
+        },
+        onComplete: async (fileId: string, fileName: string) => {
+          this.#uploadedFileCount++;
+          this.#completedUploadNames.push(fileName);
+          this.#pendingUploads.delete(fileId);
+
+          if (this.#pendingUploads.size === 0 && this.#completedUploadNames.length > 0) {
+            if (this.#callbacks.onFilesUploaded) {
+              await this.#callbacks.onFilesUploaded([...this.#completedUploadNames]);
+            }
+            this.#completedUploadNames = [];
+          }
+        }
       });
       this.#adapter.onFileUpload(uploadHandler);
 
@@ -125,7 +163,7 @@ export class FoundryChatbotController implements ReactiveController {
         baseUrl,
         agentId,
         teamId,
-        threadId: this.#adapter.threadId,
+        getThreadId,
         headers,
         credentials: 'include'
       });

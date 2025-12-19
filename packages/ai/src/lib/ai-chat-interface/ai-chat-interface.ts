@@ -19,6 +19,7 @@ export const AiChatInterfaceComponentTagName: keyof HTMLElementTagNameMap = 'for
  * @slot - Default slot for messages
  * @slot header - Slot for AI chat header component
  * @slot suggestions - Slot for AI suggestions component
+ * @slot attachments - Slot for file attachments component
  * @slot prompt - Slot for AI prompt component
  */
 @customElement(AiChatInterfaceComponentTagName)
@@ -28,7 +29,12 @@ export class AiChatInterfaceComponent extends LitElement {
   @queryAssignedNodes({ slot: 'suggestions', flatten: true })
   private _slottedSuggestionsNodes!: Node[];
 
+  @queryAssignedNodes({ slot: 'attachments', flatten: true })
+  private _slottedAttachmentsNodes!: Node[];
+
   readonly #headerSlot = html`<slot name="header" @slotchange=${this.#handleSlotChange}></slot>`;
+
+  readonly #attachmentsSlot = html`<slot name="attachments" @slotchange=${this.#handleSlotChange}></slot>`;
 
   readonly #suggestionsSlot = html`<slot name="suggestions" @slotchange=${this.#handleSlotChange}></slot>`;
 
@@ -38,6 +44,15 @@ export class AiChatInterfaceComponent extends LitElement {
       hasSuggestions,
       () => html`<div class="suggestions-container">${this.#suggestionsSlot}</div>`,
       () => this.#suggestionsSlot
+    );
+  }
+
+  get #attachments(): TemplateResult | typeof nothing {
+    const hasAttachments = this._slottedAttachmentsNodes.length > 0;
+    return when(
+      hasAttachments,
+      () => html`<div class="attachments-container">${this.#attachmentsSlot}</div>`,
+      () => html`${this.#attachmentsSlot}`
     );
   }
 
@@ -58,7 +73,7 @@ export class AiChatInterfaceComponent extends LitElement {
   #handleSlotChange(evt: Event): void {
     const slotName = (evt.target as HTMLSlotElement).name;
 
-    if (['header', 'suggestions', 'prompt'].includes(slotName)) {
+    if (['header', 'suggestions', 'prompt', 'attachments'].includes(slotName)) {
       this.requestUpdate();
     }
   }
@@ -74,7 +89,7 @@ export class AiChatInterfaceComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="ai-chat-interface">
-        ${this.#headerSlot} ${this.#messagesContainer} ${this.#suggestions}
+        ${this.#headerSlot} ${this.#messagesContainer} ${this.#suggestions} ${this.#attachments}
         <div class="prompt-container">${this.#prompt}</div>
       </div>
     `;

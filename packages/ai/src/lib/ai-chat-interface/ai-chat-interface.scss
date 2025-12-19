@@ -50,6 +50,11 @@
   padding-block-start: #{forge-spacing.variable(medium)};
 }
 
+.attachments-container {
+  padding-block-end: #{forge-spacing.variable(medium)};
+  padding: #{forge-spacing.variable(xsmall)} #{forge-spacing.variable(medium)} 0;
+}
+
 .prompt-container {
   padding: #{forge-spacing.variable(medium)};
 }
