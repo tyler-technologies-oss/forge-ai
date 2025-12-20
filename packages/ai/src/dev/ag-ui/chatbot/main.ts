@@ -124,9 +124,7 @@ const showConfettiTool: ToolDefinition<ConfettiArgs> = {
       spread: confettiArgs?.spread || 100
     });
 
-    return {
-      result: `Confetti animation displayed with ${confettiArgs?.particleCount || 100} particles and ${confettiArgs?.spread || 100}° spread`
-    };
+    return `Confetti animation displayed with ${confettiArgs?.particleCount || 100} particles and ${confettiArgs?.spread || 100}° spread`;
   }
   // renderer: createToolRenderer({
   //   render: toolCall => {
@@ -187,9 +185,7 @@ const displayRecipeTool: ToolDefinition = {
     const ingredientsArray = ingredients as string[] | undefined;
     const instructionsArray = instructions as string[] | undefined;
 
-    return {
-      result: `Recipe for "${title}" has been displayed with ${ingredientsArray?.length || 0} ingredients and ${instructionsArray?.length || 0} steps`
-    };
+    return `Recipe for "${title}" has been displayed with ${ingredientsArray?.length || 0} ingredients and ${instructionsArray?.length || 0} steps`;
   },
   renderer: createToolRenderer({
     elementTag: 'recipe-card'
