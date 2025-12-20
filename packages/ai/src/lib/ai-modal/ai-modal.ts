@@ -95,13 +95,15 @@ export class AiModalComponent extends LitElement {
   public override updated(changedProperties: PropertyValues<this>): void {
     if (changedProperties.has('open')) {
       if (this.open) {
-        this._dialog?.showModal();
-        this.dispatchEvent(new CustomEvent('forge-ai-modal-open', { bubbles: true, composed: true }));
+        if (this._dialog && !this._dialog.open) {
+          this._dialog.showModal();
+          this.dispatchEvent(new CustomEvent('forge-ai-modal-open', { bubbles: true, composed: true }));
+        }
       } else {
-        this._dialog?.close();
-        window.setTimeout(() => {
+        if (this._dialog?.open) {
+          this._dialog.close();
           this.dispatchEvent(new CustomEvent('forge-ai-modal-close', { bubbles: true, composed: true }));
-        }, 100);
+        }
       }
     }
 

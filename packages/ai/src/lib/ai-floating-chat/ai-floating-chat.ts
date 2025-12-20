@@ -1,5 +1,5 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import type { AiDialogComponent } from '../ai-dialog';
 import '../ai-dialog';
@@ -45,6 +45,9 @@ export class AiFloatingChatComponent extends LitElement {
   @property({ type: Boolean })
   public expanded = false;
 
+  @state()
+  private _userExpanded = false;
+
   #dialogRef: Ref<AiDialogComponent> = createRef();
 
   public override render(): TemplateResult {
@@ -87,6 +90,7 @@ export class AiFloatingChatComponent extends LitElement {
   public expand(): void {
     if (!this.expanded) {
       this.expanded = true;
+      this._userExpanded = true;
       this.#dispatchEvent('forge-ai-floating-chat-expand');
     }
   }
@@ -94,6 +98,7 @@ export class AiFloatingChatComponent extends LitElement {
   public collapse(): void {
     if (this.expanded) {
       this.expanded = false;
+      this._userExpanded = false;
       this.#dispatchEvent('forge-ai-floating-chat-collapse');
     }
   }
@@ -103,7 +108,7 @@ export class AiFloatingChatComponent extends LitElement {
     if (isFullscreen && !this.expanded) {
       this.expanded = true;
       this.#dispatchEvent('forge-ai-floating-chat-expand');
-    } else if (!isFullscreen && this.expanded) {
+    } else if (!isFullscreen && this.expanded && !this._userExpanded) {
       this.expanded = false;
       this.#dispatchEvent('forge-ai-floating-chat-collapse');
     }
@@ -111,6 +116,7 @@ export class AiFloatingChatComponent extends LitElement {
 
   #handleChatbotExpand(): void {
     this.expanded = !this.expanded;
+    this._userExpanded = this.expanded;
     if (this.expanded) {
       this.#dispatchEvent('forge-ai-floating-chat-expand');
     } else {
