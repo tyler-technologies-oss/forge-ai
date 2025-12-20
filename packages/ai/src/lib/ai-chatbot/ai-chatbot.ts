@@ -37,7 +37,6 @@ import type {
   ThreadState,
   ToolCall,
   ToolDefinition,
-  ToolResult,
   UploadedFileMetadata
 } from './types.js';
 import { downloadFile, generateId } from './utils.js';
@@ -355,11 +354,13 @@ export class AiChatbotComponent extends LitElement {
     });
   }
 
-  #createToolResponse(toolName: string, handlerReturn?: ToolResult | void): string {
-    if (handlerReturn?.result) {
-      return handlerReturn.result;
+  #createToolResponse(toolName: string, handlerReturn?: unknown): unknown {
+    if (typeof handlerReturn === 'string') {
+      return handlerReturn;
     }
-
+    if (handlerReturn && typeof handlerReturn === 'object') {
+      return handlerReturn;
+    }
     return `Tool '${toolName}' executed successfully`;
   }
 
@@ -415,7 +416,7 @@ export class AiChatbotComponent extends LitElement {
   async #executeToolHandler(
     toolCallId: string,
     toolName: string,
-    handler: (context: HandlerContext) => Promise<ToolResult | void> | ToolResult | void,
+    handler: (context: HandlerContext) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void,
     args: Record<string, unknown>
   ): Promise<void> {
     try {

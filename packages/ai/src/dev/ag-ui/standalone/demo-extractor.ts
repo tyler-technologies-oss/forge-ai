@@ -58,18 +58,14 @@ export function createExtractorTools(showToast: ShowToastFn): Array<ToolDefiniti
       zipInput.value = data.zip || '';
 
       showToast('Form data extracted successfully!', 'success');
-      return { success: true, message: 'Form filled successfully' };
+      return 'Form filled successfully';
     }
   };
 
   return [fillContactFormTool];
 }
 
-export function initExtractorDemo(
-  config: AgUiAdapterConfig,
-  tools: ToolDefinition[],
-  showToast: ShowToastFn
-): void {
+export function initExtractorDemo(config: AgUiAdapterConfig, tools: ToolDefinition[], showToast: ShowToastFn): void {
   const extractorBtn = document.getElementById('extractorBtn') as HTMLButtonElement;
   const extractorProgress = document.getElementById('extractorProgress') as HTMLElement;
   const extractorInput = document.getElementById('extractorInput') as HTMLTextAreaElement;

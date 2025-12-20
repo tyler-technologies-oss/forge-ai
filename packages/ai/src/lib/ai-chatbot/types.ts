@@ -9,14 +9,6 @@ export interface ToolRenderer {
 }
 
 /**
- * Tool result with custom response string.
- * Return this from tool handlers to provide a custom result message to the LLM.
- */
-export interface ToolResult {
-  result: string;
-}
-
-/**
  * Context provided to tool handlers when they are invoked.
  * @template TArgs - Type of the tool call arguments
  */
@@ -50,9 +42,9 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
   renderer?: ToolRenderer;
   /**
    * Optional handler function invoked when tool is called.
-   * Can return a custom result string to include in tool response.
+   * Can return a string, object, or void. Strings and objects are used directly as tool results.
    */
-  handler?: (context: HandlerContext<THandlerArgs>) => Promise<ToolResult | void> | ToolResult | void;
+  handler?: (context: HandlerContext<THandlerArgs>) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void;
 }
 
 export interface ChatMessage {

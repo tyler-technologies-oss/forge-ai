@@ -213,11 +213,14 @@ export class AgentRunner {
     };
   }
 
-  static #createToolResponse({ metadata }: { metadata?: Record<string, unknown> | void } = {}): Record<
-    string,
-    unknown
-  > {
-    return { metadata, success: true };
+  static #createToolResponse(toolName: string, handlerReturn?: unknown): unknown {
+    if (typeof handlerReturn === 'string') {
+      return handlerReturn;
+    }
+    if (handlerReturn && typeof handlerReturn === 'object') {
+      return handlerReturn;
+    }
+    return `Tool '${toolName}' executed successfully`;
   }
 
   static #buildMessageHistory(state: RunState): ChatMessage[] {
@@ -283,8 +286,8 @@ export class AgentRunner {
             toolName: event.name,
             signal: undefined
           };
-          const metadata = await toolDef.handler(context);
-          result = this.#createToolResponse({ metadata });
+          const handlerReturn = await toolDef.handler(context);
+          result = this.#createToolResponse(event.name, handlerReturn);
         } catch (error) {
           const err = error as Error;
           result = { error: err.message };
@@ -301,7 +304,7 @@ export class AgentRunner {
           return;
         }
       } else {
-        result = this.#createToolResponse();
+        result = this.#createToolResponse(event.name);
       }
 
       toolCall.status = 'complete';

@@ -89,7 +89,7 @@ const fillContactFormTool: ToolDefinition<ExtractedFormData> = {
     zipInput.value = data.zip || '';
 
     showToast('Form data extracted successfully!', 'success');
-    return { success: true, message: 'Form filled successfully' };
+    return 'Form filled successfully';
   }
 };
 

@@ -46,7 +46,7 @@ export function createSmartCompleteTools(showToast: ShowToastFn): Array<ToolDefi
       foundedInput.value = data.founded || '';
 
       showToast('Company information completed!', 'success');
-      return { success: true, message: 'Form filled successfully' };
+      return 'Form filled successfully';
     }
   };
 
