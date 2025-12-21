@@ -179,7 +179,10 @@ export class AiMessageThreadComponent extends LitElement {
 
     const lastItem = this.messageItems[this.messageItems.length - 1];
     const hasAssistantContent =
-      lastItem?.type === 'message' && lastItem.data.role === 'assistant' && lastItem.data.content.trim().length > 0;
+      lastItem?.type !== 'toolCall' &&
+      lastItem?.type === 'message' &&
+      lastItem.data.role === 'assistant' &&
+      lastItem.data.content.trim().length;
 
     if (hasAssistantContent) {
       return nothing;
@@ -191,44 +194,53 @@ export class AiMessageThreadComponent extends LitElement {
   }
 
   get #messages(): TemplateResult[] {
-    return this.messageItems
-      .filter(item => (item.type === 'message' ? item.data.role !== 'tool' : true))
-      .map((item, index) => {
-        if (item.type === 'toolCall') {
-          return this.#renderToolCall(item.data);
-        }
+    const itemsToRender = this.messageItems.filter(item => {
+      if (item.type === 'toolCall') {
+        const toolDef = this.tools?.get(item.data.name);
+        return !!toolDef?.renderer;
+      }
+      if (item.type === 'message') {
+        return item.data.role !== 'tool';
+      }
+      return false;
+    });
 
-        const msg = item.data;
-        if (msg.role === 'user') {
-          const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
-          return html`<forge-ai-user-message>${unsafeHTML(renderedHtml)}</forge-ai-user-message>`;
-        } else if (msg.role === 'system') {
-          return html`<div class="system-message">${msg.content}</div>`;
-        } else if (msg.status === 'error') {
+    return itemsToRender.map((item, index) => {
+      if (item.type === 'toolCall') {
+        return this.#renderToolCall(item.data);
+      }
+
+      const msg = item.data;
+      if (msg.role === 'user') {
+        const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
+        return html`<forge-ai-user-message>${unsafeHTML(renderedHtml)}</forge-ai-user-message>`;
+      } else if (msg.role === 'system') {
+        return html`<div class="system-message">${msg.content}</div>`;
+      } else if (msg.status === 'error') {
+        const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
+        return html`
+          <forge-ai-error-message>
+            <span slot="title">Error</span>
+            ${unsafeHTML(renderedHtml)}
+          </forge-ai-error-message>
+        `;
+      } else {
+        return when(msg.content?.trim().length, () => {
           const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
           return html`
-            <forge-ai-error-message>
-              <span slot="title">Error</span>
+            <forge-ai-response-message
+              ?complete=${msg.status === 'complete'}
+              ?enable-reactions=${this.enableReactions}
+              @forge-ai-response-message-copy=${() => this.#handleCopy(index)}
+              @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
+              @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
+              @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
               ${unsafeHTML(renderedHtml)}
-            </forge-ai-error-message>
+            </forge-ai-response-message>
           `;
-        } else {
-          return when(msg.content?.trim().length > 0, () => {
-            const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
-            return html`
-              <forge-ai-response-message
-                ?complete=${msg.status === 'complete'}
-                ?enable-reactions=${this.enableReactions}
-                @forge-ai-response-message-copy=${() => this.#handleCopy(index)}
-                @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
-                @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
-                @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
-                ${unsafeHTML(renderedHtml)}
-              </forge-ai-response-message>
-            `;
-          });
-        }
-      });
+        });
+      }
+    });
   }
 
   public override render(): TemplateResult {

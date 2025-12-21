@@ -177,13 +177,14 @@ export class AiChatbotComponent extends LitElement {
   #fileUploadManager!: FileUploadManager;
   #toolsMap?: Map<string, ToolDefinition>;
   #adapterSubscriptions?: SubscriptionManager;
+  #executingToolHandlers = 0;
 
   get #messageItems(): MessageItem[] {
     return this.#messageStateController?.messageItems ?? [];
   }
 
   get #isStreaming(): boolean {
-    return this.adapter?.isRunning ?? false;
+    return (this.adapter?.isRunning ?? false) || this.#executingToolHandlers > 0;
   }
 
   get #isUploading(): boolean {
@@ -416,9 +417,14 @@ export class AiChatbotComponent extends LitElement {
   async #executeToolHandler(
     toolCallId: string,
     toolName: string,
-    handler: (context: HandlerContext) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void,
+    handler: (
+      context: HandlerContext
+    ) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void,
     args: Record<string, unknown>
   ): Promise<void> {
+    this.#executingToolHandlers++;
+    this.requestUpdate();
+
     try {
       const context: HandlerContext = {
         args,
@@ -433,6 +439,9 @@ export class AiChatbotComponent extends LitElement {
         status: 'error',
         result: { error: (error as Error).message }
       });
+    } finally {
+      this.#executingToolHandlers--;
+      this.requestUpdate();
     }
   }
 
