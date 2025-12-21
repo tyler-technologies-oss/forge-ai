@@ -1,10 +1,17 @@
-import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { LitElement, TemplateResult, html, unsafeCSS, PropertyValues } from 'lit';
+import { html as staticHtml, unsafeStatic } from 'lit/static-html.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
+import { Ref, createRef, ref } from 'lit/directives/ref.js';
+import type { AiModalComponent } from '../ai-modal';
+import type { HeadingLevel } from '../ai-chatbot/types';
 import '../ai-icon/ai-icon';
 import '../core/tooltip/tooltip.js';
 import '../ai-dropdown-menu/ai-dropdown-menu.js';
 import '../ai-dropdown-menu/ai-dropdown-menu-item.js';
+import '../ai-dropdown-menu/ai-dropdown-menu-separator.js';
+import '../ai-modal/ai-modal.js';
+import '../ai-agent-info/ai-agent-info.js';
 
 import styles from './ai-chat-header.scss?inline';
 
@@ -21,11 +28,22 @@ declare global {
     'forge-ai-chat-header-expand': CustomEvent<void>;
     'forge-ai-chat-header-minimize': CustomEvent<void>;
     'forge-ai-chat-header-clear': CustomEvent<void>;
-    'forge-ai-chat-header-info': CustomEvent<void>;
+    'forge-ai-chat-header-export': CustomEvent<void>;
   }
 }
 
 export type MinimizeIconType = 'default' | 'panel';
+
+export type OptionState = 'enabled' | 'off';
+
+export interface AgentInfo {
+  name?: string;
+  description?: string;
+  identifier?: string;
+  version?: string;
+  model?: string;
+  lastUpdated?: string;
+}
 
 /**
  * @summary AI chat header component with accessible tooltips
@@ -38,20 +56,14 @@ export type MinimizeIconType = 'default' | 'panel';
  * @tag forge-ai-chat-header
  *
  * @slot icon - Slot for custom icon (default: forge-ai-icon)
- * @slot title - Slot for custom title text (default: "AI Assistant")
  *
- * @property {boolean} showExpandButton - Controls whether the expand button is visible
- * @property {boolean} showMinimizeButton - Controls whether the minimize button is visible
- * @property {boolean} expanded - Indicates the current expanded state for displaying the appropriate expand/collapse icon
- * @property {MinimizeIconType} minimizeIcon - Controls which minimize icon to display ('default' | 'panel')
- * @property {boolean} showDropdownMenu - Controls whether the dropdown menu is visible (default: true)
- * @property {boolean} showClearChat - Controls whether the clear chat menu item is visible (default: true)
- * @property {boolean} showInfo - Controls whether the info menu item is visible (default: true)
+ * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
+ * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  *
  * @event forge-ai-chat-header-expand - Fired when the expand button is clicked
  * @event forge-ai-chat-header-minimize - Fired when the minimize button is clicked
  * @event forge-ai-chat-header-clear - Fired when the clear chat option is selected
- * @event forge-ai-chat-header-info - Fired when the info option is selected
+ * @event forge-ai-chat-header-export - Fired when the export option is selected
  */
 @customElement(AiChatHeaderComponentTagName)
 export class AiChatHeaderComponent extends LitElement {
@@ -82,44 +94,83 @@ export class AiChatHeaderComponent extends LitElement {
   public minimizeIcon: MinimizeIconType = 'default';
 
   /**
-   * Controls whether the dropdown menu is visible
+   * Agent information to display in the info dialog
    */
-  @property({ type: Boolean, attribute: 'show-dropdown-menu' })
-  public showDropdownMenu = true;
+  @property({ type: Object, attribute: false })
+  public agentInfo?: AgentInfo;
 
   /**
-   * Controls whether the clear chat menu item is visible
+   * Controls state of the options dropdown menu
    */
-  @property({ type: Boolean, attribute: 'show-clear-chat' })
-  public showClearChat = true;
+  @property()
+  public options: OptionState = 'enabled';
 
   /**
-   * Controls whether the info menu item is visible
+   * Controls state of the export option
    */
-  @property({ type: Boolean, attribute: 'show-info' })
-  public showInfo = true;
+  @property({ attribute: 'export-option' })
+  public exportOption: OptionState = 'enabled';
 
-  readonly #iconSlot = html`
-    <slot name="icon">
-      <forge-ai-icon></forge-ai-icon>
-    </slot>
-  `;
+  /**
+   * Controls state of the clear chat option
+   */
+  @property({ attribute: 'clear-option' })
+  public clearOption: OptionState = 'enabled';
+
+  /**
+   * Controls the heading level for the title content
+   */
+  @property({ attribute: 'heading-level', type: Number })
+  public headingLevel: HeadingLevel = 2;
+
+  /**
+   * The title text to display in the header
+   */
+  @property({ attribute: 'title-text' })
+  public titleText = 'AI Assistant';
+
+  #agentInfoModalRef: Ref<AiModalComponent> = createRef();
+
+  @state()
+  private _isTitleOverflowing = false;
+
+  public override updated(changedProperties: PropertyValues<this>): void {
+    if (changedProperties.has('titleText') || changedProperties.has('headingLevel')) {
+      this.#checkTitleOverflow();
+    }
+  }
+
+  get #hasAvailableOptions(): boolean {
+    return this.exportOption === 'enabled' || this.clearOption === 'enabled' || !!this.agentInfo;
+  }
+
+  get #titleElement(): TemplateResult {
+    const tagName = unsafeStatic(`h${this.headingLevel}`);
+    return staticHtml`
+      <${tagName} class="title" id="title-container">${this.titleText}</${tagName}>
+      ${when(
+        this._isTitleOverflowing,
+        () => html`<forge-ai-tooltip for="title-container" placement="bottom">${this.titleText}</forge-ai-tooltip>`
+      )}
+    `;
+  }
 
   public override render(): TemplateResult {
     return html`
-      <div class="header forge-toolbar forge-toolbar--no-divider">
-        <div class="start">
-          ${this.#iconSlot}
-          <slot name="title">
-            <h1>AI Assistant</h1>
+      <div class="header">
+        <div class="start" id="title-container">
+          <slot name="icon">
+            <forge-ai-icon></forge-ai-icon>
           </slot>
+          ${this.#titleElement}
         </div>
         <div class="end">
           ${when(
-            this.showDropdownMenu && (this.showClearChat || this.showInfo),
+            this.options === 'enabled' && this.#hasAvailableOptions,
             () => html`
               <forge-ai-dropdown-menu
                 variant="icon-button"
+                popover-placement="bottom-end"
                 selection-mode="none"
                 @forge-ai-dropdown-menu-change=${this.#handleDropdownChange}>
                 <svg
@@ -132,18 +183,42 @@ export class AiChatHeaderComponent extends LitElement {
                     d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2" />
                 </svg>
                 ${when(
-                  this.showClearChat,
+                  this.exportOption === 'enabled',
                   () => html`
-                    <forge-ai-dropdown-menu-item value="clear-chat">
-                      <span>Clear chat</span>
+                    <forge-ai-dropdown-menu-item value="export">
+                      <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                        <path d="m15.61 8.92 1.41-1.41-5-5-5 5 1.41 1.41 2.59-2.58v9.67h2V6.34z" />
+                        <path d="M19.05 14.06V19h-14v-4.94h-2V19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4.94z" />
+                      </svg>
+                      <span>Export current chat</span>
                     </forge-ai-dropdown-menu-item>
                   `
                 )}
                 ${when(
-                  this.showInfo,
+                  this.agentInfo,
                   () => html`
                     <forge-ai-dropdown-menu-item value="info">
+                      <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                        <path fill="none" d="M0 0h24v24H0z" />
+                        <path
+                          d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8" />
+                      </svg>
                       <span>Info</span>
+                    </forge-ai-dropdown-menu-item>
+                  `
+                )}
+                ${when(
+                  this.agentInfo && (this.exportOption === 'enabled' || this.clearOption === 'enabled'),
+                  () => html`<forge-ai-dropdown-menu-separator></forge-ai-dropdown-menu-separator>`
+                )}
+                ${when(
+                  this.clearOption === 'enabled',
+                  () => html`
+                    <forge-ai-dropdown-menu-item value="clear-chat">
+                      <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                        <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z" />
+                      </svg>
+                      <span>Clear chat</span>
                     </forge-ai-dropdown-menu-item>
                   `
                 )}
@@ -224,7 +299,43 @@ export class AiChatHeaderComponent extends LitElement {
           )}
         </div>
       </div>
+      ${when(
+        this.agentInfo,
+        () => html`
+          <forge-ai-modal ${ref(this.#agentInfoModalRef)}>
+            <div class="forge-scaffold">
+              <div class="forge-scaffold__header">
+                <div class="forge-toolbar forge-toolbar--no-divider">
+                  <h2 class="forge-toolbar__start agent-info-title">Agent Information</h2>
+                </div>
+              </div>
+              <div class="forge-scaffold__body">
+                <div class="agent-info-content">
+                  <forge-ai-agent-info .agentInfo=${this.agentInfo}></forge-ai-agent-info>
+                </div>
+              </div>
+              <div class="forge-scaffold__footer">
+                <div class="forge-toolbar forge-toolbar--no-divider">
+                  <button class="forge-button forge-button--filled forge-toolbar__end" @click=${this.#handleModalClose}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </forge-ai-modal>
+        `
+      )}
     `;
+  }
+
+  #checkTitleOverflow(): void {
+    const titleElement = this.shadowRoot?.querySelector('.title') as HTMLElement;
+    if (titleElement) {
+      const isOverflowing = titleElement.scrollWidth > titleElement.offsetWidth;
+      if (this._isTitleOverflowing !== isOverflowing) {
+        this._isTitleOverflowing = isOverflowing;
+      }
+    }
   }
 
   #handleExpandClick(): void {
@@ -247,6 +358,17 @@ export class AiChatHeaderComponent extends LitElement {
     const value = event.detail.value;
 
     switch (value) {
+      case 'export':
+        this.dispatchEvent(
+          new CustomEvent('forge-ai-chat-header-export', {
+            bubbles: true,
+            composed: true
+          })
+        );
+        break;
+      case 'info':
+        this.#agentInfoModalRef.value?.show();
+        break;
       case 'clear-chat':
         this.dispatchEvent(
           new CustomEvent('forge-ai-chat-header-clear', {
@@ -255,14 +377,10 @@ export class AiChatHeaderComponent extends LitElement {
           })
         );
         break;
-      case 'info':
-        this.dispatchEvent(
-          new CustomEvent('forge-ai-chat-header-info', {
-            bubbles: true,
-            composed: true
-          })
-        );
-        break;
     }
+  }
+
+  #handleModalClose(): void {
+    this.#agentInfoModalRef.value?.close();
   }
 }

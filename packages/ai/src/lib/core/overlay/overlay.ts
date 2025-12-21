@@ -1,4 +1,5 @@
 import {
+  arrow,
   autoUpdate,
   computePosition,
   flip,
@@ -72,6 +73,20 @@ export class ForgeAiOverlayComponent extends LitElement {
   @property({ type: Boolean, reflect: true })
   public open = false;
 
+  /**
+   * The arrow element to position relative to the overlay.
+   */
+  @property({ type: Object })
+  public arrowElement: HTMLElement | null = null;
+
+  /**
+   * The dismiss mode for the overlay.
+   * - 'auto': Automatically closes on outside clicks and Escape key
+   * - 'manual': Requires manual control to close
+   */
+  @property({ attribute: 'dismiss-mode' })
+  public dismissMode: 'auto' | 'manual' = 'auto';
+
   private _overlayElement: HTMLElement | null = null;
   private _cleanupAutoUpdate: (() => void) | null = null;
 
@@ -89,7 +104,8 @@ export class ForgeAiOverlayComponent extends LitElement {
       changedProperties.has('anchor') ||
       changedProperties.has('placement') ||
       changedProperties.has('flip') ||
-      changedProperties.has('shift')
+      changedProperties.has('shift') ||
+      changedProperties.has('arrowElement')
     ) {
       if (this.open && this._overlayElement && this.anchor) {
         this._updatePosition();
@@ -132,7 +148,11 @@ export class ForgeAiOverlayComponent extends LitElement {
 
     this._cleanup();
 
-    const middleware = [...(this.flip ? [flip()] : []), ...(this.shift ? [shift({ padding: 8 })] : [])];
+    const middleware: Middleware[] = [
+      ...(this.flip ? [flip()] : []),
+      ...(this.shift ? [shift({ padding: 8 })] : []),
+      ...(this.arrowElement ? [arrow({ element: this.arrowElement, padding: 8 })] : [])
+    ];
 
     this._cleanupAutoUpdate = autoUpdate(this.anchor, this._overlayElement, () => this._computePosition(middleware));
   }
@@ -145,6 +165,7 @@ export class ForgeAiOverlayComponent extends LitElement {
     try {
       const result: ComputePositionReturn = await computePosition(this.anchor, this._overlayElement, {
         placement: this.placement,
+        strategy: 'fixed',
         middleware
       });
 
@@ -156,6 +177,15 @@ export class ForgeAiOverlayComponent extends LitElement {
 
       // Add a data attribute for the "actual" placement
       this.setAttribute('data-position-placement', result.placement);
+
+      // Position arrow if provided
+      if (this.arrowElement && result.middlewareData.arrow) {
+        const { x, y } = result.middlewareData.arrow;
+        Object.assign(this.arrowElement.style, {
+          left: x != null ? `${x}px` : '',
+          top: y != null ? `${y}px` : ''
+        });
+      }
     } catch (error) {
       console.error('Failed to compute overlay position:', error);
     }
@@ -191,7 +221,7 @@ export class ForgeAiOverlayComponent extends LitElement {
 
   public override render(): TemplateResult {
     return html`
-      <div class="ai-overlay" popover="manual" @toggle=${this._onToggle}>
+      <div class="ai-overlay" popover=${this.dismissMode} @toggle=${this._onToggle}>
         <slot></slot>
       </div>
     `;

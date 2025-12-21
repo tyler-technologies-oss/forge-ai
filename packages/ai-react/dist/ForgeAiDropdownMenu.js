@@ -4,8 +4,15 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiDropdownMenu = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, disabled, variant, selectionMode, value, ...filteredProps } =
-    props;
+  const {
+    open,
+    disabled,
+    variant,
+    selectionMode,
+    value,
+    popoverPlacement,
+    ...filteredProps
+  } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -30,6 +37,7 @@ export const ForgeAiDropdownMenu = forwardRef((props, forwardedRef) => {
       variant: props.variant,
       "selection-mode": props.selectionMode || props["selection-mode"],
       value: props.value,
+      "popover-placement": props.popoverPlacement || props["popover-placement"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

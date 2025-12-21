@@ -34,8 +34,6 @@ declare global {
  * - **'click'**: Opens on click/tap
  * - **'both'**: Opens on both hover and click
  *
- * @since 1.2.0
- *
  * @cssprop --ai-dropdown-menu-item-submenu-open-delay - Delay before opening submenu on hover.
  * @cssprop --ai-dropdown-menu-item-submenu-close-delay - Delay before closing submenu when mouse leaves.
  * @cssprop --ai-dropdown-menu-item-selection-icon-size - Size of selection and submenu icons.
@@ -119,12 +117,6 @@ export class ForgeAiDropdownMenuItemComponent extends LitElement {
    */
   @property({ attribute: 'submenu-close-delay', type: Number })
   public submenuCloseDelay = 300;
-
-  @queryAssignedElements({ slot: 'start', flatten: true })
-  private _startSlottedElements!: Element[];
-
-  @queryAssignedElements({ slot: 'end', flatten: true })
-  private _endSlottedElements!: Element[];
 
   @queryAssignedNodes({ slot: 'description', flatten: true })
   private _descriptionSlottedNodes!: Node[];
@@ -337,14 +329,6 @@ export class ForgeAiDropdownMenuItemComponent extends LitElement {
     }
   }
 
-  private get _hasStartIcon(): boolean {
-    return this._startSlottedElements.length > 0;
-  }
-
-  private get _hasEndIcon(): boolean {
-    return this._endSlottedElements.length > 0;
-  }
-
   private get _hasDescriptionContent(): boolean {
     return this._descriptionSlottedNodes.length > 0;
   }
@@ -415,8 +399,7 @@ export class ForgeAiDropdownMenuItemComponent extends LitElement {
 
     return html`
       <div class=${classMap(classes)}>
-        ${when(this._shouldReserveSelectionSpace, () => this.#selectionIconSlot)}
-        ${when(this._hasStartIcon, () => this.#startIconSlot)}
+        ${when(this._shouldReserveSelectionSpace, () => this.#selectionIconSlot)} ${this.#startIconSlot}
         <div class="ai-dropdown-menu-item__content" @slotchange=${this.#handleSlotChange}>
           <span class="ai-dropdown-menu-item__text"><slot></slot></span>
           ${when(
@@ -425,7 +408,7 @@ export class ForgeAiDropdownMenuItemComponent extends LitElement {
             () => html`<slot name="description"></slot>`
           )}
         </div>
-        ${when(this._hasEndIcon, () => this.#endIconSlot)}
+        ${this.#endIconSlot}
         ${when(
           this._hasSubmenu,
           () => html`<div class="ai-dropdown-menu-item__submenu-arrow-container">${this._submenuArrowIcon}</div>`

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI-Powered Form Demos</title>
+    <link rel="stylesheet" href="https://cdn.forge.tylertech.com/v1/css/tyler-font.css" />
+    <link rel="stylesheet" href="./styles.scss" />
+    <script>
+      window.TylerForgeGlobalConfiguration = {
+        'forge-field': {
+          labelPosition: 'block-start'
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <forge-scaffold>
+      <forge-app-bar slot="header" theme-mode="scoped" title-text="AI Standalone Demos">
+        <forge-icon name="forge_logo" slot="logo"></forge-icon>
+      </forge-app-bar>
+
+      <forge-toolbar slot="body-header" auto-height>
+        <forge-tab-bar id="tabBar" clustered active-tab="0">
+          <forge-tab value="extractor">Form Data Extractor</forge-tab>
+          <forge-tab value="smart-complete">Smart Completion</forge-tab>
+          <forge-tab value="explainer">AI Explainer</forge-tab>
+          <forge-tab value="multi-turn">Multi-Turn Agent</forge-tab>
+        </forge-tab-bar>
+      </forge-toolbar>
+
+      <main slot="body">
+        <forge-card id="tabContent">
+          <!-- Form Data Extractor -->
+          <div id="extractor-tab" class="tab-panel">
+            <h2 class="forge-typography--heading4">Form Data Extractor</h2>
+            <p class="forge-typography--subheading2 description">
+              Paste unstructured text and watch AI auto-fill the form fields
+            </p>
+
+            <forge-stack>
+              <forge-text-field>
+                <label for="extractorInput">Input Text</label>
+                <textarea id="extractorInput" rows="4">
+  Hey, I'm Sarah Johnson from Acme Corp. You can reach me at sarah.johnson@acme.com or call 555-0123.
+  Ship the order to 742 Evergreen Terrace, Springfield, IL 62701.
+  Invoice to the same address, attention: Accounts Payable Department.</textarea
+                >
+              </forge-text-field>
+
+              <div class="actions">
+                <forge-ai-button id="extractorBtn">
+                  <span>Extract & Fill Form</span>
+                  <forge-circular-progress id="extractorProgress" style="display: none;"></forge-circular-progress>
+              </div>
+
+              <div class="form-section">
+                <forge-text-field>
+                  <label for="extractor-name">Full Name</label>
+                  <input type="text" id="extractor-name" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-company">Company</label>
+                  <input type="text" id="extractor-company" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-email">Email</label>
+                  <input type="email" id="extractor-email" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-phone">Phone</label>
+                  <input type="tel" id="extractor-phone" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-address">Street Address</label>
+                  <input type="text" id="extractor-address" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-city">City</label>
+                  <input type="text" id="extractor-city" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-state">State</label>
+                  <input type="text" id="extractor-state" />
+                </forge-text-field>
+                <forge-text-field>
+                  <label for="extractor-zip">ZIP</label>
+                  <input type="text" id="extractor-zip" />
+                </forge-text-field>
+              </div>
+            </forge-stack>
+          </div>
+
+          <!-- Smart Form Completion -->
+          <div id="smart-complete-tab" class="tab-panel" style="display: none">
+            <h2 class="forge-typography--heading4">Smart Form Completion</h2>
+            <p class="forge-typography--subheading2 description">
+              Start filling out the form and let AI suggest the rest
+            </p>
+
+            <div class="form-section">
+              <forge-text-field>
+                <label for="sc-company">Company Name</label>
+                <input type="text" id="sc-company" value="Tyler Technologies" />
+              </forge-text-field>
+              <div class="actions">
+                <forge-ai-button id="scBtn">
+                  <span>AI: Complete This Form</span>
+                  <forge-circular-progress slot="end" id="scProgress" style="display: none;"></forge-circular-progress>
+                </forge-ai-button>
+              </div>
+              <forge-text-field>
+                <label for="sc-industry">Industry</label>
+                <input type="text" id="sc-industry" />
+              </forge-text-field>
+              <forge-text-field>
+                <label for="sc-headquarters">Headquarters</label>
+                <input type="text" id="sc-headquarters" />
+              </forge-text-field>
+              <forge-text-field>
+                <label for="sc-website">Website</label>
+                <input type="url" id="sc-website" />
+              </forge-text-field>
+              <forge-text-field>
+                <label for="sc-employees">Employee Count</label>
+                <input type="text" id="sc-employees" />
+              </forge-text-field>
+              <forge-text-field>
+                <label for="sc-founded">Founded Year</label>
+                <input type="text" id="sc-founded" />
+              </forge-text-field>
+            </div>
+          </div>
+
+          <!-- AI Explainer -->
+          <div id="explainer-tab" class="tab-panel" style="display: none">
+            <h2 class="forge-typography--heading4">AI Explainer</h2>
+            <p class="forge-typography--subheading2 description">
+              Click AI buttons next to technical terms to get simple explanations
+            </p>
+
+            <div class="technical-content">
+              <p class="forge-typography--body1">
+                Our microservices architecture utilizes an
+                <span class="term">API Gateway</span>
+                <forge-icon-button variant="outlined" id="api-gateway-btn" density="small" theme="tertiary" aria-label="Explain API Gateway" data-term="API Gateway">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                to manage and route incoming requests. Authentication is handled through
+                <span class="term">OAuth 2.0</span>
+                <forge-icon-button variant="outlined" id="oauth-btn" density="small" theme="tertiary" aria-label="Explain OAuth 2.0" data-term="OAuth 2.0">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                with
+                <span class="term">JWT</span>
+                <forge-icon-button variant="outlined" id="jwt-btn" density="small" theme="tertiary" aria-label="Explain JWT" data-term="JWT">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                tokens for secure session management.
+              </p>
+              <p class="forge-typography--body1">
+                The application layer communicates with our data services using
+                <span class="term">GraphQL</span>
+                <forge-icon-button variant="outlined" id="graphql-btn" density="small" theme="tertiary" aria-label="Explain GraphQL" data-term="GraphQL">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                queries, while the infrastructure runs on
+                <span class="term">Kubernetes</span>
+                <forge-icon-button variant="outlined" id="kubernetes-btn" density="small" theme="tertiary" aria-label="Explain Kubernetes" data-term="Kubernetes">
+                  <forge-icon name="sparkles"></forge-icon>
+                  <forge-circular-progress style="display: none;"></forge-circular-progress>
+                </forge-icon-button>
+                clusters for scalability and resilience.
+              </p>
+
+              <forge-popover persistent trigger-type="manual" trigger-type="manual" arrow id="api-gateway-popover" anchor="api-gateway-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="filled">Close</forge-button>
+                </div>
+              </forge-popover>
+
+              <forge-popover persistent trigger-type="manual" arrow id="oauth-popover" anchor="oauth-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="filled">Close</forge-button>
+                </div>
+              </forge-popover>
+
+              <forge-popover persistent trigger-type="manual" arrow id="jwt-popover" anchor="jwt-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="filled">Close</forge-button>
+                </div>
+              </forge-popover>
+
+              <forge-popover persistent trigger-type="manual" arrow id="graphql-popover" anchor="graphql-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="filled">Close</forge-button>
+                </div>
+              </forge-popover>
+
+              <forge-popover persistent trigger-type="manual" arrow id="kubernetes-popover" anchor="kubernetes-btn">
+                <h2 class="forge-typography--heading2">
+                  <forge-icon name="sparkles" theme="tertiary"></forge-icon>
+                  AI Explanation
+                </h2>
+                <div class="popover-content">
+                  <div class="explanation-text"></div>
+                  <forge-button class="close-btn" variant="text">Close</forge-button>
+                </div>
+              </forge-popover>
+            </div>
+          </div>
+
+          <!-- Multi-Turn Agent -->
+          <div id="multi-turn-tab" class="tab-panel" style="display: none">
+            <h2 class="forge-typography--heading4">Multi-Turn Agent</h2>
+            <p class="forge-typography--subheading2 description">
+              Watch the agent make multiple tool calls to gather information before responding
+            </p>
+
+            <forge-stack inline>
+              <forge-text-field>
+                <label for="mt-destination">Destination</label>
+                <input type="text" id="mt-destination" value="Paris" placeholder="e.g., Paris" />
+              </forge-text-field>
+              <forge-date-picker id="mt-date-picker">
+                <forge-text-field>
+                  <label for="mt-date">Travel Date</label>
+                  <input type="text" />
+                </forge-text-field>
+              </forge-date-picker>
+              <forge-ai-button id="mtPlanBtn" style="align-self: flex-end;">
+                <span>Plan My Trip</span>
+                <forge-circular-progress slot="end" id="mtProgress" style="display: none;"></forge-circular-progress>
+              </forge-ai-button>
+            </forge-stack>
+
+            <div id="mtResultsSection" class="results-section" style="display: none;">
+              <div class="trip-info-grid">
+                <div class="trip-info-container" style="grid-column: 1 / 3;">
+                  <h3 class="forge-typography--heading2">Weather</h3>
+                  <forge-list id="mtWeatherList"></forge-list>
+                </div>
+                <div class="trip-info-container">
+                  <h3 class="forge-typography--heading2">Restaurants</h3>
+                  <forge-list id="mtRestaurantsList"></forge-list>
+                </div>
+                <div class="trip-info-container">
+                  <h3 class="forge-typography--heading2">Hotels</h3>
+                  <forge-list id="mtHotelsList"></forge-list>
+                </div>
+              </div>
+              <div class="agent-message-container">
+                <h3 class="forge-typography--heading2">Agent Summary</h3>
+                <div id="mtAgentMessage" class="agent-message-content"></div>
+              </div>
+            </div>
+          </div>
+        </forge-card>
+      </main>
+    </forge-scaffold>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

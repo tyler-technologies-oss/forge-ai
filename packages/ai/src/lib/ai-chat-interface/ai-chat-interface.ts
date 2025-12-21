@@ -1,7 +1,6 @@
 import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
-import { customElement, queryAssignedNodes, state } from 'lit/decorators.js';
+import { customElement, queryAssignedNodes } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
-import '../ai-empty-state/ai-empty-state';
 import '../ai-gradient-container/ai-gradient-container';
 
 import styles from './ai-chat-interface.scss?inline';
@@ -20,6 +19,7 @@ export const AiChatInterfaceComponentTagName: keyof HTMLElementTagNameMap = 'for
  * @slot - Default slot for messages
  * @slot header - Slot for AI chat header component
  * @slot suggestions - Slot for AI suggestions component
+ * @slot attachments - Slot for file attachments component
  * @slot prompt - Slot for AI prompt component
  */
 @customElement(AiChatInterfaceComponentTagName)
@@ -29,10 +29,12 @@ export class AiChatInterfaceComponent extends LitElement {
   @queryAssignedNodes({ slot: 'suggestions', flatten: true })
   private _slottedSuggestionsNodes!: Node[];
 
-  @state()
-  private _hasMessages = false;
+  @queryAssignedNodes({ slot: 'attachments', flatten: true })
+  private _slottedAttachmentsNodes!: Node[];
 
   readonly #headerSlot = html`<slot name="header" @slotchange=${this.#handleSlotChange}></slot>`;
+
+  readonly #attachmentsSlot = html`<slot name="attachments" @slotchange=${this.#handleSlotChange}></slot>`;
 
   readonly #suggestionsSlot = html`<slot name="suggestions" @slotchange=${this.#handleSlotChange}></slot>`;
 
@@ -45,54 +47,49 @@ export class AiChatInterfaceComponent extends LitElement {
     );
   }
 
+  get #attachments(): TemplateResult | typeof nothing {
+    const hasAttachments = this._slottedAttachmentsNodes.length > 0;
+    return when(
+      hasAttachments,
+      () => html`<div class="attachments-container">${this.#attachmentsSlot}</div>`,
+      () => html`${this.#attachmentsSlot}`
+    );
+  }
+
   readonly #promptSlot = html`<slot name="prompt" @slotchange=${this.#handleSlotChange}></slot>`;
 
   get #prompt(): TemplateResult {
     return this.#promptSlot;
   }
 
-  readonly #messagesSlot = html`<slot @slotchange=${this.#handleSlotChange}></slot>`;
-
   get #messagesContainer(): TemplateResult {
     return html`
       <div class="messages-container" part="messages">
-        ${this.#messagesSlot} ${!this._hasMessages ? html`<forge-ai-empty-state></forge-ai-empty-state>` : nothing}
+        <slot @slotchange=${this.#handleSlotChange}></slot>
       </div>
     `;
   }
 
   #handleSlotChange(evt: Event): void {
-    const slotName = (evt.target as HTMLSlotElement).name || 'default';
+    const slotName = (evt.target as HTMLSlotElement).name;
 
-    if (slotName === 'default') {
-      // Check if there are any assigned elements (messages)
-      const slot = evt.target as HTMLSlotElement;
-      const assignedElements = slot.assignedElements();
-      this._hasMessages = assignedElements.length > 0;
-    }
-
-    if (['header', 'suggestions', 'prompt', 'default'].includes(slotName)) {
+    if (['header', 'suggestions', 'prompt', 'attachments'].includes(slotName)) {
       this.requestUpdate();
     }
   }
 
-  /**
-   * Scrolls the messages container to the bottom with smooth animation
-   */
   public scrollToBottom(): void {
-    const messagesContainer = this.shadowRoot?.querySelector('.messages-container') as HTMLElement;
-    if (messagesContainer) {
-      messagesContainer.scrollTo({
-        top: messagesContainer.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
+    const container = this.shadowRoot?.querySelector('.messages-container');
+    container?.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth'
+    });
   }
 
   public override render(): TemplateResult {
     return html`
       <div class="ai-chat-interface">
-        ${this.#headerSlot} ${this.#messagesContainer} ${this.#suggestions}
+        ${this.#headerSlot} ${this.#messagesContainer} ${this.#suggestions} ${this.#attachments}
         <div class="prompt-container">${this.#prompt}</div>
       </div>
     `;

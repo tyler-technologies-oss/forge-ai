@@ -3,22 +3,21 @@ import { ForgeAiGradientContainer as ForgeAiGradientContainerElement } from "@ty
 
 export type { ForgeAiGradientContainerElement };
 
-export interface ForgeAiGradientContainerProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiGradientContainerProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Gradient intensity variant */
   variant?: ForgeAiGradientContainerElement["variant"];
 

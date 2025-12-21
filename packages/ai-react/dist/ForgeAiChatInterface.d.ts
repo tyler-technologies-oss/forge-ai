@@ -3,22 +3,21 @@ import { ForgeAiChatInterface as ForgeAiChatInterfaceElement } from "@tylertech/
 
 export type { ForgeAiChatInterfaceElement };
 
-export interface ForgeAiChatInterfaceProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiChatInterfaceProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -46,13 +45,11 @@ export interface ForgeAiChatInterfaceProps
  * ---
  *
  *
- * ### **Methods:**
- *  - **scrollToBottom(): _void_** - Scrolls the messages container to the bottom with smooth animation
- *
  * ### **Slots:**
  *  - _default_ - Default slot for messages
  * - **header** - Slot for AI chat header component
  * - **suggestions** - Slot for AI suggestions component
+ * - **attachments** - Slot for file attachments component
  * - **prompt** - Slot for AI prompt component
  */
 export const ForgeAiChatInterface: React.ForwardRefExoticComponent<ForgeAiChatInterfaceProps>;

@@ -3,22 +3,21 @@ import { ForgeAiReasoningHeader as ForgeAiReasoningHeaderElement } from "@tylert
 
 export type { ForgeAiReasoningHeaderElement };
 
-export interface ForgeAiReasoningHeaderProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiReasoningHeaderProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Whether the header is expanded */
   expanded?: boolean;
 

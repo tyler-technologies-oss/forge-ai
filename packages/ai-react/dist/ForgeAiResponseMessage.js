@@ -4,12 +4,28 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiResponseMessage = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
+  const { complete, enableReactions, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
     ref,
-    "forge-ai-response-message-action",
-    props.onForgeAiResponseMessageAction,
+    "forge-ai-response-message-copy",
+    props.onForgeAiResponseMessageCopy,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-response-message-refresh",
+    props.onForgeAiResponseMessageRefresh,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-response-message-thumbs-up",
+    props.onForgeAiResponseMessageThumbsUp,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-response-message-thumbs-down",
+    props.onForgeAiResponseMessageThumbsDown,
   );
 
   return React.createElement(
@@ -23,12 +39,14 @@ export const ForgeAiResponseMessage = forwardRef((props, forwardedRef) => {
           forwardedRef.current = node;
         }
       },
-      ...props,
+      ...filteredProps,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
+      complete: props.complete ? true : undefined,
+      "enable-reactions": props.enableReactions ? true : undefined,
       style: { ...props.style },
     },
     props.children,

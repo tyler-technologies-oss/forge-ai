@@ -1,12 +1,13 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
-import type { AiModalComponent } from '../ai-modal';
-import '../ai-modal';
-import '../ai-chat-interface';
-import '../ai-chat-header';
+import '../ai-chatbot';
+import type { AgentAdapter, Suggestion, FeatureToggle } from '../ai-chatbot';
 import '../ai-gradient-container';
+import '../ai-modal';
+import type { AiModalComponent } from '../ai-modal';
 
 import styles from './ai-embedded-chat.scss?inline';
 
@@ -26,15 +27,22 @@ export const AiEmbeddedChatComponentTagName: keyof HTMLElementTagNameMap = 'forg
 /**
  * @tag forge-ai-embedded-chat
  *
- * @slot - Default slot for messages (ai-user-message, ai-response-message components)
- * @slot suggestions - Slot for AI suggestions component
- * @slot prompt - Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.
+ * @slot header-title - Slot for custom header title content (default: "AI Assistant")
+ * @slot empty-state-heading - Slot for custom empty state heading
  *
  * @event {CustomEvent<void>} forge-ai-embedded-chat-expand - Fired when the chat is expanded to modal view
  * @event {CustomEvent<void>} forge-ai-embedded-chat-collapse - Fired when the chat is collapsed from modal view
  *
- * @description A form factor component that embeds ai-chat-interface within ai-gradient-container
- * for inline page usage with optional modal expansion functionality.
+ * @description A form factor component that embeds ai-chatbot within ai-gradient-container
+ * for inline page usage with optional modal expansion functionality. When expanded, the chat
+ * is displayed in a fullscreen modal. The chatbot component handles all chat UI.
+ * All chatbot events (message-sent, message-received, tool-call, error, clear, info, connected, disconnected) bubble through unchanged.
+ *
+ * @property {AgentAdapter} adapter - Required. The adapter for communication with the AI service
+ * @property {FeatureToggle} fileUpload - Enable file upload functionality (default: 'off')
+ * @property {string} placeholder - Placeholder text for input (default: "Ask a question...")
+ * @property {Suggestion[]} suggestions - Optional suggestions for empty state
+ * @property {string} gradientVariant - Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium')
  */
 @customElement(AiEmbeddedChatComponentTagName)
 export class AiEmbeddedChatComponent extends LitElement {
@@ -52,6 +60,21 @@ export class AiEmbeddedChatComponent extends LitElement {
   @property({ attribute: 'gradient-variant' })
   public gradientVariant: 'low' | 'medium' | 'high' = 'medium';
 
+  @property({ attribute: false })
+  public adapter?: AgentAdapter;
+
+  @property({ attribute: 'thread-id' })
+  public threadId?: string;
+
+  @property({ attribute: 'file-upload' })
+  public fileUpload: FeatureToggle = 'off';
+
+  @property()
+  public placeholder = 'Ask a question...';
+
+  @property({ attribute: false })
+  public suggestions?: Suggestion[];
+
   @state()
   private _isModalFullscreen = false;
 
@@ -66,18 +89,21 @@ export class AiEmbeddedChatComponent extends LitElement {
 
   get #chatInterface(): TemplateResult {
     return html`
-      <forge-ai-chat-interface>
-        <forge-ai-chat-header
-          slot="header"
-          @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
-          @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
-          show-expand-button
-          ?expanded=${this.expanded}>
-        </forge-ai-chat-header>
-        <slot></slot>
-        <slot name="suggestions" slot="suggestions"></slot>
-        <slot name="prompt" slot="prompt"></slot>
-      </forge-ai-chat-interface>
+      <forge-ai-chatbot
+        .adapter=${this.adapter}
+        thread-id=${ifDefined(this.threadId)}
+        file-upload=${this.fileUpload}
+        placeholder=${this.placeholder}
+        .suggestions=${this.suggestions}
+        show-expand-button
+        ?show-minimize-button=${this.expanded}
+        minimize-icon="default"
+        ?expanded=${this.expanded}
+        @forge-ai-chatbot-expand=${this.#handleChatbotExpand}
+        @forge-ai-chatbot-minimize=${this.#handleChatbotMinimize}>
+        <slot name="header-title" slot="header-title"></slot>
+        <slot name="empty-state-heading" slot="empty-state-heading"></slot>
+      </forge-ai-chatbot>
     `;
   }
 
@@ -123,7 +149,7 @@ export class AiEmbeddedChatComponent extends LitElement {
     }
   }
 
-  #handleHeaderExpand(): void {
+  #handleChatbotExpand(): void {
     this.expanded = !this.expanded;
     if (this.expanded) {
       this.#dispatchEvent('forge-ai-embedded-chat-expand');
@@ -132,7 +158,7 @@ export class AiEmbeddedChatComponent extends LitElement {
     }
   }
 
-  #handleHeaderMinimize(): void {
+  #handleChatbotMinimize(): void {
     this.collapse();
   }
 

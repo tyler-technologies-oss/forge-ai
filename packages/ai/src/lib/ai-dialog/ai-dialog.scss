@@ -92,7 +92,7 @@ forge-ai-chat-interface {
 
 .drag-handle {
   position: absolute;
-  top: #{forge-spacing.variable(xxsmall)};
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;

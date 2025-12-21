@@ -20,7 +20,7 @@ const meta = {
   title: 'AI Components/Primitives/Chat Header',
   component,
   argTypes: {
-    title: {
+    titleText: {
       control: 'text',
       description: 'The title text to display in the header slot'
     },
@@ -41,34 +41,24 @@ const meta = {
       options: ['default', 'panel'],
       description: 'Controls which minimize icon to display'
     },
-    showDropdownMenu: {
-      control: 'boolean',
-      description: 'Controls whether the dropdown menu is visible'
-    },
-    showClearChat: {
-      control: 'boolean',
-      description: 'Controls whether the clear chat menu item is visible'
-    },
-    showInfo: {
-      control: 'boolean',
-      description: 'Controls whether the info menu item is visible'
-    },
     customIcon: {
       control: { type: 'select' },
       options: ['default', 'emoji', 'custom-svg'],
       description: 'Choose icon type to display'
+    },
+    useLongTitle: {
+      control: 'boolean',
+      description: 'Toggle to test with a long Lorem Ipsum title for styling'
     }
   },
   args: {
-    title: 'AI Assistant',
+    titleText: 'AI Assistant',
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,
     minimizeIcon: 'default',
-    showDropdownMenu: true,
-    showClearChat: true,
-    showInfo: true,
-    customIcon: 'default'
+    customIcon: 'default',
+    useLongTitle: false
   },
   render: (args: any) => {
     const getCustomIcon = () => {
@@ -87,21 +77,23 @@ const meta = {
       }
     };
 
+    const titleText = args.useLongTitle
+      ? "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+      : args.titleText;
+
     return html`
       <forge-ai-chat-header
+        .titleText=${titleText}
         .showExpandButton=${args.showExpandButton}
         .showMinimizeButton=${args.showMinimizeButton}
         .expanded=${args.expanded}
         .minimizeIcon=${args.minimizeIcon}
-        .showDropdownMenu=${args.showDropdownMenu}
-        .showClearChat=${args.showClearChat}
-        .showInfo=${args.showInfo}
+        heading-level="2"
         @forge-ai-chat-header-expand=${expandAction}
         @forge-ai-chat-header-minimize=${minimizeAction}
         @forge-ai-chat-header-clear=${clearChatAction}
         @forge-ai-chat-header-info=${infoAction}>
         ${getCustomIcon()}
-        <h1 slot="title">${args.title}</h1>
       </forge-ai-chat-header>
     `;
   }

@@ -2,7 +2,16 @@ import React, { forwardRef } from "react";
 import "@tylertech/forge-ai/core/overlay";
 
 export const ForgeAiOverlay = forwardRef((props, forwardedRef) => {
-  const { flip, shift, open, anchor, placement, ...filteredProps } = props;
+  const {
+    flip,
+    shift,
+    open,
+    anchor,
+    placement,
+    arrowElement,
+    dismissMode,
+    ...filteredProps
+  } = props;
 
   return React.createElement(
     "forge-ai-overlay",
@@ -10,6 +19,8 @@ export const ForgeAiOverlay = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       anchor: props.anchor,
       placement: props.placement,
+      arrowElement: props.arrowElement,
+      "dismiss-mode": props.dismissMode || props["dismiss-mode"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

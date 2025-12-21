@@ -1,0 +1,138 @@
+import { Meta, Title, Canvas } from '@storybook/addon-docs/blocks';
+import CustomArgTypes from '../../../blocks/CustomArgTypes';
+import * as AiChatbotStories from './AiChatbot.stories';
+
+<Meta of={AiChatbotStories} />
+
+<Title />
+
+The AI Chatbot component provides a complete, self-contained chat interface that implements the AG-UI protocol using an adapter pattern. It handles message rendering, streaming responses, tool execution, and file attachments.
+
+<Canvas of={AiChatbotStories.Demo} />
+
+## Features
+
+- **Adapter Pattern**: Abstract communication layer for AG-UI or custom protocols
+- **Streaming Support**: Real-time message streaming with visual indicators
+- **Tool Execution**: Client-side tool registration and execution
+- **Markdown Rendering**: Rich text formatting with code blocks, lists, and links
+- **File Attachments**: Optional file upload capability
+- **Client Context**: Inject application context into conversations
+- **Event-Driven**: Comprehensive event system for integration
+- **User Reactions**: Optional thumbs up/down feedback buttons
+
+## Basic Usage
+
+```typescript
+import { AgUiAdapter, generateId } from '@tylertech/forge-ai';
+
+const adapter = new AgUiAdapter(
+  {
+    url: 'https://api.example.com/api/agents/your-agent-id',
+    credentials: 'include'
+  },
+  generateId('thread')
+);
+
+const chatbot = document.createElement('forge-ai-chatbot');
+chatbot.adapter = adapter;
+document.body.appendChild(chatbot);
+```
+
+## With Tools
+
+Register client-side tools for the agent to execute:
+
+```typescript
+const tools = [
+  {
+    name: 'getCurrentWeather',
+    description: 'Get the current weather for a location',
+    parameters: {
+      type: 'object',
+      properties: {
+        location: { type: 'string' }
+      },
+      required: ['location']
+    }
+  }
+];
+
+chatbot.tools = tools;
+
+chatbot.addEventListener('forge-ai-chatbot-tool-call', async e => {
+  const { toolName, arguments: args, respond } = e.detail;
+
+  if (toolName === 'getCurrentWeather') {
+    const weather = await fetchWeather(args.location);
+    await respond(weather);
+  }
+});
+```
+
+## Creating a Custom Adapter
+
+Extend the `AgentAdapter` class for custom protocols:
+
+```typescript
+import { AgentAdapter, type ChatMessage, type FileAttachment } from '@tylertech/forge-ai';
+
+class CustomAdapter extends AgentAdapter {
+  public async connect(): Promise<void> {
+    // Initialize connection
+    this.updateState({ isConnected: true });
+  }
+
+  public async disconnect(): Promise<void> {
+    // Clean up connection
+    this.updateState({ isConnected: false });
+  }
+
+  public sendMessage(messages: ChatMessage[], attachments?: FileAttachment[]): void {
+    // Send message and emit events back
+    this.updateState({ isRunning: true });
+
+    const messageId = 'msg-' + Date.now();
+
+    // Start message
+    this.emitMessageStart(messageId);
+
+    // Stream content
+    this.emitMessageDelta(messageId, 'Hello');
+    this.emitMessageDelta(messageId, ' World');
+
+    // End message
+    this.emitMessageEnd(messageId);
+    this.updateState({ isRunning: false });
+  }
+
+  public sendToolResult(toolCallId: string, result: unknown): void {
+    // Handle tool result response
+  }
+
+  public abort(): void {
+    // Cancel ongoing requests
+    this.updateState({ isRunning: false });
+  }
+}
+
+// Usage
+const adapter = new CustomAdapter();
+```
+
+### Protected Methods for Subclasses
+
+- `emitMessageStart(messageId: string)`: Signal start of new message
+- `emitMessageDelta(messageId: string, delta: string)`: Stream content chunk
+- `emitMessageEnd(messageId: string)`: Signal message complete
+- `emitToolCall(event: ToolCallEvent)`: Request tool execution
+- `emitError(message: string)`: Signal error occurred
+- `updateState(updates: Partial<AdapterState>)`: Update connection/running state
+
+## Keyboard Shortcuts
+
+- **Escape**: Abort the current streaming response
+
+## API
+
+<CustomArgTypes />

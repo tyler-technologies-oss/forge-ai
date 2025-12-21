@@ -36,7 +36,8 @@
   flex-direction: column;
   gap: #{forge-spacing.variable(small)};
 
-  > button {
+  > .container,
+  .container > button {
     width: 100%;
   }
 }
@@ -45,4 +46,17 @@
   --forge-button-shape: #{forge-shape.variable(medium)};
   --forge-button-tonal-background: #{forge-theme.variable(tertiary-container)};
   --forge-button-tonal-color: #{forge-theme.variable(on-tertiary-container)};
+  --forge-button-height: 32px;
+
+  max-inline-size: 320px;
+
+  .suggestion-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.suggestion-tooltip {
+  --forge-tooltip-content-align: start;
 }

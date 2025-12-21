@@ -12,6 +12,7 @@ declare global {
 
   interface HTMLElementEventMap {
     'forge-ai-file-picker-change': CustomEvent<ForgeAiFilePickerChangeEventData>;
+    'forge-ai-file-picker-error': CustomEvent<ForgeAiFilePickerErrorEventData>;
   }
 }
 
@@ -23,6 +24,18 @@ export interface ForgeAiFilePickerChangeEventData {
   file: File;
   /** Timestamp when the file was selected */
   timestamp: number;
+}
+
+/**
+ * Event data interface for the file picker error event.
+ */
+export interface ForgeAiFilePickerErrorEventData {
+  /** The error type */
+  type: 'size' | 'duplicate';
+  /** The error message */
+  message: string;
+  /** The file that caused the error */
+  filename: string;
 }
 
 export type AiFilePickerVariant = 'button' | 'icon-button';
@@ -81,6 +94,18 @@ export class AiFilePickerComponent extends LitElement {
   @property({ type: Boolean })
   public multiple = false;
 
+  /**
+   * Maximum file size in bytes. Default is 10MB.
+   */
+  @property({ type: Number, attribute: 'max-size' })
+  public maxSize = 10485760;
+
+  /**
+   * Array of currently selected file names for duplicate checking.
+   */
+  @property({ attribute: false })
+  public selectedFiles: string[] = [];
+
   @state()
   private _isDragOver = false;
 
@@ -108,12 +133,13 @@ export class AiFilePickerComponent extends LitElement {
     this._fileInput.click();
   }
 
-  private _handleFileChange(event: Event): void {
+  private async _handleFileChange(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+    const files = input.files;
 
-    if (file) {
-      this._emitFileChangeEvent(file);
+    if (files && files.length > 0) {
+      await this.#processFiles(Array.from(files));
+      input.value = '';
     }
   }
 
@@ -145,7 +171,7 @@ export class AiFilePickerComponent extends LitElement {
     }
   };
 
-  private _onDrop = (event: DragEvent): void => {
+  private _onDrop = async (event: DragEvent): Promise<void> => {
     if (this.disabled) {
       return;
     }
@@ -156,17 +182,66 @@ export class AiFilePickerComponent extends LitElement {
 
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
-      const file = files[0];
-      this._emitFileChangeEvent(file);
+      await this.#processFiles(Array.from(files));
     }
   };
 
-  private _emitFileChangeEvent(file: File): void {
+  async #processFiles(files: File[]): Promise<void> {
+    const filesToProcess = this.multiple ? files : [files[0]];
+
+    for (const file of filesToProcess) {
+      if (!this.#validateFile(file)) {
+        continue;
+      }
+
+      this.#emitFileChangeEvent(file);
+    }
+  }
+
+  #validateFile(file: File): boolean {
+    const isDuplicate = this.selectedFiles.some(
+      name => name === file.name && this.selectedFiles.filter(n => n === file.name).length > 0
+    );
+
+    if (isDuplicate) {
+      this.#emitError('duplicate', `File "${file.name}" is already selected`, file.name);
+      return false;
+    }
+
+    if (file.size > this.maxSize) {
+      const maxSizeMB = (this.maxSize / (1024 * 1024)).toFixed(1);
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      this.#emitError(
+        'size',
+        `File "${file.name}" (${fileSizeMB}MB) exceeds maximum size of ${maxSizeMB}MB`,
+        file.name
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  #emitFileChangeEvent(file: File): void {
     this.dispatchEvent(
       new CustomEvent<ForgeAiFilePickerChangeEventData>('forge-ai-file-picker-change', {
         detail: {
           file,
           timestamp: Date.now()
+        },
+        bubbles: true,
+        composed: true
+      })
+    );
+  }
+
+  #emitError(type: ForgeAiFilePickerErrorEventData['type'], message: string, filename: string): void {
+    this.dispatchEvent(
+      new CustomEvent<ForgeAiFilePickerErrorEventData>('forge-ai-file-picker-error', {
+        detail: {
+          type,
+          message,
+          filename
         },
         bubbles: true,
         composed: true

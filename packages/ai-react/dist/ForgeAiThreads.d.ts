@@ -6,22 +6,21 @@ import {
 
 export type { ForgeAiThreadsElement, CustomEvent };
 
-export interface ForgeAiThreadsProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiThreadsProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Array of threads to display in the navigation list */
   threads?: ForgeAiThreadsElement["threads"];
 
@@ -67,5 +66,8 @@ export interface ForgeAiThreadsProps
  *  - **forge-ai-threads-select** - Fired when a thread is selected.
  * - **forge-ai-threads-new-chat** - Fired when the new chat button is clicked.
  * - **forge-ai-threads-clear-history** - Fired when the clear history button is clicked.
+ *
+ * ### **Slots:**
+ *  - _default_ - Default slot for chatbot component
  */
 export const ForgeAiThreads: React.ForwardRefExoticComponent<ForgeAiThreadsProps>;

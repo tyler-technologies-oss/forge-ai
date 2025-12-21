@@ -3,22 +3,21 @@ import { ForgeAiThoughtSearchResult as ForgeAiThoughtSearchResultElement } from 
 
 export type { ForgeAiThoughtSearchResultElement };
 
-export interface ForgeAiThoughtSearchResultProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiThoughtSearchResultProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** The step number for this thought search result */
   step?: ForgeAiThoughtSearchResultElement["step"];
 

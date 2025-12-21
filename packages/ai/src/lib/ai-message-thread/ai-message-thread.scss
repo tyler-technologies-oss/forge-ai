@@ -1,0 +1,38 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+
+:host {
+  display: grid;
+  height: 100%;
+}
+
+.message-thread {
+  @include forge-scrollbar.base;
+
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(medium)};
+  padding-block-end: #{forge-spacing.variable(large)};
+  overflow-y: auto;
+  padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxlarge)}
+    #{forge-spacing.variable(medium)};
+
+  // Safari-specific: force scrollbar to always show
+  @media not all and (min-resolution: 0.001dpcm) {
+    @supports (-webkit-appearance: none) {
+      overflow-y: scroll;
+    }
+  }
+}
+
+.thinking-indicator {
+  margin-block-start: #{forge-spacing.variable(xsmall)};
+}
+
+.system-message {
+  @include forge-typography.style(subheading2);
+  color: #{forge-theme.variable(text-medium)};
+  padding-block: #{forge-spacing.variable(small)};
+}

@@ -43,7 +43,7 @@ export default defineConfig({
         title: 'Tyler Forge™ AI Dev'
       }
     }),
-    ViteFullReload(['./**/*.ejs']),
+    ViteFullReload(['./**/*.{ejs,html,css,scss,ts,js}']),
     dts({
       outDir: 'dist',
       exclude: ['node_modules/**', '**/*.test.ts', 'src/stories/**', 'src/dev/**'],

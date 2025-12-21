@@ -1,5 +1,5 @@
 import { LitElement, html, unsafeCSS, type TemplateResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { type OverlayPlacement } from '../overlay/overlay.js';
 import '../overlay/overlay.js';
@@ -13,12 +13,14 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'ai-tooltip-toggle': CustomEvent<{
-      open: boolean;
-      newState: string;
-      oldState: string;
-    }>;
+    'forge-ai-tooltip-toggle': CustomEvent<TooltipToggleEventDetail>;
   }
+}
+
+export interface TooltipToggleEventDetail {
+  open: boolean;
+  newState: string;
+  oldState: string;
 }
 
 export type TooltipPlacement = OverlayPlacement;
@@ -88,8 +90,11 @@ export class ForgeAiTooltipComponent extends LitElement {
   @state()
   private _anchorElement: Element | null = null;
 
-  private _showTimeout: number | null = null;
-  private _hideTimeout: number | null = null;
+  @query('.ai-tooltip__arrow')
+  private _arrowElement?: HTMLElement;
+
+  #showTimeout: number | null = null;
+  #hideTimeout: number | null = null;
 
   public override connectedCallback(): void {
     super.connectedCallback();
@@ -110,9 +115,12 @@ export class ForgeAiTooltipComponent extends LitElement {
     super.disconnectedCallback();
     this._detachEventListeners();
     this._clearTimeouts();
+    document.removeEventListener('keydown', this._handleKeyDown);
   }
 
   public override updated(changedProperties: Map<string | number | symbol, unknown>): void {
+    super.updated(changedProperties);
+
     if (changedProperties.has('for')) {
       this._detachEventListeners();
       this._findAnchorElement();
@@ -121,6 +129,19 @@ export class ForgeAiTooltipComponent extends LitElement {
 
     if (changedProperties.has('open')) {
       this._updateHostAttributes();
+
+      if (this.open) {
+        document.addEventListener('keydown', this._handleKeyDown);
+        // Update arrow element reference after render
+        this.updateComplete.then(() => {
+          const overlay = this.shadowRoot?.querySelector('forge-ai-overlay');
+          if (overlay && this._arrowElement) {
+            overlay.arrowElement = this._arrowElement;
+          }
+        });
+      } else {
+        document.removeEventListener('keydown', this._handleKeyDown);
+      }
     }
   }
 
@@ -167,6 +188,8 @@ export class ForgeAiTooltipComponent extends LitElement {
       case 'hover':
         this._anchorElement.addEventListener('mouseenter', this._handleShow);
         this._anchorElement.addEventListener('mouseleave', this._handleHide);
+        this._anchorElement.addEventListener('focusin', this._handleShow);
+        this._anchorElement.addEventListener('focusout', this._handleHide);
         break;
       case 'focus':
         this._anchorElement.addEventListener('focusin', this._handleShow);
@@ -194,7 +217,7 @@ export class ForgeAiTooltipComponent extends LitElement {
   private _handleShow = (): void => {
     this._clearTimeouts();
     if (this.delay > 0) {
-      this._showTimeout = window.setTimeout(() => {
+      this.#showTimeout = window.setTimeout(() => {
         this.open = true;
       }, this.delay);
     } else {
@@ -205,7 +228,7 @@ export class ForgeAiTooltipComponent extends LitElement {
   private _handleHide = (): void => {
     this._clearTimeouts();
     if (this.hideDelay > 0) {
-      this._hideTimeout = window.setTimeout(() => {
+      this.#hideTimeout = window.setTimeout(() => {
         this.open = false;
       }, this.hideDelay);
     } else {
@@ -217,23 +240,28 @@ export class ForgeAiTooltipComponent extends LitElement {
     this.open = !this.open;
   };
 
-  private _clearTimeouts(): void {
-    if (this._showTimeout) {
-      clearTimeout(this._showTimeout);
-      this._showTimeout = null;
+  private _handleKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape' && this.open) {
+      this.open = false;
     }
-    if (this._hideTimeout) {
-      clearTimeout(this._hideTimeout);
-      this._hideTimeout = null;
+  };
+
+  private _clearTimeouts(): void {
+    if (this.#showTimeout) {
+      clearTimeout(this.#showTimeout);
+      this.#showTimeout = null;
+    }
+    if (this.#hideTimeout) {
+      clearTimeout(this.#hideTimeout);
+      this.#hideTimeout = null;
     }
   }
 
   private _onOverlayToggle = (event: CustomEvent): void => {
     this.open = event.detail.open;
 
-    // Re-emit as tooltip-specific event
     this.dispatchEvent(
-      new CustomEvent('ai-tooltip-toggle', {
+      new CustomEvent('forge-ai-tooltip-toggle', {
         detail: event.detail,
         bubbles: true,
         composed: true
@@ -290,7 +318,10 @@ export class ForgeAiTooltipComponent extends LitElement {
               shift
               .open=${this.open}
               @ai-overlay-toggle=${this._onOverlayToggle}>
-              <div class="ai-tooltip">${this.#tooltipContent}</div>
+              <div class="ai-tooltip">
+                <div class="ai-tooltip__arrow"></div>
+                ${this.#tooltipContent}
+              </div>
             </forge-ai-overlay>`,
         () => html`
           <!-- Content shown when closed for accessibility -->

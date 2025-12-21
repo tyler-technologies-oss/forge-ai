@@ -51,6 +51,7 @@ export class AiButtonComponent extends LitElement {
         <button class="forge-button forge-button--outlined ai-button" .disabled=${this.disabled} variant="outlined">
           <forge-ai-icon></forge-ai-icon>
           <slot></slot>
+          <slot name="end"></slot>
         </button>
       </forge-ai-gradient-container>
     `;
