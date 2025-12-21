@@ -4,16 +4,8 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiAttachment = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const {
-    removable,
-    uploading,
-    filename,
-    size,
-    mimeType,
-    thumbnail,
-    progress,
-    ...filteredProps
-  } = props;
+  const { removable, uploading, filename, size, progress, ...filteredProps } =
+    props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -36,8 +28,6 @@ export const ForgeAiAttachment = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       filename: props.filename,
       size: props.size,
-      "mime-type": props.mimeType || props["mime-type"],
-      thumbnail: props.thumbnail,
       progress: props.progress,
       class: props.className,
       exportparts: props.exportparts,

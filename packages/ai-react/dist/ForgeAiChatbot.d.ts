@@ -42,8 +42,11 @@ export interface ForgeAiChatbotProps extends Pick<
   /** undefined */
   minimizeIcon?: ForgeAiChatbotElement["minimizeIcon"];
 
-  /** undefined */
+  /** The title text to display in the header (default: 'AI Assistant') */
   titleText?: ForgeAiChatbotElement["titleText"];
+
+  /** Controls the heading level for the title content (default: 2) */
+  headingLevel?: ForgeAiChatbotElement["headingLevel"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -130,12 +133,12 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **setMessages(messages: _ChatMessage[]_): _void_** - Sets the message history. Useful for restoring conversation state.
  * - **sendMessage(content: _string_, files: _File[]_): _Promise<void>_** - Programmatically sends a message as the user.
  * - **abort(): _void_** - Aborts the current streaming response.
+ * - **scrollToBottom({ behavior }: _{ behavior?: ScrollBehavior }_): _Promise<void>_** - Scrolls the chat interface to the bottom.
  * - **getThreadState(): __** - Gets the complete serializable thread state including threadId and messages.
  * - **setThreadState(state: _ThreadState_): _void_** - Restores thread state from a serialized ThreadState object.
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content
- * - **header-title** - Slot for custom header title content (default: "AI Assistant")
  * - **empty-state** - Slot for custom empty state content (overrides default suggestions)
  */
 export const ForgeAiChatbot: React.ForwardRefExoticComponent<ForgeAiChatbotProps>;

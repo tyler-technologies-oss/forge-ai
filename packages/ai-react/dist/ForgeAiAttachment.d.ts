@@ -31,12 +31,6 @@ export interface ForgeAiAttachmentProps extends Pick<
   size?: ForgeAiAttachmentElement["size"];
 
   /** undefined */
-  mimeType?: ForgeAiAttachmentElement["mimeType"];
-
-  /** undefined */
-  thumbnail?: ForgeAiAttachmentElement["thumbnail"];
-
-  /** undefined */
   progress?: ForgeAiAttachmentElement["progress"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
@@ -67,7 +61,7 @@ export interface ForgeAiAttachmentProps extends Pick<
 }
 
 /**
- * Displays file attachment information with optional thumbnail and removal capability.
+ * Displays file attachment information with removal capability.
  * ---
  *
  *

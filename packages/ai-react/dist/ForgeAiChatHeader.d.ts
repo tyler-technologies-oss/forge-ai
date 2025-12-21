@@ -33,9 +33,6 @@ export interface ForgeAiChatHeaderProps extends Pick<
   /** Controls which minimize icon to display */
   minimizeIcon?: ForgeAiChatHeaderElement["minimizeIcon"];
 
-  /** The title text to display in the header (used when title slot is empty) */
-  titleText?: ForgeAiChatHeaderElement["titleText"];
-
   /** Controls state of the options dropdown menu */
   options?: ForgeAiChatHeaderElement["options"];
 
@@ -44,6 +41,12 @@ export interface ForgeAiChatHeaderProps extends Pick<
 
   /** Controls state of the clear chat option */
   clearOption?: ForgeAiChatHeaderElement["clearOption"];
+
+  /** Controls the heading level for the title content (default: 2) */
+  headingLevel?: ForgeAiChatHeaderElement["headingLevel"];
+
+  /** The title text to display in the header (default: 'AI Assistant') */
+  titleText?: ForgeAiChatHeaderElement["titleText"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -95,6 +98,5 @@ export interface ForgeAiChatHeaderProps extends Pick<
  *
  * ### **Slots:**
  *  - **icon** - Slot for custom icon (default: forge-ai-icon)
- * - **title** - Slot for custom title text (default: "AI Assistant")
  */
 export const ForgeAiChatHeader: React.ForwardRefExoticComponent<ForgeAiChatHeaderProps>;

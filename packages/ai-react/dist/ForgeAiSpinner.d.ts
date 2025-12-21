@@ -1,9 +1,9 @@
 import React from "react";
-import { ForgeAiChatInterface as ForgeAiChatInterfaceElement } from "@tylertech/forge-ai/ai-chat-interface";
+import { ForgeAiSpinner as ForgeAiSpinnerElement } from "@tylertech/forge-ai/ai-spinner";
 
-export type { ForgeAiChatInterfaceElement };
+export type { ForgeAiSpinnerElement };
 
-export interface ForgeAiChatInterfaceProps extends Pick<
+export interface ForgeAiSpinnerProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -18,6 +18,9 @@ export interface ForgeAiChatInterfaceProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
+  /** undefined */
+  size?: ForgeAiSpinnerElement["size"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -41,15 +44,12 @@ export interface ForgeAiChatInterfaceProps extends Pick<
 }
 
 /**
- *
+ * Indeterminate circular progress indicator.
  * ---
  *
  *
- * ### **Slots:**
- *  - _default_ - Default slot for messages
- * - **header** - Slot for AI chat header component
- * - **suggestions** - Slot for AI suggestions component
- * - **attachments** - Slot for file attachments component
- * - **prompt** - Slot for AI prompt component
+ * ### **CSS Properties:**
+ *  - **--forge-ai-spinner-color** - Color of the spinner indicator _(default: undefined)_
+ * - **--forge-ai-spinner-track-color** - Color of the spinner track _(default: undefined)_
  */
-export const ForgeAiChatInterface: React.ForwardRefExoticComponent<ForgeAiChatInterfaceProps>;
+export const ForgeAiSpinner: React.ForwardRefExoticComponent<ForgeAiSpinnerProps>;

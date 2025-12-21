@@ -14,6 +14,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     placeholder,
     minimizeIcon,
     titleText,
+    headingLevel,
     ...filteredProps
   } = props;
 
@@ -74,6 +75,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       placeholder: props.placeholder,
       "minimize-icon": props.minimizeIcon || props["minimize-icon"],
       "title-text": props.titleText || props["title-text"],
+      "heading-level": props.headingLevel || props["heading-level"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

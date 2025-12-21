@@ -7,7 +7,6 @@ export const ForgeAiFilePicker = forwardRef((props, forwardedRef) => {
   const {
     disabled,
     multiple,
-    generateThumbnails,
     variant,
     accept,
     maxSize,
