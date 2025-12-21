@@ -44,7 +44,9 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
    * Optional handler function invoked when tool is called.
    * Can return a string, object, or void. Strings and objects are used directly as tool results.
    */
-  handler?: (context: HandlerContext<THandlerArgs>) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void;
+  handler?: (
+    context: HandlerContext<THandlerArgs>
+  ) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void;
 }
 
 export interface ChatMessage {
