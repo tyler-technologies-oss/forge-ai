@@ -6,22 +6,21 @@ import {
 
 export type { ForgeAiChatHeaderElement, CustomEvent };
 
-export interface ForgeAiChatHeaderProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiChatHeaderProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Controls whether the expand button is visible */
   showExpandButton?: boolean;
 
@@ -31,17 +30,23 @@ export interface ForgeAiChatHeaderProps
   /** Indicates the current expanded state for displaying the appropriate expand/collapse icon */
   expanded?: boolean;
 
-  /** Controls whether the dropdown menu is visible (default: true) */
-  showDropdownMenu?: boolean;
-
-  /** Controls whether the clear chat menu item is visible (default: true) */
-  showClearChat?: boolean;
-
-  /** Controls whether the info menu item is visible (default: true) */
-  showInfo?: boolean;
-
-  /** Controls which minimize icon to display ('default' | 'panel') */
+  /** Controls which minimize icon to display */
   minimizeIcon?: ForgeAiChatHeaderElement["minimizeIcon"];
+
+  /** Controls state of the options dropdown menu */
+  options?: ForgeAiChatHeaderElement["options"];
+
+  /** Controls state of the export option */
+  exportOption?: ForgeAiChatHeaderElement["exportOption"];
+
+  /** Controls state of the clear chat option */
+  clearOption?: ForgeAiChatHeaderElement["clearOption"];
+
+  /** Controls the heading level for the title content (default: 2) */
+  headingLevel?: ForgeAiChatHeaderElement["headingLevel"];
+
+  /** The title text to display in the header (default: 'AI Assistant') */
+  titleText?: ForgeAiChatHeaderElement["titleText"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -64,11 +69,14 @@ export interface ForgeAiChatHeaderProps
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
+  /** Agent information to display in the info dialog */
+  agentInfo?: ForgeAiChatHeaderElement["agentInfo"];
+
+  /** Fired when the export option is selected */
+  onForgeAiChatHeaderExport?: (event: CustomEvent) => void;
+
   /** Fired when the clear chat option is selected */
   onForgeAiChatHeaderClear?: (event: CustomEvent) => void;
-
-  /** Fired when the info option is selected */
-  onForgeAiChatHeaderInfo?: (event: CustomEvent) => void;
 
   /** Fired when the expand button is clicked */
   onForgeAiChatHeaderExpand?: (event: CustomEvent) => void;
@@ -83,13 +91,12 @@ export interface ForgeAiChatHeaderProps
  *
  *
  * ### **Events:**
- *  - **forge-ai-chat-header-clear** - Fired when the clear chat option is selected
- * - **forge-ai-chat-header-info** - Fired when the info option is selected
+ *  - **forge-ai-chat-header-export** - Fired when the export option is selected
+ * - **forge-ai-chat-header-clear** - Fired when the clear chat option is selected
  * - **forge-ai-chat-header-expand** - Fired when the expand button is clicked
  * - **forge-ai-chat-header-minimize** - Fired when the minimize button is clicked
  *
  * ### **Slots:**
  *  - **icon** - Slot for custom icon (default: forge-ai-icon)
- * - **title** - Slot for custom title text (default: "AI Assistant")
  */
 export const ForgeAiChatHeader: React.ForwardRefExoticComponent<ForgeAiChatHeaderProps>;

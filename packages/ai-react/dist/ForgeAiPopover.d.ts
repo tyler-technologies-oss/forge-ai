@@ -3,22 +3,21 @@ import { ForgeAiPopover as ForgeAiPopoverElement } from "@tylertech/forge-ai/cor
 
 export type { ForgeAiPopoverElement };
 
-export interface ForgeAiPopoverProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiPopoverProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Whether the popover should flip to the opposite side when there's no space. */
   flip?: boolean;
 
@@ -28,11 +27,19 @@ export interface ForgeAiPopoverProps
   /** Whether the popover is open. */
   open?: boolean;
 
+  /** Whether to show an arrow pointing to the anchor element. */
+  arrow?: boolean;
+
   /** The anchor element to position the popover relative to. */
   anchor?: ForgeAiPopoverElement["anchor"];
 
   /** The placement of the popover relative to the anchor. */
   placement?: ForgeAiPopoverElement["placement"];
+
+  /** The dismiss mode for the popover.
+- 'auto': Automatically closes on outside clicks and Escape key
+- 'manual': Requires manual control to close */
+  dismissMode?: ForgeAiPopoverElement["dismissMode"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;

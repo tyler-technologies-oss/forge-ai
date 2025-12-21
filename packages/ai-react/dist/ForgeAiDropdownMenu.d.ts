@@ -6,22 +6,21 @@ import {
 
 export type { ForgeAiDropdownMenuElement, CustomEvent };
 
-export interface ForgeAiDropdownMenuProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiDropdownMenuProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Whether the dropdown is open. */
   open?: boolean;
 
@@ -42,6 +41,10 @@ For single selection: string or null
 For multi selection: string array
 For none mode: null */
   value?: ForgeAiDropdownMenuElement["value"];
+
+  /** The placement of the popover relative to the trigger button.
+Only applies to root-level menus; submenus always use 'right-start'. */
+  popoverPlacement?: ForgeAiDropdownMenuElement["popoverPlacement"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;

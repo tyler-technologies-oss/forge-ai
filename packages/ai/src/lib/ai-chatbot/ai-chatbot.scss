@@ -1,0 +1,41 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+forge-ai-chat-interface {
+  &::part(messages) {
+    overflow: hidden;
+  }
+
+  forge-ai-message-thread {
+    min-height: 0;
+  }
+}
+
+.session-files {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(xsmall)};
+  min-width: 0;
+
+  .session-files-header {
+    @include forge-typography.style(label1, medium);
+    color: #{forge-theme.variable(text-medium)};
+  }
+
+  .session-files-list {
+    @include forge-scrollbar.base;
+
+    display: flex;
+    gap: #{forge-spacing.variable(small)};
+    overflow-x: auto;
+    padding-block-end: #{forge-spacing.variable(xsmall)};
+  }
+}

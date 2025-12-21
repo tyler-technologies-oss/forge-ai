@@ -33,7 +33,7 @@ export class AiSidebarComponent extends LitElement {
    * Indicates whether the sidebar is open.
    */
   @property({ type: Boolean })
-  public open = true;
+  public open = false;
 
   /**
    * Indicates whether the sidebar is in a closing animation state.

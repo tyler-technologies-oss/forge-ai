@@ -3,22 +3,21 @@ import { ForgeAiButton as ForgeAiButtonElement } from "@tylertech/forge-ai/ai-bu
 
 export type { ForgeAiButtonElement };
 
-export interface ForgeAiButtonProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiButtonProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Whether the button is disabled */
   disabled?: boolean;
 

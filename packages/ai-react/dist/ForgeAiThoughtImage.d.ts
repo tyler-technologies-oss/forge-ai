@@ -3,22 +3,21 @@ import { ForgeAiThoughtImage as ForgeAiThoughtImageElement } from "@tylertech/fo
 
 export type { ForgeAiThoughtImageElement };
 
-export interface ForgeAiThoughtImageProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiThoughtImageProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** The step number for this thought image */
   step?: ForgeAiThoughtImageElement["step"];
 

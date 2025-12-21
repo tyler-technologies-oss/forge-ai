@@ -3,22 +3,21 @@ import { ForgeAiSidebar as ForgeAiSidebarElement } from "@tylertech/forge-ai/ai-
 
 export type { ForgeAiSidebarElement };
 
-export interface ForgeAiSidebarProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiSidebarProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Indicates whether the sidebar is open. */
   open?: boolean;
 

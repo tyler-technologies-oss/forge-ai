@@ -3,22 +3,21 @@ import { ForgeAiThoughtBase as ForgeAiThoughtBaseElement } from "@tylertech/forg
 
 export type { ForgeAiThoughtBaseElement };
 
-export interface ForgeAiThoughtBaseProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiThoughtBaseProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** The step number for this thought */
   step?: ForgeAiThoughtBaseElement["step"];
 

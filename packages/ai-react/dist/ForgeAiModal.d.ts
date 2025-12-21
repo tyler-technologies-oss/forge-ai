@@ -3,22 +3,21 @@ import { ForgeAiModal as ForgeAiModalElement } from "@tylertech/forge-ai/ai-moda
 
 export type { ForgeAiModalElement };
 
-export interface ForgeAiModalProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiModalProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Controls whether the modal is open or closed. */
   open?: boolean;
 
@@ -75,5 +74,9 @@ When not explicitly set, this will be automatically determined based on viewport
  *
  * ### **Slots:**
  *  - _default_ - Default slot for modal content
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-modal-width** - Width of the modal in non-fullscreen mode _(default: undefined)_
+ * - **--forge-ai-modal-height** - Height of the modal in non-fullscreen mode _(default: undefined)_
  */
 export const ForgeAiModal: React.ForwardRefExoticComponent<ForgeAiModalProps>;

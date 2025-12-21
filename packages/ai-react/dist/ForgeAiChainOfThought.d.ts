@@ -3,22 +3,21 @@ import { ForgeAiChainOfThought as ForgeAiChainOfThoughtElement } from "@tylertec
 
 export type { ForgeAiChainOfThoughtElement };
 
-export interface ForgeAiChainOfThoughtProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiChainOfThoughtProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Whether the chain of thought is expanded */
   expanded?: boolean;
 

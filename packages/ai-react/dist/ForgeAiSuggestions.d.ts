@@ -3,22 +3,21 @@ import { ForgeAiSuggestions as ForgeAiSuggestionsElement } from "@tylertech/forg
 
 export type { ForgeAiSuggestionsElement };
 
-export interface ForgeAiSuggestionsProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiSuggestionsProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Display variant for suggestions layout */
   variant?: ForgeAiSuggestionsElement["variant"];
 

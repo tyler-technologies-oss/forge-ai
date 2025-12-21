@@ -3,10 +3,8 @@ import { html } from 'lit';
 import { action } from 'storybook/actions';
 
 import '$lib/ai-threads';
-import { defineCardComponent } from '@tylertech/forge';
-import { AiThreadsComponent, Thread } from '$lib/ai-threads';
-
-defineCardComponent();
+import type { AiThreadsComponent, Thread } from '$lib/ai-threads';
+import { MockAdapter } from '../../../utils/mock-adapter';
 
 const sampleThreads: Thread[] = [
   { id: '1', title: 'Getting Started with AI', time: '2:30 PM', date: new Date('2024-01-15') },
@@ -31,28 +29,37 @@ const meta = {
     threads: sampleThreads
   },
   render: (args: any) => {
-    const onThreadSelect = action('forge-ai-threads-select');
-    const onNewChat = action('forge-ai-threads-new-chat');
-    const onClearHistory = action('forge-ai-threads-clear-history');
-
-    let threadsComponentRef: AiThreadsComponent;
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
 
     const handleClearHistory = (event: CustomEvent) => {
-      onClearHistory(event);
-      // Clear the threads array
+      action('forge-ai-threads-clear-history')(event);
       const threadsComponent = event.target as AiThreadsComponent;
       if (threadsComponent) {
         threadsComponent.threads = [];
-        threadsComponentRef = threadsComponent;
       }
     };
 
     return html`
-      <forge-ai-threads
-        .threads=${args.threads}
-        @forge-ai-threads-select=${onThreadSelect}
-        @forge-ai-threads-new-chat=${onNewChat}
-        @forge-ai-threads-clear-history=${handleClearHistory}></forge-ai-threads>
+      <div style="height: 600px;">
+        <forge-ai-threads
+          .threads=${args.threads}
+          @forge-ai-threads-select=${action('forge-ai-threads-select')}
+          @forge-ai-threads-new-chat=${action('forge-ai-threads-new-chat')}
+          @forge-ai-threads-clear-history=${handleClearHistory}>
+          <forge-ai-chatbot
+            .adapter=${adapter}
+            show-expand-button
+            @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+            @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+            @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
+          </forge-ai-chatbot>
+        </forge-ai-threads>
+      </div>
     `;
   }
 } satisfies Meta;

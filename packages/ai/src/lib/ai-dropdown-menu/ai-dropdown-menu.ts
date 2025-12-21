@@ -136,6 +136,13 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
   @property()
   public value: string | string[] | null = null;
 
+  /**
+   * The placement of the popover relative to the trigger button.
+   * Only applies to root-level menus; submenus always use 'right-start'.
+   */
+  @property({ attribute: 'popover-placement' })
+  public popoverPlacement: PopoverPlacement = 'bottom-start';
+
   @state()
   private _isSubmenu = false;
 
@@ -381,7 +388,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
   }
 
   private get _popoverPlacement(): PopoverPlacement {
-    return this._isSubmenu ? 'right-start' : 'bottom-start';
+    return this._isSubmenu ? 'right-start' : this.popoverPlacement;
   }
 
   private get _popoverAnchor(): Element | null {
@@ -446,7 +453,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
         .anchor=${this._popoverAnchor}
         placement=${this._popoverPlacement}
         .flip=${true}
-        @ai-popover-toggle=${this._onPopoverToggle}>
+        @forge-ai-popover-toggle=${this._onPopoverToggle}>
         <div
           id="dropdown-content"
           role=${this._dropdownRole}

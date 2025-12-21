@@ -28,3 +28,9 @@ forge-ai-icon {
     --forge-ai-icon-fill-color: #{forge-theme.variable(text-low)};
   }
 }
+
+::slotted(forge-circular-progress) {
+  --forge-circular-progress-indicator-color: currentColor;
+  --forge-circular-progress-track-color: transparent;
+  --forge-circular-progress-size: 1em;
+}

@@ -1,5 +1,6 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 
 :host {
   --forge-ai-thinking-indicator-dot-color: #{forge-theme.variable(text-medium)};
@@ -14,9 +15,15 @@
 .thinking-indicator {
   display: flex;
   align-items: center;
+  gap: #{forge-spacing.variable(small)};
+  height: calc(var(--forge-ai-thinking-indicator-dot-size) * 2);
+}
+
+.dots-container {
+  display: flex;
+  align-items: center;
   justify-content: center;
   gap: var(--forge-ai-thinking-indicator-gap);
-  height: calc(var(--forge-ai-thinking-indicator-dot-size) * 2);
 }
 
 .dot {
@@ -93,6 +100,33 @@
   }
 }
 
+.status-text {
+  @include forge-typography.style(body1);
+  color: #{forge-theme.variable(text-medium)};
+  user-select: none;
+  white-space: nowrap;
+  background: linear-gradient(
+    90deg,
+    #{forge-theme.variable(text-low)} 0%,
+    #{forge-theme.variable(text-high)} 50%,
+    #{forge-theme.variable(text-low)} 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* Respect user's reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   .dot {
@@ -108,5 +142,12 @@
     50% {
       opacity: 1;
     }
+  }
+
+  .status-text {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: unset;
+    color: #{forge-theme.variable(text-medium)};
   }
 }

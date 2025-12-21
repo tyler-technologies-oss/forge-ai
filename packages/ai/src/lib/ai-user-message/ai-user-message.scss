@@ -10,6 +10,7 @@
 .grid-container {
   display: grid;
   grid-template-rows: 1fr;
+  margin-inline-start: #{forge-spacing.variable(xxlarge)};
 }
 
 .ai-message-container {
@@ -19,12 +20,19 @@
   border: 1px solid #{forge-theme.variable(outline)};
   border-radius: #{forge-spacing.variable(xsmall)};
   border-start-end-radius: 0;
-  margin-inline-start: #{forge-spacing.variable(xxlarge)};
-  margin-inline-end: #{forge-spacing.variable(medium)};
+  margin-inline-start: auto;
 }
 
 span {
   @include forge-typography.style(body1);
   color: #{forge-theme.variable(on-surface)};
   overflow-wrap: break-word;
+}
+
+::slotted(p:first-child) {
+  margin-block-start: 0;
+}
+
+::slotted(p:last-child) {
+  margin-block-end: 0;
 }

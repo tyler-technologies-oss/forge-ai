@@ -6,9 +6,6 @@
 
 :host {
   display: block;
-}
-
-.artifact {
   border: 1px solid #{forge-theme.variable(outline)};
   border-radius: #{forge-shape.variable(large)};
 }
@@ -24,8 +21,4 @@
 
 .forge-toolbar__end {
   color: #{forge-theme.variable(text-medium)};
-}
-
-.content {
-  padding: #{forge-spacing.variable(medium)};
 }

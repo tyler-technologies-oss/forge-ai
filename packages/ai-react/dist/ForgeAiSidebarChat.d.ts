@@ -3,28 +3,25 @@ import { ForgeAiSidebarChat as ForgeAiSidebarChatElement } from "@tylertech/forg
 
 export type { ForgeAiSidebarChatElement };
 
-export interface ForgeAiSidebarChatProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
-  /** Indicates whether the sidebar chat is open. */
+export interface ForgeAiSidebarChatProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
+  /** undefined */
   open?: boolean;
 
-  /** Controls whether the chat is displayed in an expanded modal state.
-When true, the chat content will be shown in a fullscreen modal.
-When false, the chat will be displayed in the sidebar. */
+  /** undefined */
   expanded?: boolean;
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
@@ -72,16 +69,7 @@ When false, the chat will be displayed in the sidebar. */
  * - **forge-ai-sidebar-chat-expand** - Fired when the sidebar chat is expanded to modal
  * - **forge-ai-sidebar-chat-collapse** - Fired when the sidebar chat is collapsed from modal
  *
- * ### **Methods:**
- *  - **show(): _void_** - Opens the sidebar chat.
- * - **close(): _void_** - Closes the sidebar chat.
- * - **toggle(): _void_** - Toggles the sidebar chat open state.
- * - **expand(): _void_** - Expands the chat to fullscreen modal.
- * - **collapse(): _void_** - Collapses the chat from fullscreen modal back to sidebar.
- *
  * ### **Slots:**
- *  - _default_ - Default slot for messages (ai-user-message, ai-response-message components)
- * - **suggestions** - Slot for AI suggestions component
- * - **prompt** - Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.
+ *  - _default_ - Default slot for chatbot component
  */
 export const ForgeAiSidebarChat: React.ForwardRefExoticComponent<ForgeAiSidebarChatProps>;

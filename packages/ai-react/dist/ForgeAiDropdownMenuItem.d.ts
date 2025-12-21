@@ -3,22 +3,21 @@ import { ForgeAiDropdownMenuItem as ForgeAiDropdownMenuItemElement } from "@tyle
 
 export type { ForgeAiDropdownMenuItemElement };
 
-export interface ForgeAiDropdownMenuItemProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiDropdownMenuItemProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Whether this menu item is selected. */
   selected?: boolean;
 

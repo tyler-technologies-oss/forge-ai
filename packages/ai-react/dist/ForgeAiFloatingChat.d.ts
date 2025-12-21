@@ -3,28 +3,25 @@ import { ForgeAiFloatingChat as ForgeAiFloatingChatElement } from "@tylertech/fo
 
 export type { ForgeAiFloatingChatElement };
 
-export interface ForgeAiFloatingChatProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
-  /** Indicates whether the chat is open. */
+export interface ForgeAiFloatingChatProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
+  /** undefined */
   open?: boolean;
 
-  /** Controls the chat's positioning and size behavior.
-When true, the chat will have an expanded width and be centered on the screen.
-When false, the chat will be positioned at the bottom-right corner with a fixed width. */
+  /** undefined */
   expanded?: boolean;
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
@@ -72,16 +69,7 @@ When false, the chat will be positioned at the bottom-right corner with a fixed 
  * - **forge-ai-floating-chat-expand** - Fired when the chat is expanded
  * - **forge-ai-floating-chat-collapse** - Fired when the chat is collapsed
  *
- * ### **Methods:**
- *  - **show(): _void_** - Opens the chat.
- * - **close(): _void_** - Closes the chat.
- * - **toggle(): _void_** - Toggles the chat open state.
- * - **expand(): _void_** - Expands the chat to full width.
- * - **collapse(): _void_** - Collapses the chat to normal width.
- *
  * ### **Slots:**
- *  - _default_ - Default slot for messages (ai-user-message, ai-response-message components)
- * - **suggestions** - Slot for AI suggestions component
- * - **prompt** - Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.
+ *  - _default_ - Default slot for chatbot component
  */
 export const ForgeAiFloatingChat: React.ForwardRefExoticComponent<ForgeAiFloatingChatProps>;

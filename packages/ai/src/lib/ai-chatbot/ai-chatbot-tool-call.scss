@@ -1,0 +1,69 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/typography' as forge-typography;
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
+
+:host {
+  display: block;
+}
+
+.tool-call {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(small)};
+}
+
+.tool-name {
+  @include forge-typography.style(body1);
+
+  color: #{forge-theme.variable(text-medium)};
+}
+
+.status-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: #{forge-theme.variable(text-medium)};
+}
+
+.info-button {
+  color: #{forge-theme.variable(text-medium)};
+
+  &:hover {
+    color: #{forge-theme.variable(text-high)};
+  }
+}
+
+.tool-details {
+  display: grid;
+  gap: #{forge-spacing.variable(medium)};
+  padding: #{forge-spacing.variable(medium)};
+  min-width: 300px;
+  max-width: 500px;
+  min-height: 100px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.tool-section {
+  display: grid;
+  gap: #{forge-spacing.variable(xsmall)};
+}
+
+.section-label {
+  @include forge-typography.style(heading1);
+}
+
+.code-block {
+  background-color: #{forge-theme.variable(surface-container-minimum)};
+  color: #{forge-theme.variable(on-surface-container-minimum)};
+  padding: #{forge-spacing.variable(small)};
+  border-radius: #{forge-shape.variable(medium)};
+  overflow-x: auto;
+  margin: 0;
+  font-family: monospace;
+  font-size: 0.85em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

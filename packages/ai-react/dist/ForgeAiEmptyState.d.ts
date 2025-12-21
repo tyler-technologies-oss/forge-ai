@@ -3,22 +3,21 @@ import { ForgeAiEmptyState as ForgeAiEmptyStateElement } from "@tylertech/forge-
 
 export type { ForgeAiEmptyStateElement };
 
-export interface ForgeAiEmptyStateProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiEmptyStateProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -47,8 +46,10 @@ export interface ForgeAiEmptyStateProps
  *
  *
  * ### **Slots:**
- *  - _default_ - The welcome message content (default: "Welcome to AI Assistant! Start a conversation by asking a question or describing what you'd like help with.").
- * - **icon** - The custom icon to display instead of the default books graphic.
+ *  - _default_ - The welcome message content (overrides the default message).
+ * - **icon** - The custom icon/graphic to display.
+ * - **heading** - The custom heading/title to display.
+ * - **body** - The custom body message content.
  * - **actions** - The actions or suggestions to display below the message.
  */
 export const ForgeAiEmptyState: React.ForwardRefExoticComponent<ForgeAiEmptyStateProps>;

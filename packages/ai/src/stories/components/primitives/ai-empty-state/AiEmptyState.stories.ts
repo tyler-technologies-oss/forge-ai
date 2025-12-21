@@ -102,6 +102,6 @@ type Story = StoryObj;
 
 export const Demo: Story = {
   args: {
-    customMessage: 'Welcome to the Tyler Ai!  '
+    customMessage: 'Welcome to Forge AI!  '
   }
 };

@@ -3,22 +3,21 @@ import { ForgeAiOverlay as ForgeAiOverlayElement } from "@tylertech/forge-ai/cor
 
 export type { ForgeAiOverlayElement };
 
-export interface ForgeAiOverlayProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiOverlayProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Whether the overlay should flip to the opposite side when there's no space. */
   flip?: boolean;
 
@@ -33,6 +32,14 @@ export interface ForgeAiOverlayProps
 
   /** The placement of the overlay relative to the anchor. */
   placement?: ForgeAiOverlayElement["placement"];
+
+  /** The arrow element to position relative to the overlay. */
+  arrowElement?: ForgeAiOverlayElement["arrowElement"];
+
+  /** The dismiss mode for the overlay.
+- 'auto': Automatically closes on outside clicks and Escape key
+- 'manual': Requires manual control to close */
+  dismissMode?: ForgeAiOverlayElement["dismissMode"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;

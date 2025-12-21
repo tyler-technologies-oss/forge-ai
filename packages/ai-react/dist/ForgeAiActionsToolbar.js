@@ -4,12 +4,18 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiActionsToolbar = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
+  const { enableReactions, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
     ref,
     "forge-ai-actions-toolbar-action",
     props.onForgeAiActionsToolbarAction,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-actions-toolbar-feedback",
+    props.onForgeAiActionsToolbarFeedback,
   );
 
   return React.createElement(
@@ -23,12 +29,13 @@ export const ForgeAiActionsToolbar = forwardRef((props, forwardedRef) => {
           forwardedRef.current = node;
         }
       },
-      ...props,
+      ...filteredProps,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
+      "enable-reactions": props.enableReactions ? true : undefined,
       style: { ...props.style },
     },
     props.children,

@@ -1,0 +1,152 @@
+@use '@tylertech/forge/dist/forge-core';
+@use '@tylertech/forge/dist/forge';
+
+:not(:defined) {
+  visibility: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+main {
+  padding: var(--forge-spacing-medium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--forge-spacing-medium);
+  max-width: 1440px;
+}
+
+.config-card {
+  .config-container {
+    max-width: 960px;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: var(--forge-spacing-medium);
+    align-items: center;
+    margin-block-start: var(--forge-spacing-medium);
+
+    > forge-button {
+      align-self: end;
+      margin-block-end: 2px;
+    }
+  }
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: var(--forge-spacing-medium);
+  min-height: 0;
+  flex: 1;
+}
+
+forge-card {
+  h2 {
+    margin: 0;
+  }
+}
+
+.right-sidebar {
+  min-height: 0;
+}
+
+.event-stream-card {
+  height: 100%;
+  overflow: hidden;
+}
+
+.event-data-popover {
+  padding: var(--forge-spacing-medium);
+  max-width: 400px;
+  max-height: 400px;
+  overflow: auto;
+
+  pre {
+    margin: 0;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+}
+
+.chatbot-card {
+  --forge-card-padding: 0;
+  min-height: 0;
+  min-width: 0;
+}
+
+.user_message,
+.assistant_message,
+.text_message_start,
+.text_message_chunk,
+.text_message_content,
+.text_message_end,
+.tool_call,
+.tool_call_start,
+.tool_call_args,
+.tool_call_end,
+.tool_result,
+.tool_call_result,
+.run_started,
+.run_finished,
+.run_cancelled,
+.run_error,
+.error,
+.state_change {
+  display: inline-block;
+  padding: var(--forge-spacing-xxsmall) var(--forge-spacing-small);
+  border-radius: var(--forge-shape-small);
+  font-weight: 500;
+}
+
+.user_message {
+  background-color: var(--forge-theme-primary-container-low);
+  color: var(--forge-theme-on-primary-container-low);
+}
+
+.assistant_message {
+  background-color: var(--forge-theme-secondary-container-low);
+  color: var(--forge-theme-on-secondary-container-low);
+}
+
+.text_message_start,
+.text_message_chunk,
+.text_message_content,
+.text_message_end {
+  background-color: var(--forge-theme-info-container-low);
+  color: var(--forge-theme-on-info-container-low);
+}
+
+.tool_call,
+.tool_call_start,
+.tool_call_args,
+.tool_call_end,
+.tool_result,
+.tool_call_result {
+  background-color: var(--forge-theme-tertiary-container-low);
+  color: var(--forge-theme-on-tertiary-container-low);
+}
+
+.run_started,
+.run_finished {
+  background-color: var(--forge-theme-success-container-low);
+  color: var(--forge-theme-on-success-container-low);
+}
+
+.run_cancelled {
+  background-color: var(--forge-theme-warning-container-low);
+  color: var(--forge-theme-on-warning-container-low);
+}
+
+.run_error,
+.error {
+  background-color: var(--forge-theme-error-container-low);
+  color: var(--forge-theme-on-error-container-low);
+}
+
+.state_change {
+  background-color: var(--forge-theme-warning-container-low);
+  color: var(--forge-theme-on-warning-container-low);
+}

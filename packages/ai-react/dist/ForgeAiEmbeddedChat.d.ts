@@ -3,27 +3,35 @@ import { ForgeAiEmbeddedChat as ForgeAiEmbeddedChatElement } from "@tylertech/fo
 
 export type { ForgeAiEmbeddedChatElement };
 
-export interface ForgeAiEmbeddedChatProps
-  extends Pick<
-    React.AllHTMLAttributes<HTMLElement>,
-    | "children"
-    | "dir"
-    | "hidden"
-    | "id"
-    | "lang"
-    | "slot"
-    | "style"
-    | "title"
-    | "translate"
-    | "onClick"
-    | "onFocus"
-    | "onBlur"
-  > {
+export interface ForgeAiEmbeddedChatProps extends Pick<
+  React.AllHTMLAttributes<HTMLElement>,
+  | "children"
+  | "dir"
+  | "hidden"
+  | "id"
+  | "lang"
+  | "slot"
+  | "style"
+  | "title"
+  | "translate"
+  | "onClick"
+  | "onFocus"
+  | "onBlur"
+> {
   /** Controls whether the modal view is open when expanded. */
   expanded?: boolean;
 
-  /** Controls the gradient variant applied to the container. */
+  /** Gradient variant for embedded view ('low' | 'medium' | 'high', default: 'medium') */
   gradientVariant?: ForgeAiEmbeddedChatElement["gradientVariant"];
+
+  /** undefined */
+  threadId?: ForgeAiEmbeddedChatElement["threadId"];
+
+  /** Enable file upload functionality (default: 'off') */
+  fileUpload?: ForgeAiEmbeddedChatElement["fileUpload"];
+
+  /** Placeholder text for input (default: "Ask a question...") */
+  placeholder?: ForgeAiEmbeddedChatElement["placeholder"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -45,6 +53,12 @@ export interface ForgeAiEmbeddedChatProps
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
+
+  /** Required. The adapter for communication with the AI service */
+  adapter?: ForgeAiEmbeddedChatElement["adapter"];
+
+  /** Optional suggestions for empty state */
+  suggestions?: ForgeAiEmbeddedChatElement["suggestions"];
 
   /** Fired when the chat is expanded to modal view */
   onForgeAiEmbeddedChatExpand?: (event: CustomEvent<CustomEvent<void>>) => void;
@@ -69,8 +83,7 @@ export interface ForgeAiEmbeddedChatProps
  * - **collapse(): _void_** - Collapses the chat from modal view back to embedded view.
  *
  * ### **Slots:**
- *  - _default_ - Default slot for messages (ai-user-message, ai-response-message components)
- * - **suggestions** - Slot for AI suggestions component
- * - **prompt** - Slot for custom AI prompt component. If not provided, a default forge-ai-prompt will be used.
+ *  - **header-title** - Slot for custom header title content (default: "AI Assistant")
+ * - **empty-state-heading** - Slot for custom empty state heading
  */
 export const ForgeAiEmbeddedChat: React.ForwardRefExoticComponent<ForgeAiEmbeddedChatProps>;

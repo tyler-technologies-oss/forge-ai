@@ -1,6 +1,6 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import '../ai-chat-interface/ai-chat-interface';
+import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js';
+import type { AiChatbotComponent } from '../ai-chatbot';
 
 import styles from './ai-threads.scss?inline';
 
@@ -33,9 +33,15 @@ export const AiThreadsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
 /**
  * @tag forge-ai-threads
  *
+ * @slot - Default slot for chatbot component
+ *
  * @event {CustomEvent<ForgeAiThreadsSelectEventData>} forge-ai-threads-select - Fired when a thread is selected.
  * @event {CustomEvent} forge-ai-threads-new-chat - Fired when the new chat button is clicked.
  * @event {CustomEvent} forge-ai-threads-clear-history - Fired when the clear history button is clicked.
+ *
+ * @description A form factor component that positions a slotted chatbot alongside a thread navigation drawer.
+ * Manages thread list and selection while delegating chat functionality to the slotted chatbot.
+ * All chatbot events bubble through unchanged.
  */
 @customElement(AiThreadsComponentTagName)
 export class AiThreadsComponent extends LitElement {
@@ -52,6 +58,13 @@ export class AiThreadsComponent extends LitElement {
   /** Currently selected thread ID */
   @state()
   private _selectedThreadId: string | null = null;
+
+  @queryAssignedElements({ selector: 'forge-ai-chatbot' })
+  private _slottedChatbots!: AiChatbotComponent[];
+
+  get #chatbot(): AiChatbotComponent | undefined {
+    return this._slottedChatbots[0];
+  }
 
   get #filteredThreads(): Thread[] {
     if (!this._filterValue.trim()) {
@@ -84,65 +97,18 @@ export class AiThreadsComponent extends LitElement {
       cancelable: true
     });
     this.dispatchEvent(event);
-
-    // Focus the input in the chat interface after a brief delay to ensure rendering is complete
-    requestAnimationFrame(() => {
-      this._focusChatInput();
-    });
   }
 
-  private _focusChatInput(): void {
-    // Query for the input element in the ai-chat-interface component
-    const chatInterface = this.shadowRoot?.querySelector('forge-ai-chat-interface');
-    if (chatInterface) {
-      // Look for the input within the ai-prompt component
-      const input = chatInterface.shadowRoot
-        ?.querySelector('forge-ai-prompt')
-        ?.shadowRoot?.querySelector('#chat-input') as HTMLInputElement;
-      if (input) {
-        input.focus();
-      }
+  private _handleChatbotExpand(): void {
+    if (this.#chatbot) {
+      this.#chatbot.expanded = !this.#chatbot.expanded;
     }
   }
 
-  private _handlePromptSend(event: CustomEvent): void {
-    // Create a new thread from the prompt data
-    const newThread: Thread = {
-      id: this._generateThreadId(),
-      title: this._generateThreadTitle(event.detail.value),
-      time: event.detail.time,
-      date: event.detail.date
-    };
-
-    // Add the new thread to the beginning of the threads array
-    this.threads = [newThread, ...this.threads];
-
-    // Select the newly created thread
-    this._selectedThreadId = newThread.id;
-  }
-
-  private _generateThreadId(): string {
-    return `thread-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-  }
-
-  private _generateThreadTitle(message: string): string {
-    // Use the first 50 characters of the message as the thread title
-    const maxLength = 50;
-    const trimmed = message.trim();
-
-    if (trimmed.length <= maxLength) {
-      return trimmed;
+  private _handleChatbotMinimize(): void {
+    if (this.#chatbot) {
+      this.#chatbot.expanded = false;
     }
-
-    // Find the last complete word within the limit
-    const truncated = trimmed.substring(0, maxLength);
-    const lastSpaceIndex = truncated.lastIndexOf(' ');
-
-    if (lastSpaceIndex > 0) {
-      return truncated.substring(0, lastSpaceIndex) + '...';
-    }
-
-    return truncated + '...';
   }
 
   private _handleClearHistoryClick(): void {
@@ -228,15 +194,18 @@ export class AiThreadsComponent extends LitElement {
     `;
   }
 
-  readonly #chatInterface = html`
-    <forge-ai-chat-interface @forge-ai-prompt-send=${this._handlePromptSend}></forge-ai-chat-interface>
+  readonly #slotContent = html`
+    <slot
+      @forge-ai-chatbot-expand=${this._handleChatbotExpand}
+      @forge-ai-chatbot-minimize=${this._handleChatbotMinimize}>
+    </slot>
   `;
 
   public override render(): TemplateResult {
     return html`
       <div class="threads-container">
         <div class="left">${this.#drawer}</div>
-        <div class="right">${this.#chatInterface}</div>
+        <div class="right">${this.#slotContent}</div>
       </div>
     `;
   }

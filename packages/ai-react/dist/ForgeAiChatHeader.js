@@ -1,6 +1,6 @@
 import React, { forwardRef, useRef, useEffect } from "react";
 import "@tylertech/forge-ai/ai-chat-header";
-import { useEventListener } from "./react-utils.js";
+import { useEventListener, useProperties } from "./react-utils.js";
 
 export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
@@ -8,23 +8,26 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
     showExpandButton,
     showMinimizeButton,
     expanded,
-    showDropdownMenu,
-    showClearChat,
-    showInfo,
     minimizeIcon,
+    options,
+    exportOption,
+    clearOption,
+    headingLevel,
+    titleText,
+    agentInfo,
     ...filteredProps
   } = props;
 
   /** Event listeners - run once */
   useEventListener(
     ref,
-    "forge-ai-chat-header-clear",
-    props.onForgeAiChatHeaderClear,
+    "forge-ai-chat-header-export",
+    props.onForgeAiChatHeaderExport,
   );
   useEventListener(
     ref,
-    "forge-ai-chat-header-info",
-    props.onForgeAiChatHeaderInfo,
+    "forge-ai-chat-header-clear",
+    props.onForgeAiChatHeaderClear,
   );
   useEventListener(
     ref,
@@ -36,6 +39,9 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
     "forge-ai-chat-header-minimize",
     props.onForgeAiChatHeaderMinimize,
   );
+
+  /** Properties - run whenever a property has changed */
+  useProperties(ref, "agentInfo", props.agentInfo);
 
   return React.createElement(
     "forge-ai-chat-header",
@@ -50,6 +56,11 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
       },
       ...filteredProps,
       "minimize-icon": props.minimizeIcon || props["minimize-icon"],
+      options: props.options,
+      "export-option": props.exportOption || props["export-option"],
+      "clear-option": props.clearOption || props["clear-option"],
+      "heading-level": props.headingLevel || props["heading-level"],
+      "title-text": props.titleText || props["title-text"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
@@ -58,9 +69,6 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
       "show-expand-button": props.showExpandButton ? true : undefined,
       "show-minimize-button": props.showMinimizeButton ? true : undefined,
       expanded: props.expanded ? true : undefined,
-      "show-dropdown-menu": props.showDropdownMenu ? true : undefined,
-      "show-clear-chat": props.showClearChat ? true : undefined,
-      "show-info": props.showInfo ? true : undefined,
       style: { ...props.style },
     },
     props.children,

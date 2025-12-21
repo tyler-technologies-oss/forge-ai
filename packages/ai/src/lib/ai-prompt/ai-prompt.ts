@@ -126,8 +126,9 @@ export class AiPromptComponent extends LitElement {
       () => html`
         <hr class="forge-divider" />
         <div class="actions">${this.#actionsSlot}</div>
+        <div class="vertical-divider"></div>
       `,
-      () => html`${this.#actionsSlot}` // Always render slot for detection
+      () => html`${this.#actionsSlot}`
     );
   }
 
@@ -156,9 +157,8 @@ export class AiPromptComponent extends LitElement {
     });
     this.dispatchEvent(event);
 
-    // Only set running state and clear input if event wasn't cancelled
+    // Only clear input if event wasn't cancelled
     if (!event.defaultPrevented) {
-      this.running = true;
       this.value = ''; // Clear input after sending
     }
   }
@@ -193,11 +193,6 @@ export class AiPromptComponent extends LitElement {
       cancelable: true
     });
     this.dispatchEvent(event);
-
-    // Only set running to false if event wasn't cancelled
-    if (!event.defaultPrevented) {
-      this.running = false;
-    }
   }
 
   private _handleEscape(): void {
@@ -235,6 +230,7 @@ export class AiPromptComponent extends LitElement {
       <div class="input-container">
         <div class="forge-card">
           <div class="forge-field">
+            ${when(this.variant === 'inline', () => html`${this.#conditionalActions}`)}
             <textarea
               id="chat-input"
               rows="1"
@@ -258,7 +254,7 @@ export class AiPromptComponent extends LitElement {
                   </svg>`}
             </button>
           </div>
-          ${this.#conditionalActions}
+          ${when(this.variant === 'stacked', () => html`${this.#conditionalActions}`)}
         </div>
       </div>
     `;
