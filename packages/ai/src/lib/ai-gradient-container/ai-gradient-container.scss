@@ -5,13 +5,13 @@
 
 :host {
   display: block;
-  --forge-gradient-container-radius: #{forge-shape.variable(large)};
+  --forge-ai-gradient-container-radius: #{forge-shape.variable(large)};
 
   // fixes border clipping issues in the threads view
   --forge-drawer-background: transparent;
 
   border: #{forge-shape.variable(small)} solid transparent;
-  border-radius: var(--forge-gradient-container-radius);
+  border-radius: var(--forge-ai-gradient-container-radius);
   background-origin: border-box;
   background-clip: padding-box, border-box;
 }

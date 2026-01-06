@@ -206,6 +206,12 @@ const displayDataTableTool: ToolDefinition = {
         items: { type: 'string' },
         description: 'Column headers for the table'
       },
+      maxNumberOfRows: { type: 'number', description: 'Maximum number of rows to display' },
+      showPaginator: {
+        type: 'boolean',
+        description:
+          "Whether to enable pagination for large datasets. We typically show the paginator when there's 25 or more rows"
+      },
       rows: {
         type: 'array',
         items: {

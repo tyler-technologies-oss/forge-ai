@@ -1,0 +1,62 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/table/core' as forge-table-core;
+
+:host {
+  display: block;
+}
+
+.artifact {
+  --forge-ai-artifact-content-padding: 0;
+}
+
+.title {
+  @include forge-typography.style(heading1);
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  @include forge-table-core.base;
+  overflow: hidden;
+}
+
+.table-head {
+  @include forge-table-core.head-cell;
+}
+
+.column-header {
+  width: max-content;
+  @include forge-typography.style(label2);
+  font-weight: 600;
+}
+
+.table-row {
+  @include forge-table-core.row-dense;
+  height: 32px;
+
+  &:nth-child(even) {
+    background-color: #{forge-theme.variable(surface-dim)};
+  }
+
+  &:last-child td {
+    border-bottom: none;
+    border-end-start-radius: #{forge-spacing.variable(xsmall)};
+    border-end-end-radius: #{forge-spacing.variable(xsmall)};
+  }
+}
+
+th,
+td {
+  @include forge-typography.style(label1);
+  padding-block: #{forge-spacing.variable(xsmall)};
+  padding-inline-start: #{forge-spacing.variable(xsmall)};
+  padding-inline-end: #{forge-spacing.variable(medium)};
+
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #{forge-theme.variable(outline)};
+}
