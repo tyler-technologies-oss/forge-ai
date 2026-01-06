@@ -25,6 +25,7 @@ import {
 } from '@tylertech/forge';
 
 import './recipe-card.js';
+import '../../../lib/tools/ai-data-table';
 
 defineScaffoldComponent();
 defineAppBarComponent();
@@ -224,7 +225,7 @@ const displayDataTableTool: ToolDefinition = {
     required: ['headers', 'rows']
   },
   renderer: createToolRenderer({
-    elementTag: 'data-table'
+    elementTag: 'ai-data-table'
   })
 };
 

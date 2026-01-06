@@ -19,7 +19,6 @@
 }
 
 .paginator {
-  background-color: #{forge-theme.variable(surface-container-minimum)};
   display: flex;
   align-items: center;
   gap: #{forge-spacing.variable(small)};

@@ -1,0 +1,30 @@
+{
+  "title": "Classic Chocolate Chip Cookies",
+  "description": "Soft and chewy chocolate chip cookies that are perfect for any occasion. These cookies have crispy edges and a tender center packed with chocolate chips.",
+  "prepTime": "15 minutes",
+  "cookTime": "12 minutes",
+  "servings": 24,
+  "ingredients": [
+    "2 1/4 cups all-purpose flour",
+    "1 teaspoon baking soda",
+    "1 teaspoon salt",
+    "1 cup (2 sticks) butter, softened",
+    "3/4 cup granulated sugar",
+    "3/4 cup packed brown sugar",
+    "2 large eggs",
+    "2 teaspoons vanilla extract",
+    "2 cups chocolate chips"
+  ],
+  "instructions": [
+    "Preheat your oven to 375°F (190°C).",
+    "In a medium bowl, whisk together flour, baking soda, and salt. Set aside.",
+    "In a large bowl, cream together the softened butter and both sugars until light and fluffy, about 2-3 minutes.",
+    "Beat in eggs one at a time, then add vanilla extract.",
+    "Gradually mix in the flour mixture until just combined. Don't overmix.",
+    "Fold in the chocolate chips until evenly distributed.",
+    "Drop rounded tablespoons of dough onto ungreased baking sheets, spacing them about 2 inches apart.",
+    "Bake for 9-11 minutes or until the edges are golden brown but centers still look slightly underbaked.",
+    "Let cookies cool on the baking sheet for 5 minutes before transferring to a wire rack.",
+    "Store in an airtight container for up to one week."
+  ]
+}

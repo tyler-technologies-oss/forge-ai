@@ -1,7 +1,7 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import '$lib/ai-artifact';
-import styles from './data-table.scss?inline';
+import '../../ai-artifact/ai-artifact.ts';
+import styles from './ai-data-table.scss?inline';
 import '../ai-paginator/ai-paginator.ts';
 import { ToolCall } from '$lib/ai-chatbot';
 
@@ -11,7 +11,7 @@ interface TableData {
   rows: (string | number)[][];
 }
 
-@customElement('data-table')
+@customElement('ai-data-table')
 export class DataTable extends LitElement {
   public static styles = unsafeCSS(styles);
 
@@ -28,14 +28,16 @@ export class DataTable extends LitElement {
   @property({ attribute: false })
   public rows?: (string | number)[][];
 
-  @property({ type: Boolean, attribute: 'show-paginator' })
-  public showPaginator = false;
-
   @property({ type: Number, attribute: 'max-number-of-rows' })
   public maxNumberOfRows = 10;
 
   @property({ type: Number, attribute: 'current-page' })
   public currentPage = 1;
+
+  private get _shouldShowPaginator(): boolean {
+    const data = this._tableData;
+    return data?.rows ? data.rows.length > this.maxNumberOfRows : false;
+  }
 
   private get _totalPages(): number {
     const data = this._tableData;
@@ -47,7 +49,7 @@ export class DataTable extends LitElement {
 
   private get _paginatedRows(): (string | number)[][] {
     const data = this._tableData;
-    if (!data || !data.rows || !this.showPaginator) {
+    if (!data || !data.rows || !this._shouldShowPaginator) {
       return data?.rows || [];
     }
 
@@ -124,11 +126,11 @@ export class DataTable extends LitElement {
           </table>
         </div>
 
-        ${this.showPaginator
-          ? html`<data-table-paginator
+        ${this._shouldShowPaginator
+          ? html`<ai-paginator
               current-page="${this.currentPage}"
               total-pages="${this._totalPages}"
-              @page-change=${this.#handlePageChange}></data-table-paginator>`
+              @page-change=${this.#handlePageChange}></ai-paginator>`
           : ''}
       </forge-ai-artifact>
     `;

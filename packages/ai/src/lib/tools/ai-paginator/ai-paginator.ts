@@ -1,9 +1,9 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import styles from './paginator.scss?inline';
+import styles from './ai-paginator.scss?inline';
 
-@customElement('data-table-paginator')
-export class DataTablePaginator extends LitElement {
+@customElement('ai-paginator')
+export class AiPaginator extends LitElement {
   public static styles = unsafeCSS(styles);
 
   @property({ type: Number, attribute: 'current-page' })
@@ -87,6 +87,6 @@ export class DataTablePaginator extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'data-table-paginator': DataTablePaginator;
+    'ai-paginator': AiPaginator;
   }
 }
