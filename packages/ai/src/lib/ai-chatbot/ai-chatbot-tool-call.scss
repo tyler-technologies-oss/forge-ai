@@ -12,6 +12,7 @@
   display: flex;
   align-items: center;
   gap: #{forge-spacing.variable(small)};
+  margin-block-end: #{forge-spacing.variable(small)};
 }
 
 .tool-name {

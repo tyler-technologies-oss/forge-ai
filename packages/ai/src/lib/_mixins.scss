@@ -2,9 +2,9 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 
 @mixin ai-gradient-container-border(
-  $surface-color: var(--forge-theme-surface),
-  $bottom-color: var(--forge-theme-tertiary-container-high),
-  $top-color: var(--forge-theme-outline)
+  $surface-color: #{forge-theme.variable(surface)},
+  $bottom-color: #{forge-theme.variable(surface-container-high)},
+  $top-color: #{forge-theme.variable(outline)}
 ) {
   background-image: linear-gradient($surface-color, $surface-color), linear-gradient(to top, $bottom-color, $top-color);
 }
