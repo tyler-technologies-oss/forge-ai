@@ -26,6 +26,7 @@ export * from './ai-reasoning-header';
 export * from './ai-response-message';
 export * from './ai-sidebar';
 export * from './ai-sidebar-chat';
+export * from './ai-slash-command-menu';
 export * from './ai-suggestions';
 export * from './ai-suggestions';
 export * from './ai-thinking-indicator';

@@ -8,10 +8,24 @@ const component = 'forge-ai-thinking-indicator';
 const meta = {
   title: 'AI Components/Primitives/Thinking Indicator',
   component,
-  argTypes: {},
-  args: {},
+  argTypes: {
+    showText: { control: 'boolean' },
+    initialDelay: { control: 'number' },
+    cycleInterval: { control: 'number' }
+  },
+  args: {
+    showText: false,
+    initialDelay: 0,
+    cycleInterval: 5000
+  },
   render: (args: any) => {
-    return html` <forge-ai-thinking-indicator></forge-ai-thinking-indicator> `;
+    return html`
+      <forge-ai-thinking-indicator
+        ?show-text=${args.showText}
+        initial-delay=${args.initialDelay}
+        cycle-interval=${args.cycleInterval}>
+      </forge-ai-thinking-indicator>
+    `;
   }
 } satisfies Meta;
 

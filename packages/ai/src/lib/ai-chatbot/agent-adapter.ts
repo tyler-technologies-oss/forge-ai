@@ -3,15 +3,18 @@ import { EventEmitter, type Subscription } from './event-emitter.js';
 
 export interface MessageStartEvent {
   messageId: string;
+  rawEvent?: unknown;
 }
 
 export interface MessageDeltaEvent {
   messageId: string;
   delta: string;
+  rawEvent?: unknown;
 }
 
 export interface MessageEndEvent {
   messageId: string;
+  rawEvent?: unknown;
 }
 
 export interface ToolCallEvent {
@@ -19,12 +22,14 @@ export interface ToolCallEvent {
   messageId: string;
   name: string;
   args: Record<string, unknown>;
+  rawEvent?: unknown;
 }
 
 export interface ToolCallStartEvent {
   id: string;
   messageId: string;
   name: string;
+  rawEvent?: unknown;
 }
 
 export interface ToolCallArgsEvent {
@@ -33,6 +38,7 @@ export interface ToolCallArgsEvent {
   name: string;
   argsBuffer: string;
   partialArgs?: Record<string, unknown>;
+  rawEvent?: unknown;
 }
 
 export interface ToolCallEndEvent {
@@ -40,12 +46,14 @@ export interface ToolCallEndEvent {
   messageId: string;
   name: string;
   args: Record<string, unknown>;
+  rawEvent?: unknown;
 }
 
 export interface ToolResultEvent {
   toolCallId: string;
   result: unknown;
   message: ChatMessage;
+  rawEvent?: unknown;
 }
 
 export interface AdapterState {
@@ -196,36 +204,36 @@ export abstract class AgentAdapter {
     this._events.runAborted.emit();
   }
 
-  protected _emitMessageStart(messageId: string): void {
-    this._events.messageStart.emit({ messageId });
+  protected _emitMessageStart(messageId: string, rawEvent?: unknown): void {
+    this._events.messageStart.emit({ messageId, rawEvent });
   }
 
-  protected _emitMessageDelta(messageId: string, delta: string): void {
-    this._events.messageDelta.emit({ messageId, delta });
+  protected _emitMessageDelta(messageId: string, delta: string, rawEvent?: unknown): void {
+    this._events.messageDelta.emit({ messageId, delta, rawEvent });
   }
 
-  protected _emitMessageEnd(messageId: string): void {
-    this._events.messageEnd.emit({ messageId });
+  protected _emitMessageEnd(messageId: string, rawEvent?: unknown): void {
+    this._events.messageEnd.emit({ messageId, rawEvent });
   }
 
-  protected _emitToolCall(event: ToolCallEvent): void {
-    this._events.toolCall.emit(event);
+  protected _emitToolCall(event: ToolCallEvent, rawEvent?: unknown): void {
+    this._events.toolCall.emit({ ...event, rawEvent });
   }
 
-  protected _emitToolCallStart(event: ToolCallStartEvent): void {
-    this._events.toolCallStart.emit(event);
+  protected _emitToolCallStart(event: ToolCallStartEvent, rawEvent?: unknown): void {
+    this._events.toolCallStart.emit({ ...event, rawEvent });
   }
 
-  protected _emitToolCallArgs(event: ToolCallArgsEvent): void {
-    this._events.toolCallArgs.emit(event);
+  protected _emitToolCallArgs(event: ToolCallArgsEvent, rawEvent?: unknown): void {
+    this._events.toolCallArgs.emit({ ...event, rawEvent });
   }
 
-  protected _emitToolCallEnd(event: ToolCallEndEvent): void {
-    this._events.toolCallEnd.emit(event);
+  protected _emitToolCallEnd(event: ToolCallEndEvent, rawEvent?: unknown): void {
+    this._events.toolCallEnd.emit({ ...event, rawEvent });
   }
 
-  protected _emitToolResult(event: ToolResultEvent): void {
-    this._events.toolResult.emit(event);
+  protected _emitToolResult(event: ToolResultEvent, rawEvent?: unknown): void {
+    this._events.toolResult.emit({ ...event, rawEvent });
   }
 
   public emitFileUpload(file: File, callbacks: FileUploadCallbacks): void {

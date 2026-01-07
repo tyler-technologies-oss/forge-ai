@@ -3,6 +3,21 @@
  */
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
+export type SlashCommandId = 'clear' | 'export' | 'info' | 'debug';
+
+export type SlashCommandGroup = 'Conversation' | 'Help';
+
+export interface SlashCommand {
+  id: SlashCommandId;
+  name: string;
+  group: SlashCommandGroup;
+}
+
+export interface ForgeAiSlashCommandMenuSelectEventData {
+  command: SlashCommand;
+  index: number;
+}
+
 export interface ToolRenderer {
   elementTag?: string;
   render?: (toolCall: ToolCall) => HTMLElement | DocumentFragment;
@@ -49,6 +64,55 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
   ) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void;
 }
 
+export interface MessageStartEvent {
+  messageId: string;
+}
+
+export interface MessageDeltaEvent {
+  messageId: string;
+  delta: string;
+}
+
+export interface MessageEndEvent {
+  messageId: string;
+}
+
+export interface ToolCallStartEvent {
+  id: string;
+  messageId: string;
+  name: string;
+}
+
+export interface ToolCallArgsEvent {
+  id: string;
+  messageId: string;
+  name: string;
+  argsBuffer: string;
+  partialArgs?: Record<string, unknown>;
+}
+
+export interface ToolCallEndEvent {
+  id: string;
+  messageId: string;
+  name: string;
+  args: Record<string, unknown>;
+}
+
+export interface ToolResultEvent {
+  toolCallId: string;
+  result: unknown;
+  message: ChatMessage;
+}
+
+export type StreamEvent =
+  | { type: 'message-start'; timestamp: number; data: MessageStartEvent; rawEvent?: unknown }
+  | { type: 'message-delta'; timestamp: number; data: MessageDeltaEvent; rawEvent?: unknown }
+  | { type: 'message-end'; timestamp: number; data: MessageEndEvent; rawEvent?: unknown }
+  | { type: 'tool-call-start'; timestamp: number; data: ToolCallStartEvent; rawEvent?: unknown }
+  | { type: 'tool-call-args'; timestamp: number; data: ToolCallArgsEvent; rawEvent?: unknown }
+  | { type: 'tool-call-end'; timestamp: number; data: ToolCallEndEvent; rawEvent?: unknown }
+  | { type: 'tool-result'; timestamp: number; data: ToolResultEvent; rawEvent?: unknown };
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system' | 'tool';
@@ -57,6 +121,7 @@ export interface ChatMessage {
   status: 'pending' | 'streaming' | 'complete' | 'error';
   toolCalls?: ToolCall[];
   toolCallId?: string;
+  eventStream?: StreamEvent[];
 }
 
 export interface ToolCall {
@@ -68,6 +133,7 @@ export interface ToolCall {
   result?: unknown;
   status: 'pending' | 'parsing' | 'executing' | 'complete' | 'error';
   type: ToolType;
+  eventStream?: StreamEvent[];
 }
 
 export interface FileAttachment {

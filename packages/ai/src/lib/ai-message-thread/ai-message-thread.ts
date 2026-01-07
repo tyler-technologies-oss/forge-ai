@@ -29,11 +29,11 @@ declare global {
 }
 
 export interface ForgeAiMessageThreadCopyEventData {
-  messageItemIndex: number;
+  messageId: string;
 }
 
 export interface ForgeAiMessageThreadRefreshEventData {
-  messageItemIndex: number;
+  messageId: string;
 }
 
 export interface ForgeAiMessageThreadThumbsEventData {
@@ -80,6 +80,9 @@ export class AiMessageThreadComponent extends LitElement {
   @property({ attribute: 'auto-scroll' })
   public autoScroll: FeatureToggle = 'on';
 
+  @property({ type: Boolean, attribute: 'debug-mode' })
+  public debugMode = false;
+
   @query('.message-thread')
   private _messageThreadContainer!: HTMLElement;
 
@@ -119,17 +122,17 @@ export class AiMessageThreadComponent extends LitElement {
     });
   }
 
-  #handleCopy(messageItemIndex: number): void {
+  #handleCopy(messageId: string): void {
     this.#dispatchEvent({
       type: 'forge-ai-message-thread-copy',
-      detail: { messageItemIndex }
+      detail: { messageId }
     });
   }
 
-  #handleRefresh(messageItemIndex: number): void {
+  #handleRefresh(messageId: string): void {
     this.#dispatchEvent({
       type: 'forge-ai-message-thread-refresh',
-      detail: { messageItemIndex }
+      detail: { messageId }
     });
   }
 
@@ -151,7 +154,8 @@ export class AiMessageThreadComponent extends LitElement {
     const toolDefinition = this.tools?.get(toolCall.name);
     return html`<forge-ai-chatbot-tool-call
       .toolCall=${toolCall}
-      .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
+      .toolDefinition=${toolDefinition}
+      ?debug-mode=${this.debugMode}></forge-ai-chatbot-tool-call>`;
   }
 
   get #emptyState(): TemplateResult | typeof nothing {
@@ -188,14 +192,29 @@ export class AiMessageThreadComponent extends LitElement {
       return nothing;
     }
 
+    const hasActiveToolCall =
+      this.debugMode &&
+      lastItem?.type === 'toolCall' &&
+      (lastItem.data.status === 'parsing' ||
+        lastItem.data.status === 'executing' ||
+        lastItem.data.status === 'pending');
+
+    if (hasActiveToolCall) {
+      return nothing;
+    }
+
     return html`<div class="thinking-indicator">
-      <forge-ai-thinking-indicator class="status-indicator"></forge-ai-thinking-indicator>
+      <forge-ai-thinking-indicator class="status-indicator" show-text></forge-ai-thinking-indicator>
     </div>`;
   }
 
   get #messages(): TemplateResult[] {
     const itemsToRender = this.messageItems.filter(item => {
       if (item.type === 'toolCall') {
+        if (this.debugMode) {
+          return true;
+        }
+
         const toolDef = this.tools?.get(item.data.name);
         return !!toolDef?.renderer;
       }
@@ -231,8 +250,10 @@ export class AiMessageThreadComponent extends LitElement {
             <forge-ai-response-message
               ?complete=${msg.status === 'complete'}
               ?enable-reactions=${this.enableReactions}
-              @forge-ai-response-message-copy=${() => this.#handleCopy(index)}
-              @forge-ai-response-message-refresh=${() => this.#handleRefresh(index)}
+              ?has-debug-data=${this.debugMode && (msg.eventStream?.length ?? 0) > 0}
+              .eventStream=${msg.eventStream}
+              @forge-ai-response-message-copy=${() => this.#handleCopy(msg.id)}
+              @forge-ai-response-message-refresh=${() => this.#handleRefresh(msg.id)}
               @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
               @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
               ${unsafeHTML(renderedHtml)}

@@ -146,7 +146,7 @@ export class AgUiAdapter extends AgentAdapter {
   }
 
   #handleTextMessageStart({ event }: { event: { messageId: string } }): void {
-    this._emitMessageStart(event.messageId);
+    this._emitMessageStart(event.messageId, event);
   }
 
   #handleTextMessageContent({
@@ -154,7 +154,7 @@ export class AgUiAdapter extends AgentAdapter {
     event
   }: {
     textMessageBuffer: string;
-    event: { messageId: string };
+    event: { messageId: string; delta?: string };
   }): void {
     this.#processTextDelta(event.messageId, textMessageBuffer, false);
   }
@@ -167,7 +167,7 @@ export class AgUiAdapter extends AgentAdapter {
     event: { messageId: string };
   }): void {
     this.#processTextDelta(event.messageId, textMessageBuffer, true);
-    this._emitMessageEnd(event.messageId);
+    this._emitMessageEnd(event.messageId, event);
   }
 
   #handleToolCallStart({
@@ -182,11 +182,14 @@ export class AgUiAdapter extends AgentAdapter {
     };
     this.#toolCalls.set(event.toolCallId, toolCallState);
 
-    this._emitToolCallStart({
-      id: event.toolCallId,
-      messageId: toolCallState.messageId,
-      name: toolCallState.name
-    });
+    this._emitToolCallStart(
+      {
+        id: event.toolCallId,
+        messageId: toolCallState.messageId,
+        name: toolCallState.name
+      },
+      event
+    );
   }
 
   #handleToolCallArgs({
@@ -209,13 +212,16 @@ export class AgUiAdapter extends AgentAdapter {
       toolCall.argsBuffer = toolCallBuffer;
     }
 
-    this._emitToolCallArgs({
-      id: event.toolCallId,
-      messageId: toolCall.messageId,
-      name: toolCall.name,
-      argsBuffer: toolCall.argsBuffer,
-      partialArgs: partialToolCallArgs
-    });
+    this._emitToolCallArgs(
+      {
+        id: event.toolCallId,
+        messageId: toolCall.messageId,
+        name: toolCall.name,
+        argsBuffer: toolCall.argsBuffer,
+        partialArgs: partialToolCallArgs
+      },
+      event
+    );
   }
 
   #handleToolCallEnd({
@@ -249,8 +255,8 @@ export class AgUiAdapter extends AgentAdapter {
       args
     };
 
-    this._emitToolCallEnd(toolCallEvent);
-    this._emitToolCall(toolCallEvent);
+    this._emitToolCallEnd(toolCallEvent, event);
+    this._emitToolCall(toolCallEvent, event);
     this.#toolCalls.delete(event.toolCallId);
   }
 
@@ -265,11 +271,14 @@ export class AgUiAdapter extends AgentAdapter {
       toolCallId: event.toolCallId
     };
 
-    this._emitToolResult({
-      toolCallId: event.toolCallId,
-      result,
-      message: toolMessage
-    });
+    this._emitToolResult(
+      {
+        toolCallId: event.toolCallId,
+        result,
+        message: toolMessage
+      },
+      event
+    );
   }
 
   #handleRunFinished(): void {
