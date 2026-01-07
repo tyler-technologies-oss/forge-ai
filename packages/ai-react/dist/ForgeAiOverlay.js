@@ -9,6 +9,7 @@ export const ForgeAiOverlay = forwardRef((props, forwardedRef) => {
     anchor,
     placement,
     arrowElement,
+    offset,
     dismissMode,
     ...filteredProps
   } = props;
@@ -20,6 +21,7 @@ export const ForgeAiOverlay = forwardRef((props, forwardedRef) => {
       anchor: props.anchor,
       placement: props.placement,
       arrowElement: props.arrowElement,
+      offset: props.offset,
       "dismiss-mode": props.dismissMode || props["dismiss-mode"],
       class: props.className,
       exportparts: props.exportparts,

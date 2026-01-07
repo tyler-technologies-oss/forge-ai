@@ -36,6 +36,10 @@ export interface ForgeAiOverlayProps extends Pick<
   /** The arrow element to position relative to the overlay. */
   arrowElement?: ForgeAiOverlayElement["arrowElement"];
 
+  /** The offset of the overlay from the anchor element.
+Can be a number (main axis offset) or an object with mainAxis, crossAxis, and alignmentAxis properties. */
+  offset?: ForgeAiOverlayElement["offset"];
+
   /** The dismiss mode for the overlay.
 - 'auto': Automatically closes on outside clicks and Escape key
 - 'manual': Requires manual control to close */

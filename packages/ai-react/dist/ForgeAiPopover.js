@@ -9,6 +9,7 @@ export const ForgeAiPopover = forwardRef((props, forwardedRef) => {
     arrow,
     anchor,
     placement,
+    offset,
     dismissMode,
     ...filteredProps
   } = props;
@@ -19,6 +20,7 @@ export const ForgeAiPopover = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       anchor: props.anchor,
       placement: props.placement,
+      offset: props.offset,
       "dismiss-mode": props.dismissMode || props["dismiss-mode"],
       class: props.className,
       exportparts: props.exportparts,

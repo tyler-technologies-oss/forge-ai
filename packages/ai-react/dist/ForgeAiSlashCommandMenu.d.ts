@@ -1,9 +1,9 @@
 import React from "react";
-import { ForgeAiThinkingIndicator as ForgeAiThinkingIndicatorElement } from "@tylertech/forge-ai/ai-thinking-indicator";
+import { ForgeAiSlashCommandMenu as ForgeAiSlashCommandMenuElement } from "@tylertech/forge-ai/ai-slash-command-menu";
 
-export type { ForgeAiThinkingIndicatorElement };
+export type { ForgeAiSlashCommandMenuElement };
 
-export interface ForgeAiThinkingIndicatorProps extends Pick<
+export interface ForgeAiSlashCommandMenuProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -19,13 +19,10 @@ export interface ForgeAiThinkingIndicatorProps extends Pick<
   | "onBlur"
 > {
   /** undefined */
-  showText?: boolean;
+  open?: boolean;
 
   /** undefined */
-  initialDelay?: ForgeAiThinkingIndicatorElement["initialDelay"];
-
-  /** undefined */
-  cycleInterval?: ForgeAiThinkingIndicatorElement["cycleInterval"];
+  filterQuery?: ForgeAiSlashCommandMenuElement["filterQuery"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -47,11 +44,25 @@ export interface ForgeAiThinkingIndicatorProps extends Pick<
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
+
+  /** Fired when a command is selected. */
+  onForgeAiSlashCommandMenuSelect?: (
+    event: CustomEvent<CustomEvent<ForgeAiSlashCommandMenuSelectEventData>>,
+  ) => void;
+
+  /** Fired when the menu should close. */
+  onForgeAiSlashCommandMenuClose?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
 }
 
 /**
- * A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response.
+ *
  * ---
  *
+ *
+ * ### **Events:**
+ *  - **forge-ai-slash-command-menu-select** - Fired when a command is selected.
+ * - **forge-ai-slash-command-menu-close** - Fired when the menu should close.
  */
-export const ForgeAiThinkingIndicator: React.ForwardRefExoticComponent<ForgeAiThinkingIndicatorProps>;
+export const ForgeAiSlashCommandMenu: React.ForwardRefExoticComponent<ForgeAiSlashCommandMenuProps>;

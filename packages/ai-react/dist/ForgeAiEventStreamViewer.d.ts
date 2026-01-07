@@ -1,9 +1,9 @@
 import React from "react";
-import { ForgeAiThinkingIndicator as ForgeAiThinkingIndicatorElement } from "@tylertech/forge-ai/ai-thinking-indicator";
+import { ForgeAiEventStreamViewer as ForgeAiEventStreamViewerElement } from "@tylertech/forge-ai/ai-event-stream-viewer";
 
-export type { ForgeAiThinkingIndicatorElement };
+export type { ForgeAiEventStreamViewerElement };
 
-export interface ForgeAiThinkingIndicatorProps extends Pick<
+export interface ForgeAiEventStreamViewerProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -18,15 +18,6 @@ export interface ForgeAiThinkingIndicatorProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
-  /** undefined */
-  showText?: boolean;
-
-  /** undefined */
-  initialDelay?: ForgeAiThinkingIndicatorElement["initialDelay"];
-
-  /** undefined */
-  cycleInterval?: ForgeAiThinkingIndicatorElement["cycleInterval"];
-
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -50,8 +41,8 @@ export interface ForgeAiThinkingIndicatorProps extends Pick<
 }
 
 /**
- * A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response.
+ * Displays a timeline of adapter events with expandable JSON data.
  * ---
  *
  */
-export const ForgeAiThinkingIndicator: React.ForwardRefExoticComponent<ForgeAiThinkingIndicatorProps>;
+export const ForgeAiEventStreamViewer: React.ForwardRefExoticComponent<ForgeAiEventStreamViewerProps>;

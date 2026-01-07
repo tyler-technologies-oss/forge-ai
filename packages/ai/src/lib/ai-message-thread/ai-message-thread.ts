@@ -224,7 +224,7 @@ export class AiMessageThreadComponent extends LitElement {
       return false;
     });
 
-    return itemsToRender.map((item, index) => {
+    return itemsToRender.map(item => {
       if (item.type === 'toolCall') {
         return this.#renderToolCall(item.data);
       }

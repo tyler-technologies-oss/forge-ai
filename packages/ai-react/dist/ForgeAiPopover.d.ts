@@ -36,6 +36,10 @@ export interface ForgeAiPopoverProps extends Pick<
   /** The placement of the popover relative to the anchor. */
   placement?: ForgeAiPopoverElement["placement"];
 
+  /** The offset of the popover from the anchor element.
+Can be a number (main axis offset) or an object with mainAxis, crossAxis, and alignmentAxis properties. */
+  offset?: ForgeAiPopoverElement["offset"];
+
   /** The dismiss mode for the popover.
 - 'auto': Automatically closes on outside clicks and Escape key
 - 'manual': Requires manual control to close */

@@ -1,20 +1,25 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import "@tylertech/forge-ai/ai-chatbot";
+import "@tylertech/forge-ai/ai-slash-command-menu";
 import { useEventListener } from "./react-utils.js";
 
-export const ForgeAiChatbotToolCall = forwardRef((props, forwardedRef) => {
+export const ForgeAiSlashCommandMenu = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { debugMode, ...filteredProps } = props;
+  const { open, filterQuery, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
     ref,
-    "forge-ai-message-thread-scroll-request",
-    props.onForgeAiMessageThreadScrollRequest,
+    "forge-ai-slash-command-menu-select",
+    props.onForgeAiSlashCommandMenuSelect,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-slash-command-menu-close",
+    props.onForgeAiSlashCommandMenuClose,
   );
 
   return React.createElement(
-    "forge-ai-chatbot-tool-call",
+    "forge-ai-slash-command-menu",
     {
       ref: (node) => {
         ref.current = node;
@@ -25,12 +30,13 @@ export const ForgeAiChatbotToolCall = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
+      "filter-query": props.filterQuery || props["filter-query"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      "debug-mode": props.debugMode ? true : undefined,
+      open: props.open ? true : undefined,
       style: { ...props.style },
     },
     props.children,
