@@ -54,7 +54,7 @@ export class MockAdapter extends AgentAdapter {
   sendMessage(messages: ChatMessage[], _attachments?: FileAttachment[]): void {
     this._updateState({ isRunning: true });
 
-    const messageId = generateId('msg');
+    const messageId = generateId();
     const response = this.#options.mockResponses![this.#messageIndex % this.#options.mockResponses!.length];
     this.#messageIndex++;
 
@@ -128,7 +128,7 @@ export class MockAdapter extends AgentAdapter {
   }
 
   #simulateToolCall(messageId: string): void {
-    const toolCallId = generateId('tool');
+    const toolCallId = generateId();
     const toolName = 'getCurrentWeather';
 
     setTimeout(() => {
@@ -153,7 +153,7 @@ export class MockAdapter extends AgentAdapter {
   }
 
   #simulateUserInputTool(messageId: string): void {
-    const toolCallId = generateId('tool');
+    const toolCallId = generateId();
     const toolName = 'getUserInput';
 
     setTimeout(() => {

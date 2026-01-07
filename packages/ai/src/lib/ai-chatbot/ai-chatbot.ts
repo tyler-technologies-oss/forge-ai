@@ -476,7 +476,7 @@ export class AiChatbotComponent extends LitElement {
 
   #handleError(event: ErrorEvent): void {
     const errorMessage: ChatMessage = {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'assistant',
       content: event.message,
       timestamp: Date.now(),
@@ -489,7 +489,7 @@ export class AiChatbotComponent extends LitElement {
 
   #handleRunAborted(): void {
     const abortMessage: ChatMessage = {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'system',
       content: 'Run cancelled',
       timestamp: Date.now(),
@@ -539,7 +539,7 @@ export class AiChatbotComponent extends LitElement {
     }
 
     const userMessage: ChatMessage = {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'user',
       content: config.content,
       timestamp: config.timestamp ?? Date.now(),
@@ -638,7 +638,7 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #processFileUpload(file: File, timestamp: number): void {
-    const fileId = generateId('file');
+    const fileId = generateId();
 
     this.#fileUploadManager.addAttachment(fileId, {
       filename: file.name,
@@ -689,7 +689,7 @@ export class AiChatbotComponent extends LitElement {
 
   #handleFileError(evt: CustomEvent<ForgeAiFilePickerErrorEventData>): void {
     const errorMessage: ChatMessage = {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'assistant',
       content: evt.detail.message,
       timestamp: Date.now(),
