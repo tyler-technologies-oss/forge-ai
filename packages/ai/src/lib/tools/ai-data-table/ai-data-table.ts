@@ -12,6 +12,8 @@ interface TableData {
   maxNumberOfRows?: number;
 }
 
+const DEFAULT_MAX_ROWS = 10;
+
 @customElement('ai-data-table')
 export class DataTable extends LitElement {
   public static styles = unsafeCSS(styles);
@@ -107,7 +109,7 @@ export class DataTable extends LitElement {
 
   private get _maxNumberOfRows(): number {
     const data = this._tableData;
-    return data?.maxNumberOfRows || 10;
+    return data?.maxNumberOfRows || DEFAULT_MAX_ROWS;
   }
 
   public override render(): TemplateResult {
