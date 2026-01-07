@@ -207,6 +207,7 @@ const displayDataTableTool: ToolDefinition = {
         items: { type: 'string' },
         description: 'Column headers for the table'
       },
+      maxNumberOfRows: { type: 'number', description: 'Maximum number of rows to display' },
       rows: {
         type: 'array',
         items: {

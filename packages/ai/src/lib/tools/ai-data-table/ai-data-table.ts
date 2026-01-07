@@ -9,6 +9,7 @@ interface TableData {
   title?: string;
   headers: string[];
   rows: (string | number)[][];
+  maxNumberOfRows?: number;
 }
 
 @customElement('ai-data-table')
@@ -17,10 +18,6 @@ export class DataTable extends LitElement {
 
   @property({ attribute: false })
   public toolCall!: ToolCall;
-
-  /** Maximum number of rows to display per page */
-  @state()
-  private _maxNumberOfRows = 10;
 
   /** Current page number for pagination */
   @state()
@@ -106,6 +103,11 @@ export class DataTable extends LitElement {
 
   private get _tableData(): TableData | null {
     return this.toolCall.args as unknown as TableData;
+  }
+
+  private get _maxNumberOfRows(): number {
+    const data = this._tableData;
+    return data?.maxNumberOfRows || 10;
   }
 
   public override render(): TemplateResult {
