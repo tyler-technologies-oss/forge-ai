@@ -1,1 +1,1 @@
-export { ForgeAiPopoverComponent, type PopoverPlacement } from './popover.js';
+export { ForgeAiPopoverComponent, type PopoverPlacement, type PopoverOffset } from './popover.js';

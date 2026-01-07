@@ -1,9 +1,9 @@
 import React from "react";
-import { ForgeAiThinkingIndicator as ForgeAiThinkingIndicatorElement } from "@tylertech/forge-ai/ai-thinking-indicator";
+import { ForgeAiIconButton as ForgeAiIconButtonElement } from "@tylertech/forge-ai/ai-icon-button";
 
-export type { ForgeAiThinkingIndicatorElement };
+export type { ForgeAiIconButtonElement };
 
-export interface ForgeAiThinkingIndicatorProps extends Pick<
+export interface ForgeAiIconButtonProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -18,14 +18,8 @@ export interface ForgeAiThinkingIndicatorProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
-  /** undefined */
-  showText?: boolean;
-
-  /** undefined */
-  initialDelay?: ForgeAiThinkingIndicatorElement["initialDelay"];
-
-  /** undefined */
-  cycleInterval?: ForgeAiThinkingIndicatorElement["cycleInterval"];
+  /** Whether the button is disabled */
+  disabled?: boolean;
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -50,8 +44,8 @@ export interface ForgeAiThinkingIndicatorProps extends Pick<
 }
 
 /**
- * A thinking indicator component that displays three animated dots to show that the system is processing or awaiting a response.
+ *
  * ---
  *
  */
-export const ForgeAiThinkingIndicator: React.ForwardRefExoticComponent<ForgeAiThinkingIndicatorProps>;
+export const ForgeAiIconButton: React.ForwardRefExoticComponent<ForgeAiIconButtonProps>;

@@ -1,5 +1,5 @@
 import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 
 import styles from './ai-thinking-indicator.scss?inline';
 
@@ -20,14 +20,10 @@ const STATUS_MESSAGES = [
   'One moment...',
   'Hold on...',
   'Forging a response...',
-  'Tylerizing...',
   'Gathering information...',
   'Looking into that...',
   'Hang tight...'
 ];
-
-const CYCLE_INTERVAL = 5000;
-const INITIAL_DELAY = 5000;
 
 /**
  * @tag forge-ai-thinking-indicator
@@ -43,11 +39,19 @@ const INITIAL_DELAY = 5000;
 export class AiThinkingIndicatorComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
+  @property({ type: Boolean, attribute: 'show-text' })
+  public showText = false;
+
+  @property({ type: Number, attribute: 'initial-delay' })
+  public initialDelay = 0;
+
+  @property({ type: Number, attribute: 'cycle-interval' })
+  public cycleInterval = 5000;
+
   #currentMessage = '';
   #lastMessageIndex = -1;
   #cycleInterval?: number;
   #initialDelayTimeout?: number;
-  #showText = false;
 
   readonly #dotsTemplate = html`
     <div class="dot dot-1"></div>
@@ -67,12 +71,13 @@ export class AiThinkingIndicatorComponent extends LitElement {
 
   #startCycling(): void {
     this.#initialDelayTimeout = window.setTimeout(() => {
-      this.#showText = true;
-      this.#getNextMessage();
-      this.#cycleInterval = window.setInterval(() => {
+      if (this.showText) {
         this.#getNextMessage();
-      }, CYCLE_INTERVAL);
-    }, INITIAL_DELAY);
+        this.#cycleInterval = window.setInterval(() => {
+          this.#getNextMessage();
+        }, this.cycleInterval);
+      }
+    }, this.initialDelay);
   }
 
   #stopCycling(): void {
@@ -84,7 +89,6 @@ export class AiThinkingIndicatorComponent extends LitElement {
       clearInterval(this.#cycleInterval);
       this.#cycleInterval = undefined;
     }
-    this.#showText = false;
     this.#currentMessage = '';
     this.#lastMessageIndex = -1;
   }
@@ -101,7 +105,7 @@ export class AiThinkingIndicatorComponent extends LitElement {
   }
 
   get #statusText(): TemplateResult | typeof nothing {
-    if (!this.#showText || !this.#currentMessage) {
+    if (!this.showText || !this.#currentMessage) {
       return nothing;
     }
 

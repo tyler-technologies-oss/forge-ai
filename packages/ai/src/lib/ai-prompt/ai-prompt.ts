@@ -1,9 +1,12 @@
 import { LitElement, PropertyValues, TemplateResult, html, unsafeCSS, nothing } from 'lit';
-import { customElement, property, queryAssignedNodes, query } from 'lit/decorators.js';
+import { customElement, property, queryAssignedNodes, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { toggleState } from '../utils';
+import type { SlashCommand, ForgeAiSlashCommandMenuSelectEventData } from '../ai-chatbot/types.js';
 
 import styles from './ai-prompt.scss?inline';
+
+import '../ai-slash-command-menu/ai-slash-command-menu.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -15,6 +18,8 @@ declare global {
     'forge-ai-prompt-cancel': CustomEvent<void>;
     'forge-ai-prompt-attachment': CustomEvent<ForgeAiPromptAttachmentEventData>;
     'forge-ai-prompt-stop': CustomEvent<void>;
+    'forge-ai-prompt-debug-toggle': CustomEvent<void>;
+    'forge-ai-prompt-command': CustomEvent<ForgeAiPromptCommandEventData>;
   }
 }
 
@@ -26,6 +31,12 @@ export interface ForgeAiPromptSendEventData {
 
 export interface ForgeAiPromptAttachmentEventData {
   files: File[];
+}
+
+export interface ForgeAiPromptCommandEventData {
+  commandId: string;
+  group: string;
+  timestamp: Date;
 }
 
 export type AiPromptVariant = 'stacked' | 'inline';
@@ -44,6 +55,7 @@ export const AiPromptComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-p
  * @event {CustomEvent<void>} forge-ai-prompt-cancel - Fired when the Escape key is pressed (if cancelOnEscape is true).
  * @event {CustomEvent<ForgeAiPromptAttachmentEventData>} forge-ai-prompt-attachment - Fired when files are pasted into the textarea.
  * @event {CustomEvent<void>} forge-ai-prompt-stop - Fired when the stop button is clicked. Cancelable - if cancelled, running state remains true.
+ * @event {CustomEvent<void>} forge-ai-prompt-debug-toggle - Fired when the debug icon button is clicked.
  */
 @customElement(AiPromptComponentTagName)
 export class AiPromptComponent extends LitElement {
@@ -81,11 +93,28 @@ export class AiPromptComponent extends LitElement {
   @property({ type: Boolean })
   public running = false;
 
+  /** Whether debug mode is active (shows debug icon button) */
+  @property({ type: Boolean, attribute: 'debug-mode' })
+  public debugMode = false;
+
+  /** Available slash commands */
+  @property({ type: Array, attribute: false })
+  public slashCommands: SlashCommand[] = [];
+
+  @state()
+  private _slashMenuOpen = false;
+
+  @state()
+  private _slashMenuQuery = '';
+
   @queryAssignedNodes({ slot: 'actions', flatten: true })
   private _actionsSlottedNodes!: Node[];
 
   @query('#chat-input')
   private _inputElement!: HTMLTextAreaElement;
+
+  @query('forge-ai-slash-command-menu')
+  private _slashMenuElement!: HTMLElement & { handleKeyDown(event: KeyboardEvent): boolean };
 
   readonly #internals: ElementInternals;
 
@@ -126,7 +155,7 @@ export class AiPromptComponent extends LitElement {
       () => html`
         <hr class="forge-divider" />
         <div class="actions">${this.#actionsSlot}</div>
-        <div class="vertical-divider"></div>
+        ${when(this.slashCommands.length, () => html`<div class="vertical-divider"></div>`)}
       `,
       () => html`${this.#actionsSlot}`
     );
@@ -159,31 +188,68 @@ export class AiPromptComponent extends LitElement {
 
     // Only clear input if event wasn't cancelled
     if (!event.defaultPrevented) {
-      this.value = ''; // Clear input after sending
+      this.value = '';
+      this._slashMenuOpen = false;
+      this._slashMenuQuery = '';
     }
   }
 
   private _handleInput(event: InputEvent): void {
     this.value = (event.target as HTMLTextAreaElement).value;
-    const inputEvent = new Event('input', { bubbles: true, composed: true });
-    this.dispatchEvent(inputEvent);
+
+    if (this.slashCommands.length === 0) {
+      this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      return;
+    }
+
+    if (this.value === '/') {
+      this._slashMenuQuery = '';
+      this._slashMenuOpen = true;
+    } else if (this.value.startsWith('/') && this._slashMenuOpen) {
+      this._slashMenuQuery = this.value.slice(1);
+    } else if (this._slashMenuOpen) {
+      this._slashMenuOpen = false;
+      this._slashMenuQuery = '';
+    }
+
+    this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
   }
 
   private _handleKeyDown(event: KeyboardEvent): void {
+    if (this._slashMenuOpen && this._slashMenuElement) {
+      const handled = this._slashMenuElement.handleKeyDown(event);
+      if (handled) {
+        return;
+      }
+    }
+
     if (event.key === 'Enter' && !event.shiftKey) {
-      // Ignore Enter during IME composition
       if (event.isComposing) {
         return;
       }
 
-      // Submit on Enter (without Shift)
       event.preventDefault();
-      this._handleSend();
-    } else if (event.key === 'Escape' && this.cancelOnEscape) {
-      event.preventDefault();
-      this._handleEscape();
+
+      if (this._slashMenuOpen) {
+        this._slashMenuOpen = false;
+        this._slashMenuQuery = '';
+        this._handleSend();
+        return;
+      }
+
+      if (!this._slashMenuOpen) {
+        this._handleSend();
+      }
+    } else if (event.key === 'Escape') {
+      if (this._slashMenuOpen) {
+        event.preventDefault();
+        this._slashMenuOpen = false;
+        this._slashMenuQuery = '';
+      } else if (this.cancelOnEscape) {
+        event.preventDefault();
+        this._handleEscape();
+      }
     }
-    // Allow Shift+Enter to create new lines naturally
   }
 
   private _handleStop(): void {
@@ -203,6 +269,14 @@ export class AiPromptComponent extends LitElement {
     this.dispatchEvent(event);
   }
 
+  private _handleDebugToggle(): void {
+    const event = new CustomEvent<void>('forge-ai-prompt-debug-toggle', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
   private _handlePaste(event: ClipboardEvent): void {
     const files = Array.from(event.clipboardData?.files || []);
 
@@ -216,6 +290,59 @@ export class AiPromptComponent extends LitElement {
       });
       this.dispatchEvent(attachmentEvent);
     }
+  }
+
+  #handleSlashCommandSelect(event: CustomEvent<ForgeAiSlashCommandMenuSelectEventData>): void {
+    const { command } = event.detail;
+
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-prompt-command', {
+        detail: {
+          commandId: command.id,
+          group: command.group,
+          timestamp: new Date()
+        },
+        bubbles: true,
+        composed: true
+      })
+    );
+
+    this.value = '';
+    if (this._inputElement) {
+      this._inputElement.value = '';
+    }
+    this._slashMenuOpen = false;
+    this._slashMenuQuery = '';
+  }
+
+  #handleSlashCommandClose(): void {
+    this._slashMenuOpen = false;
+    this._slashMenuQuery = '';
+  }
+
+  get #slashCommandMenu(): TemplateResult | typeof nothing {
+    return when(
+      this.slashCommands.length,
+      () => html`
+        <forge-ai-slash-command-menu
+          .commands=${this.slashCommands}
+          .filterQuery=${this._slashMenuQuery}
+          .open=${this._slashMenuOpen}
+          .anchor=${this._inputElement}
+          .widthReference=${this as HTMLElement}
+          @forge-ai-slash-command-menu-select=${this.#handleSlashCommandSelect}
+          @forge-ai-slash-command-menu-close=${this.#handleSlashCommandClose}>
+        </forge-ai-slash-command-menu>
+      `
+    );
+  }
+
+  /**
+   * Closes the slash command menu
+   */
+  public closeSlashMenu(): void {
+    this._slashMenuOpen = false;
+    this._slashMenuQuery = '';
   }
 
   /**
@@ -240,9 +367,23 @@ export class AiPromptComponent extends LitElement {
               @input=${this._handleInput}
               @keydown=${this._handleKeyDown}
               @paste=${this._handlePaste}></textarea>
+            ${when(
+              this.debugMode,
+              () => html`
+                <button
+                  aria-label="Exit debug mode"
+                  class="forge-icon-button forge-icon-button--medium forge-icon-button--tonal ai-icon-button debug-button"
+                  @click=${this._handleDebugToggle}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                      d="M20 8h-2.81a5.985 5.985 0 0 0-1.82-1.96L17 4.41 15.59 3l-2.17 2.17a6.002 6.002 0 0 0-2.83 0L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z" />
+                  </svg>
+                </button>
+              `
+            )}
             <button
               aria-label=${this.#shouldShowStopButton ? 'Stop' : 'Send message'}
-              class="forge-icon-button forge-icon-button--large ai-icon-button"
+              class="forge-icon-button forge-icon-button--medium ai-icon-button"
               ?disabled=${this.sendDisabled || this.inputDisabled}
               @click=${this.#shouldShowStopButton ? this._handleStop : this._handleSend}>
               ${this.#shouldShowStopButton
@@ -257,6 +398,7 @@ export class AiPromptComponent extends LitElement {
           ${when(this.variant === 'stacked', () => html`${this.#conditionalActions}`)}
         </div>
       </div>
+      ${this.#slashCommandMenu}
     `;
   }
 }

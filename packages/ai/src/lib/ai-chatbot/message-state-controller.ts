@@ -1,5 +1,14 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import type { ChatMessage, MessageItem, ToolCall, ToolDefinition } from './types.js';
+import type { ChatMessage, MessageItem, ToolCall, ToolDefinition, StreamEvent } from './types.js';
+import type {
+  MessageStartEvent,
+  MessageDeltaEvent,
+  MessageEndEvent,
+  ToolCallStartEvent,
+  ToolCallArgsEvent,
+  ToolCallEndEvent,
+  ToolResultEvent
+} from './agent-adapter.js';
 
 export interface MessageStateControllerConfig {
   tools: Map<string, ToolDefinition>;
@@ -53,20 +62,45 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
-  public addMessage(message: ChatMessage): void {
+  public addMessage(message: ChatMessage, event?: MessageStartEvent): void {
     const existing = this.getMessage(message.id);
     if (existing) {
       return;
     }
     this.addMessageItem({ type: 'message', data: message });
+
+    if (event) {
+      this.#appendEventToMessage(message.id, {
+        type: 'message-start',
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      });
+    }
   }
 
-  public addToolCall(toolCall: ToolCall): void {
+  public addToolCall(toolCall: ToolCall, event?: ToolCallStartEvent): void {
     this._toolCalls.set(toolCall.id, toolCall);
     this.addMessageItem({ type: 'toolCall', data: toolCall });
+
+    if (event) {
+      this.#appendEventToToolCall(toolCall.id, {
+        type: 'tool-call-start',
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      });
+    }
   }
 
-  public updateToolCall(toolCallId: string, updates: Partial<ToolCall>): void {
+  public updateToolCall(
+    toolCallId: string,
+    updates: Partial<ToolCall>,
+    eventData?: {
+      eventType: 'tool-call-args' | 'tool-call-end';
+      event: ToolCallArgsEvent | ToolCallEndEvent;
+    }
+  ): void {
     const toolCall = this._toolCalls.get(toolCallId);
     if (!toolCall) {
       return;
@@ -82,16 +116,46 @@ export class MessageStateController implements ReactiveController {
       return item;
     });
 
+    if (eventData) {
+      if (eventData.eventType === 'tool-call-args') {
+        const argsEvent = eventData.event as ToolCallArgsEvent;
+        this.#appendEventToToolCall(toolCallId, {
+          type: 'tool-call-args',
+          timestamp: Date.now(),
+          data: argsEvent,
+          rawEvent: argsEvent.rawEvent
+        });
+      } else {
+        const endEvent = eventData.event as ToolCallEndEvent;
+        this.#appendEventToToolCall(toolCallId, {
+          type: 'tool-call-end',
+          timestamp: Date.now(),
+          data: endEvent,
+          rawEvent: endEvent.rawEvent
+        });
+      }
+    }
+
     this.#notifyStateChange();
   }
 
-  public appendToMessage(id: string, content: string): void {
+  public appendToMessage(id: string, content: string, event?: MessageDeltaEvent): void {
     this._messageItems = this._messageItems.map(item => {
       if (item.type === 'message' && item.data.id === id) {
         return { ...item, data: { ...item.data, content: item.data.content + content } };
       }
       return item;
     });
+
+    if (event) {
+      this.#appendEventToMessage(id, {
+        type: 'message-delta',
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      });
+    }
+
     this.#notifyStateChange();
   }
 
@@ -100,13 +164,23 @@ export class MessageStateController implements ReactiveController {
     return item?.type === 'message' ? item.data : undefined;
   }
 
-  public updateMessageStatus(id: string, status: ChatMessage['status']): void {
+  public updateMessageStatus(id: string, status: ChatMessage['status'], event?: MessageEndEvent): void {
     this._messageItems = this._messageItems.map(item => {
       if (item.type === 'message' && item.data.id === id) {
         return { ...item, data: { ...item.data, status } };
       }
       return item;
     });
+
+    if (event) {
+      this.#appendEventToMessage(id, {
+        type: 'message-end',
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      });
+    }
+
     this.#notifyStateChange();
   }
 
@@ -173,11 +247,57 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
-  public completeToolCall(toolCallId: string, result: unknown): void {
+  #appendEventToMessage(id: string, event: StreamEvent): void {
+    const messageExists = this._messageItems.some(item => item.type === 'message' && item.data.id === id);
+    if (!messageExists) {
+      return;
+    }
+
+    this._messageItems = this._messageItems.map(item => {
+      if (item.type === 'message' && item.data.id === id) {
+        const eventStream = [...(item.data.eventStream || []), event];
+        return { ...item, data: { ...item.data, eventStream } };
+      }
+      return item;
+    });
+    this.#notifyStateChange();
+  }
+
+  #appendEventToToolCall(id: string, event: StreamEvent): void {
+    const toolCall = this._toolCalls.get(id);
+    if (!toolCall) {
+      return;
+    }
+
+    const eventStream = [...(toolCall.eventStream || []), event];
+    const updated = { ...toolCall, eventStream };
+    this._toolCalls.set(id, updated);
+
+    this._messageItems = this._messageItems.map(item => {
+      if (item.type === 'toolCall' && item.data.id === id) {
+        return { ...item, data: updated };
+      }
+      return item;
+    });
+
+    this.#notifyStateChange();
+  }
+
+  public completeToolCall(toolCallId: string, result: unknown, event?: ToolResultEvent): void {
     this.updateToolCall(toolCallId, {
       result,
       status: 'complete'
     });
+
+    if (event) {
+      this.#appendEventToToolCall(toolCallId, {
+        type: 'tool-result',
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      });
+    }
+
     this.#tryReorderAssistantMessage(toolCallId);
   }
 
