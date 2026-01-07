@@ -1,4 +1,5 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
@@ -24,4 +25,8 @@
   gap: #{forge-spacing.variable(small)};
   border-radius: #{forge-shape.variable(large)};
   padding: #{forge-spacing.variable(xxxsmall)};
+}
+
+.label {
+  @include forge-typography.style(label1);
 }

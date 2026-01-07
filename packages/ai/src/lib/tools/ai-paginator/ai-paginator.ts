@@ -69,7 +69,7 @@ export class AiPaginator extends LitElement {
               <path d="M15.41 16.58 10.83 12l4.58-4.59L14 6l-6 6 6 6z" />
             </svg>
           </button>
-          <span class="forge-typography--label1">${this.currentPage} of ${this.totalPages}</span>
+          <span class="label">${this.currentPage} of ${this.totalPages}</span>
           <button
             aria-label="View next page"
             class="forge-icon-button forge-icon-button--medium"

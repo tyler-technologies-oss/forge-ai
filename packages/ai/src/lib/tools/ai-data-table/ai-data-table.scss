@@ -2,6 +2,9 @@
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/table/core' as forge-table-core;
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '@tylertech/forge/dist/field/forge-field.css';
+@use '../../mixins' as mixins;
 
 :host {
   display: block;
@@ -15,6 +18,20 @@
   @include forge-typography.style(heading1);
 }
 
+.sr-only {
+  @include mixins.sr-only;
+}
+
+.icon-field {
+  display: flex;
+  align-items: center;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
 .table-container {
   overflow-x: auto;
 }
@@ -22,6 +39,12 @@
 .data-table {
   @include forge-table-core.base;
   overflow: hidden;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(medium)};
 }
 
 .table-head {
@@ -59,4 +82,37 @@ td {
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: #{forge-theme.variable(outline)};
+}
+
+.body2 {
+  @include forge-typography.style(body2);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: #{forge-spacing.variable(xlarge)};
+  gap: #{forge-spacing.variable(medium)};
+
+  .empty-state-icon {
+    width: 48px;
+    height: 48px;
+    fill: #{forge-theme.variable(outline)};
+  }
+
+  .empty-state-title {
+    @include forge-typography.style(heading1);
+    margin: 0;
+    color: #{forge-theme.variable(on-surface)};
+  }
+
+  .empty-state-message {
+    @include forge-typography.style(body1);
+    margin: 0;
+    color: #{forge-theme.variable(on-surface)};
+    max-width: 400px;
+  }
 }
