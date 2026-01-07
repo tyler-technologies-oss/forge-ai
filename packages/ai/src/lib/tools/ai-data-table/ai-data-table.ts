@@ -16,23 +16,15 @@ export class DataTable extends LitElement {
   public static styles = unsafeCSS(styles);
 
   @property({ attribute: false })
-  public toolCall?: ToolCall;
+  public toolCall!: ToolCall;
 
-  // Support for standalone usage without toolCall
-  @property({ type: String, attribute: 'table-title' })
-  public tableTitle?: string;
+  /** Maximum number of rows to display per page */
+  @state()
+  private _maxNumberOfRows = 10;
 
-  @property({ attribute: false })
-  public headers?: string[];
-
-  @property({ attribute: false })
-  public rows?: (string | number)[][];
-
-  @property({ type: Number, attribute: 'max-number-of-rows' })
-  public maxNumberOfRows = 10;
-
-  @property({ type: Number, attribute: 'current-page' })
-  public currentPage = 1;
+  /** Current page number for pagination */
+  @state()
+  private _currentPage = 1;
 
   /** Current filter value for searching table data */
   @state()
@@ -40,7 +32,7 @@ export class DataTable extends LitElement {
 
   private get _shouldShowPaginator(): boolean {
     const filteredRows = this._filteredRows;
-    return filteredRows.length > this.maxNumberOfRows;
+    return filteredRows.length > this._maxNumberOfRows;
   }
 
   private get _totalPages(): number {
@@ -48,7 +40,7 @@ export class DataTable extends LitElement {
     if (!filteredRows.length) {
       return 1;
     }
-    return Math.ceil(filteredRows.length / this.maxNumberOfRows);
+    return Math.ceil(filteredRows.length / this._maxNumberOfRows);
   }
 
   private get _filteredRows(): (string | number)[][] {
@@ -81,19 +73,19 @@ export class DataTable extends LitElement {
       return filteredRows;
     }
 
-    const startIndex = (this.currentPage - 1) * this.maxNumberOfRows;
-    const endIndex = startIndex + this.maxNumberOfRows;
+    const startIndex = (this._currentPage - 1) * this._maxNumberOfRows;
+    const endIndex = startIndex + this._maxNumberOfRows;
     return filteredRows.slice(startIndex, endIndex);
   }
 
   #handlePageChange(event: CustomEvent): void {
-    this.currentPage = event.detail.currentPage;
+    this._currentPage = event.detail.currentPage;
   }
 
   #handleFilterInput(event: InputEvent): void {
     this._filterValue = (event.target as HTMLInputElement).value;
     // Reset to first page when filtering
-    this.currentPage = 1;
+    this._currentPage = 1;
   }
 
   get #emptyState(): TemplateResult {
@@ -113,21 +105,7 @@ export class DataTable extends LitElement {
   }
 
   private get _tableData(): TableData | null {
-    // If toolCall is provided, use its args (chatbot mode)
-    if (this.toolCall) {
-      return this.toolCall.args as unknown as TableData;
-    }
-
-    // Otherwise use direct properties (standalone mode)
-    if (this.headers && this.rows) {
-      return {
-        title: this.tableTitle,
-        headers: this.headers,
-        rows: this.rows
-      };
-    }
-
-    return null;
+    return this.toolCall.args as unknown as TableData;
   }
 
   public override render(): TemplateResult {
@@ -189,7 +167,7 @@ export class DataTable extends LitElement {
             `}
         ${this._shouldShowPaginator
           ? html`<ai-paginator
-              current-page="${this.currentPage}"
+              current-page="${this._currentPage}"
               total-pages="${this._totalPages}"
               @page-change=${this.#handlePageChange}></ai-paginator>`
           : ''}
