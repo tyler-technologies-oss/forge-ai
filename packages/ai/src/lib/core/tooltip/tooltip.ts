@@ -36,8 +36,8 @@ export type TooltipTrigger = 'hover' | 'focus' | 'click' | 'manual';
  *
  * @since 1.2.0
  *
- * @cssprop --ai-tooltip-max-width - The maximum width of the tooltip.
- * @cssprop --ai-tooltip-z-index - The z-index of the tooltip overlay.
+ * @cssproperty--ai-tooltip-max-width - The maximum width of the tooltip.
+ * @cssproperty--ai-tooltip-z-index - The z-index of the tooltip overlay.
  *
  * @slot - The default slot for tooltip content.
  */

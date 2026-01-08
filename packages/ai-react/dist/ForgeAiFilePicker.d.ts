@@ -81,9 +81,5 @@ export interface ForgeAiFilePickerProps extends Pick<
  * ### **Slots:**
  *  - _default_ - The default slot for button content when no file is selected.
  * - **icon** - The icon slot for icon-button variant.
- *
- * ### **CSS Properties:**
- *  - **--ai-file-picker-width** - The width of the file picker button. _(default: undefined)_
- * - **--ai-file-picker-height** - The height of the file picker button. _(default: undefined)_
  */
 export const ForgeAiFilePicker: React.ForwardRefExoticComponent<ForgeAiFilePickerProps>;

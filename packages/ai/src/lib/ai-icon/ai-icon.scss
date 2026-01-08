@@ -2,7 +2,7 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 
 :host {
-  --forge-ai-icon-fill-color: #{forge-theme.variable(tertiary)};
+  --_ai-icon-fill-color: var(--forge-ai-icon-fill-color, #{forge-theme.variable(tertiary)});
   box-sizing: border-box;
   display: grid;
   place-items: center;
@@ -18,7 +18,7 @@ forge-ai-gradient-container {
 }
 
 svg {
-  fill: var(--forge-ai-icon-fill-color);
+  fill: var(--_ai-icon-fill-color);
   height: 24px;
   width: 24px;
 }

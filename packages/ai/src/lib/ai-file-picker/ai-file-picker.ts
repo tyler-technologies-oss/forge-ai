@@ -57,8 +57,8 @@ export type AiFilePickerVariant = 'button' | 'icon-button';
  * ## Events
  * - **forge-ai-file-picker-change**: Fired when a file is selected with file details
  *
- * @cssprop --ai-file-picker-width - The width of the file picker button.
- * @cssprop --ai-file-picker-height - The height of the file picker button.
+ * @cssproperty--ai-file-picker-width - The width of the file picker button.
+ * @cssproperty--ai-file-picker-height - The height of the file picker button.
  *
  * @slot - The default slot for button content when no file is selected.
  * @slot icon - The icon slot for icon-button variant.

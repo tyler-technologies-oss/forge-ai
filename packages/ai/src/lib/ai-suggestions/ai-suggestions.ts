@@ -38,6 +38,8 @@ export const AiSuggestionsComponentTagName: keyof HTMLElementTagNameMap = 'forge
  * @state block - The suggestions are displayed as blocks.
  *
  * @event {CustomEvent<ForgeAiSuggestionsEventData>} forge-ai-suggestions-select - Fired when a suggestion is selected.
+ *
+ * @cssproperty --forge-ai-suggestion-max-width - The maximum width of the suggestion buttons in inline layout.
  */
 @customElement(AiSuggestionsComponentTagName)
 export class AiSuggestionsComponent extends LitElement {

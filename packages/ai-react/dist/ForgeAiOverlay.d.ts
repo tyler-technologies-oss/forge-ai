@@ -74,11 +74,5 @@ Can be a number (main axis offset) or an object with mainAxis, crossAxis, and al
  *
  * ### **Slots:**
  *  - _default_ - The default slot for overlay content.
- *
- * ### **CSS Properties:**
- *  - **--ai-overlay-max-width** - The maximum width of the overlay. _(default: undefined)_
- * - **--ai-overlay-max-height** - The maximum height of the overlay. _(default: undefined)_
- * - **--ai-overlay-min-width** - The minimum width of the overlay. _(default: undefined)_
- * - **--ai-overlay-min-height** - The minimum height of the overlay. _(default: undefined)_
  */
 export const ForgeAiOverlay: React.ForwardRefExoticComponent<ForgeAiOverlayProps>;

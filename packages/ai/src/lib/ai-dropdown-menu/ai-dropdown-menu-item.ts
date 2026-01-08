@@ -34,9 +34,9 @@ declare global {
  * - **'click'**: Opens on click/tap
  * - **'both'**: Opens on both hover and click
  *
- * @cssprop --ai-dropdown-menu-item-submenu-open-delay - Delay before opening submenu on hover.
- * @cssprop --ai-dropdown-menu-item-submenu-close-delay - Delay before closing submenu when mouse leaves.
- * @cssprop --ai-dropdown-menu-item-selection-icon-size - Size of selection and submenu icons.
+ * @cssproperty--ai-dropdown-menu-item-submenu-open-delay - Delay before opening submenu on hover.
+ * @cssproperty--ai-dropdown-menu-item-submenu-close-delay - Delay before closing submenu when mouse leaves.
+ * @cssproperty--ai-dropdown-menu-item-selection-icon-size - Size of selection and submenu icons.
  *
  * @slot - The default slot for item text content.
  * @slot description - The description slot for additional item details.
