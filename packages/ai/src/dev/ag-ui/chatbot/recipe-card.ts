@@ -1,6 +1,6 @@
 import { LitElement, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import type { ToolCall } from '../../../lib/ai-chatbot';
+import type { IToolRenderer, ToolCall } from '../../../lib/ai-chatbot';
 import styles from './recipe-card.scss?inline';
 
 interface RecipeData {
@@ -14,15 +14,14 @@ interface RecipeData {
 }
 
 @customElement('recipe-card')
-export class RecipeCard extends LitElement {
+export class RecipeCard extends LitElement implements IToolRenderer<RecipeData> {
   static styles = unsafeCSS(styles);
 
   @property({ attribute: false })
-  public toolCall!: ToolCall;
+  public toolCall!: ToolCall<RecipeData>;
 
   render() {
-    // For pure rendering tools, data comes from LLM via args, not result
-    const data = this.toolCall.args as unknown as RecipeData;
+    const data = this.toolCall.args;
     if (!data) {
       return html`<forge-card><p class="forge-typography--body2">No recipe data available</p></forge-card>`;
     }

@@ -24,6 +24,14 @@ export interface ToolRenderer {
 }
 
 /**
+ * Interface that tool renderer components should implement for type-safe tool call handling.
+ * @template TArgs - Type of the tool call arguments
+ */
+export interface IToolRenderer<TArgs = Record<string, unknown>> {
+  toolCall: ToolCall<TArgs>;
+}
+
+/**
  * Context provided to tool handlers when they are invoked.
  * @template TArgs - Type of the tool call arguments
  */
@@ -124,11 +132,11 @@ export interface ChatMessage {
   eventStream?: StreamEvent[];
 }
 
-export interface ToolCall {
+export interface ToolCall<TArgs = Record<string, unknown>> {
   id: string;
   messageId: string;
   name: string;
-  args: Record<string, unknown>;
+  args: TArgs;
   argsBuffer?: string;
   result?: unknown;
   status: 'pending' | 'parsing' | 'executing' | 'complete' | 'error';

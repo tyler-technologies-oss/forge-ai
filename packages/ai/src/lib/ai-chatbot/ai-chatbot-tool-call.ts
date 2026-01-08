@@ -127,7 +127,7 @@ export class AiChatbotToolCallComponent extends LitElement {
   public override updated(changedProperties: PropertyValues<this>): void {
     super.updated(changedProperties);
 
-    if (changedProperties.has('toolCall') || changedProperties.has('toolDefinition')) {
+    if (changedProperties.has('toolCall') || changedProperties.has('toolDefinition') || changedProperties.has('debugMode')) {
       const renderer = this.toolDefinition?.renderer;
       const container = this.#customRendererRef.value;
 
@@ -228,11 +228,7 @@ export class AiChatbotToolCallComponent extends LitElement {
     const isComplete = this.toolCall.status === 'complete';
 
     if (!this.debugMode) {
-      const hasCustomRenderer = this.toolDefinition?.renderer && isComplete;
-      if (!hasCustomRenderer) {
-        return nothing;
-      }
-      return html`${this.#customRenderer}`;
+      return this.#customRenderer;
     }
 
     return html`
