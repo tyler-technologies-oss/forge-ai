@@ -9,7 +9,7 @@ import styles from './ai-data-table.scss?inline';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'forge-ai-tool-data-table': ToolDataTableElement;
+    'forge-ai-tool-data-table': DataTableToolElement;
   }
 }
 
@@ -30,7 +30,7 @@ const MIN_ROWS_FOR_FILTER = 5;
  * @internal
  */
 @customElement('forge-ai-tool-data-table')
-export class ToolDataTableElement extends LitElement {
+export class DataTableToolElement extends LitElement {
   public static styles = unsafeCSS(styles);
 
   /**
@@ -206,10 +206,10 @@ export class ToolDataTableElement extends LitElement {
     if (!this.#shouldShowPaginator) {
       return nothing;
     }
-    return html`<ai-paginator
+    return html`<forge-ai-paginator
       current-page="${this._currentPage}"
       total-pages="${this.#totalPages}"
-      @page-change=${this.#handlePageChange}></ai-paginator>`;
+      @page-change=${this.#handlePageChange}></forge-ai-paginator>`;
   }
 
   public override render(): TemplateResult {

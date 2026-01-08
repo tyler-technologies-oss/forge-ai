@@ -2,7 +2,13 @@ import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import styles from './ai-paginator.scss?inline';
 
-@customElement('ai-paginator')
+declare global {
+  interface HTMLElementTagNameMap {
+    'forge-ai-paginator': AiPaginator;
+  }
+}
+
+@customElement('forge-ai-paginator')
 export class AiPaginator extends LitElement {
   public static styles = unsafeCSS(styles);
 
@@ -82,11 +88,5 @@ export class AiPaginator extends LitElement {
         </div>
       </div>
     `;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'ai-paginator': AiPaginator;
   }
 }

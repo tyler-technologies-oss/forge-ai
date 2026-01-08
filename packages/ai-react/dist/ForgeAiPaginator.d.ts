@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  AiPaginator as AiPaginatorElement,
+  ForgeAiPaginator as ForgeAiPaginatorElement,
   CustomEvent,
 } from "@tylertech/forge-ai/tools/ai-paginator";
 
-export type { AiPaginatorElement, CustomEvent };
+export type { ForgeAiPaginatorElement, CustomEvent };
 
-export interface AiPaginatorProps extends Pick<
+export interface ForgeAiPaginatorProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -25,10 +25,10 @@ export interface AiPaginatorProps extends Pick<
   disabled?: boolean;
 
   /** undefined */
-  currentPage?: AiPaginatorElement["currentPage"];
+  currentPage?: ForgeAiPaginatorElement["currentPage"];
 
   /** undefined */
-  totalPages?: AiPaginatorElement["totalPages"];
+  totalPages?: ForgeAiPaginatorElement["totalPages"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -63,4 +63,4 @@ export interface AiPaginatorProps extends Pick<
  * ### **Events:**
  *  - **page-change**
  */
-export const AiPaginator: React.ForwardRefExoticComponent<AiPaginatorProps>;
+export const ForgeAiPaginator: React.ForwardRefExoticComponent<ForgeAiPaginatorProps>;

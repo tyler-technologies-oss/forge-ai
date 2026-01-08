@@ -2,7 +2,7 @@ import React, { forwardRef, useRef, useEffect } from "react";
 import "@tylertech/forge-ai/tools/ai-paginator";
 import { useEventListener } from "./react-utils.js";
 
-export const AiPaginator = forwardRef((props, forwardedRef) => {
+export const ForgeAiPaginator = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
   const { disabled, currentPage, totalPages, ...filteredProps } = props;
 
@@ -10,7 +10,7 @@ export const AiPaginator = forwardRef((props, forwardedRef) => {
   useEventListener(ref, "page-change", props.onPageChange);
 
   return React.createElement(
-    "ai-paginator",
+    "forge-ai-paginator",
     {
       ref: (node) => {
         ref.current = node;
