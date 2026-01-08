@@ -90,5 +90,11 @@ Only applies to root-level menus; submenus always use 'right-start'. */
  * - **selected-text** - Custom content for the trigger button when selections are made (overrides default selection text).
  * - **start** - The start icon slot for additional trigger button content.
  * - **end** - The end icon slot for additional trigger button content.
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-dropdown-menu-min-width** - Minimum width of the dropdown menu. _(default: undefined)_
+ * - **--forge-ai-dropdown-menu-max-width** - Maximum width of the dropdown menu. _(default: undefined)_
+ * - **--forge-ai-dropdown-menu-max-height** - Maximum height of the dropdown menu. _(default: undefined)_
+ * - **--forge-ai-dropdown-menu-padding** - Padding inside the dropdown menu. _(default: undefined)_
  */
 export const ForgeAiDropdownMenu: React.ForwardRefExoticComponent<ForgeAiDropdownMenuProps>;

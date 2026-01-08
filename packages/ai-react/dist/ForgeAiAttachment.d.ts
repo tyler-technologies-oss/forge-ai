@@ -67,5 +67,11 @@ export interface ForgeAiAttachmentProps extends Pick<
  *
  * ### **Events:**
  *  - **forge-ai-attachment-remove** - Fired when the remove button is clicked
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-attachment-background** - Background color of the attachment _(default: undefined)_
+ * - **--forge-ai-attachment-border-color** - Border color of the attachment _(default: undefined)_
+ * - **--forge-ai-attachment-padding** - Padding inside the attachment _(default: undefined)_
+ * - **--forge-ai-attachment-gap** - Gap between elements _(default: undefined)_
  */
 export const ForgeAiAttachment: React.ForwardRefExoticComponent<ForgeAiAttachmentProps>;

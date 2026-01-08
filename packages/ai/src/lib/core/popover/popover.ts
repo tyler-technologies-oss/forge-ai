@@ -32,11 +32,6 @@ export type PopoverOffset = OverlayOffset;
  * This component wraps the base overlay component with popover-specific styling
  * including animations, shadows, and rounded corners.
  *
- * @cssproperty--ai-popover-max-width - The maximum width of the popover.
- * @cssproperty--ai-popover-max-height - The maximum height of the popover.
- * @cssproperty--ai-popover-min-width - The minimum width of the popover.
- * @cssproperty--ai-popover-min-height - The minimum height of the popover.
- *
  * @slot - The default slot for popover content.
  */
 @customElement('forge-ai-popover')

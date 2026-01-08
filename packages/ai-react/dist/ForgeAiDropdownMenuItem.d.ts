@@ -79,5 +79,8 @@ This is typically set by the parent dropdown menu component. */
  * - **start** - The start icon slot.
  * - **end** - The end icon slot.
  * - **submenu** - The slot for nested dropdown menu components.
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-dropdown-menu-item-selection-icon-size** - Size of selection and submenu icons. _(default: undefined)_
  */
 export const ForgeAiDropdownMenuItem: React.ForwardRefExoticComponent<ForgeAiDropdownMenuItemProps>;

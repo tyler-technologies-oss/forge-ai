@@ -21,8 +21,8 @@ export type SpinnerSize = 'small' | 'medium' | 'large';
  * @description
  * A spinner component that displays an animated circular progress indicator. Used to indicate loading states.
  *
- * @cssproperty--forge-ai-spinner-color - Color of the spinner indicator
- * @cssproperty--forge-ai-spinner-track-color - Color of the spinner track
+ * @cssproperty --forge-ai-spinner-color - Color of the spinner indicator
+ * @cssproperty --forge-ai-spinner-track-color - Color of the spinner track
  */
 @customElement(AiSpinnerComponentTagName)
 export class AiSpinnerComponent extends LitElement {

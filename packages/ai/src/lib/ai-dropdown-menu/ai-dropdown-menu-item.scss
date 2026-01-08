@@ -11,10 +11,7 @@
   position: relative;
   outline: none;
 
-  // CSS Custom Properties for submenu configuration
-  --ai-dropdown-menu-item-submenu-open-delay: 150ms;
-  --ai-dropdown-menu-item-submenu-close-delay: 300ms;
-  --ai-dropdown-menu-item-selection-icon-size: 16px;
+  --_ai-dropdown-menu-item-selection-icon-size: var(--forge-ai-dropdown-menu-item-selection-icon-size, 16px);
 }
 
 @include forge-focus-indicator.keyframes;
@@ -114,13 +111,13 @@
 
   &__selection-svg {
     fill: currentColor;
-    width: var(--ai-dropdown-menu-item-selection-icon-size);
-    height: var(--ai-dropdown-menu-item-selection-icon-size);
+    width: var(--_ai-dropdown-menu-item-selection-icon-size);
+    height: var(--_ai-dropdown-menu-item-selection-icon-size);
   }
 
   &__submenu-arrow {
-    width: var(--ai-dropdown-menu-item-selection-icon-size);
-    height: var(--ai-dropdown-menu-item-selection-icon-size);
+    width: var(--_ai-dropdown-menu-item-selection-icon-size);
+    height: var(--_ai-dropdown-menu-item-selection-icon-size);
     fill: currentColor;
   }
 

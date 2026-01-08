@@ -47,19 +47,6 @@ export type AiFilePickerVariant = 'button' | 'icon-button';
  * A simple file picker component that allows users to select and upload files.
  * Provides both button and icon-button variants for different UI contexts.
  *
- * ## Features
- * - **Multiple Variants**: 'button' and 'icon-button' for different use cases
- * - **File Selection**: Click to open file dialog or drag & drop support
- * - **Event Emission**: Emits events when files are selected
- * - **Accessibility**: Full ARIA implementation with keyboard support
- * - **Customizable**: Accepts custom file types and styling
- *
- * ## Events
- * - **forge-ai-file-picker-change**: Fired when a file is selected with file details
- *
- * @cssproperty--ai-file-picker-width - The width of the file picker button.
- * @cssproperty--ai-file-picker-height - The height of the file picker button.
- *
  * @slot - The default slot for button content when no file is selected.
  * @slot icon - The icon slot for icon-button variant.
  *

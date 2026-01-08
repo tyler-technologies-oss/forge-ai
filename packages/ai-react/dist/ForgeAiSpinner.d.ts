@@ -47,5 +47,9 @@ export interface ForgeAiSpinnerProps extends Pick<
  * Indeterminate circular progress indicator.
  * ---
  *
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-spinner-color** - Color of the spinner indicator _(default: undefined)_
+ * - **--forge-ai-spinner-track-color** - Color of the spinner track _(default: undefined)_
  */
 export const ForgeAiSpinner: React.ForwardRefExoticComponent<ForgeAiSpinnerProps>;
