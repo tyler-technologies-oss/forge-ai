@@ -1,8 +1,0 @@
-import{r as c,i as f,x as l}from"./iframe-Bp7ipRCr.js";import{t as m}from"./custom-element-UsVr97OX.js";import{n as d}from"./property-7jE7f0Cs.js";const h=":host{display:inline-block}.spinner{display:flex;align-items:center;justify-content:center}.spinner svg{animation:rotate 1.4s linear infinite}.spinner--small{width:24px;height:24px}.spinner--medium{width:32px;height:32px}.spinner--large{width:48px;height:48px}.track{stroke:var(--forge-ai-spinner-track-color, var(--forge-theme-outline-low, #9e9e9e));opacity:.2}.indicator{stroke:var(--forge-ai-spinner-color, var(--forge-theme-primary, #3f51b5));stroke-linecap:round;stroke-dasharray:125.6;stroke-dashoffset:125.6;transform-origin:center;animation:dash 1.4s ease-in-out infinite}@keyframes rotate{to{transform:rotate(360deg)}}@keyframes dash{0%{stroke-dashoffset:125.6;transform:rotate(0)}50%{stroke-dashoffset:31.4;transform:rotate(240deg)}to{stroke-dashoffset:125.6;transform:rotate(720deg)}}";var g=Object.defineProperty,v=Object.getOwnPropertyDescriptor,p=(a,r,i,t)=>{for(var e=t>1?void 0:t?v(r,i):r,n=a.length-1,o;n>=0;n--)(o=a[n])&&(e=(t?o(r,i,e):o(e))||e);return t&&e&&g(r,i,e),e};const y="forge-ai-spinner";let s=class extends f{constructor(){super(...arguments),this.size="medium"}render(){return l`
-      <div class="spinner spinner--${this.size}">
-        <svg viewBox="0 0 48 48">
-          <circle class="track" cx="24" cy="24" r="20" fill="none" stroke-width="4"></circle>
-          <circle class="indicator" cx="24" cy="24" r="20" fill="none" stroke-width="4"></circle>
-        </svg>
-      </div>
-    `}};s.styles=c(h);p([d({type:String})],s.prototype,"size",2);s=p([m(y)],s);
