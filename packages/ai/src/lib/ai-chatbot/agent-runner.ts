@@ -143,7 +143,7 @@ export class AgentRunner {
 
   static #createUserMessage(prompt: string): ChatMessage {
     return {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'user',
       content: prompt,
       timestamp: Date.now(),
@@ -240,7 +240,7 @@ export class AgentRunner {
         let toolMessage = state.toolResultMessages.get(toolCall.id);
         if (!toolMessage) {
           toolMessage = {
-            id: generateId('tool'),
+            id: generateId(),
             role: 'tool',
             content: JSON.stringify(toolCall.result),
             timestamp: Date.now(),
@@ -377,7 +377,7 @@ export class AgentRunner {
 
   static #buildEmptyMessage(): ChatMessage {
     return {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'assistant',
       content: '',
       timestamp: Date.now(),

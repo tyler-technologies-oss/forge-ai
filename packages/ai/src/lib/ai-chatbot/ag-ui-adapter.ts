@@ -37,7 +37,7 @@ export class AgUiAdapter extends AgentAdapter {
   constructor(config: AgUiAdapterConfig, threadId?: string) {
     super();
     this.#config = config;
-    this.#threadId = threadId ?? generateId('thread');
+    this.#threadId = threadId ?? generateId();
     this.#agent = new HttpAgentWithCredentials({
       url: config.url,
       headers: config.headers
@@ -60,7 +60,7 @@ export class AgUiAdapter extends AgentAdapter {
 
   public static async create(config: AgUiAdapterConfig & { threadId?: string }): Promise<AgUiAdapter> {
     const { threadId, ...adapterConfig } = config;
-    const adapter = new AgUiAdapter(adapterConfig, threadId ?? generateId('thread'));
+    const adapter = new AgUiAdapter(adapterConfig, threadId ?? generateId());
 
     await adapter.connect();
     return adapter;
@@ -97,7 +97,7 @@ export class AgUiAdapter extends AgentAdapter {
 
   public sendToolResult(toolCallId: string, result: unknown, messages?: ChatMessage[]): void {
     const toolMessage: ChatMessage = {
-      id: generateId('tool'),
+      id: generateId(),
       role: 'tool',
       content: JSON.stringify(result),
       timestamp: Date.now(),
@@ -263,7 +263,7 @@ export class AgUiAdapter extends AgentAdapter {
   #handleToolCallResult({ event }: { event: ToolCallResultEvent }): void {
     const result = JSON.parse(event.content);
     const toolMessage: ChatMessage = {
-      id: generateId('tool'),
+      id: generateId(),
       role: 'tool',
       content: event.content,
       timestamp: Date.now(),
