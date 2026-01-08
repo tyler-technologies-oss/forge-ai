@@ -366,6 +366,13 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
     });
   }
 
+  private _onDefaultSlotChange(): void {
+    if (this._selectionManager) {
+      this._selectionManager.value = this.value;
+      this.requestUpdate();
+    }
+  }
+
   private get _dropdownRole(): 'menu' | 'listbox' {
     switch (this.selectionMode) {
       case 'single':
@@ -421,7 +428,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
   // Static template parts that don't change based on state
   readonly #dropdownContentTemplate = html`
     <slot name="header"></slot>
-    <slot></slot>
+    <slot @slotchange=${this._onDefaultSlotChange}></slot>
   `;
 
   get #triggerButton(): TemplateResult {

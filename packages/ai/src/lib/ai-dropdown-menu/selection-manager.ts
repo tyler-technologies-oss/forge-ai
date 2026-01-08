@@ -136,7 +136,7 @@ export class SelectionManager {
    * Handles item selection based on the current mode
    */
   public selectItem(item: ForgeAiDropdownMenuItemComponent): { shouldClose: boolean } {
-    const itemValue = item.getAttribute('value') || '';
+    const itemValue = item.value || '';
 
     switch (this._config.mode) {
       case 'none':
@@ -160,7 +160,7 @@ export class SelectionManager {
     const items = this._getMenuItems();
     const selectedValues = this._getSelectedValuesArray();
     return items.filter(item => {
-      const itemValue = item.getAttribute('value') || '';
+      const itemValue = item.value || '';
       return selectedValues.includes(itemValue);
     });
   }
@@ -206,7 +206,7 @@ export class SelectionManager {
 
     items.forEach(item => {
       item.selectionMode = this._config.mode;
-      const itemValue = item.getAttribute('value') || '';
+      const itemValue = item.value || '';
       item.selected = selectedValues.includes(itemValue);
     });
   }
