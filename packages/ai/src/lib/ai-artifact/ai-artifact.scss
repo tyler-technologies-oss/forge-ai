@@ -5,14 +5,16 @@
 @use '@tylertech/forge/dist/toolbar/forge-toolbar' as forge-toolbar;
 
 :host {
+  --_ai-artifact-content-padding: var(--forge-ai-artifact-content-padding, #{forge-spacing.variable(medium)});
   display: block;
   border: 1px solid #{forge-theme.variable(outline)};
   border-radius: #{forge-shape.variable(large)};
 }
 
 .forge-toolbar {
-  --forge-theme-surface: transparent;
   padding-inline: #{forge-spacing.variable(medium)};
+  border-start-start-radius: #{forge-shape.variable(large)};
+  border-start-end-radius: #{forge-shape.variable(large)};
 }
 
 .forge-toolbar__start {
@@ -21,4 +23,8 @@
 
 .forge-toolbar__end {
   color: #{forge-theme.variable(text-medium)};
+}
+
+.content {
+  padding: var(--_ai-artifact-content-padding);
 }

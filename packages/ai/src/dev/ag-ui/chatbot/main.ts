@@ -25,6 +25,8 @@ import {
 } from '@tylertech/forge';
 
 import './recipe-card.js';
+import '../../../lib/tools/ai-data-table';
+import { displayDataTableTool } from '../../../lib/tools/ai-data-table';
 
 defineScaffoldComponent();
 defineAppBarComponent();
@@ -192,7 +194,7 @@ const displayRecipeTool: ToolDefinition = {
   })
 };
 
-const tools: Array<ToolDefinition<any>> = [showConfettiTool, displayRecipeTool];
+const tools: Array<ToolDefinition<any>> = [showConfettiTool, displayRecipeTool, displayDataTableTool];
 
 let threadId = generateId();
 let adapter: AgUiAdapter;
@@ -333,11 +335,12 @@ initializeAdapter(baseUrlInput.value, agentIdInput.value);
 chatbot.suggestions = [
   { text: 'What can you help me with?', value: 'What can you help me with?' },
   { text: 'Show me confetti!', value: 'Show me confetti!' },
-  { text: 'Show me a recipe for chocolate chip cookies', value: 'Show me a recipe for chocolate chip cookies' }
+  { text: 'Show me a recipe for chocolate chip cookies', value: 'Show me a recipe for chocolate chip cookies' },
+  { text: 'Show me a data table with random data', value: 'Show me a data table with random data' }
 ];
 chatbot.agentInfo = {
   name: 'My Agent',
-  description: 'A helpful AI assistant with access to recipes and celebration tools',
+  description: 'A helpful AI assistant with access to recipes, data tables, and celebration tools',
   identifier: 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c',
   version: '1.0.0',
   model: 'us.anthropic.claude-sonnet-4-20250514-v1:0',

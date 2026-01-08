@@ -1,5 +1,6 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/icon/forge-icon';
 @use '@tylertech/forge/dist/scaffold/forge-scaffold';
@@ -12,7 +13,7 @@
 
 .ai-icon-button,
 .ai-icon-button > svg {
-  fill: var(--forge-theme-text-medium);
+  fill: #{forge-theme.variable(text-medium)};
 }
 
 .header {

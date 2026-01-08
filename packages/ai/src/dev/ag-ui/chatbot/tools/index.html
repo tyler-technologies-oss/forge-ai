@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Tools Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdn.forge.tylertech.com/v1/libs/@tylertech/forge@3.13.1/forge.css" />
+    <link rel="stylesheet" href="https://cdn.forge.tylertech.com/v1/css/tyler-font.css" />
+  </head>
+  <body>
+    <!-- Table of Contents Sidebar -->
+    <nav class="toc-sidebar">
+      <h2 class="toc-title">AI Tools Demo</h2>
+      <ul class="toc-list">
+        <li><a href="#data-table-section" class="toc-link">Data Table Tool</a></li>
+        <li><a href="#recipe-card-section" class="toc-link">Recipe Card Tool</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <!-- Data Table Demo Section -->
+      <section id="data-table-section" class="tool-demo-section">
+        <forge-ai-gradient-container variant="high">
+          <forge-ai-chat-interface>
+            <forge-ai-chat-header slot="header">Data Table Tool</forge-ai-chat-header>
+            <div class="tool-container">
+              <ai-data-table id="demo-data-table" max-number-of-rows="10"></ai-data-table>
+            </div>
+            <forge-ai-prompt slot="prompt" placeholder="Ask about the sales data..."></forge-ai-prompt>
+          </forge-ai-chat-interface>
+        </forge-ai-gradient-container>
+      </section>
+
+      <!-- Recipe Card Demo Section -->
+      <section id="recipe-card-section" class="tool-demo-section">
+        <div class="chat-container">
+          <forge-ai-gradient-container variant="high">
+            <forge-ai-chat-interface>
+              <forge-ai-chat-header slot="header">Recipe Card Tool</forge-ai-chat-header>
+              <div class="tool-container">
+                <recipe-card id="demo-recipe-card"></recipe-card>
+              </div>
+              <forge-ai-prompt slot="prompt" placeholder="Ask about the recipe..."></forge-ai-prompt>
+            </forge-ai-chat-interface>
+          </forge-ai-gradient-container>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="demo.js"></script>
+  </body>
+</html>
