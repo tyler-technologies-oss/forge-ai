@@ -196,7 +196,7 @@ const displayRecipeTool: ToolDefinition = {
 
 const tools: Array<ToolDefinition<any>> = [showConfettiTool, displayRecipeTool, displayDataTableTool];
 
-let threadId = generateId('thread');
+let threadId = generateId();
 let adapter: AgUiAdapter;
 
 function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
@@ -293,7 +293,7 @@ function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
 function initializeAdapter(baseUrl: string, agentId: string): void {
   adapter?.disconnect();
 
-  threadId = generateId('thread');
+  threadId = generateId();
   adapter = createAdapter(baseUrl, agentId);
   chatbot.adapter = adapter;
 

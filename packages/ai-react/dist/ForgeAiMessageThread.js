@@ -4,7 +4,13 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiMessageThread = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { enableReactions, showThinking, autoScroll, ...filteredProps } = props;
+  const {
+    enableReactions,
+    showThinking,
+    debugMode,
+    autoScroll,
+    ...filteredProps
+  } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -48,6 +54,7 @@ export const ForgeAiMessageThread = forwardRef((props, forwardedRef) => {
       tabindex: props.tabIndex,
       "enable-reactions": props.enableReactions ? true : undefined,
       "show-thinking": props.showThinking ? true : undefined,
+      "debug-mode": props.debugMode ? true : undefined,
       style: { ...props.style },
     },
     props.children,

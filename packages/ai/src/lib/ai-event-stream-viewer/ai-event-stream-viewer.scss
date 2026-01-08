@@ -1,0 +1,141 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+@use '@tylertech/forge/dist/badge/forge-badge.css';
+@use '@tylertech/forge/dist/list/forge-list.css';
+@use '@tylertech/forge/dist/expansion-panel/forge-expansion-panel.css';
+@use '@tylertech/forge/dist/icon/forge-icon.css';
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
+
+:host {
+  display: block;
+}
+
+.event-stream {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  max-height: 400px;
+  min-height: 0;
+  width: 400px;
+
+  .header {
+    @include forge-typography.style(heading1);
+
+    padding: #{forge-spacing.variable(xsmall)};
+    border-block-end: 1px solid #{forge-theme.variable(outline)};
+  }
+
+  .empty-state {
+    @include forge-typography.style(body1);
+    color: #{forge-theme.variable(text-medium)};
+    padding: #{forge-spacing.variable(medium)};
+    text-align: center;
+  }
+}
+
+.forge-list {
+  @include forge-scrollbar.base;
+
+  overflow-y: auto;
+  margin: 0;
+  padding: #{forge-spacing.variable(xxsmall)} 0;
+}
+
+.forge-list-item {
+  padding-inline: #{forge-spacing.variable(xsmall)};
+
+  &:last-child {
+    border-block-end: none;
+  }
+
+  .event-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: #{forge-spacing.variable(xsmall)};
+  }
+
+  .expansion-icon {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    fill: #{forge-theme.variable(text-medium)};
+    transition: transform 150ms ease;
+
+    &.expanded {
+      transform: rotate(90deg);
+    }
+  }
+
+  .forge-badge {
+    font-size: 11px;
+    border-radius: #{forge-shape.variable(small)};
+
+    &--error {
+      --forge-badge-background: #{forge-theme.variable(error-container)};
+      --forge-badge-color: #{forge-theme.variable(on-error-container)};
+    }
+
+    &--success {
+      --forge-badge-background: #{forge-theme.variable(success-container)};
+      --forge-badge-color: #{forge-theme.variable(on-success-container)};
+    }
+
+    &--warning {
+      --forge-badge-background: #{forge-theme.variable(warning-container)};
+      --forge-badge-color: #{forge-theme.variable(on-warning-container)};
+    }
+
+    &--info-primary {
+      --forge-badge-background: #{forge-theme.variable(primary-container)};
+      --forge-badge-color: #{forge-theme.variable(on-primary-container)};
+    }
+
+    &--info-secondary {
+      --forge-badge-background: #{forge-theme.variable(secondary-container)};
+      --forge-badge-color: #{forge-theme.variable(on-secondary-container)};
+    }
+  }
+
+  .timestamp {
+    @include forge-typography.style(label1);
+
+    margin-inline-start: auto;
+    color: #{forge-theme.variable(text-medium)};
+  }
+}
+
+.forge-expansion-panel {
+  padding-inline: #{forge-spacing.variable(xsmall)};
+
+  &__content {
+    .event-data-container {
+      position: relative;
+      overflow: auto;
+    }
+
+    .event-data {
+      @include forge-scrollbar.base;
+
+      margin: 0;
+      padding: #{forge-spacing.variable(xsmall)};
+      background-color: #{forge-theme.variable(surface-container-minimum)};
+      border-radius: 4px;
+      overflow-x: auto;
+      font-family: monospace;
+      font-size: 11px;
+      line-height: normal;
+      margin-inline-start: 22px;
+      margin-block: #{forge-spacing.variable(xxsmall)};
+    }
+
+    .copy-button {
+      position: absolute;
+      top: #{forge-spacing.variable(xxsmall)};
+      inset-inline-end: #{forge-spacing.variable(xxsmall)};
+      z-index: 1;
+    }
+  }
+}

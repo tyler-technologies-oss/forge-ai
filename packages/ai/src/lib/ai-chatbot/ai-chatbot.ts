@@ -7,7 +7,7 @@ import type { ForgeAiAttachmentRemoveEventData } from '../ai-attachment';
 import type { AiChatInterfaceComponent } from '../ai-chat-interface';
 import type { AiMessageThreadComponent } from '../ai-message-thread';
 import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData } from '../ai-file-picker';
-import type { AiPromptComponent, ForgeAiPromptSendEventData } from '../ai-prompt';
+import type { AiPromptComponent, ForgeAiPromptSendEventData, ForgeAiPromptCommandEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData, Suggestion } from '../ai-suggestions';
 import type { ForgeAiVoiceInputResultEvent } from '../ai-voice-input';
 import {
@@ -34,6 +34,8 @@ import type {
   HandlerContext,
   HeadingLevel,
   MessageItem,
+  SlashCommand,
+  SlashCommandId,
   ThreadState,
   ToolCall,
   ToolDefinition,
@@ -52,6 +54,7 @@ import '../ai-suggestions';
 import '../ai-voice-input';
 
 import styles from './ai-chatbot.scss?inline';
+import { AiChatHeaderComponent } from '../ai-chat-header';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -170,14 +173,36 @@ export class AiChatbotComponent extends LitElement {
   @property({ attribute: 'heading-level', type: Number })
   public headingLevel: HeadingLevel = 2;
 
+  @property({ type: Boolean, attribute: 'debug-mode' })
+  public debugMode = false;
+
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #messageThreadRef = createRef<AiMessageThreadComponent>();
   #promptRef = createRef<AiPromptComponent>();
+  #headerRef = createRef<AiChatHeaderComponent>();
   #messageStateController!: MessageStateController;
   #fileUploadManager!: FileUploadManager;
   #toolsMap?: Map<string, ToolDefinition>;
   #adapterSubscriptions?: SubscriptionManager;
   #executingToolHandlers = 0;
+
+  get #slashCommands(): SlashCommand[] {
+    const commands: SlashCommand[] = [];
+
+    if (this.#hasMessages) {
+      commands.push({ id: 'clear', name: 'Clear', group: 'Conversation' });
+      commands.push({ id: 'export', name: 'Export', group: 'Conversation' });
+    }
+
+    commands.push({ id: 'info', name: 'Info', group: 'Help' });
+    commands.push({
+      id: 'debug',
+      name: `${this.debugMode ? 'Disable debug mode' : 'Enable debug mode'}`,
+      group: 'Help'
+    });
+
+    return commands;
+  }
 
   get #messageItems(): MessageItem[] {
     return this.#messageStateController?.messageItems ?? [];
@@ -281,7 +306,7 @@ export class AiChatbotComponent extends LitElement {
       status: 'streaming'
     };
 
-    this.#messageStateController.addMessage(message);
+    this.#messageStateController.addMessage(message, event);
   }
 
   /**
@@ -295,12 +320,12 @@ export class AiChatbotComponent extends LitElement {
       return;
     }
 
-    this.#messageStateController.appendToMessage(event.messageId, event.delta);
+    this.#messageStateController.appendToMessage(event.messageId, event.delta, event);
     this.scrollToBottom();
   }
 
   #handleMessageEnd(event: MessageEndEvent): void {
-    this.#messageStateController.updateMessageStatus(event.messageId, 'complete');
+    this.#messageStateController.updateMessageStatus(event.messageId, 'complete', event);
 
     const message = this.#messageStateController.getMessage(event.messageId);
     if (message) {
@@ -328,7 +353,7 @@ export class AiChatbotComponent extends LitElement {
       type: this.#tools.has(event.name) ? 'client' : 'agent'
     };
 
-    this.#messageStateController.addToolCall(toolCall);
+    this.#messageStateController.addToolCall(toolCall, event);
   }
 
   /**
@@ -336,10 +361,12 @@ export class AiChatbotComponent extends LitElement {
    * Updates the args buffer to show real-time parsing progress.
    */
   #handleToolCallArgs(event: ToolCallArgsEvent): void {
-    this.#messageStateController.updateToolCall(event.id, {
+    const updates: Partial<ToolCall> = {
       argsBuffer: event.argsBuffer,
       args: event.partialArgs ?? {}
-    });
+    };
+    const rawEvent = { eventType: 'tool-call-args', event } as const;
+    this.#messageStateController.updateToolCall(event.id, updates, rawEvent);
     this.scrollToBottom();
   }
 
@@ -348,11 +375,13 @@ export class AiChatbotComponent extends LitElement {
    * Updates tool call with final args and changes status to 'executing'.
    */
   #handleToolCallEnd(event: ToolCallEndEvent): void {
-    this.#messageStateController.updateToolCall(event.id, {
+    const updates: Partial<ToolCall> = {
       args: event.args,
       argsBuffer: undefined,
       status: 'executing'
-    });
+    };
+    const rawEvent = { eventType: 'tool-call-end', event } as const;
+    this.#messageStateController.updateToolCall(event.id, updates, rawEvent);
   }
 
   #createToolResponse(toolName: string, handlerReturn?: unknown): unknown {
@@ -447,7 +476,7 @@ export class AiChatbotComponent extends LitElement {
 
   #handleError(event: ErrorEvent): void {
     const errorMessage: ChatMessage = {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'assistant',
       content: event.message,
       timestamp: Date.now(),
@@ -460,7 +489,7 @@ export class AiChatbotComponent extends LitElement {
 
   #handleRunAborted(): void {
     const abortMessage: ChatMessage = {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'system',
       content: 'Run cancelled',
       timestamp: Date.now(),
@@ -475,7 +504,7 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleToolCallResult(event: ToolResultEvent): void {
-    this.#messageStateController.completeToolCall(event.toolCallId, event.result);
+    this.#messageStateController.completeToolCall(event.toolCallId, event.result, event);
     this.#messageStateController.addMessage(event.message);
   }
 
@@ -510,7 +539,7 @@ export class AiChatbotComponent extends LitElement {
     }
 
     const userMessage: ChatMessage = {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'user',
       content: config.content,
       timestamp: config.timestamp ?? Date.now(),
@@ -553,26 +582,33 @@ export class AiChatbotComponent extends LitElement {
     this.#handleStop();
   }
 
-  async #handleCopy(evt: CustomEvent<{ messageItemIndex: number }>): Promise<void> {
-    const messageItemIndex = evt.detail.messageItemIndex;
-    const item = this.#messageItems[messageItemIndex];
-    if (!item || item.type !== 'message') {
+  async #handleCopy(evt: CustomEvent<{ messageId: string }>): Promise<void> {
+    const message = this.#messageStateController.getMessage(evt.detail.messageId);
+    if (!message) {
       return;
     }
 
     try {
-      await navigator.clipboard.writeText(item.data.content);
+      await navigator.clipboard.writeText(message.content);
     } catch {
       // Silent fail
     }
   }
 
-  #handleRefresh(evt: CustomEvent<{ messageItemIndex: number }>): void {
+  #handleRefresh(evt: CustomEvent<{ messageId: string }>): void {
     if (!this.adapter) {
       return;
     }
 
-    const messageItemIndex = evt.detail.messageItemIndex;
+    const messageId = evt.detail.messageId;
+    const messageItemIndex = this.#messageItems.findIndex(
+      item => item.type === 'message' && item.data.id === messageId
+    );
+
+    if (messageItemIndex === -1) {
+      return;
+    }
+
     let userMessageIndex = -1;
     for (let i = messageItemIndex - 1; i >= 0; i--) {
       const item = this.#messageItems[i];
@@ -602,7 +638,7 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #processFileUpload(file: File, timestamp: number): void {
-    const fileId = generateId('file');
+    const fileId = generateId();
 
     this.#fileUploadManager.addAttachment(fileId, {
       filename: file.name,
@@ -653,7 +689,7 @@ export class AiChatbotComponent extends LitElement {
 
   #handleFileError(evt: CustomEvent<ForgeAiFilePickerErrorEventData>): void {
     const errorMessage: ChatMessage = {
-      id: generateId('msg'),
+      id: generateId(),
       role: 'assistant',
       content: evt.detail.message,
       timestamp: Date.now(),
@@ -686,8 +722,9 @@ export class AiChatbotComponent extends LitElement {
     }
   }
 
-  #handleSuggestionSelect(evt: CustomEvent<ForgeAiSuggestionsEventData>): void {
-    this.sendMessage(evt.detail.text);
+  async #handleSuggestionSelect(evt: CustomEvent<ForgeAiSuggestionsEventData>): Promise<void> {
+    await this.sendMessage(evt.detail.text);
+    this.#promptRef.value?.focus();
   }
 
   #handleVoiceInputResult(evt: CustomEvent<ForgeAiVoiceInputResultEvent>): void {
@@ -714,7 +751,34 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleHeaderInfo(): void {
+    const header = this.#headerRef.value;
+    if (header?.showAgentInfo) {
+      header.showAgentInfo();
+    }
     this.#dispatchEvent({ type: 'forge-ai-chatbot-info' });
+  }
+
+  #handleDebugToggle(): void {
+    this.debugMode = !this.debugMode;
+  }
+
+  #handleSlashCommand(evt: CustomEvent<ForgeAiPromptCommandEventData>): void {
+    const commandId = evt.detail.commandId as SlashCommandId;
+
+    switch (commandId) {
+      case 'clear':
+        this.#handleHeaderClear();
+        break;
+      case 'export':
+        this.#handleExport();
+        break;
+      case 'info':
+        this.#handleHeaderInfo();
+        break;
+      case 'debug':
+        this.#handleDebugToggle();
+        break;
+    }
   }
 
   #handleExport(): void {
@@ -771,6 +835,8 @@ export class AiChatbotComponent extends LitElement {
       console.warn('No adapter configured.');
       return;
     }
+
+    this.#promptRef.value?.closeSlashMenu();
 
     if (files) {
       const timestamp = Date.now();
@@ -862,10 +928,14 @@ export class AiChatbotComponent extends LitElement {
         slot="prompt"
         .placeholder=${this.placeholder}
         .running=${this.#isStreaming || isUploading}
+        .slashCommands=${this.#slashCommands}
         ?disabled=${isUploading}
+        ?debug-mode=${this.debugMode}
         @forge-ai-prompt-send=${this.#handleSend}
         @forge-ai-prompt-stop=${this.#handleStop}
-        @forge-ai-prompt-cancel=${this.#handleCancel}>
+        @forge-ai-prompt-cancel=${this.#handleCancel}
+        @forge-ai-prompt-debug-toggle=${this.#handleDebugToggle}
+        @forge-ai-prompt-command=${this.#handleSlashCommand}>
         ${when(
           this.fileUpload === 'on',
           () => html`
@@ -899,6 +969,7 @@ export class AiChatbotComponent extends LitElement {
         .tools=${this.#tools}
         ?enable-reactions=${this.enableReactions}
         ?show-thinking=${this.#isStreaming}
+        ?debug-mode=${this.debugMode}
         @forge-ai-message-thread-copy=${this.#handleCopy}
         @forge-ai-message-thread-refresh=${this.#handleRefresh}
         @forge-ai-message-thread-thumbs-up=${this.#handleThumbsUp}
@@ -924,6 +995,7 @@ export class AiChatbotComponent extends LitElement {
         aria-live="polite"
         aria-busy=${this.#isStreaming}>
         <forge-ai-chat-header
+          ${ref(this.#headerRef)}
           slot="header"
           ?show-expand-button=${this.showExpandButton}
           ?show-minimize-button=${this.showMinimizeButton}

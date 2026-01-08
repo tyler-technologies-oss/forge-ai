@@ -96,6 +96,9 @@ export interface ForgeAiChatHeaderProps extends Pick<
  * - **forge-ai-chat-header-expand** - Fired when the expand button is clicked
  * - **forge-ai-chat-header-minimize** - Fired when the minimize button is clicked
  *
+ * ### **Methods:**
+ *  - **showAgentInfo(): _void_** - Shows the agent info modal
+ *
  * ### **Slots:**
  *  - **icon** - Slot for custom icon (default: forge-ai-icon)
  */

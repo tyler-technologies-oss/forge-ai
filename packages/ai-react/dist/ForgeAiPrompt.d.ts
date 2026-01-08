@@ -1,7 +1,11 @@
 import React from "react";
-import { ForgeAiPrompt as ForgeAiPromptElement } from "@tylertech/forge-ai/ai-prompt";
+import {
+  ForgeAiPrompt as ForgeAiPromptElement,
+  Event,
+  CustomEvent,
+} from "@tylertech/forge-ai/ai-prompt";
 
-export type { ForgeAiPromptElement };
+export type { ForgeAiPromptElement, Event, CustomEvent };
 
 export interface ForgeAiPromptProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
@@ -33,6 +37,9 @@ export interface ForgeAiPromptProps extends Pick<
   /** Whether the component is in running state (shows stop button instead of send button) */
   running?: boolean;
 
+  /** Whether debug mode is active (shows debug icon button) */
+  debugMode?: boolean;
+
   /** Placeholder text for the textarea field */
   placeholder?: ForgeAiPromptElement["placeholder"];
 
@@ -63,6 +70,15 @@ export interface ForgeAiPromptProps extends Pick<
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
+  /** Available slash commands */
+  slashCommands?: ForgeAiPromptElement["slashCommands"];
+
+  /** undefined */
+  onInput?: (event: CustomEvent) => void;
+
+  /** undefined */
+  onForgeAiPromptCommand?: (event: CustomEvent) => void;
+
   /** Fired when the send button is clicked or Enter is pressed (without Shift). Cancelable - if cancelled, running state is not set and input is not cleared. */
   onForgeAiPromptSend?: (
     event: CustomEvent<CustomEvent<ForgeAiPromptSendEventData>>,
@@ -78,6 +94,9 @@ export interface ForgeAiPromptProps extends Pick<
 
   /** Fired when the stop button is clicked. Cancelable - if cancelled, running state remains true. */
   onForgeAiPromptStop?: (event: CustomEvent<CustomEvent<void>>) => void;
+
+  /** Fired when the debug icon button is clicked. */
+  onForgeAiPromptDebugToggle?: (event: CustomEvent<CustomEvent<void>>) => void;
 }
 
 /**
@@ -86,13 +105,17 @@ export interface ForgeAiPromptProps extends Pick<
  *
  *
  * ### **Events:**
- *  - **forge-ai-prompt-send** - Fired when the send button is clicked or Enter is pressed (without Shift). Cancelable - if cancelled, running state is not set and input is not cleared.
+ *  - **input**
+ * - **forge-ai-prompt-command**
+ * - **forge-ai-prompt-send** - Fired when the send button is clicked or Enter is pressed (without Shift). Cancelable - if cancelled, running state is not set and input is not cleared.
  * - **forge-ai-prompt-cancel** - Fired when the Escape key is pressed (if cancelOnEscape is true).
  * - **forge-ai-prompt-attachment** - Fired when files are pasted into the textarea.
  * - **forge-ai-prompt-stop** - Fired when the stop button is clicked. Cancelable - if cancelled, running state remains true.
+ * - **forge-ai-prompt-debug-toggle** - Fired when the debug icon button is clicked.
  *
  * ### **Methods:**
- *  - **focus(): _void_** - Focuses the textarea element
+ *  - **closeSlashMenu(): _void_** - Closes the slash command menu
+ * - **focus(): _void_** - Focuses the textarea element
  *
  * ### **Slots:**
  *  - **actions** - Slot for action components that are hidden in inline mode (voice input, file picker, model selectors, web search, etc.)

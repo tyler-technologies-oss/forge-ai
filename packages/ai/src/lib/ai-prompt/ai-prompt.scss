@@ -37,6 +37,12 @@
 
     @include forge-scrollbar.base;
   }
+
+  .debug-button {
+    color: #{forge-theme.variable(on-error-container-low)};
+    --forge-icon-button-focus-indicator-color: #{forge-theme.variable(error)};
+    --forge-icon-button-tonal-background-color: #{forge-theme.variable(error-container-low)};
+  }
 }
 
 .actions {

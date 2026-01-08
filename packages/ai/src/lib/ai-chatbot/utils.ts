@@ -1,6 +1,7 @@
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import remend from 'remend';
+import { v4 as uuidv4 } from 'uuid';
 
 const DOMPURIFY_CONFIG = {
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
@@ -8,10 +9,10 @@ const DOMPURIFY_CONFIG = {
 };
 
 /**
- * Generates a unique ID with a given prefix
+ * Generates a unique ID using UUID v4
  */
-export function generateId(prefix: string): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+export function generateId(): string {
+  return uuidv4();
 }
 
 /**

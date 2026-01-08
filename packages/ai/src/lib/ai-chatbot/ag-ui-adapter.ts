@@ -37,7 +37,7 @@ export class AgUiAdapter extends AgentAdapter {
   constructor(config: AgUiAdapterConfig, threadId?: string) {
     super();
     this.#config = config;
-    this.#threadId = threadId ?? generateId('thread');
+    this.#threadId = threadId ?? generateId();
     this.#agent = new HttpAgentWithCredentials({
       url: config.url,
       headers: config.headers
@@ -60,7 +60,7 @@ export class AgUiAdapter extends AgentAdapter {
 
   public static async create(config: AgUiAdapterConfig & { threadId?: string }): Promise<AgUiAdapter> {
     const { threadId, ...adapterConfig } = config;
-    const adapter = new AgUiAdapter(adapterConfig, threadId ?? generateId('thread'));
+    const adapter = new AgUiAdapter(adapterConfig, threadId ?? generateId());
 
     await adapter.connect();
     return adapter;
@@ -97,7 +97,7 @@ export class AgUiAdapter extends AgentAdapter {
 
   public sendToolResult(toolCallId: string, result: unknown, messages?: ChatMessage[]): void {
     const toolMessage: ChatMessage = {
-      id: generateId('tool'),
+      id: generateId(),
       role: 'tool',
       content: JSON.stringify(result),
       timestamp: Date.now(),
@@ -146,7 +146,7 @@ export class AgUiAdapter extends AgentAdapter {
   }
 
   #handleTextMessageStart({ event }: { event: { messageId: string } }): void {
-    this._emitMessageStart(event.messageId);
+    this._emitMessageStart(event.messageId, event);
   }
 
   #handleTextMessageContent({
@@ -154,7 +154,7 @@ export class AgUiAdapter extends AgentAdapter {
     event
   }: {
     textMessageBuffer: string;
-    event: { messageId: string };
+    event: { messageId: string; delta?: string };
   }): void {
     this.#processTextDelta(event.messageId, textMessageBuffer, false);
   }
@@ -167,7 +167,7 @@ export class AgUiAdapter extends AgentAdapter {
     event: { messageId: string };
   }): void {
     this.#processTextDelta(event.messageId, textMessageBuffer, true);
-    this._emitMessageEnd(event.messageId);
+    this._emitMessageEnd(event.messageId, event);
   }
 
   #handleToolCallStart({
@@ -182,11 +182,14 @@ export class AgUiAdapter extends AgentAdapter {
     };
     this.#toolCalls.set(event.toolCallId, toolCallState);
 
-    this._emitToolCallStart({
-      id: event.toolCallId,
-      messageId: toolCallState.messageId,
-      name: toolCallState.name
-    });
+    this._emitToolCallStart(
+      {
+        id: event.toolCallId,
+        messageId: toolCallState.messageId,
+        name: toolCallState.name
+      },
+      event
+    );
   }
 
   #handleToolCallArgs({
@@ -209,13 +212,16 @@ export class AgUiAdapter extends AgentAdapter {
       toolCall.argsBuffer = toolCallBuffer;
     }
 
-    this._emitToolCallArgs({
-      id: event.toolCallId,
-      messageId: toolCall.messageId,
-      name: toolCall.name,
-      argsBuffer: toolCall.argsBuffer,
-      partialArgs: partialToolCallArgs
-    });
+    this._emitToolCallArgs(
+      {
+        id: event.toolCallId,
+        messageId: toolCall.messageId,
+        name: toolCall.name,
+        argsBuffer: toolCall.argsBuffer,
+        partialArgs: partialToolCallArgs
+      },
+      event
+    );
   }
 
   #handleToolCallEnd({
@@ -249,15 +255,15 @@ export class AgUiAdapter extends AgentAdapter {
       args
     };
 
-    this._emitToolCallEnd(toolCallEvent);
-    this._emitToolCall(toolCallEvent);
+    this._emitToolCallEnd(toolCallEvent, event);
+    this._emitToolCall(toolCallEvent, event);
     this.#toolCalls.delete(event.toolCallId);
   }
 
   #handleToolCallResult({ event }: { event: ToolCallResultEvent }): void {
     const result = JSON.parse(event.content);
     const toolMessage: ChatMessage = {
-      id: generateId('tool'),
+      id: generateId(),
       role: 'tool',
       content: event.content,
       timestamp: Date.now(),
@@ -265,11 +271,14 @@ export class AgUiAdapter extends AgentAdapter {
       toolCallId: event.toolCallId
     };
 
-    this._emitToolResult({
-      toolCallId: event.toolCallId,
-      result,
-      message: toolMessage
-    });
+    this._emitToolResult(
+      {
+        toolCallId: event.toolCallId,
+        result,
+        message: toolMessage
+      },
+      event
+    );
   }
 
   #handleRunFinished(): void {

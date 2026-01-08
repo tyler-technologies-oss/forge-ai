@@ -383,4 +383,11 @@ export class AiChatHeaderComponent extends LitElement {
   #handleModalClose(): void {
     this.#agentInfoModalRef.value?.close();
   }
+
+  /**
+   * Shows the agent info modal
+   */
+  public showAgentInfo(): void {
+    this.#agentInfoModalRef.value?.show();
+  }
 }

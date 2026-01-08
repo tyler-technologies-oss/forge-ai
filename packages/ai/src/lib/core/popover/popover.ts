@@ -1,6 +1,6 @@
 import { LitElement, html, type TemplateResult, unsafeCSS } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
-import { type OverlayPlacement } from '../overlay/overlay.js';
+import { type OverlayPlacement, type OverlayOffset } from '../overlay/overlay.js';
 import '../overlay/overlay.js';
 
 import styles from './popover.scss?inline';
@@ -22,6 +22,8 @@ export interface PopoverToggleEventData {
 }
 
 export type PopoverPlacement = OverlayPlacement;
+
+export type PopoverOffset = OverlayOffset;
 
 /**
  * @summary A popover component that provides styled overlay functionality.
@@ -78,6 +80,13 @@ export class ForgeAiPopoverComponent extends LitElement {
   public arrow = false;
 
   /**
+   * The offset of the popover from the anchor element.
+   * Can be a number (main axis offset) or an object with mainAxis, crossAxis, and alignmentAxis properties.
+   */
+  @property({ type: Object })
+  public offset: PopoverOffset | undefined = undefined;
+
+  /**
    * The dismiss mode for the popover.
    * - 'auto': Automatically closes on outside clicks and Escape key
    * - 'manual': Requires manual control to close
@@ -108,6 +117,7 @@ export class ForgeAiPopoverComponent extends LitElement {
         .placement=${this.placement}
         .flip=${this.flip}
         .shift=${this.shift}
+        .offset=${this.offset}
         .open=${this.open}
         .arrowElement=${this.arrow ? this._arrowElement : null}
         .dismissMode=${this.dismissMode}

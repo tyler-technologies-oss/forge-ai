@@ -3,6 +3,7 @@ import {
   autoUpdate,
   computePosition,
   flip,
+  offset,
   shift,
   type ComputePositionReturn,
   type Middleware,
@@ -28,6 +29,8 @@ declare global {
 }
 
 export type OverlayPlacement = Placement;
+
+export type OverlayOffset = number | { mainAxis?: number; crossAxis?: number; alignmentAxis?: number };
 
 /**
  * @summary A low-level overlay component for internal use within AI components.
@@ -80,6 +83,13 @@ export class ForgeAiOverlayComponent extends LitElement {
   public arrowElement: HTMLElement | null = null;
 
   /**
+   * The offset of the overlay from the anchor element.
+   * Can be a number (main axis offset) or an object with mainAxis, crossAxis, and alignmentAxis properties.
+   */
+  @property({ type: Object })
+  public offset: OverlayOffset | undefined = undefined;
+
+  /**
    * The dismiss mode for the overlay.
    * - 'auto': Automatically closes on outside clicks and Escape key
    * - 'manual': Requires manual control to close
@@ -105,6 +115,7 @@ export class ForgeAiOverlayComponent extends LitElement {
       changedProperties.has('placement') ||
       changedProperties.has('flip') ||
       changedProperties.has('shift') ||
+      changedProperties.has('offset') ||
       changedProperties.has('arrowElement')
     ) {
       if (this.open && this._overlayElement && this.anchor) {
@@ -149,6 +160,7 @@ export class ForgeAiOverlayComponent extends LitElement {
     this._cleanup();
 
     const middleware: Middleware[] = [
+      ...(this.offset !== undefined ? [offset(this.offset)] : []),
       ...(this.flip ? [flip()] : []),
       ...(this.shift ? [shift({ padding: 8 })] : []),
       ...(this.arrowElement ? [arrow({ element: this.arrowElement, padding: 8 })] : [])

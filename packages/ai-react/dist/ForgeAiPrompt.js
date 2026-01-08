@@ -1,6 +1,6 @@
 import React, { forwardRef, useRef, useEffect } from "react";
 import "@tylertech/forge-ai/ai-prompt";
-import { useEventListener } from "./react-utils.js";
+import { useEventListener, useProperties } from "./react-utils.js";
 
 export const ForgeAiPrompt = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
@@ -10,13 +10,21 @@ export const ForgeAiPrompt = forwardRef((props, forwardedRef) => {
     inputDisabled,
     cancelOnEscape,
     running,
+    debugMode,
     placeholder,
     value,
     variant,
+    slashCommands,
     ...filteredProps
   } = props;
 
   /** Event listeners - run once */
+  useEventListener(ref, "input", props.onInput);
+  useEventListener(
+    ref,
+    "forge-ai-prompt-command",
+    props.onForgeAiPromptCommand,
+  );
   useEventListener(ref, "forge-ai-prompt-send", props.onForgeAiPromptSend);
   useEventListener(ref, "forge-ai-prompt-cancel", props.onForgeAiPromptCancel);
   useEventListener(
@@ -25,6 +33,14 @@ export const ForgeAiPrompt = forwardRef((props, forwardedRef) => {
     props.onForgeAiPromptAttachment,
   );
   useEventListener(ref, "forge-ai-prompt-stop", props.onForgeAiPromptStop);
+  useEventListener(
+    ref,
+    "forge-ai-prompt-debug-toggle",
+    props.onForgeAiPromptDebugToggle,
+  );
+
+  /** Properties - run whenever a property has changed */
+  useProperties(ref, "slashCommands", props.slashCommands);
 
   return React.createElement(
     "forge-ai-prompt",
@@ -51,6 +67,7 @@ export const ForgeAiPrompt = forwardRef((props, forwardedRef) => {
       "input-disabled": props.inputDisabled ? true : undefined,
       "cancel-on-escape": props.cancelOnEscape ? true : undefined,
       running: props.running ? true : undefined,
+      "debug-mode": props.debugMode ? true : undefined,
       style: { ...props.style },
     },
     props.children,

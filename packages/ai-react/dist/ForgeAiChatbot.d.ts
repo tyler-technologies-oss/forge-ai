@@ -31,6 +31,9 @@ export interface ForgeAiChatbotProps extends Pick<
   enableReactions?: boolean;
 
   /** undefined */
+  debugMode?: boolean;
+
+  /** undefined */
   fileUpload?: ForgeAiChatbotElement["fileUpload"];
 
   /** undefined */
