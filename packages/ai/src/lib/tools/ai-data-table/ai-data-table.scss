@@ -1,7 +1,9 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/table/core' as forge-table-core;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/field/forge-field.css';
 @use '../../mixins' as mixins;
@@ -33,7 +35,18 @@
 }
 
 .table-container {
+  background-color: #{forge-theme.variable(surface)};
+  border-radius: #{forge-shape.variable(large)};
   overflow-x: auto;
+
+  @include forge-scrollbar.base;
+
+  &::-webkit-scrollbar,
+  &::-webkit-scrollbar-corner,
+  &::-webkit-scrollbar-track {
+    border-end-start-radius: #{forge-shape.variable(large)};
+    border-end-end-radius: #{forge-shape.variable(large)};
+  }
 }
 
 .data-table {

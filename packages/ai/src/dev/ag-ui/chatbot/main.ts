@@ -26,7 +26,7 @@ import {
 
 import './recipe-card.js';
 import '../../../lib/tools/ai-data-table';
-import { displayDataTableTool } from '$lib/tools/ai-data-table/ai-data-table-definition';
+import { displayDataTableTool } from '../../../lib/tools/ai-data-table';
 
 defineScaffoldComponent();
 defineAppBarComponent();

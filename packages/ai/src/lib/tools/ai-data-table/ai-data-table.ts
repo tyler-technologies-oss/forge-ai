@@ -3,7 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import '../../ai-artifact/ai-artifact.ts';
 import styles from './ai-data-table.scss?inline';
 import '../ai-paginator/ai-paginator.ts';
-import { ToolCall } from '$lib/ai-chatbot';
+import type { ToolCall } from '../../ai-chatbot';
 
 interface TableData {
   title?: string;
