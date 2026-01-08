@@ -1,6 +1,6 @@
 import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import type { ToolCall } from '../../ai-chatbot';
+import type { IToolRenderer, ToolCall } from '../../ai-chatbot';
 import '../../ai-artifact/ai-artifact.ts';
 import '../../ai-empty-state/ai-empty-state.ts';
 import '../ai-paginator/ai-paginator.ts';
@@ -30,14 +30,14 @@ const MIN_ROWS_FOR_FILTER = 5;
  * @internal
  */
 @customElement('forge-ai-tool-data-table')
-export class DataTableToolElement extends LitElement {
+export class DataTableToolElement extends LitElement implements IToolRenderer<TableData> {
   public static styles = unsafeCSS(styles);
 
   /**
    * Tool call data containing table configuration and data
    */
   @property({ attribute: false })
-  public toolCall!: ToolCall;
+  public toolCall!: ToolCall<TableData>;
 
   /** Current page number for pagination */
   @state()
@@ -48,7 +48,7 @@ export class DataTableToolElement extends LitElement {
   private _filterValue = '';
 
   get #tableData(): TableData | null {
-    return this.toolCall.args as unknown as TableData;
+    return this.toolCall.args;
   }
 
   get #maxNumberOfRows(): number {

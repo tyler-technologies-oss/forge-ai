@@ -30,6 +30,7 @@ export type {
   ToolDefinition,
   ToolCall,
   ToolRenderer,
+  IToolRenderer,
   HandlerContext,
   FileAttachment,
   UploadedFileMetadata,

@@ -1,0 +1,316 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Getting Started/Client-Side Tools" />
+
+# Client-Side Tools
+
+Client-side tools extend your chatbot's capabilities by allowing the LLM to trigger custom actions or render interactive UI elements directly in the chat thread.
+
+## Tool Types
+
+There are two types of client-side tools:
+
+- **Execution Tools**: Perform actions when called (e.g., navigate within an app, create charts, send notifications)
+- **Render Tools**: Display custom UI elements in the chat (e.g., data tables, forms, rich cards)
+
+Tools can have both capabilities if needed.
+
+## Tool Definition Structure
+
+Every tool is defined using the `ToolDefinition` interface:
+
+```typescript
+interface ToolDefinition<TArgs = Record<string, unknown>> {
+  name: string; // Unique identifier
+  displayName?: string; // Human-readable name (for tool debugging UI)
+  description?: string; // Tells the LLM what this tool does
+  parameters?: {
+    // JSON Schema format
+    type: 'object';
+    properties?: Record<string, unknown>;
+    required?: string[];
+  };
+  // Execution handler
+  handler?: (context: HandlerContext<TArgs>) => Promise<string | object | void> | string | object | void;
+  // For displaying UI in the chat
+  renderer?: ToolRenderer;
+}
+```
+
+## Registering Tools
+
+Register tools with your adapter by passing them in the configuration:
+
+```typescript
+import { AgUiAdapter } from '@tylertech/forge-ai';
+
+const adapter = new AgUiAdapter({
+  url: 'your-api-url',
+  tools: [helloTool, displayCardTool] // Your tool definitions
+});
+```
+
+Once registered, the LLM can invoke these tools based on the conversation context.
+
+## Execution Tools
+
+Execution tools perform actions when called. They require a `handler` function that receives a `HandlerContext`:
+
+```typescript
+interface HandlerContext<TArgs> {
+  args: TArgs; // Tool call arguments
+  toolCallId: string; // Unique identifier
+  toolName: string; // Name of the tool
+  signal?: AbortSignal; // For cancellation support
+}
+```
+
+### Example: Simple Greeting Tool
+
+```typescript
+import { type ToolDefinition } from '@tylertech/forge-ai';
+
+const helloTool: ToolDefinition = {
+  name: 'sayHello',
+  displayName: 'Say Hello',
+  description: 'Greets the user with a custom message',
+  parameters: {
+    type: 'object',
+    properties: {
+      name: { type: 'string', description: 'Name to greet' }
+    },
+    required: ['name']
+  },
+  handler: async context => {
+    console.log(`Hello, ${context.args.name}!`);
+    return `Greeted ${context.args.name}`;
+  }
+};
+```
+
+Handlers can be asynchronous and return a string, object, or void. The return value is sent back to the LLM as the tool result.
+
+## Render Tools
+
+Render tools display custom UI in the chat thread. They require a `renderer` property created with the `createToolRenderer()` helper:
+
+```typescript
+import { createToolRenderer, type ToolDefinition } from '@tylertech/forge-ai';
+
+const displayCardTool: ToolDefinition = {
+  name: 'displayCard',
+  displayName: 'Display Card',
+  description: 'Display a card with title and content',
+  parameters: {
+    type: 'object',
+    properties: {
+      title: { type: 'string', description: 'Card title' },
+      content: { type: 'string', description: 'Card content' }
+    },
+    required: ['title', 'content']
+  },
+  renderer: createToolRenderer({
+    elementTag: 'my-card-element' // Your custom element tag
+  })
+};
+```
+
+## Creating Custom Renderer Components
+
+For render tools, create a custom element that implements the `IToolRenderer<TArgs>` interface. We recommend using [Lit](https://lit.dev) for its simplicity and built-in Shadow DOM encapsulation.
+
+### Custom Element Pattern
+
+Your renderer component must:
+
+1. Implement `IToolRenderer<TArgs>`
+2. Accept a `toolCall` property of type `ToolCall<TArgs>`
+3. Extract and render data from `toolCall.args`
+
+```typescript
+import { LitElement, html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import { type IToolRenderer, type ToolCall } from '@tylertech/forge-ai';
+
+interface CardData {
+  title: string;
+  content: string;
+}
+
+@customElement('my-card-element')
+export class MyCardElement extends LitElement implements IToolRenderer<CardData> {
+  @property({ attribute: false })
+  public toolCall!: ToolCall<CardData>;
+
+  render() {
+    const { title, content } = this.toolCall.args;
+
+    return html`
+      <div style="border: 1px solid #ccc; padding: 16px; border-radius: 8px;">
+        <h3>${title}</h3>
+        <p>${content}</p>
+      </div>
+    `;
+  }
+}
+
+// Register in global scope
+declare global {
+  interface HTMLElementTagNameMap {
+    'my-card-element': MyCardElement;
+  }
+}
+```
+
+> **Note**: While vanilla custom elements or basic DOM elements work, we recommend using Lit for Shadow DOM encapsulation, reactive state management, and cleaner templating.
+
+## Combining Handler and Renderer
+
+Tools can have both a handler and renderer when you need to perform an action _and_ display UI. This is powerful for fetching data, processing arguments, or enriching LLM-provided data before rendering.
+
+### Execution Flow
+
+1. **Handler executes first** - Performs action, returns result
+2. **Result stored** - Handler return value saved to `toolCall.result`
+3. **Renderer displays** - Component receives full `ToolCall` with both `args` and `result`
+
+### Example: Fetching and Displaying Data
+
+```typescript
+interface UserLookupArgs {
+  userId: string;
+}
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+}
+
+const userLookupTool: ToolDefinition<UserLookupArgs> = {
+  name: 'lookupUser',
+  description: 'Fetch and display user information',
+  parameters: {
+    type: 'object',
+    properties: {
+      userId: { type: 'string', description: 'User ID to lookup' }
+    },
+    required: ['userId']
+  },
+  handler: async context => {
+    // Fetch user data from API
+    const response = await fetch(`/api/users/${context.args.userId}`);
+    const userData: UserData = await response.json();
+
+    // Return fetched data
+    return userData;
+  },
+  renderer: createToolRenderer({
+    elementTag: 'user-profile-card'
+  })
+};
+```
+
+### Accessing Handler Results in Renderer
+
+The renderer component can access both the original arguments and the handler's return value:
+
+```typescript
+@customElement('user-profile-card')
+export class UserProfileCard extends LitElement implements IToolRenderer<UserLookupArgs> {
+  @property({ attribute: false })
+  public toolCall!: ToolCall<UserLookupArgs>;
+
+  render() {
+    // Access original LLM arguments
+    const userId = this.toolCall.args.userId;
+
+    // Access data returned by handler
+    const userData = this.toolCall.result as UserData;
+
+    if (!userData) {
+      return html`<p>Loading user ${userId}...</p>`;
+    }
+
+    return html`
+      <div class="user-card">
+        <img src="${userData.avatar}" alt="${userData.name}" />
+        <h3>${userData.name}</h3>
+        <p>${userData.email}</p>
+      </div>
+    `;
+  }
+}
+```
+
+This pattern enables:
+
+- **API calls**: Fetch data in handler, display in renderer
+- **Data processing**: Transform/enrich LLM args in handler
+- **External integrations**: Call third-party services, show results
+- **Validation**: Verify data before rendering
+
+## Type Safety
+
+Tools support TypeScript generics for type-safe argument handling:
+
+```typescript
+interface GreetingArgs {
+  name: string;
+  greeting?: string;
+}
+
+const typedHelloTool: ToolDefinition<GreetingArgs> = {
+  name: 'typedHello',
+  description: 'Type-safe greeting tool',
+  parameters: {
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      greeting: { type: 'string' }
+    },
+    required: ['name']
+  },
+  handler: async context => {
+    // context.args is typed as GreetingArgs
+    const greeting = context.args.greeting || 'Hello';
+    return `${greeting}, ${context.args.name}!`;
+  }
+};
+```
+
+Similarly, renderer components can use typed `ToolCall<TArgs>`:
+
+```typescript
+@customElement('my-element')
+export class MyElement extends LitElement implements IToolRenderer<GreetingArgs> {
+  @property({ attribute: false })
+  public toolCall!: ToolCall<GreetingArgs>;
+
+  render() {
+    // toolCall.args is typed as GreetingArgs
+    return html`<p>${this.toolCall.args.name}</p>`;
+  }
+}
+```
+
+## Real-World Use Cases
+
+Client-side tools are perfect for:
+
+- **Data Visualization**: Display tables, charts, graphs from structured data
+- **Interactive Forms**: Render forms for user input within the conversation
+- **Media Display**: Show images, videos, or audio players
+- **Custom Actions**: Trigger animations, notifications, or third-party integrations
+- **Rich Content Cards**: Display products, recipes, articles with formatting
+
+## Best Practices
+
+- **Use descriptive names**: Help the LLM understand when to use each tool
+- **Provide clear descriptions**: Explain the tool's purpose and when to use it
+- **Define detailed parameters**: Use JSON Schema to document expected arguments
+- **Implement type safety**: Use TypeScript generics for better DX
+- **Prefer custom elements**: Use Lit or vanilla custom elements for render tools
+- **Test thoroughly**: Verify tools work with various LLM-generated arguments
+- **Handle errors gracefully**: Return meaningful error messages from handlers
