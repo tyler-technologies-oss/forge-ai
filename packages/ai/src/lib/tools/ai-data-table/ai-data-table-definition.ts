@@ -30,6 +30,6 @@ export const displayDataTableTool: ToolDefinition = {
     required: ['headers', 'rows']
   },
   renderer: createToolRenderer({
-    elementTag: 'ai-data-table'
+    elementTag: 'forge-ai-tool-data-table'
   })
 };

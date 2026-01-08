@@ -1,9 +1,9 @@
 import React from "react";
-import { AiDataTable as AiDataTableElement } from "@tylertech/forge-ai/tools/ai-data-table";
+import { ForgeAiToolDataTable as ForgeAiToolDataTableElement } from "@tylertech/forge-ai/tools/ai-data-table";
 
-export type { AiDataTableElement };
+export type { ForgeAiToolDataTableElement };
 
-export interface AiDataTableProps extends Pick<
+export interface ForgeAiToolDataTableProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -38,11 +38,14 @@ export interface AiDataTableProps extends Pick<
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
+
+  /** Tool call data containing table configuration and data */
+  toolCall?: ForgeAiToolDataTableElement["toolCall"];
 }
 
 /**
- *
+ * Data table component tool renderer for displaying tabular data with pagination and filtering.
  * ---
  *
  */
-export const AiDataTable: React.ForwardRefExoticComponent<AiDataTableProps>;
+export const ForgeAiToolDataTable: React.ForwardRefExoticComponent<ForgeAiToolDataTableProps>;

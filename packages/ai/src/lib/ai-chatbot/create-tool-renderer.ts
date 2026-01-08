@@ -1,7 +1,7 @@
 import type { ToolCall, ToolRenderer } from './types.js';
 
 export interface CreateToolRendererElementConfig {
-  elementTag: string;
+  elementTag: keyof HTMLElementTagNameMap;
   useSlot?: boolean;
   transform?: (toolCall: ToolCall) => Record<string, unknown>;
 }
