@@ -58,5 +58,8 @@ export interface ForgeAiSuggestionsProps extends Pick<
  *
  * ### **Events:**
  *  - **forge-ai-suggestions-select** - Fired when a suggestion is selected.
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-suggestion-max-width** - The maximum width of the suggestion buttons in inline layout. _(default: undefined)_
  */
 export const ForgeAiSuggestions: React.ForwardRefExoticComponent<ForgeAiSuggestionsProps>;

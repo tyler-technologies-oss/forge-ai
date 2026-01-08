@@ -18,7 +18,7 @@ const meta = {
     }
   },
   args: {
-    variant: 'inline'
+    variant: 'block'
   },
   render: (args: any) => {
     const suggestions = [

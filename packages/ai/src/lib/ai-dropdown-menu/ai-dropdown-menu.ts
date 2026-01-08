@@ -62,12 +62,10 @@ export type DropdownMenuVariant = 'button' | 'icon-button';
  * - **forge-ai-dropdown-menu-open**: Fired when dropdown opens
  * - **forge-ai-dropdown-menu-close**: Fired when dropdown closes
  *
- * @cssprop --ai-dropdown-menu-min-width - Minimum width of the dropdown menu.
- * @cssprop --ai-dropdown-menu-max-width - Maximum width of the dropdown menu.
- * @cssprop --ai-dropdown-menu-max-height - Maximum height of the dropdown menu.
- * @cssprop --ai-dropdown-menu-padding - Padding inside the dropdown menu.
- * @cssprop --ai-dropdown-menu-trigger-width - The width of the trigger button.
- * @cssprop --ai-dropdown-menu-trigger-height - The height of the trigger button.
+ * @cssproperty --forge-ai-dropdown-menu-min-width - Minimum width of the dropdown menu.
+ * @cssproperty --forge-ai-dropdown-menu-max-width - Maximum width of the dropdown menu.
+ * @cssproperty --forge-ai-dropdown-menu-max-height - Maximum height of the dropdown menu.
+ * @cssproperty --forge-ai-dropdown-menu-padding - Padding inside the dropdown menu.
  *
  * @slot - The default slot for dropdown menu items, item groups, and separators.
  * @slot header - The header content displayed at the top of the dropdown menu.

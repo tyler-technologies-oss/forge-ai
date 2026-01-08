@@ -48,7 +48,7 @@
   --forge-button-tonal-color: #{forge-theme.variable(on-tertiary-container)};
   --forge-button-height: 32px;
 
-  max-inline-size: 320px;
+  max-inline-size: var(--forge-ai-suggestion-max-width, 82.5%);
 
   .suggestion-text {
     white-space: nowrap;

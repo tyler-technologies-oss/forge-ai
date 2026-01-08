@@ -72,7 +72,7 @@ export interface ForgeAiTooltipProps extends Pick<
  *  - _default_ - The default slot for tooltip content.
  *
  * ### **CSS Properties:**
- *  - **--ai-tooltip-max-width** - The maximum width of the tooltip. _(default: undefined)_
- * - **--ai-tooltip-z-index** - The z-index of the tooltip overlay. _(default: undefined)_
+ *  - **--forge-ai-tooltip-max-width** - The maximum width of the tooltip. _(default: undefined)_
+ * - **--forge-ai-tooltip-z-index** - The z-index of the tooltip overlay. _(default: undefined)_
  */
 export const ForgeAiTooltip: React.ForwardRefExoticComponent<ForgeAiTooltipProps>;

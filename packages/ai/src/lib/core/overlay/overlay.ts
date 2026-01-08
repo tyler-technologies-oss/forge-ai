@@ -35,11 +35,6 @@ export type OverlayOffset = number | { mainAxis?: number; crossAxis?: number; al
 /**
  * @summary A low-level overlay component for internal use within AI components.
  *
- * @cssprop --ai-overlay-max-width - The maximum width of the overlay.
- * @cssprop --ai-overlay-max-height - The maximum height of the overlay.
- * @cssprop --ai-overlay-min-width - The minimum width of the overlay.
- * @cssprop --ai-overlay-min-height - The minimum height of the overlay.
- *
  * @slot - The default slot for overlay content.
  */
 @customElement('forge-ai-overlay')

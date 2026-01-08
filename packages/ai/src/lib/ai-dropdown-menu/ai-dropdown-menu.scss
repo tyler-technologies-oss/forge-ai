@@ -11,10 +11,10 @@
   position: relative;
 
   // CSS Custom Properties for theming and configuration
-  --ai-dropdown-menu-min-width: 200px;
-  --ai-dropdown-menu-max-width: 400px;
-  --ai-dropdown-menu-max-height: 300px;
-  --ai-dropdown-menu-padding: #{forge-spacing.variable(xxsmall)} 0;
+  --_ai-dropdown-menu-min-width: var(--forge-ai-dropdown-menu-min-width, 200px);
+  --_ai-dropdown-menu-max-width: var(--forge-ai-dropdown-menu-max-width, 400px);
+  --_ai-dropdown-menu-max-height: var(--forge-ai-dropdown-menu-max-height, 300px);
+  --_ai-dropdown-menu-padding: var(--forge-ai-dropdown-menu-padding, #{forge-spacing.variable(xxsmall)} 0);
 }
 
 .forge-button,
@@ -31,11 +31,11 @@
   &__dropdown {
     @include forge-scrollbar.base;
 
-    min-width: var(--ai-dropdown-menu-min-width);
-    max-width: var(--ai-dropdown-menu-max-width);
-    max-height: var(--ai-dropdown-menu-max-height);
+    min-width: var(--_ai-dropdown-menu-min-width);
+    max-width: var(--_ai-dropdown-menu-max-width);
+    max-height: var(--_ai-dropdown-menu-max-height);
     overflow-y: auto;
-    padding: var(--ai-dropdown-menu-padding);
+    padding: var(--_ai-dropdown-menu-padding);
   }
 }
 

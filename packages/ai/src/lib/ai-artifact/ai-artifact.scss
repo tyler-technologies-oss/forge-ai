@@ -5,7 +5,6 @@
 @use '@tylertech/forge/dist/toolbar/forge-toolbar' as forge-toolbar;
 
 :host {
-  --_ai-artifact-content-padding: var(--forge-ai-artifact-content-padding, #{forge-spacing.variable(medium)});
   display: block;
   border: 1px solid #{forge-theme.variable(outline)};
   border-radius: #{forge-shape.variable(large)};
@@ -26,5 +25,5 @@
 }
 
 .content {
-  padding: var(--_ai-artifact-content-padding);
+  padding: var(--forge-ai-artifact-content-padding, #{forge-spacing.variable(medium)});
 }

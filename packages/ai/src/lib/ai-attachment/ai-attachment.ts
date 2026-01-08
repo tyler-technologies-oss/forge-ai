@@ -33,10 +33,10 @@ export const AiAttachmentComponentTagName: keyof HTMLElementTagNameMap = 'forge-
  *
  * @event {CustomEvent<ForgeAiAttachmentRemoveEventData>} forge-ai-attachment-remove - Fired when the remove button is clicked
  *
- * @cssprop --forge-ai-attachment-background - Background color of the attachment
- * @cssprop --forge-ai-attachment-border-color - Border color of the attachment
- * @cssprop --forge-ai-attachment-padding - Padding inside the attachment
- * @cssprop --forge-ai-attachment-gap - Gap between elements
+ * @cssproperty --forge-ai-attachment-background - Background color of the attachment
+ * @cssproperty --forge-ai-attachment-border-color - Border color of the attachment
+ * @cssproperty --forge-ai-attachment-padding - Padding inside the attachment
+ * @cssproperty --forge-ai-attachment-gap - Gap between elements
  */
 @customElement(AiAttachmentComponentTagName)
 export class AiAttachmentComponent extends LitElement {

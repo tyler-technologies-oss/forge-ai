@@ -74,11 +74,5 @@ Can be a number (main axis offset) or an object with mainAxis, crossAxis, and al
  *
  * ### **Slots:**
  *  - _default_ - The default slot for popover content.
- *
- * ### **CSS Properties:**
- *  - **--ai-popover-max-width** - The maximum width of the popover. _(default: undefined)_
- * - **--ai-popover-max-height** - The maximum height of the popover. _(default: undefined)_
- * - **--ai-popover-min-width** - The minimum width of the popover. _(default: undefined)_
- * - **--ai-popover-min-height** - The minimum height of the popover. _(default: undefined)_
  */
 export const ForgeAiPopover: React.ForwardRefExoticComponent<ForgeAiPopoverProps>;
