@@ -20,7 +20,7 @@ interface TableData {
   maxNumberOfRows?: number;
 }
 
-const DEFAULT_MAX_ROWS = 10;
+const DEFAULT_MAX_ROWS = 5;
 const MIN_ROWS_FOR_FILTER = 5;
 
 /**
