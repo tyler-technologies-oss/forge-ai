@@ -47,6 +47,9 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
   @state()
   private _filterValue = '';
 
+  /** Flag to track if height has been set to prevent layout shifts */
+  #heightSet = false;
+
   get #tableData(): TableData | null {
     return this.toolCall.args;
   }
@@ -115,6 +118,31 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
   #handleFilterInput(event: InputEvent): void {
     this._filterValue = (event.target as HTMLInputElement).value;
     this._currentPage = 1;
+  }
+
+  #setInitialHeight(): void {
+    // Only set height once to prevent layout shifts
+    if (this.#heightSet) {
+      return;
+    }
+
+    // Use requestAnimationFrame to ensure DOM is fully rendered
+    requestAnimationFrame(() => {
+      const rect = this.getBoundingClientRect();
+      if (rect.height > 0) {
+        this.style.setProperty('--forge-ai-tool-data-table-height', `${rect.height}px`);
+        this.#heightSet = true;
+      }
+    });
+  }
+
+  public override updated(changedProperties: Map<string | number | symbol, unknown>): void {
+    super.updated(changedProperties);
+
+    // Set height only once when component first loads with data
+    if (changedProperties.has('toolCall') && this.#tableData && !this.#heightSet) {
+      this.#setInitialHeight();
+    }
   }
 
   readonly #filterInput = html`

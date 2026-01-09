@@ -10,10 +10,13 @@
 
 :host {
   display: block;
+  --forge-ai-tool-data-table-height: auto;
+  height: var(--forge-ai-tool-data-table-height);
 }
 
 .artifact {
   --forge-ai-artifact-content-padding: 0;
+  height: 100%;
 }
 
 .title {
