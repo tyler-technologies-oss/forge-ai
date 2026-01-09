@@ -5,6 +5,7 @@
 
 :host {
   display: block;
+  --forge-ai-gradient-container-variant: #{forge-theme.variable(tertiary-container-high)};
 
   // fixes border clipping issues in the threads view
   --forge-drawer-background: transparent;
@@ -16,33 +17,75 @@
 }
 
 :host(:state(low)) {
-  @include mixins.ai-gradient-container-border(
-    #{forge-theme.variable(surface)},
-    #{forge-theme.variable(tertiary-container-low)},
-    #{forge-theme.variable(outline)}
-  );
+  --forge-ai-gradient-container-variant: #{forge-theme.variable(tertiary-container-minimum)};
 }
 
 :host(:state(medium)) {
-  @include mixins.ai-gradient-container-border(
-    #{forge-theme.variable(surface)},
-    #{forge-theme.variable(tertiary-container)},
-    #{forge-theme.variable(outline)}
-  );
+  --forge-ai-gradient-container-variant: #{forge-theme.variable(tertiary-container)};
 }
 
 :host(:state(high)) {
-  @include mixins.ai-gradient-container-border(
-    #{forge-theme.variable(surface)},
-    #{forge-theme.variable(tertiary)},
-    #{forge-theme.variable(outline)}
-  );
+  --forge-ai-gradient-container-variant: #{forge-theme.variable(tertiary)};
 }
 
-:host(:state(disabled)) {
-  @include mixins.ai-gradient-container-border(
-    #{forge-theme.variable(surface)},
-    #{forge-theme.variable(text-low)},
-    #{forge-theme.variable(text-low)}
-  );
+// :host(:state(disabled)) {
+//   --forge-ai-gradient-container-variant: #{forge-theme.variable(tertiary-container-low)};
+// }
+
+.gradient-border {
+  --borderWidth: 2px;
+  background: #{forge-theme.variable(surface)};
+  position: relative;
+  border-radius: var(--borderWidth);
 }
+
+.gradient-border:after {
+  content: '';
+  position: absolute;
+  top: calc(-1 * var(--borderWidth));
+  left: calc(-1 * var(--borderWidth));
+  height: calc(100% + var(--borderWidth) * 2);
+  width: calc(100% + var(--borderWidth) * 2);
+  background-image: linear-gradient(
+    60deg,
+    var(--forge-ai-gradient-container-variant),
+    #{forge-theme.variable(tertiary-container-high)},
+    #{forge-theme.variable(tertiary-container)},
+    #{forge-theme.variable(surface)},
+    var(--forge-ai-gradient-container-variant),
+    #{forge-theme.variable(tertiary-container-high)},
+    #{forge-theme.variable(surface)},
+    #{forge-theme.variable(tertiary-container-high)},
+    var(--forge-ai-gradient-container-variant)
+  );
+  border-radius: calc(2 * var(--borderWidth));
+  z-index: -1;
+  animation: animatedgradient 5s ease-in-out infinite;
+  background-size: 300% 300%;
+}
+
+@keyframes animatedgradient {
+  0% {
+    background-position: 0% 10%;
+  }
+  25% {
+    background-position: 50% 90%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 10%;
+  }
+  100% {
+    background-position: 0% 10%;
+  }
+}
+
+// :host(:state(disabled)) {
+//   @include mixins.ai-gradient-container-border(
+//     #{forge-theme.variable(surface)},
+//     #{forge-theme.variable(text-low)},
+//     #{forge-theme.variable(text-low)}
+//   );
+// }
