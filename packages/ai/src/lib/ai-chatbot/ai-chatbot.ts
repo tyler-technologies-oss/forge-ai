@@ -42,6 +42,11 @@ import type {
   UploadedFileMetadata
 } from './types.js';
 import { downloadFile, generateId } from './utils.js';
+import {
+  CONFIRM_TOOL_CALL_NAME,
+  type ConfirmActionToolArgs,
+  type ConfirmActionToolResult
+} from '../tools/ai-confirm-tool-call';
 
 import '../ai-attachment';
 import '../ai-chat-header';
@@ -52,6 +57,7 @@ import '../ai-prompt';
 import '../ai-spinner';
 import '../ai-suggestions';
 import '../ai-voice-input';
+import '../ai-confirmation-prompt';
 
 import styles from './ai-chatbot.scss?inline';
 import { AiChatHeaderComponent } from '../ai-chat-header';
@@ -185,6 +191,16 @@ export class AiChatbotComponent extends LitElement {
   #toolsMap?: Map<string, ToolDefinition>;
   #adapterSubscriptions?: SubscriptionManager;
   #executingToolHandlers = 0;
+  #pendingConfirmation?: {
+    type: 'llm-driven' | 'auto-intercept';
+    toolCallId: string;
+    displayText: string;
+    toolName?: string;
+    args?: Record<string, unknown>;
+    handler?: (
+      context: HandlerContext
+    ) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void;
+  };
 
   get #slashCommands(): SlashCommand[] {
     const commands: SlashCommand[] = [];
@@ -210,6 +226,14 @@ export class AiChatbotComponent extends LitElement {
 
   get #isStreaming(): boolean {
     return (this.adapter?.isRunning ?? false) || this.#executingToolHandlers > 0;
+  }
+
+  get #isPendingConfirmation(): boolean {
+    return this.#pendingConfirmation !== undefined;
+  }
+
+  get #filteredMessageItems(): MessageItem[] {
+    return this.#messageItems.filter(item => !(item.type === 'toolCall' && item.data.name === CONFIRM_TOOL_CALL_NAME));
   }
 
   get #isUploading(): boolean {
@@ -421,6 +445,17 @@ export class AiChatbotComponent extends LitElement {
       this.#messageStateController.addToolCall(toolCall);
     }
 
+    if (event.name === CONFIRM_TOOL_CALL_NAME) {
+      const args = event.args as unknown as ConfirmActionToolArgs;
+      this.#pendingConfirmation = {
+        type: 'llm-driven',
+        toolCallId: event.id,
+        displayText: args.action ?? ''
+      };
+      this.requestUpdate();
+      return;
+    }
+
     if (toolCall?.type === 'client') {
       this.#dispatchEvent({
         type: 'forge-ai-chatbot-tool-call',
@@ -432,8 +467,24 @@ export class AiChatbotComponent extends LitElement {
       });
 
       const toolDef = this.#tools.get(event.name);
+
       if (toolDef?.handler) {
-        await Promise.resolve(this.#executeToolHandler(event.id, event.name, toolDef.handler, event.args));
+        const hasRenderer = !!toolDef.renderer;
+        const shouldSkipConfirmation = toolDef.skipConfirmation || hasRenderer;
+
+        if (shouldSkipConfirmation) {
+          await Promise.resolve(this.#executeToolHandler(event.id, event.name, toolDef.handler, event.args));
+        } else {
+          this.#pendingConfirmation = {
+            type: 'auto-intercept',
+            toolCallId: event.id,
+            displayText: toolDef.displayName ?? event.name,
+            toolName: event.name,
+            args: event.args,
+            handler: toolDef.handler
+          };
+          this.requestUpdate();
+        }
       } else {
         this.#sendToolResult(event.id, this.#createToolResponse(event.name));
       }
@@ -580,6 +631,52 @@ export class AiChatbotComponent extends LitElement {
 
   #handleCancel(): void {
     this.#handleStop();
+  }
+
+  #handleConfirmationConfirm(): void {
+    if (!this.#pendingConfirmation) {
+      return;
+    }
+
+    const { type, toolCallId, displayText, toolName, args, handler } = this.#pendingConfirmation;
+    this.#pendingConfirmation = undefined;
+
+    if (type === 'llm-driven') {
+      const result: ConfirmActionToolResult = {
+        status: 'confirmed',
+        action: displayText
+      };
+      this.#sendToolResult(toolCallId, result);
+    } else if (type === 'auto-intercept' && handler && toolName && args) {
+      void this.#executeToolHandler(toolCallId, toolName, handler, args);
+    }
+
+    this.requestUpdate();
+  }
+
+  #handleConfirmationDeny(): void {
+    if (!this.#pendingConfirmation) {
+      return;
+    }
+
+    const { type, toolCallId, displayText, toolName } = this.#pendingConfirmation;
+    this.#pendingConfirmation = undefined;
+
+    if (type === 'llm-driven') {
+      const result: ConfirmActionToolResult = {
+        status: 'denied',
+        action: displayText
+      };
+      this.#sendToolResult(toolCallId, result);
+    } else if (type === 'auto-intercept') {
+      const result = {
+        denied: true,
+        toolName: toolName ?? 'unknown',
+        message: 'User denied this action'
+      };
+      this.#sendToolResult(toolCallId, result);
+    }
+    this.requestUpdate();
   }
 
   async #handleCopy(evt: CustomEvent<{ messageId: string }>): Promise<void> {
@@ -920,8 +1017,24 @@ export class AiChatbotComponent extends LitElement {
     `;
   }
 
+  get #confirmationPrompt(): TemplateResult | typeof nothing {
+    if (!this.#pendingConfirmation) {
+      return nothing;
+    }
+
+    return html`
+      <forge-ai-confirmation-prompt
+        slot="confirmation"
+        .text=${this.#pendingConfirmation.displayText}
+        @forge-ai-confirmation-prompt-confirm=${this.#handleConfirmationConfirm}
+        @forge-ai-confirmation-prompt-deny=${this.#handleConfirmationDeny}>
+      </forge-ai-confirmation-prompt>
+    `;
+  }
+
   get #promptSlot(): TemplateResult {
     const isUploading = this.#isUploading;
+    const isDisabled = isUploading || this.#isPendingConfirmation;
     return html`
       <forge-ai-prompt
         ${ref(this.#promptRef)}
@@ -929,7 +1042,7 @@ export class AiChatbotComponent extends LitElement {
         .placeholder=${this.placeholder}
         .running=${this.#isStreaming || isUploading}
         .slashCommands=${this.#slashCommands}
-        ?disabled=${isUploading}
+        ?disabled=${isDisabled}
         ?debug-mode=${this.debugMode}
         @forge-ai-prompt-send=${this.#handleSend}
         @forge-ai-prompt-stop=${this.#handleStop}
@@ -965,7 +1078,7 @@ export class AiChatbotComponent extends LitElement {
     return html`
       <forge-ai-message-thread
         ${ref(this.#messageThreadRef)}
-        .messageItems=${this.#messageItems}
+        .messageItems=${this.#filteredMessageItems}
         .tools=${this.#tools}
         ?enable-reactions=${this.enableReactions}
         ?show-thinking=${this.#isStreaming}
@@ -1012,7 +1125,7 @@ export class AiChatbotComponent extends LitElement {
           @forge-ai-chat-header-export=${this.#handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
         </forge-ai-chat-header>
-        ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
+        ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#confirmationPrompt} ${this.#promptSlot}
       </forge-ai-chat-interface>
     `;
   }

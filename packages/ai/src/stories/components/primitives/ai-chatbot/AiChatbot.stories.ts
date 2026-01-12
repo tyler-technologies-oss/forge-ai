@@ -6,8 +6,95 @@ import '$lib/ai-chatbot';
 import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
 import '$lib/ai-voice-input';
-import { type ToolDefinition, type Suggestion } from '$lib/ai-chatbot';
-import { MockAdapter } from '../../../utils/mock-adapter';
+import { type ToolDefinition, type Suggestion, type ChatMessage } from '$lib/ai-chatbot';
+import { MockAdapter, type MockAdapterOptions } from '../../../utils/mock-adapter';
+import { generateId } from '$lib/ai-chatbot/utils.js';
+
+interface ToolResultPayload {
+  denied?: boolean;
+  toolName?: string;
+  message?: string;
+}
+
+class AutoInterceptMockAdapter extends MockAdapter {
+  constructor(options: MockAdapterOptions = {}) {
+    super(options);
+  }
+
+  override sendMessage(messages: ChatMessage[]): void {
+    this._updateState({ isRunning: true });
+
+    const messageId = generateId();
+    const lastMessage = messages[messages.length - 1];
+    const isToolResult = lastMessage?.role === 'tool';
+
+    if (isToolResult) {
+      this.#simulatePostToolResult(messageId, messages);
+    } else {
+      this.#simulateToolCall(messageId);
+    }
+  }
+
+  override sendToolResult(_toolCallId: string, result: unknown, _messages: ChatMessage[]): void {
+    const messageId = generateId();
+    const payload = result as ToolResultPayload;
+    this.#simulateResponse(messageId, payload.denied ?? false);
+  }
+
+  #simulateToolCall(messageId: string): void {
+    const toolCallId = generateId();
+
+    setTimeout(() => {
+      this._emitMessageStart(messageId);
+
+      setTimeout(() => {
+        this._emitToolCall({
+          id: toolCallId,
+          messageId,
+          name: 'deleteRecords',
+          args: { count: 5 }
+        });
+      }, 300);
+    }, 500);
+  }
+
+  #simulatePostToolResult(messageId: string, messages: ChatMessage[]): void {
+    const lastToolMessage = messages[messages.length - 1];
+    let denied = false;
+    try {
+      const content = JSON.parse(lastToolMessage.content);
+      denied = content.denied === true;
+    } catch {
+      denied = false;
+    }
+    this.#simulateResponse(messageId, denied);
+  }
+
+  #simulateResponse(messageId: string, denied: boolean): void {
+    this._emitMessageStart(messageId);
+
+    const response = denied
+      ? 'Understood. I will not delete the user records. Let me know if you need anything else.'
+      : 'Done! I have deleted the 5 user records as requested.';
+
+    const words = response.split(' ');
+    words.forEach((word, index) => {
+      setTimeout(
+        () => {
+          this._emitMessageDelta(messageId, (index === 0 ? '' : ' ') + word);
+
+          if (index === words.length - 1) {
+            setTimeout(() => {
+              this._emitMessageEnd(messageId);
+              this._updateState({ isRunning: false });
+            }, 50);
+          }
+        },
+        500 + index * 50
+      );
+    });
+  }
+}
 
 const component = 'forge-ai-chatbot';
 
@@ -308,6 +395,65 @@ export const WithPersistence: Story = {
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
           @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithConfirmation: Story = {
+  render: (args: any) => {
+    const tools: ToolDefinition<any>[] = [
+      {
+        name: 'deleteRecords',
+        displayName: 'Delete Records',
+        description: 'Delete records from the database',
+        parameters: {
+          type: 'object',
+          properties: {
+            count: { type: 'number', description: 'Number of records to delete' }
+          },
+          required: ['count']
+        },
+        handler: ({ args }) => {
+          return { deleted: args.count, success: true };
+        }
+      }
+    ];
+
+    const adapter = new AutoInterceptMockAdapter({
+      simulateStreaming: true,
+      streamingDelay: 50,
+      responseDelay: 500,
+      tools
+    });
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Tool Confirmation Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Send any message to trigger a confirmation prompt. Tools with handlers automatically require confirmation
+            unless they have <code>skipConfirmation: true</code>. Click Confirm or Deny to see the different responses.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with Confirmation"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
+          @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+          @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+          @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+          @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}>
+          <span slot="empty-state-heading">Tool Confirmation Demo</span>
+          <span slot="empty-state-message">Send any message to see the confirmation flow in action.</span>
         </forge-ai-chatbot>
       </div>
     `;

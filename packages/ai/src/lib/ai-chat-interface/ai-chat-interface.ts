@@ -21,6 +21,7 @@ export const AiChatInterfaceComponentTagName: keyof HTMLElementTagNameMap = 'for
  * @slot suggestions - Slot for AI suggestions component
  * @slot attachments - Slot for file attachments component
  * @slot prompt - Slot for AI prompt component
+ * @slot confirmation - Slot for confirmation prompt overlay
  */
 @customElement(AiChatInterfaceComponentTagName)
 export class AiChatInterfaceComponent extends LitElement {
@@ -32,11 +33,8 @@ export class AiChatInterfaceComponent extends LitElement {
   @queryAssignedNodes({ slot: 'attachments', flatten: true })
   private _slottedAttachmentsNodes!: Node[];
 
-  readonly #headerSlot = html`<slot name="header" @slotchange=${this.#handleSlotChange}></slot>`;
-
-  readonly #attachmentsSlot = html`<slot name="attachments" @slotchange=${this.#handleSlotChange}></slot>`;
-
-  readonly #suggestionsSlot = html`<slot name="suggestions" @slotchange=${this.#handleSlotChange}></slot>`;
+  readonly #attachmentsSlot = html`<slot name="attachments"></slot>`;
+  readonly #suggestionsSlot = html`<slot name="suggestions"></slot>`;
 
   get #suggestions(): TemplateResult | typeof nothing {
     const hasSuggestions = this._slottedSuggestionsNodes.length > 0;
@@ -56,24 +54,16 @@ export class AiChatInterfaceComponent extends LitElement {
     );
   }
 
-  readonly #promptSlot = html`<slot name="prompt" @slotchange=${this.#handleSlotChange}></slot>`;
-
-  get #prompt(): TemplateResult {
-    return this.#promptSlot;
-  }
-
-  get #messagesContainer(): TemplateResult {
-    return html`
-      <div class="messages-container" part="messages">
-        <slot @slotchange=${this.#handleSlotChange}></slot>
-      </div>
-    `;
-  }
+  readonly #messagesContainer: TemplateResult = html`
+    <div class="messages-container" part="messages">
+      <slot></slot>
+      <slot name="confirmation"></slot>
+    </div>
+  `;
 
   #handleSlotChange(evt: Event): void {
     const slotName = (evt.target as HTMLSlotElement).name;
-
-    if (['header', 'suggestions', 'prompt', 'attachments'].includes(slotName)) {
+    if (['suggestions', 'attachments'].includes(slotName)) {
       this.requestUpdate();
     }
   }
@@ -88,9 +78,11 @@ export class AiChatInterfaceComponent extends LitElement {
 
   public override render(): TemplateResult {
     return html`
-      <div class="ai-chat-interface">
-        ${this.#headerSlot} ${this.#messagesContainer} ${this.#suggestions} ${this.#attachments}
-        <div class="prompt-container">${this.#prompt}</div>
+      <div class="ai-chat-interface" @slotchange=${this.#handleSlotChange}>
+        <slot name="header"></slot> ${this.#messagesContainer} ${this.#suggestions} ${this.#attachments}
+        <div class="prompt-container">
+          <slot name="prompt"></slot>
+        </div>
       </div>
     `;
   }

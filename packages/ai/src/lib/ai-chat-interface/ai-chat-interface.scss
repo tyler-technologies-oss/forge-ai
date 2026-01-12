@@ -22,6 +22,7 @@
 .messages-container {
   @include forge-scrollbar.base;
 
+  position: relative;
   padding: var(
     --forge-ai-chat-interface-message-container-padding,
     var(--_ai-chat-interface-message-container-padding)
