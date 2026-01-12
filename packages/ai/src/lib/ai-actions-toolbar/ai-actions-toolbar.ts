@@ -200,6 +200,7 @@ export class AiActionsToolbarComponent extends LitElement {
         .anchor=${this._thumbsDownButton ?? null}
         placement="bottom"
         .shift=${true}
+        flip
         arrow
         @forge-ai-popover-toggle=${this._handlePopoverToggle}>
         ${this._feedbackFormTemplate}

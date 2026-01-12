@@ -187,6 +187,7 @@ export class AiChatbotToolCallComponent extends LitElement {
         .open=${this._debugPopoverOpen}
         id="debug-popover"
         placement="right"
+        flip
         @forge-ai-popover-toggle=${this.#handleDebugPopoverToggle}>
         <forge-ai-event-stream-viewer
           .events=${this.toolCall.eventStream as StreamEvent[]}></forge-ai-event-stream-viewer>
