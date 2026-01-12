@@ -8,7 +8,8 @@ import type {
   ToolCallResultEvent,
   ToolMessage,
   UserMessage,
-  Context
+  Context,
+  CustomEvent as AgUiCustomEvent
 } from '@ag-ui/core';
 import { AgentAdapter } from './agent-adapter.js';
 import type { ChatMessage, ToolDefinition } from './types.js';
@@ -134,7 +135,8 @@ export class AgUiAdapter extends AgentAdapter {
       onToolCallResultEvent: this.#handleToolCallResult.bind(this),
       onRunFinishedEvent: this.#handleRunFinished.bind(this),
       onRunErrorEvent: this.#handleRunError.bind(this),
-      onRunFailed: this.#handleRunFailed.bind(this)
+      onRunFailed: this.#handleRunFailed.bind(this),
+      onCustomEvent: this.#handleCustomEvent.bind(this)
     };
 
     this.#agent.subscribe(subscriber);
@@ -300,6 +302,10 @@ export class AgUiAdapter extends AgentAdapter {
   #handleRunFailed(): void {
     this.#clearRunState();
     this._emitError('An unexpected error occurred. Please try again.');
+  }
+
+  #handleCustomEvent({ event }: { event: AgUiCustomEvent }): void {
+    this._emitCustomEvent(event.name, event.value, event);
   }
 
   #processTextDelta(messageId: string, buffer: string, isFinal: boolean): void {

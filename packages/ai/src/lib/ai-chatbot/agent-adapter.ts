@@ -76,6 +76,12 @@ export interface ErrorEvent {
   message: string;
 }
 
+export interface CustomAgentEvent {
+  name: string;
+  value: unknown;
+  rawEvent?: unknown;
+}
+
 export abstract class AgentAdapter {
   protected _state: AdapterState = { isConnected: false, isConnecting: false, isRunning: false };
   protected _tools: ToolDefinition[] = [];
@@ -94,7 +100,8 @@ export abstract class AgentAdapter {
     fileUpload: new EventEmitter<FileUploadEvent>(),
     fileRemove: new EventEmitter<FileRemoveEvent>(),
     error: new EventEmitter<ErrorEvent>(),
-    stateChange: new EventEmitter<AdapterState>()
+    stateChange: new EventEmitter<AdapterState>(),
+    customEvent: new EventEmitter<CustomAgentEvent>()
   };
 
   public abstract connect(): Promise<void>;
@@ -192,6 +199,10 @@ export abstract class AgentAdapter {
     return this._events.stateChange.subscribe(callback);
   }
 
+  public onCustomEvent(callback: (event: CustomAgentEvent) => void): Subscription {
+    return this._events.customEvent.subscribe(callback);
+  }
+
   protected _emitRunStarted(): void {
     this._events.runStarted.emit();
   }
@@ -246,6 +257,10 @@ export abstract class AgentAdapter {
 
   protected _emitError(message: string): void {
     this._events.error.emit({ message });
+  }
+
+  protected _emitCustomEvent(name: string, value: unknown, rawEvent?: unknown): void {
+    this._events.customEvent.emit({ name, value, rawEvent });
   }
 
   protected _updateState(updates: Partial<AdapterState>): void {

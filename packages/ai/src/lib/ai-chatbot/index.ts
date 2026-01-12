@@ -21,7 +21,8 @@ export {
   type FileUploadEvent,
   type FileRemoveEvent,
   type AdapterState,
-  type ErrorEvent
+  type ErrorEvent,
+  type CustomAgentEvent
 } from './agent-adapter.js';
 
 // Chatbot types
