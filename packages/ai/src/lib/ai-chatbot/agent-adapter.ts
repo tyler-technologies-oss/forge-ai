@@ -82,6 +82,50 @@ export interface CustomAgentEvent {
   rawEvent?: unknown;
 }
 
+export interface RawAgentEvent {
+  event: unknown;
+  rawEvent?: unknown;
+}
+
+export interface RunStartedAgentEvent {
+  threadId: string;
+  runId: string;
+  rawEvent?: unknown;
+}
+
+export interface StepStartedAgentEvent {
+  stepName: string;
+  rawEvent?: unknown;
+}
+
+export interface StepFinishedAgentEvent {
+  stepName: string;
+  rawEvent?: unknown;
+}
+
+export interface StateSnapshotAgentEvent {
+  state: unknown;
+  rawEvent?: unknown;
+}
+
+export interface StateDeltaAgentEvent {
+  delta: unknown[];
+  rawEvent?: unknown;
+}
+
+export interface ActivitySnapshotAgentEvent {
+  activity: unknown;
+  activityMessage?: unknown;
+  existingMessage?: unknown;
+  rawEvent?: unknown;
+}
+
+export interface ActivityDeltaAgentEvent {
+  delta: unknown;
+  activityMessage?: unknown;
+  rawEvent?: unknown;
+}
+
 export abstract class AgentAdapter {
   protected _state: AdapterState = { isConnected: false, isConnecting: false, isRunning: false };
   protected _tools: ToolDefinition[] = [];
@@ -101,7 +145,15 @@ export abstract class AgentAdapter {
     fileRemove: new EventEmitter<FileRemoveEvent>(),
     error: new EventEmitter<ErrorEvent>(),
     stateChange: new EventEmitter<AdapterState>(),
-    customEvent: new EventEmitter<CustomAgentEvent>()
+    customEvent: new EventEmitter<CustomAgentEvent>(),
+    rawEvent: new EventEmitter<RawAgentEvent>(),
+    runStartedEvent: new EventEmitter<RunStartedAgentEvent>(),
+    stepStarted: new EventEmitter<StepStartedAgentEvent>(),
+    stepFinished: new EventEmitter<StepFinishedAgentEvent>(),
+    stateSnapshot: new EventEmitter<StateSnapshotAgentEvent>(),
+    stateDelta: new EventEmitter<StateDeltaAgentEvent>(),
+    activitySnapshot: new EventEmitter<ActivitySnapshotAgentEvent>(),
+    activityDelta: new EventEmitter<ActivityDeltaAgentEvent>()
   };
 
   public abstract connect(): Promise<void>;
@@ -203,6 +255,38 @@ export abstract class AgentAdapter {
     return this._events.customEvent.subscribe(callback);
   }
 
+  public onRawEvent(callback: (event: RawAgentEvent) => void): Subscription {
+    return this._events.rawEvent.subscribe(callback);
+  }
+
+  public onRunStartedEvent(callback: (event: RunStartedAgentEvent) => void): Subscription {
+    return this._events.runStartedEvent.subscribe(callback);
+  }
+
+  public onStepStarted(callback: (event: StepStartedAgentEvent) => void): Subscription {
+    return this._events.stepStarted.subscribe(callback);
+  }
+
+  public onStepFinished(callback: (event: StepFinishedAgentEvent) => void): Subscription {
+    return this._events.stepFinished.subscribe(callback);
+  }
+
+  public onStateSnapshot(callback: (event: StateSnapshotAgentEvent) => void): Subscription {
+    return this._events.stateSnapshot.subscribe(callback);
+  }
+
+  public onStateDelta(callback: (event: StateDeltaAgentEvent) => void): Subscription {
+    return this._events.stateDelta.subscribe(callback);
+  }
+
+  public onActivitySnapshot(callback: (event: ActivitySnapshotAgentEvent) => void): Subscription {
+    return this._events.activitySnapshot.subscribe(callback);
+  }
+
+  public onActivityDelta(callback: (event: ActivityDeltaAgentEvent) => void): Subscription {
+    return this._events.activityDelta.subscribe(callback);
+  }
+
   protected _emitRunStarted(): void {
     this._events.runStarted.emit();
   }
@@ -261,6 +345,43 @@ export abstract class AgentAdapter {
 
   protected _emitCustomEvent(name: string, value: unknown, rawEvent?: unknown): void {
     this._events.customEvent.emit({ name, value, rawEvent });
+  }
+
+  protected _emitRawEvent(event: unknown, rawEvent?: unknown): void {
+    this._events.rawEvent.emit({ event, rawEvent });
+  }
+
+  protected _emitRunStartedEvent(threadId: string, runId: string, rawEvent?: unknown): void {
+    this._events.runStartedEvent.emit({ threadId, runId, rawEvent });
+  }
+
+  protected _emitStepStarted(stepName: string, rawEvent?: unknown): void {
+    this._events.stepStarted.emit({ stepName, rawEvent });
+  }
+
+  protected _emitStepFinished(stepName: string, rawEvent?: unknown): void {
+    this._events.stepFinished.emit({ stepName, rawEvent });
+  }
+
+  protected _emitStateSnapshot(state: unknown, rawEvent?: unknown): void {
+    this._events.stateSnapshot.emit({ state, rawEvent });
+  }
+
+  protected _emitStateDelta(delta: unknown[], rawEvent?: unknown): void {
+    this._events.stateDelta.emit({ delta, rawEvent });
+  }
+
+  protected _emitActivitySnapshot(
+    activity: unknown,
+    activityMessage?: unknown,
+    existingMessage?: unknown,
+    rawEvent?: unknown
+  ): void {
+    this._events.activitySnapshot.emit({ activity, activityMessage, existingMessage, rawEvent });
+  }
+
+  protected _emitActivityDelta(delta: unknown, activityMessage?: unknown, rawEvent?: unknown): void {
+    this._events.activityDelta.emit({ delta, activityMessage, rawEvent });
   }
 
   protected _updateState(updates: Partial<AdapterState>): void {

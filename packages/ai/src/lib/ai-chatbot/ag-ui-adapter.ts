@@ -9,7 +9,16 @@ import type {
   ToolMessage,
   UserMessage,
   Context,
-  CustomEvent as AgUiCustomEvent
+  CustomEvent as AgUiCustomEvent,
+  RawEvent as AgUiRawEvent,
+  RunStartedEvent as AgUiRunStartedEvent,
+  StepStartedEvent as AgUiStepStartedEvent,
+  StepFinishedEvent as AgUiStepFinishedEvent,
+  StateSnapshotEvent as AgUiStateSnapshotEvent,
+  StateDeltaEvent as AgUiStateDeltaEvent,
+  ActivitySnapshotEvent as AgUiActivitySnapshotEvent,
+  ActivityDeltaEvent as AgUiActivityDeltaEvent,
+  ActivityMessage as AgUiActivityMessage
 } from '@ag-ui/core';
 import { AgentAdapter } from './agent-adapter.js';
 import type { ChatMessage, ToolDefinition } from './types.js';
@@ -136,7 +145,15 @@ export class AgUiAdapter extends AgentAdapter {
       onRunFinishedEvent: this.#handleRunFinished.bind(this),
       onRunErrorEvent: this.#handleRunError.bind(this),
       onRunFailed: this.#handleRunFailed.bind(this),
-      onCustomEvent: this.#handleCustomEvent.bind(this)
+      onCustomEvent: this.#handleCustomEvent.bind(this),
+      onRawEvent: this.#handleRawEvent.bind(this),
+      onRunStartedEvent: this.#handleRunStartedEvent.bind(this),
+      onStepStartedEvent: this.#handleStepStartedEvent.bind(this),
+      onStepFinishedEvent: this.#handleStepFinishedEvent.bind(this),
+      onStateSnapshotEvent: this.#handleStateSnapshotEvent.bind(this),
+      onStateDeltaEvent: this.#handleStateDeltaEvent.bind(this),
+      onActivitySnapshotEvent: this.#handleActivitySnapshotEvent.bind(this),
+      onActivityDeltaEvent: this.#handleActivityDeltaEvent.bind(this)
     };
 
     this.#agent.subscribe(subscriber);
@@ -306,6 +323,52 @@ export class AgUiAdapter extends AgentAdapter {
 
   #handleCustomEvent({ event }: { event: AgUiCustomEvent }): void {
     this._emitCustomEvent(event.name, event.value, event);
+  }
+
+  #handleRawEvent({ event }: { event: AgUiRawEvent }): void {
+    this._emitRawEvent(event.event, event);
+  }
+
+  #handleRunStartedEvent({ event }: { event: AgUiRunStartedEvent }): void {
+    this._emitRunStartedEvent(event.threadId, event.runId, event);
+  }
+
+  #handleStepStartedEvent({ event }: { event: AgUiStepStartedEvent }): void {
+    this._emitStepStarted(event.stepName, event);
+  }
+
+  #handleStepFinishedEvent({ event }: { event: AgUiStepFinishedEvent }): void {
+    this._emitStepFinished(event.stepName, event);
+  }
+
+  #handleStateSnapshotEvent({ event }: { event: AgUiStateSnapshotEvent }): void {
+    this._emitStateSnapshot(event.snapshot, event);
+  }
+
+  #handleStateDeltaEvent({ event }: { event: AgUiStateDeltaEvent }): void {
+    this._emitStateDelta(event.delta, event);
+  }
+
+  #handleActivitySnapshotEvent({
+    event,
+    activityMessage,
+    existingMessage
+  }: {
+    event: AgUiActivitySnapshotEvent;
+    activityMessage?: AgUiActivityMessage;
+    existingMessage?: unknown;
+  }): void {
+    this._emitActivitySnapshot(event.content, activityMessage, existingMessage, event);
+  }
+
+  #handleActivityDeltaEvent({
+    event,
+    activityMessage
+  }: {
+    event: AgUiActivityDeltaEvent;
+    activityMessage?: AgUiActivityMessage;
+  }): void {
+    this._emitActivityDelta(event.patch, activityMessage, event);
   }
 
   #processTextDelta(messageId: string, buffer: string, isFinal: boolean): void {

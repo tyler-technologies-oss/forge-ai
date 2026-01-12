@@ -22,7 +22,15 @@ export {
   type FileRemoveEvent,
   type AdapterState,
   type ErrorEvent,
-  type CustomAgentEvent
+  type CustomAgentEvent,
+  type RawAgentEvent,
+  type RunStartedAgentEvent,
+  type StepStartedAgentEvent,
+  type StepFinishedAgentEvent,
+  type StateSnapshotAgentEvent,
+  type StateDeltaAgentEvent,
+  type ActivitySnapshotAgentEvent,
+  type ActivityDeltaAgentEvent
 } from './agent-adapter.js';
 
 // Chatbot types
