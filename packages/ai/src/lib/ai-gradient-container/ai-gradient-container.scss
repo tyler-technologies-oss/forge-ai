@@ -17,51 +17,69 @@
   background-clip: padding-box, border-box;
 }
 
-:host(:state(low)) {
-  --_ai-gradient-container-variant: #{forge-theme.variable(tertiary-container-minimum)};
-}
-
-:host(:state(medium)) {
-  --_ai-gradient-container-variant: #{forge-theme.variable(tertiary-container)};
-}
-
-:host(:state(high)) {
-  --_ai-gradient-container-variant: #{forge-theme.variable(tertiary)};
-}
-
-// :host(:state(disabled)) {
-//   --forge-ai-gradient-container-variant: #{forge-theme.variable(tertiary-container-low)};
-// }
-
-.gradient-border {
-  background: #{forge-theme.variable(surface)};
-  position: relative;
-  border-radius: var(--_ai-gradient-container-border-width);
-}
-
-.gradient-border:after {
-  content: '';
-  position: absolute;
-  top: calc(-1 * var(--_ai-gradient-container-border-width));
-  left: calc(-1 * var(--_ai-gradient-container-border-width));
-  height: calc(100% + var(--_ai-gradient-container-border-width) * 2);
-  width: calc(100% + var(--_ai-gradient-container-border-width) * 2);
-  background-image: linear-gradient(
-    60deg,
-    var(--_ai-gradient-container-variant),
-    #{forge-theme.variable(tertiary-container-high)},
-    #{forge-theme.variable(tertiary-container)},
+:host(:state(subtle):state(low)) {
+  @include mixins.ai-gradient-container-border(
     #{forge-theme.variable(surface)},
-    var(--_ai-gradient-container-variant),
-    #{forge-theme.variable(tertiary-container-high)},
-    #{forge-theme.variable(surface)},
-    #{forge-theme.variable(tertiary-container-high)},
-    var(--_ai-gradient-container-variant)
+    #{forge-theme.variable(tertiary-container-low)},
+    #{forge-theme.variable(outline)}
   );
-  border-radius: calc(2 * var(--_ai-gradient-container-border-width));
-  z-index: -1;
-  animation: animatedgradient 5s ease-in-out infinite;
-  background-size: 300% 300%;
+}
+
+:host(:state(subtle):state(medium)) {
+  @include mixins.ai-gradient-container-border(
+    #{forge-theme.variable(surface)},
+    #{forge-theme.variable(tertiary-container)},
+    #{forge-theme.variable(outline)}
+  );
+}
+
+:host(:state(subtle):state(high)) {
+  @include mixins.ai-gradient-container-border(
+    #{forge-theme.variable(surface)},
+    #{forge-theme.variable(tertiary)},
+    #{forge-theme.variable(outline)}
+  );
+}
+
+:host(:state(subtle):state(disabled)) {
+  @include mixins.ai-gradient-container-border(
+    #{forge-theme.variable(surface)},
+    #{forge-theme.variable(text-low)},
+    #{forge-theme.variable(text-low)}
+  );
+}
+
+:host(:state(strong)) {
+  .gradient-border {
+    background: #{forge-theme.variable(surface)};
+    position: relative;
+    border-radius: var(--_ai-gradient-container-border-width);
+  }
+
+  .gradient-border:after {
+    content: '';
+    position: absolute;
+    top: calc(-1 * var(--_ai-gradient-container-border-width));
+    left: calc(-1 * var(--_ai-gradient-container-border-width));
+    height: calc(100% + var(--_ai-gradient-container-border-width) * 2);
+    width: calc(100% + var(--_ai-gradient-container-border-width) * 2);
+    background-image: linear-gradient(
+      60deg,
+      #{forge-theme.variable(tertiary)},
+      #{forge-theme.variable(tertiary-container-high)},
+      #{forge-theme.variable(tertiary-container)},
+      #{forge-theme.variable(surface)},
+      #{forge-theme.variable(tertiary)},
+      #{forge-theme.variable(tertiary-container-high)},
+      #{forge-theme.variable(surface)},
+      #{forge-theme.variable(tertiary-container-high)},
+      #{forge-theme.variable(tertiary)}
+    );
+    border-radius: calc(2 * var(--_ai-gradient-container-border-width));
+    z-index: -1;
+    animation: animatedgradient 5s ease-in-out infinite;
+    background-size: 300% 300%;
+  }
 }
 
 @keyframes animatedgradient {
@@ -81,11 +99,3 @@
     background-position: 0% 10%;
   }
 }
-
-// :host(:state(disabled)) {
-//   @include mixins.ai-gradient-container-border(
-//     #{forge-theme.variable(surface)},
-//     #{forge-theme.variable(text-low)},
-//     #{forge-theme.variable(text-low)}
-//   );
-// }
