@@ -1,59 +1,11 @@
-@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/typography' as forge-typography;
-@use '@tylertech/forge/dist/icon-button/forge-icon-button';
 
 :host {
-  display: inline-block;
+  display: block;
   box-sizing: border-box;
 }
 
-.grid-container {
-  display: block;
-  position: relative;
-  margin-inline-end: #{forge-spacing.variable(xxlarge)};
-}
-
-.toolbar-container {
-  position: absolute;
-  top: calc(100% + #{forge-spacing.variable(xxsmall)});
-  left: 0;
-  transition:
-    opacity 200ms ease-in-out,
-    transform 200ms ease-in-out;
-  display: flex;
-  gap: #{forge-spacing.variable(xxsmall)};
-}
-
-.debug-button {
-  color: #{forge-theme.variable(on-error-container-low)};
-  --forge-icon-button-focus-indicator-color: #{forge-theme.variable(error)};
-  --forge-icon-button-tonal-background-color: #{forge-theme.variable(error-container-low)};
-}
-
-// Hide toolbar by default (complete) and force hide when not complete
-:host([complete]) .toolbar-container,
-:host(:not([complete])) .toolbar-container {
-  opacity: 0;
-  transform: translateY(-8px);
-  pointer-events: none;
-}
-
-// Show toolbar on hover, focus, or when last message
-:host([complete]:hover) .toolbar-container,
-:host([complete]) .toolbar-container:focus-within,
-:host([complete]:last-of-type) .toolbar-container {
-  opacity: 1;
-  transform: translateY(-4px);
-  pointer-events: auto;
-}
-
-// Toolbar can use more space when last message
-:host([complete]:last-of-type) .toolbar-container {
-  transform: translateY(0);
-}
-
-// Text content styles
 span {
   @include forge-typography.style(body1);
   color: #{forge-theme.variable(on-surface)};

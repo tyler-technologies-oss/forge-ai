@@ -11,8 +11,12 @@
 .tool-call {
   display: flex;
   align-items: center;
-  gap: #{forge-spacing.variable(small)};
-  margin-block-end: #{forge-spacing.variable(small)};
+  gap: #{forge-spacing.variable(xsmall)};
+  background: #{forge-theme.variable(surface-container-minimum)};
+  border-radius: #{forge-shape.variable(medium)};
+  border: 1px solid #{forge-theme.variable(outline)};
+  padding: #{forge-spacing.variable(xxsmall)} #{forge-spacing.variable(xsmall)};
+  margin-block-end: #{forge-spacing.variable(medium)};
 }
 
 .debug-button {

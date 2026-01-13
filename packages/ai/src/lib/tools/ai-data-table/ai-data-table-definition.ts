@@ -22,7 +22,7 @@ export const displayDataTableTool: ToolDefinition = {
         type: 'array',
         items: {
           type: 'array',
-          items: { type: ['string', 'number'] }
+          items: { anyOf: [{ type: 'string' }, { type: 'number' }] }
         },
         description: 'Data rows where each row is an array of values matching header order.'
       }
