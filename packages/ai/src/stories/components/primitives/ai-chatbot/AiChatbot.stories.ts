@@ -33,6 +33,11 @@ const meta = {
       options: ['on', 'off'],
       description: 'Enable voice input functionality'
     },
+    debugCommand: {
+      control: 'select',
+      options: ['on', 'off'],
+      description: 'Show/hide debug mode slash command'
+    },
     showExpandButton: {
       control: 'boolean',
       description: 'Show expand button in header'
@@ -53,6 +58,10 @@ const meta = {
     enableReactions: {
       control: 'boolean',
       description: 'Enable thumbs up/down reaction buttons'
+    },
+    disclaimerText: {
+      control: 'text',
+      description: 'Disclaimer text displayed below the prompt. Set to empty string to hide.'
     }
   },
   args: {
@@ -60,11 +69,13 @@ const meta = {
     titleText: 'AI Assistant',
     fileUpload: 'off',
     voiceInput: 'on',
+    debugCommand: 'on',
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,
     minimizeIcon: 'default',
-    enableReactions: false
+    enableReactions: false,
+    disclaimerText: 'AI can make mistakes. Always verify responses.'
   },
   render: (args: any) => {
     const adapter = new MockAdapter({
@@ -95,11 +106,13 @@ const meta = {
             title-text=${args.titleText}
             file-upload=${args.fileUpload}
             voice-input=${args.voiceInput}
+            debug-command=${args.debugCommand}
             ?show-expand-button=${args.showExpandButton}
             ?show-minimize-button=${args.showMinimizeButton}
             ?expanded=${args.expanded}
             ?enable-reactions=${args.enableReactions}
             .minimizeIcon=${args.minimizeIcon}
+            .disclaimerText=${args.disclaimerText}
             @forge-ai-chatbot-connected=${onConnected}
             @forge-ai-chatbot-disconnected=${onDisconnected}
             @forge-ai-chatbot-message-sent=${onMessageSent}

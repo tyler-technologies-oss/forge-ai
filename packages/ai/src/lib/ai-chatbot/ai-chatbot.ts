@@ -118,6 +118,7 @@ export type FeatureToggle = 'on' | 'off';
  *
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
+ * @property {string | null | undefined} disclaimerText - The disclaimer text to display below the prompt. Set to empty string, null, or undefined to hide.
  *
  * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
  * @event {CustomEvent<void>} forge-ai-chatbot-disconnected - Fired when adapter disconnects
@@ -142,6 +143,9 @@ export class AiChatbotComponent extends LitElement {
 
   @property({ attribute: 'voice-input' })
   public voiceInput: FeatureToggle = 'on';
+
+  @property({ attribute: 'debug-command' })
+  public debugCommand: FeatureToggle = 'on';
 
   @property()
   public placeholder = 'Ask a question...';
@@ -176,6 +180,9 @@ export class AiChatbotComponent extends LitElement {
   @property({ type: Boolean, attribute: 'debug-mode' })
   public debugMode = false;
 
+  @property({ attribute: 'disclaimer-text' })
+  public disclaimerText: string | null | undefined = 'AI can make mistakes. Always verify responses.';
+
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #messageThreadRef = createRef<AiMessageThreadComponent>();
   #promptRef = createRef<AiPromptComponent>();
@@ -195,11 +202,14 @@ export class AiChatbotComponent extends LitElement {
     }
 
     commands.push({ id: 'info', name: 'Info', group: 'Help' });
-    commands.push({
-      id: 'debug',
-      name: `${this.debugMode ? 'Disable debug mode' : 'Enable debug mode'}`,
-      group: 'Help'
-    });
+
+    if (this.debugCommand === 'on') {
+      commands.push({
+        id: 'debug',
+        name: `${this.debugMode ? 'Disable debug mode' : 'Enable debug mode'}`,
+        group: 'Help'
+      });
+    }
 
     return commands;
   }
@@ -993,6 +1003,7 @@ export class AiChatbotComponent extends LitElement {
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
         </forge-ai-chat-header>
         ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
+        ${when(this.disclaimerText, () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`)}
       </forge-ai-chat-interface>
     `;
   }
