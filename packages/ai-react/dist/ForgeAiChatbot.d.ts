@@ -40,6 +40,9 @@ export interface ForgeAiChatbotProps extends Pick<
   voiceInput?: ForgeAiChatbotElement["voiceInput"];
 
   /** undefined */
+  debugCommand?: ForgeAiChatbotElement["debugCommand"];
+
+  /** undefined */
   placeholder?: ForgeAiChatbotElement["placeholder"];
 
   /** undefined */
@@ -50,6 +53,9 @@ export interface ForgeAiChatbotProps extends Pick<
 
   /** Controls the heading level for the title content (default: 2) */
   headingLevel?: ForgeAiChatbotElement["headingLevel"];
+
+  /** The disclaimer text to display below the prompt. Set to empty string, null, or undefined to hide. */
+  disclaimerText?: ForgeAiChatbotElement["disclaimerText"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
