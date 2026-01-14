@@ -39,3 +39,11 @@ forge-ai-chat-interface {
     padding-block-end: #{forge-spacing.variable(xsmall)};
   }
 }
+
+.disclaimer {
+  @include forge-typography.style(label1);
+
+  color: #{forge-theme.variable(text-medium)};
+  text-align: center;
+  margin-block-start: #{forge-spacing.variable(xxsmall)};
+}

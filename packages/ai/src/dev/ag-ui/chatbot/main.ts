@@ -109,7 +109,8 @@ interface ConfettiArgs {
 const showConfettiTool: ToolDefinition<ConfettiArgs> = {
   name: 'showConfetti',
   displayName: 'Show Confetti',
-  description: 'Show a confetti animation to celebrate',
+  description:
+    'Shows a confetti animation. Only call this tool when the user either explicitly requests confetti or when a celebration is appropriate!',
   parameters: {
     type: 'object' as const,
     properties: {

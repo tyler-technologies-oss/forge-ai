@@ -150,6 +150,18 @@ export interface ToolCall<TArgs = Record<string, unknown>> {
   eventStream?: StreamEvent[];
 }
 
+export type ResponseItem =
+  | { type: 'text'; messageId: string; content: string; status: 'streaming' | 'complete' }
+  | { type: 'toolCall'; data: ToolCall };
+
+export interface AssistantResponse {
+  id: string;
+  children: ResponseItem[];
+  status: 'streaming' | 'complete' | 'error';
+  timestamp: number;
+  eventStream?: StreamEvent[];
+}
+
 export interface FileAttachment {
   id: string;
   filename: string;
@@ -202,7 +214,10 @@ export interface ForgeAiChatbotFileSelectEventData {
   onAbort: (callback: () => void) => void;
 }
 
-export type MessageItem = { type: 'message'; data: ChatMessage } | { type: 'toolCall'; data: ToolCall };
+export type MessageItem =
+  | { type: 'message'; data: ChatMessage }
+  | { type: 'toolCall'; data: ToolCall }
+  | { type: 'assistant'; data: AssistantResponse };
 
 export interface ThreadState {
   threadId?: string;

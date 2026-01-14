@@ -1,5 +1,13 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import type { ChatMessage, MessageItem, ToolCall, ToolDefinition, StreamEvent } from './types.js';
+import type {
+  ChatMessage,
+  MessageItem,
+  ToolCall,
+  ToolDefinition,
+  StreamEvent,
+  AssistantResponse,
+  ResponseItem
+} from './types.js';
 import type {
   MessageStartEvent,
   MessageDeltaEvent,
@@ -9,6 +17,7 @@ import type {
   ToolCallEndEvent,
   ToolResultEvent
 } from './agent-adapter.js';
+import { generateId } from './utils.js';
 
 export interface MessageStateControllerConfig {
   tools: Map<string, ToolDefinition>;
@@ -26,6 +35,7 @@ export interface MessageStateControllerConfig {
 export class MessageStateController implements ReactiveController {
   private _messageItems: MessageItem[] = [];
   private _toolCalls = new Map<string, ToolCall>();
+  private _activeResponse: AssistantResponse | null = null;
 
   constructor(
     private _host: ReactiveControllerHost,
@@ -39,6 +49,7 @@ export class MessageStateController implements ReactiveController {
   public hostDisconnected(): void {
     this._messageItems = [];
     this._toolCalls.clear();
+    this._activeResponse = null;
   }
 
   public updateConfig(config: Partial<MessageStateControllerConfig>): void {
@@ -51,6 +62,248 @@ export class MessageStateController implements ReactiveController {
 
   public getToolCall(id: string): ToolCall | undefined {
     return this._toolCalls.get(id);
+  }
+
+  public getActiveResponse(): AssistantResponse | null {
+    return this._activeResponse;
+  }
+
+  public startResponse(): AssistantResponse {
+    if (this._activeResponse) {
+      return this._activeResponse;
+    }
+
+    const response: AssistantResponse = {
+      id: generateId(),
+      children: [],
+      status: 'streaming',
+      timestamp: Date.now()
+    };
+
+    this._activeResponse = response;
+    this._messageItems = [...this._messageItems, { type: 'assistant', data: response }];
+    this.#notifyStateChange();
+    return response;
+  }
+
+  public addTextToResponse(messageId: string, content: string, event?: MessageStartEvent): void {
+    const response = this._activeResponse ?? this.startResponse();
+
+    const existingIdx = response.children.findIndex(c => c.type === 'text' && c.messageId === messageId);
+
+    if (existingIdx >= 0) {
+      const child = response.children[existingIdx];
+      if (child.type === 'text') {
+        child.content = content;
+      }
+    } else {
+      response.children.push({ type: 'text', messageId, content, status: 'streaming' });
+    }
+
+    if (event) {
+      this.#appendEventToResponse({
+        type: 'message-start',
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      });
+    }
+
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
+  }
+
+  public appendTextDelta(messageId: string, delta: string, event?: MessageDeltaEvent): void {
+    const response = this._activeResponse ?? this.startResponse();
+
+    const textChild = response.children.find(c => c.type === 'text' && c.messageId === messageId);
+
+    if (textChild && textChild.type === 'text') {
+      textChild.content += delta;
+    } else {
+      response.children.push({ type: 'text', messageId, content: delta, status: 'streaming' });
+    }
+
+    if (event) {
+      this.#appendEventToResponse({
+        type: 'message-delta',
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      });
+    }
+
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
+  }
+
+  public markTextComplete(messageId: string, event?: MessageEndEvent): void {
+    if (!this._activeResponse) {
+      return;
+    }
+
+    const textChild = this._activeResponse.children.find(c => c.type === 'text' && c.messageId === messageId);
+
+    if (textChild && textChild.type === 'text') {
+      textChild.status = 'complete';
+    }
+
+    if (event) {
+      this.#appendEventToResponse({
+        type: 'message-end',
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      });
+    }
+
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
+  }
+
+  public addToolCallToResponse(toolCall: ToolCall, event?: ToolCallStartEvent): void {
+    const response = this._activeResponse ?? this.startResponse();
+
+    this._toolCalls.set(toolCall.id, toolCall);
+    response.children.push({ type: 'toolCall', data: toolCall });
+
+    if (event) {
+      const streamEvent = {
+        type: 'tool-call-start' as const,
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      };
+      this.#appendEventToResponse(streamEvent);
+      this.#appendEventToToolCallInResponse(toolCall.id, streamEvent);
+    }
+
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
+  }
+
+  public updateToolCallInResponse(
+    toolCallId: string,
+    updates: Partial<ToolCall>,
+    eventData?: {
+      eventType: 'tool-call-args' | 'tool-call-end';
+      event: ToolCallArgsEvent | ToolCallEndEvent;
+    }
+  ): void {
+    const toolCall = this._toolCalls.get(toolCallId);
+    if (!toolCall) {
+      return;
+    }
+
+    const updated = { ...toolCall, ...updates };
+    this._toolCalls.set(toolCallId, updated);
+
+    if (this._activeResponse) {
+      for (const child of this._activeResponse.children) {
+        if (child.type === 'toolCall' && child.data.id === toolCallId) {
+          child.data = updated;
+          break;
+        }
+      }
+    }
+
+    if (eventData) {
+      if (eventData.eventType === 'tool-call-args') {
+        const argsEvent = eventData.event as ToolCallArgsEvent;
+        const streamEvent = {
+          type: 'tool-call-args' as const,
+          timestamp: Date.now(),
+          data: argsEvent,
+          rawEvent: argsEvent.rawEvent
+        };
+        this.#appendEventToResponse(streamEvent);
+        this.#appendEventToToolCallInResponse(toolCallId, streamEvent);
+      } else {
+        const endEvent = eventData.event as ToolCallEndEvent;
+        const streamEvent = {
+          type: 'tool-call-end' as const,
+          timestamp: Date.now(),
+          data: endEvent,
+          rawEvent: endEvent.rawEvent
+        };
+        this.#appendEventToResponse(streamEvent);
+        this.#appendEventToToolCallInResponse(toolCallId, streamEvent);
+      }
+    }
+
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
+  }
+
+  public completeToolCallInResponse(toolCallId: string, result: unknown, event?: ToolResultEvent): void {
+    this.updateToolCallInResponse(toolCallId, {
+      result,
+      status: 'complete'
+    });
+
+    if (event) {
+      const streamEvent = {
+        type: 'tool-result' as const,
+        timestamp: Date.now(),
+        data: event,
+        rawEvent: event.rawEvent
+      };
+      this.#appendEventToResponse(streamEvent);
+      this.#appendEventToToolCallInResponse(toolCallId, streamEvent);
+    }
+  }
+
+  public completeResponse(): void {
+    if (!this._activeResponse) {
+      return;
+    }
+
+    this._activeResponse.status = 'complete';
+    this.#updateResponseInItems();
+    this._activeResponse = null;
+    this.#notifyStateChange();
+  }
+
+  #updateResponseInItems(): void {
+    const activeResponse = this._activeResponse;
+    if (!activeResponse) {
+      return;
+    }
+
+    this._messageItems = this._messageItems.map(item => {
+      if (item.type === 'assistant' && item.data.id === activeResponse.id) {
+        return { type: 'assistant', data: { ...activeResponse } };
+      }
+      return item;
+    });
+  }
+
+  #appendEventToResponse(event: StreamEvent): void {
+    if (!this._activeResponse) {
+      return;
+    }
+
+    this._activeResponse.eventStream = [...(this._activeResponse.eventStream || []), event];
+  }
+
+  #appendEventToToolCallInResponse(toolCallId: string, event: StreamEvent): void {
+    const toolCall = this._toolCalls.get(toolCallId);
+    if (!toolCall) {
+      return;
+    }
+
+    const eventStream = [...(toolCall.eventStream || []), event];
+    const updated = { ...toolCall, eventStream };
+    this._toolCalls.set(toolCallId, updated);
+
+    if (this._activeResponse) {
+      for (const child of this._activeResponse.children) {
+        if (child.type === 'toolCall' && child.data.id === toolCallId) {
+          child.data = updated;
+          break;
+        }
+      }
+    }
   }
 
   #notifyStateChange(): void {
@@ -77,86 +330,6 @@ export class MessageStateController implements ReactiveController {
         rawEvent: event.rawEvent
       });
     }
-  }
-
-  public addToolCall(toolCall: ToolCall, event?: ToolCallStartEvent): void {
-    this._toolCalls.set(toolCall.id, toolCall);
-    this.addMessageItem({ type: 'toolCall', data: toolCall });
-
-    if (event) {
-      this.#appendEventToToolCall(toolCall.id, {
-        type: 'tool-call-start',
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      });
-    }
-  }
-
-  public updateToolCall(
-    toolCallId: string,
-    updates: Partial<ToolCall>,
-    eventData?: {
-      eventType: 'tool-call-args' | 'tool-call-end';
-      event: ToolCallArgsEvent | ToolCallEndEvent;
-    }
-  ): void {
-    const toolCall = this._toolCalls.get(toolCallId);
-    if (!toolCall) {
-      return;
-    }
-
-    const updated = { ...toolCall, ...updates };
-    this._toolCalls.set(toolCallId, updated);
-
-    this._messageItems = this._messageItems.map(item => {
-      if (item.type === 'toolCall' && item.data.id === toolCallId) {
-        return { ...item, data: updated };
-      }
-      return item;
-    });
-
-    if (eventData) {
-      if (eventData.eventType === 'tool-call-args') {
-        const argsEvent = eventData.event as ToolCallArgsEvent;
-        this.#appendEventToToolCall(toolCallId, {
-          type: 'tool-call-args',
-          timestamp: Date.now(),
-          data: argsEvent,
-          rawEvent: argsEvent.rawEvent
-        });
-      } else {
-        const endEvent = eventData.event as ToolCallEndEvent;
-        this.#appendEventToToolCall(toolCallId, {
-          type: 'tool-call-end',
-          timestamp: Date.now(),
-          data: endEvent,
-          rawEvent: endEvent.rawEvent
-        });
-      }
-    }
-
-    this.#notifyStateChange();
-  }
-
-  public appendToMessage(id: string, content: string, event?: MessageDeltaEvent): void {
-    this._messageItems = this._messageItems.map(item => {
-      if (item.type === 'message' && item.data.id === id) {
-        return { ...item, data: { ...item.data, content: item.data.content + content } };
-      }
-      return item;
-    });
-
-    if (event) {
-      this.#appendEventToMessage(id, {
-        type: 'message-delta',
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      });
-    }
-
-    this.#notifyStateChange();
   }
 
   public getMessage(id: string): ChatMessage | undefined {
@@ -192,54 +365,90 @@ export class MessageStateController implements ReactiveController {
   public clearMessages(): void {
     this._messageItems = [];
     this._toolCalls.clear();
+    this._activeResponse = null;
+    this.#notifyStateChange();
+  }
+
+  public removeMessageItemsFrom(index: number): void {
+    this._messageItems = this._messageItems.slice(0, index);
+    this._activeResponse = null;
     this.#notifyStateChange();
   }
 
   /**
-   * Reconstructs the message hierarchy by grouping tool calls under their parent messages.
-   *
-   * messageItems stores messages and tool calls in a flat, chronologically ordered list.
-   * This method rebuilds the hierarchical structure where each message contains its tool calls.
+   * Reconstructs the message hierarchy for API compatibility.
+   * Converts assistant responses back to ChatMessage format with tool calls.
    */
   public getMessages(): ChatMessage[] {
-    const messageMap = new Map<string, ChatMessage>();
-    const messageOrder: string[] = [];
+    const messages: ChatMessage[] = [];
 
-    // Extract all messages, track their order, initialize empty toolCalls arrays
     for (const item of this._messageItems) {
       if (item.type === 'message') {
-        const msg = { ...item.data, toolCalls: [] };
-        messageMap.set(msg.id, msg);
-        messageOrder.push(msg.id);
-      }
-    }
+        messages.push({ ...item.data, toolCalls: [] });
+      } else if (item.type === 'assistant') {
+        const response = item.data;
+        const textContent = response.children
+          .filter((c): c is ResponseItem & { type: 'text' } => c.type === 'text')
+          .map(c => c.content)
+          .join('');
 
-    // Find tool calls and append them to their parent message's toolCalls array
-    for (const item of this._messageItems) {
-      if (item.type === 'toolCall') {
-        const parentMsg = messageMap.get(item.data.messageId);
-        if (parentMsg) {
-          parentMsg.toolCalls = [...(parentMsg.toolCalls || []), item.data];
+        const toolCalls = response.children
+          .filter((c): c is ResponseItem & { type: 'toolCall' } => c.type === 'toolCall')
+          .map(c => c.data);
+
+        const message: ChatMessage = {
+          id: response.id,
+          role: 'assistant',
+          content: textContent,
+          timestamp: response.timestamp,
+          status: response.status === 'streaming' ? 'streaming' : response.status === 'error' ? 'error' : 'complete',
+          toolCalls: toolCalls.length ? toolCalls : undefined,
+          eventStream: response.eventStream
+        };
+
+        messages.push(message);
+      } else if (item.type === 'toolCall') {
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg && lastMsg.role === 'assistant') {
+          lastMsg.toolCalls = [...(lastMsg.toolCalls || []), item.data];
         }
       }
     }
 
-    // Return messages in original order with tool calls grouped under each message
-    return messageOrder.map(id => messageMap.get(id)).filter((msg): msg is ChatMessage => msg !== undefined);
+    return messages;
   }
 
   public setMessages(messages: ChatMessage[]): void {
     const messageItems: MessageItem[] = [];
     this._toolCalls.clear();
+    this._activeResponse = null;
 
     for (const msg of messages) {
-      messageItems.push({ type: 'message', data: { ...msg, toolCalls: undefined } });
+      if (msg.role === 'assistant') {
+        const children: ResponseItem[] = [];
 
-      if (msg.toolCalls) {
-        for (const toolCall of msg.toolCalls) {
-          messageItems.push({ type: 'toolCall', data: toolCall });
-          this._toolCalls.set(toolCall.id, toolCall);
+        if (msg.content?.trim()) {
+          children.push({ type: 'text', messageId: msg.id, content: msg.content, status: 'complete' });
         }
+
+        if (msg.toolCalls) {
+          for (const toolCall of msg.toolCalls) {
+            children.push({ type: 'toolCall', data: toolCall });
+            this._toolCalls.set(toolCall.id, toolCall);
+          }
+        }
+
+        const response: AssistantResponse = {
+          id: msg.id,
+          children,
+          status: msg.status === 'streaming' ? 'streaming' : msg.status === 'error' ? 'error' : 'complete',
+          timestamp: msg.timestamp,
+          eventStream: msg.eventStream
+        };
+
+        messageItems.push({ type: 'assistant', data: response });
+      } else {
+        messageItems.push({ type: 'message', data: { ...msg, toolCalls: undefined } });
       }
     }
 
@@ -260,78 +469,6 @@ export class MessageStateController implements ReactiveController {
       }
       return item;
     });
-    this.#notifyStateChange();
-  }
-
-  #appendEventToToolCall(id: string, event: StreamEvent): void {
-    const toolCall = this._toolCalls.get(id);
-    if (!toolCall) {
-      return;
-    }
-
-    const eventStream = [...(toolCall.eventStream || []), event];
-    const updated = { ...toolCall, eventStream };
-    this._toolCalls.set(id, updated);
-
-    this._messageItems = this._messageItems.map(item => {
-      if (item.type === 'toolCall' && item.data.id === id) {
-        return { ...item, data: updated };
-      }
-      return item;
-    });
-
-    this.#notifyStateChange();
-  }
-
-  public completeToolCall(toolCallId: string, result: unknown, event?: ToolResultEvent): void {
-    this.updateToolCall(toolCallId, {
-      result,
-      status: 'complete'
-    });
-
-    if (event) {
-      this.#appendEventToToolCall(toolCallId, {
-        type: 'tool-result',
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      });
-    }
-
-    this.#tryReorderAssistantMessage(toolCallId);
-  }
-
-  /**
-   * Reorders the assistant message associated with the tool call to appear after the tool call.
-   *
-   * This can happen when tool calls come in before the assistant message is sent, which can
-   * cause the messages and tool calls to appear out of order otherwise.
-   *
-   * @param toolCallId The ID of the tool call whose assistant message should be reordered.
-   */
-  #tryReorderAssistantMessage(toolCallId: string): void {
-    const toolCall = this._toolCalls.get(toolCallId);
-    if (!toolCall) {
-      return;
-    }
-
-    const msgIdx = this._messageItems.findIndex(i => i.type === 'message' && i.data.id === toolCall.messageId);
-    if (msgIdx === -1) {
-      return;
-    }
-
-    const msgItem = this._messageItems[msgIdx];
-    if (msgItem.type !== 'message' || msgItem.data.content.trim()) {
-      return;
-    }
-
-    const toolIdx = this._messageItems.findIndex(i => i.type === 'toolCall' && i.data.id === toolCallId);
-    if (toolIdx === -1 || toolIdx <= msgIdx) {
-      return;
-    }
-
-    const [msg] = this._messageItems.splice(msgIdx, 1);
-    this._messageItems.splice(toolIdx, 0, msg);
     this.#notifyStateChange();
   }
 }

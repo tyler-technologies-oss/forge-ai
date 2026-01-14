@@ -82,6 +82,7 @@ export class AiChatInterfaceComponent extends LitElement {
         <slot name="header"></slot> ${this.#messagesContainer} ${this.#suggestions} ${this.#attachments}
         <div class="prompt-container">
           <slot name="prompt"></slot>
+          <slot name="disclaimer"></slot>
         </div>
       </div>
     `;
