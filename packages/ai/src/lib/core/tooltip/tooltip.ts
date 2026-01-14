@@ -190,6 +190,7 @@ export class ForgeAiTooltipComponent extends LitElement {
         this._anchorElement.addEventListener('mouseleave', this._handleHide);
         this._anchorElement.addEventListener('focusin', this._handleShow);
         this._anchorElement.addEventListener('focusout', this._handleHide);
+        this._anchorElement.addEventListener('click', this._handleAnchorClick);
         break;
       case 'focus':
         this._anchorElement.addEventListener('focusin', this._handleShow);
@@ -212,6 +213,7 @@ export class ForgeAiTooltipComponent extends LitElement {
     this._anchorElement.removeEventListener('focusin', this._handleShow);
     this._anchorElement.removeEventListener('focusout', this._handleHide);
     this._anchorElement.removeEventListener('click', this._handleToggle);
+    this._anchorElement.removeEventListener('click', this._handleAnchorClick);
   }
 
   private _handleShow = (): void => {
@@ -238,6 +240,11 @@ export class ForgeAiTooltipComponent extends LitElement {
 
   private _handleToggle = (): void => {
     this.open = !this.open;
+  };
+
+  private _handleAnchorClick = (): void => {
+    this._clearTimeouts();
+    this.open = false;
   };
 
   private _handleKeyDown = (event: KeyboardEvent): void => {

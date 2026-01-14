@@ -2,9 +2,10 @@ import { LitElement, TemplateResult, html, nothing, unsafeCSS, type PropertyValu
 import { customElement, property, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { when } from 'lit/directives/when.js';
-import type { MessageItem, ToolDefinition, ToolCall } from '../ai-chatbot/types.js';
+import type { MessageItem, ToolDefinition, ToolCall, AssistantResponse } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 
+import '../ai-assistant-response';
 import '../ai-empty-state';
 import '../ai-error-message';
 import '../ai-response-message';
@@ -158,6 +159,25 @@ export class AiMessageThreadComponent extends LitElement {
       ?debug-mode=${this.debugMode}></forge-ai-chatbot-tool-call>`;
   }
 
+  #renderAssistantResponse(response: AssistantResponse): TemplateResult {
+    return html`
+      <forge-ai-assistant-response
+        .response=${response}
+        .tools=${this.tools}
+        ?enable-reactions=${this.enableReactions}
+        ?debug-mode=${this.debugMode}
+        @forge-ai-assistant-response-copy=${(e: CustomEvent<{ responseId: string }>) =>
+          this.#handleCopy(e.detail.responseId)}
+        @forge-ai-assistant-response-refresh=${(e: CustomEvent<{ responseId: string }>) =>
+          this.#handleRefresh(e.detail.responseId)}
+        @forge-ai-assistant-response-thumbs-up=${(e: CustomEvent<{ responseId: string }>) =>
+          this.#handleThumbsUp(e.detail.responseId)}
+        @forge-ai-assistant-response-thumbs-down=${(e: CustomEvent<{ responseId: string }>) =>
+          this.#handleThumbsDown(e.detail.responseId)}>
+      </forge-ai-assistant-response>
+    `;
+  }
+
   get #emptyState(): TemplateResult | typeof nothing {
     if (this.messageItems.length) {
       return nothing;
@@ -182,14 +202,23 @@ export class AiMessageThreadComponent extends LitElement {
     }
 
     const lastItem = this.messageItems[this.messageItems.length - 1];
-    const hasAssistantContent =
-      lastItem?.type !== 'toolCall' &&
-      lastItem?.type === 'message' &&
-      lastItem.data.role === 'assistant' &&
-      lastItem.data.content.trim().length;
 
-    if (hasAssistantContent) {
-      return nothing;
+    if (lastItem?.type === 'assistant') {
+      const response = lastItem.data;
+      const hasTextContent = response.children.some(c => c.type === 'text' && c.content.trim().length > 0);
+      if (hasTextContent) {
+        return nothing;
+      }
+      const hasActiveResponseToolCall =
+        this.debugMode &&
+        response.children.some(
+          c =>
+            c.type === 'toolCall' &&
+            (c.data.status === 'parsing' || c.data.status === 'executing' || c.data.status === 'pending')
+        );
+      if (hasActiveResponseToolCall) {
+        return nothing;
+      }
     }
 
     const hasActiveToolCall =
@@ -208,13 +237,15 @@ export class AiMessageThreadComponent extends LitElement {
     </div>`;
   }
 
-  get #messages(): TemplateResult[] {
+  get #messages(): (TemplateResult | typeof nothing)[] {
     const itemsToRender = this.messageItems.filter(item => {
+      if (item.type === 'assistant') {
+        return true;
+      }
       if (item.type === 'toolCall') {
         if (this.debugMode) {
           return true;
         }
-
         const toolDef = this.tools?.get(item.data.name);
         return !!toolDef?.renderer;
       }
@@ -225,6 +256,10 @@ export class AiMessageThreadComponent extends LitElement {
     });
 
     return itemsToRender.map(item => {
+      if (item.type === 'assistant') {
+        return this.#renderAssistantResponse(item.data);
+      }
+
       if (item.type === 'toolCall') {
         return this.#renderToolCall(item.data);
       }
@@ -246,19 +281,7 @@ export class AiMessageThreadComponent extends LitElement {
       } else {
         return when(msg.content?.trim().length, () => {
           const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
-          return html`
-            <forge-ai-response-message
-              ?complete=${msg.status === 'complete'}
-              ?enable-reactions=${this.enableReactions}
-              ?has-debug-data=${this.debugMode && (msg.eventStream?.length ?? 0) > 0}
-              .eventStream=${msg.eventStream}
-              @forge-ai-response-message-copy=${() => this.#handleCopy(msg.id)}
-              @forge-ai-response-message-refresh=${() => this.#handleRefresh(msg.id)}
-              @forge-ai-response-message-thumbs-up=${() => this.#handleThumbsUp(msg.id)}
-              @forge-ai-response-message-thumbs-down=${() => this.#handleThumbsDown(msg.id)}>
-              ${unsafeHTML(renderedHtml)}
-            </forge-ai-response-message>
-          `;
+          return html`<forge-ai-response-message>${unsafeHTML(renderedHtml)}</forge-ai-response-message>`;
         });
       }
     });

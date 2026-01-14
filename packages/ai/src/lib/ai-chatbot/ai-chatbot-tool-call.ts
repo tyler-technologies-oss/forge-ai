@@ -169,9 +169,6 @@ export class AiChatbotToolCallComponent extends LitElement {
         @click=${this.#handleDebugClick}>
         ${this.#debugIcon}
       </button>
-      ${this._debugPopoverOpen
-        ? html`<forge-ai-tooltip for="debug-btn" placement="bottom">Event Stream</forge-ai-tooltip>`
-        : nothing}
     `;
   }
 
@@ -240,19 +237,21 @@ export class AiChatbotToolCallComponent extends LitElement {
       <div class="tool-call">
         <span class="status-icon">${this.#statusIcon}</span>
         <span class="tool-name">${this.toolDefinition?.displayName ?? this.toolCall.name}</span>
-        ${isComplete
-          ? html`
-              <button
-                class="forge-icon-button forge-icon-button--small info-button"
-                type="button"
-                aria-label="${this._popoverOpen ? 'Hide' : 'Show'} tool details"
-                aria-expanded="${this._popoverOpen}"
-                @click=${this.#handleButtonClick}>
-                ${this.#infoIcon}
-              </button>
-              ${this.#debugButton}
-            `
-          : nothing}
+        <div class="tool-actions">
+          ${isComplete
+            ? html`
+                <button
+                  class="forge-icon-button forge-icon-button--small info-button"
+                  type="button"
+                  aria-label="${this._popoverOpen ? 'Hide' : 'Show'} tool details"
+                  aria-expanded="${this._popoverOpen}"
+                  @click=${this.#handleButtonClick}>
+                  ${this.#infoIcon}
+                </button>
+                ${this.#debugButton}
+              `
+            : nothing}
+        </div>
       </div>
       ${isComplete
         ? html`

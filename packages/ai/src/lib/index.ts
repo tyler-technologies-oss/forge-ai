@@ -1,4 +1,5 @@
 export * from './ai-actions-toolbar';
+export * from './ai-assistant-response';
 export * from './ai-agent-info';
 export * from './ai-artifact';
 export * from './ai-attachment';

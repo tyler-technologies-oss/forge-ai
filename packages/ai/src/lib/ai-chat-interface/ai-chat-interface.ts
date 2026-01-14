@@ -90,7 +90,10 @@ export class AiChatInterfaceComponent extends LitElement {
     return html`
       <div class="ai-chat-interface">
         ${this.#headerSlot} ${this.#messagesContainer} ${this.#suggestions} ${this.#attachments}
-        <div class="prompt-container">${this.#prompt}</div>
+        <div class="prompt-container">
+          ${this.#prompt}
+          <slot name="disclaimer"></slot>
+        </div>
       </div>
     `;
   }

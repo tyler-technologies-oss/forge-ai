@@ -33,6 +33,11 @@ const meta = {
       options: ['on', 'off'],
       description: 'Enable voice input functionality'
     },
+    debugCommand: {
+      control: 'select',
+      options: ['on', 'off'],
+      description: 'Show/hide debug mode slash command'
+    },
     showExpandButton: {
       control: 'boolean',
       description: 'Show expand button in header'
@@ -53,6 +58,10 @@ const meta = {
     enableReactions: {
       control: 'boolean',
       description: 'Enable thumbs up/down reaction buttons'
+    },
+    disclaimerText: {
+      control: 'text',
+      description: 'Disclaimer text displayed below the prompt. Set to empty string to hide.'
     }
   },
   args: {
@@ -60,11 +69,13 @@ const meta = {
     titleText: 'AI Assistant',
     fileUpload: 'off',
     voiceInput: 'on',
+    debugCommand: 'on',
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,
     minimizeIcon: 'default',
-    enableReactions: false
+    enableReactions: false,
+    disclaimerText: 'AI can make mistakes. Always verify responses.'
   },
   render: (args: any) => {
     const adapter = new MockAdapter({
@@ -95,11 +106,13 @@ const meta = {
             title-text=${args.titleText}
             file-upload=${args.fileUpload}
             voice-input=${args.voiceInput}
+            debug-command=${args.debugCommand}
             ?show-expand-button=${args.showExpandButton}
             ?show-minimize-button=${args.showMinimizeButton}
             ?expanded=${args.expanded}
             ?enable-reactions=${args.enableReactions}
             .minimizeIcon=${args.minimizeIcon}
+            .disclaimerText=${args.disclaimerText}
             @forge-ai-chatbot-connected=${onConnected}
             @forge-ai-chatbot-disconnected=${onDisconnected}
             @forge-ai-chatbot-message-sent=${onMessageSent}
@@ -228,6 +241,7 @@ export const WithTools: Story = {
           ?expanded=${args.expanded}
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
+          debug-mode
           @forge-ai-chatbot-tool-call=${onToolCall}>
         </forge-ai-chatbot>
       </div>
@@ -313,3 +327,423 @@ export const WithPersistence: Story = {
     `;
   }
 };
+
+export const MixedResponses: Story = {
+  render: (args: any) => {
+    const adapter = new MixedResponseAdapter();
+
+    const suggestions = [
+      { text: 'Text only', value: 'text-only' },
+      { text: 'Tool only', value: 'tool-only' },
+      { text: 'Text then tool', value: 'text-then-tool' },
+      { text: 'Tool then text', value: 'tool-then-text' },
+      { text: 'Text, tool, text', value: 'text-tool-text' },
+      { text: 'Alternating', value: 'alternating' },
+      { text: 'Multiple tools', value: 'multiple-tools' },
+      { text: 'Multiple text chunks', value: 'multiple-text' }
+    ] as Suggestion[];
+
+    const tools: ToolDefinition[] = [
+      {
+        name: 'getCurrentWeather',
+        displayName: 'Get Weather',
+        description: 'Get the current weather for a location',
+        parameters: {
+          type: 'object',
+          properties: { location: { type: 'string' } },
+          required: ['location']
+        }
+      },
+      {
+        name: 'searchDatabase',
+        displayName: 'Search Database',
+        description: 'Search the database for records',
+        parameters: {
+          type: 'object',
+          properties: { query: { type: 'string' } },
+          required: ['query']
+        }
+      }
+    ];
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Mixed Response Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Click a suggestion to see different response patterns. Each pattern demonstrates how text and tool calls are
+            grouped within a single assistant response.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .suggestions=${suggestions}
+          .tools=${tools}
+          placeholder=${args.placeholder}
+          title-text="Mixed Responses"
+          debug-mode
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-tool-call=${(e: CustomEvent) => {
+            setTimeout(() => {
+              const chatbot = e.target as any;
+              chatbot.submitToolResult(e.detail.toolCallId, { success: true, data: 'Mock result' });
+            }, 500);
+          }}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+class MixedResponseAdapter extends MockAdapter {
+  #delay = 300;
+  #streamDelay = 30;
+
+  constructor() {
+    super({ simulateStreaming: true, simulateTools: true });
+  }
+
+  override sendMessage(messages: any[]): void {
+    this._updateState({ isRunning: true });
+
+    const lastMessage = messages[messages.length - 1];
+    const content = lastMessage?.content?.toLowerCase() || '';
+
+    this._emitRunStarted();
+
+    if (content.includes('text-only') || content === 'text only') {
+      this.#textOnly();
+    } else if (content.includes('tool-only') || content === 'tool only') {
+      this.#toolOnly();
+    } else if (content.includes('text-then-tool') || content === 'text then tool') {
+      this.#textThenTool();
+    } else if (content.includes('tool-then-text') || content === 'tool then text') {
+      this.#toolThenText();
+    } else if (content.includes('text-tool-text') || content === 'text, tool, text') {
+      this.#textToolText();
+    } else if (content.includes('alternating')) {
+      this.#alternating();
+    } else if (content.includes('multiple-tools') || content === 'multiple tools') {
+      this.#multipleTools();
+    } else if (content.includes('multiple-text') || content === 'multiple text chunks') {
+      this.#multipleText();
+    } else {
+      this.#textOnly();
+    }
+  }
+
+  override sendToolResult(toolCallId: string, result: unknown): void {
+    this._emitToolResult({
+      toolCallId,
+      result,
+      message: {
+        id: this.#id(),
+        role: 'tool',
+        content: JSON.stringify(result),
+        timestamp: Date.now(),
+        status: 'complete',
+        toolCallId
+      }
+    });
+  }
+
+  #textOnly(): void {
+    const messageId = this.#id();
+    this._emitMessageStart(messageId);
+    this.#streamText(
+      messageId,
+      'This is a text-only response with no tool calls. The entire response is just plain text content.',
+      () => {
+        this._emitMessageEnd(messageId);
+        this._updateState({ isRunning: false });
+        this._emitRunFinished();
+      }
+    );
+  }
+
+  #toolOnly(): void {
+    const messageId = this.#id();
+    const toolId = this.#id();
+    this._emitMessageStart(messageId);
+    setTimeout(() => {
+      this._emitToolCallStart({ id: toolId, messageId, name: 'getCurrentWeather' });
+      setTimeout(() => {
+        this._emitToolCallEnd({ id: toolId, messageId, name: 'getCurrentWeather', args: { location: 'New York' } });
+        this._emitToolResult({
+          toolCallId: toolId,
+          result: { temperature: 72, conditions: 'sunny' },
+          message: {
+            id: this.#id(),
+            role: 'tool',
+            content: '',
+            timestamp: Date.now(),
+            status: 'complete',
+            toolCallId: toolId
+          }
+        });
+        this._emitMessageEnd(messageId);
+        this._updateState({ isRunning: false });
+        this._emitRunFinished();
+      }, this.#delay);
+    }, this.#delay);
+  }
+
+  #textThenTool(): void {
+    const messageId = this.#id();
+    const toolId = this.#id();
+    this._emitMessageStart(messageId);
+    this.#streamText(messageId, 'Let me check the weather for you.', () => {
+      setTimeout(() => {
+        this._emitToolCallStart({ id: toolId, messageId, name: 'getCurrentWeather' });
+        setTimeout(() => {
+          this._emitToolCallEnd({ id: toolId, messageId, name: 'getCurrentWeather', args: { location: 'Chicago' } });
+          this._emitToolResult({
+            toolCallId: toolId,
+            result: { temperature: 65, conditions: 'cloudy' },
+            message: {
+              id: this.#id(),
+              role: 'tool',
+              content: '',
+              timestamp: Date.now(),
+              status: 'complete',
+              toolCallId: toolId
+            }
+          });
+          this._emitMessageEnd(messageId);
+          this._updateState({ isRunning: false });
+          this._emitRunFinished();
+        }, this.#delay);
+      }, this.#delay);
+    });
+  }
+
+  #toolThenText(): void {
+    const messageId = this.#id();
+    const toolId = this.#id();
+    this._emitMessageStart(messageId);
+    setTimeout(() => {
+      this._emitToolCallStart({ id: toolId, messageId, name: 'getCurrentWeather' });
+      setTimeout(() => {
+        this._emitToolCallEnd({ id: toolId, messageId, name: 'getCurrentWeather', args: { location: 'Boston' } });
+        this._emitToolResult({
+          toolCallId: toolId,
+          result: { temperature: 58, conditions: 'partly cloudy' },
+          message: {
+            id: this.#id(),
+            role: 'tool',
+            content: '',
+            timestamp: Date.now(),
+            status: 'complete',
+            toolCallId: toolId
+          }
+        });
+        const textId = this.#id();
+        this._emitMessageStart(textId);
+        this.#streamText(textId, 'Based on the weather data, it looks sunny today!', () => {
+          this._emitMessageEnd(textId);
+          this._updateState({ isRunning: false });
+          this._emitRunFinished();
+        });
+      }, this.#delay);
+    }, this.#delay);
+  }
+
+  #textToolText(): void {
+    const messageId = this.#id();
+    const toolId = this.#id();
+    this._emitMessageStart(messageId);
+    this.#streamText(messageId, 'I will look up the weather information now.', () => {
+      setTimeout(() => {
+        this._emitToolCallStart({ id: toolId, messageId, name: 'getCurrentWeather' });
+        setTimeout(() => {
+          this._emitToolCallEnd({ id: toolId, messageId, name: 'getCurrentWeather', args: { location: 'Seattle' } });
+          this._emitToolResult({
+            toolCallId: toolId,
+            result: { temperature: 55, conditions: 'rainy' },
+            message: {
+              id: this.#id(),
+              role: 'tool',
+              content: '',
+              timestamp: Date.now(),
+              status: 'complete',
+              toolCallId: toolId
+            }
+          });
+          const textId = this.#id();
+          this._emitMessageStart(textId);
+          this.#streamText(textId, 'The weather looks great! Expect clear skies and mild temperatures.', () => {
+            this._emitMessageEnd(textId);
+            this._updateState({ isRunning: false });
+            this._emitRunFinished();
+          });
+        }, this.#delay);
+      }, this.#delay);
+    });
+  }
+
+  #alternating(): void {
+    const msg1 = this.#id();
+    const tool1 = this.#id();
+    const tool2 = this.#id();
+    this._emitMessageStart(msg1);
+    this.#streamText(msg1, 'First, let me check the weather.', () => {
+      setTimeout(() => {
+        this._emitToolCallStart({ id: tool1, messageId: msg1, name: 'getCurrentWeather' });
+        setTimeout(() => {
+          this._emitToolCallEnd({
+            id: tool1,
+            messageId: msg1,
+            name: 'getCurrentWeather',
+            args: { location: 'Denver' }
+          });
+          this._emitToolResult({
+            toolCallId: tool1,
+            result: { temperature: 70, conditions: 'clear' },
+            message: {
+              id: this.#id(),
+              role: 'tool',
+              content: '',
+              timestamp: Date.now(),
+              status: 'complete',
+              toolCallId: tool1
+            }
+          });
+          const msg2 = this.#id();
+          this._emitMessageStart(msg2);
+          this.#streamText(msg2, 'Now let me search the database for related info.', () => {
+            setTimeout(() => {
+              this._emitToolCallStart({ id: tool2, messageId: msg2, name: 'searchDatabase' });
+              setTimeout(() => {
+                this._emitToolCallEnd({
+                  id: tool2,
+                  messageId: msg2,
+                  name: 'searchDatabase',
+                  args: { query: 'weather history' }
+                });
+                this._emitToolResult({
+                  toolCallId: tool2,
+                  result: { records: 42, summary: 'Historical data found' },
+                  message: {
+                    id: this.#id(),
+                    role: 'tool',
+                    content: '',
+                    timestamp: Date.now(),
+                    status: 'complete',
+                    toolCallId: tool2
+                  }
+                });
+                const msg3 = this.#id();
+                this._emitMessageStart(msg3);
+                this.#streamText(msg3, 'All done! I found the information you need.', () => {
+                  this._emitMessageEnd(msg3);
+                  this._updateState({ isRunning: false });
+                  this._emitRunFinished();
+                });
+              }, this.#delay);
+            }, this.#delay);
+          });
+        }, this.#delay);
+      }, this.#delay);
+    });
+  }
+
+  #multipleTools(): void {
+    const messageId = this.#id();
+    const tool1 = this.#id();
+    const tool2 = this.#id();
+    const tool3 = this.#id();
+    this._emitMessageStart(messageId);
+    setTimeout(() => {
+      this._emitToolCallStart({ id: tool1, messageId, name: 'getCurrentWeather' });
+      setTimeout(() => {
+        this._emitToolCallEnd({ id: tool1, messageId, name: 'getCurrentWeather', args: { location: 'Miami' } });
+        this._emitToolResult({
+          toolCallId: tool1,
+          result: { temperature: 85, conditions: 'humid' },
+          message: {
+            id: this.#id(),
+            role: 'tool',
+            content: '',
+            timestamp: Date.now(),
+            status: 'complete',
+            toolCallId: tool1
+          }
+        });
+        this._emitToolCallStart({ id: tool2, messageId, name: 'searchDatabase' });
+        setTimeout(() => {
+          this._emitToolCallEnd({ id: tool2, messageId, name: 'searchDatabase', args: { query: 'forecast' } });
+          this._emitToolResult({
+            toolCallId: tool2,
+            result: { records: 15, summary: 'Forecast data available' },
+            message: {
+              id: this.#id(),
+              role: 'tool',
+              content: '',
+              timestamp: Date.now(),
+              status: 'complete',
+              toolCallId: tool2
+            }
+          });
+          this._emitToolCallStart({ id: tool3, messageId, name: 'getCurrentWeather' });
+          setTimeout(() => {
+            this._emitToolCallEnd({ id: tool3, messageId, name: 'getCurrentWeather', args: { location: 'Orlando' } });
+            this._emitToolResult({
+              toolCallId: tool3,
+              result: { temperature: 82, conditions: 'sunny' },
+              message: {
+                id: this.#id(),
+                role: 'tool',
+                content: '',
+                timestamp: Date.now(),
+                status: 'complete',
+                toolCallId: tool3
+              }
+            });
+            this._emitMessageEnd(messageId);
+            this._updateState({ isRunning: false });
+            this._emitRunFinished();
+          }, this.#delay);
+        }, this.#delay);
+      }, this.#delay);
+    }, this.#delay);
+  }
+
+  #multipleText(): void {
+    const msg1 = this.#id();
+    this._emitMessageStart(msg1);
+    this.#streamText(msg1, 'This is the first text chunk of the response.', () => {
+      this._emitMessageEnd(msg1);
+      const msg2 = this.#id();
+      this._emitMessageStart(msg2);
+      this.#streamText(msg2, 'Here is another text chunk that follows immediately.', () => {
+        this._emitMessageEnd(msg2);
+        const msg3 = this.#id();
+        this._emitMessageStart(msg3);
+        this.#streamText(msg3, 'And finally, a third text chunk to complete the response!', () => {
+          this._emitMessageEnd(msg3);
+          this._updateState({ isRunning: false });
+          this._emitRunFinished();
+        });
+      });
+    });
+  }
+
+  #streamText(messageId: string, text: string, onComplete: () => void): void {
+    const words = text.split(' ');
+    let i = 0;
+    const stream = (): void => {
+      if (i < words.length) {
+        this._emitMessageDelta(messageId, (i === 0 ? '' : ' ') + words[i]);
+        i++;
+        setTimeout(stream, this.#streamDelay);
+      } else {
+        onComplete();
+      }
+    };
+    setTimeout(stream, this.#delay);
+  }
+
+  #id(): string {
+    return Math.random().toString(36).slice(2, 11);
+  }
+}
