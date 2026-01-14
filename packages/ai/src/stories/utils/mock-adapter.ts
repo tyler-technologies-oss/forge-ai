@@ -53,6 +53,7 @@ export class MockAdapter extends AgentAdapter {
 
   sendMessage(messages: ChatMessage[], _attachments?: FileAttachment[]): void {
     this._updateState({ isRunning: true });
+    this._emitRunStarted();
 
     const messageId = generateId();
     const response = this.#options.mockResponses![this.#messageIndex % this.#options.mockResponses!.length];
@@ -83,14 +84,33 @@ export class MockAdapter extends AgentAdapter {
     }
   }
 
-  sendToolResult(_toolCallId: string, _result: unknown, messages: ChatMessage[]): void {
-    this.sendMessage(messages);
+  sendToolResult(toolCallId: string, result: unknown, messages: ChatMessage[]): void {
+    const toolMessage: ChatMessage = {
+      id: generateId(),
+      role: 'tool',
+      content: typeof result === 'string' ? result : JSON.stringify(result),
+      timestamp: Date.now(),
+      status: 'complete',
+      toolCallId
+    };
+
+    this._emitToolResult({
+      toolCallId,
+      result,
+      message: toolMessage
+    });
+
+    const messagesWithToolResult = [...messages, toolMessage];
+    this.sendMessage(messagesWithToolResult);
   }
 
   abort(): void {
     if (this.#timeoutId !== null) {
       clearTimeout(this.#timeoutId);
       this.#timeoutId = null;
+    }
+    if (this._state.isRunning) {
+      this._emitRunAborted();
     }
     this._updateState({ isRunning: false });
   }
@@ -109,6 +129,7 @@ export class MockAdapter extends AgentAdapter {
               setTimeout(() => {
                 this._emitMessageEnd(messageId);
                 this._updateState({ isRunning: false });
+                this._emitRunFinished();
               }, this.#options.streamingDelay);
             }
           },
@@ -122,6 +143,7 @@ export class MockAdapter extends AgentAdapter {
         setTimeout(() => {
           this._emitMessageEnd(messageId);
           this._updateState({ isRunning: false });
+          this._emitRunFinished();
         }, this.#options.streamingDelay);
       }, this.#options.responseDelay);
     }
@@ -130,22 +152,26 @@ export class MockAdapter extends AgentAdapter {
   #simulateToolCall(messageId: string): void {
     const toolCallId = generateId();
     const toolName = 'getCurrentWeather';
+    const args = { location: 'San Francisco' };
+    const argsJson = JSON.stringify(args);
 
     setTimeout(() => {
-      setTimeout(() => {
-        setTimeout(() => {
-          setTimeout(() => {
-            this._emitToolCall({
-              id: toolCallId,
-              messageId,
-              name: toolName,
-              args: { location: 'San Francisco' }
-            });
+      this._emitToolCallStart({ id: toolCallId, messageId, name: toolName });
 
-            setTimeout(() => {
-              this._emitMessageEnd(messageId);
-              this._updateState({ isRunning: false });
-            }, this.#options.streamingDelay);
+      setTimeout(() => {
+        this._emitToolCallArgs({
+          id: toolCallId,
+          messageId,
+          name: toolName,
+          argsBuffer: argsJson,
+          partialArgs: args
+        });
+
+        setTimeout(() => {
+          this._emitToolCallEnd({ id: toolCallId, messageId, name: toolName, args });
+
+          setTimeout(() => {
+            this._emitToolCall({ id: toolCallId, messageId, name: toolName, args });
           }, this.#options.streamingDelay);
         }, this.#options.streamingDelay);
       }, this.#options.streamingDelay);
@@ -155,22 +181,26 @@ export class MockAdapter extends AgentAdapter {
   #simulateUserInputTool(messageId: string): void {
     const toolCallId = generateId();
     const toolName = 'getUserInput';
+    const args = { prompt: 'What is your name?' };
+    const argsJson = JSON.stringify(args);
 
     setTimeout(() => {
-      setTimeout(() => {
-        setTimeout(() => {
-          setTimeout(() => {
-            this._emitToolCall({
-              id: toolCallId,
-              messageId,
-              name: toolName,
-              args: { prompt: 'What is your name?' }
-            });
+      this._emitToolCallStart({ id: toolCallId, messageId, name: toolName });
 
-            setTimeout(() => {
-              this._emitMessageEnd(messageId);
-              this._updateState({ isRunning: false });
-            }, this.#options.streamingDelay);
+      setTimeout(() => {
+        this._emitToolCallArgs({
+          id: toolCallId,
+          messageId,
+          name: toolName,
+          argsBuffer: argsJson,
+          partialArgs: args
+        });
+
+        setTimeout(() => {
+          this._emitToolCallEnd({ id: toolCallId, messageId, name: toolName, args });
+
+          setTimeout(() => {
+            this._emitToolCall({ id: toolCallId, messageId, name: toolName, args });
           }, this.#options.streamingDelay);
         }, this.#options.streamingDelay);
       }, this.#options.streamingDelay);

@@ -228,6 +228,7 @@ export const WithTools: Story = {
           ?expanded=${args.expanded}
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
+          debug-mode
           @forge-ai-chatbot-tool-call=${onToolCall}>
         </forge-ai-chatbot>
       </div>
@@ -441,8 +442,8 @@ class MixedResponseAdapter extends MockAdapter {
       'This is a text-only response with no tool calls. The entire response is just plain text content.',
       () => {
         this._emitMessageEnd(messageId);
-        this._emitRunFinished();
         this._updateState({ isRunning: false });
+        this._emitRunFinished();
       }
     );
   }
@@ -468,8 +469,8 @@ class MixedResponseAdapter extends MockAdapter {
           }
         });
         this._emitMessageEnd(messageId);
-        this._emitRunFinished();
         this._updateState({ isRunning: false });
+        this._emitRunFinished();
       }, this.#delay);
     }, this.#delay);
   }
@@ -496,8 +497,8 @@ class MixedResponseAdapter extends MockAdapter {
             }
           });
           this._emitMessageEnd(messageId);
-          this._emitRunFinished();
           this._updateState({ isRunning: false });
+          this._emitRunFinished();
         }, this.#delay);
       }, this.#delay);
     });
@@ -527,8 +528,8 @@ class MixedResponseAdapter extends MockAdapter {
         this._emitMessageStart(textId);
         this.#streamText(textId, 'Based on the weather data, it looks sunny today!', () => {
           this._emitMessageEnd(textId);
-          this._emitRunFinished();
           this._updateState({ isRunning: false });
+          this._emitRunFinished();
         });
       }, this.#delay);
     }, this.#delay);
@@ -559,8 +560,8 @@ class MixedResponseAdapter extends MockAdapter {
           this._emitMessageStart(textId);
           this.#streamText(textId, 'The weather looks great! Expect clear skies and mild temperatures.', () => {
             this._emitMessageEnd(textId);
-            this._emitRunFinished();
             this._updateState({ isRunning: false });
+            this._emitRunFinished();
           });
         }, this.#delay);
       }, this.#delay);
@@ -622,8 +623,8 @@ class MixedResponseAdapter extends MockAdapter {
                 this._emitMessageStart(msg3);
                 this.#streamText(msg3, 'All done! I found the information you need.', () => {
                   this._emitMessageEnd(msg3);
-                  this._emitRunFinished();
                   this._updateState({ isRunning: false });
+                  this._emitRunFinished();
                 });
               }, this.#delay);
             }, this.#delay);
@@ -686,8 +687,8 @@ class MixedResponseAdapter extends MockAdapter {
               }
             });
             this._emitMessageEnd(messageId);
-            this._emitRunFinished();
             this._updateState({ isRunning: false });
+            this._emitRunFinished();
           }, this.#delay);
         }, this.#delay);
       }, this.#delay);
@@ -707,8 +708,8 @@ class MixedResponseAdapter extends MockAdapter {
         this._emitMessageStart(msg3);
         this.#streamText(msg3, 'And finally, a third text chunk to complete the response!', () => {
           this._emitMessageEnd(msg3);
-          this._emitRunFinished();
           this._updateState({ isRunning: false });
+          this._emitRunFinished();
         });
       });
     });

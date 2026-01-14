@@ -17,6 +17,7 @@
   border: 1px solid #{forge-theme.variable(outline)};
   padding: #{forge-spacing.variable(xxsmall)} #{forge-spacing.variable(xsmall)};
   margin-block-end: #{forge-spacing.variable(medium)};
+  overflow: hidden;
 }
 
 .debug-button {
@@ -29,6 +30,9 @@
   @include forge-typography.style(body1);
 
   color: #{forge-theme.variable(text-medium)};
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .status-icon {
@@ -60,6 +64,12 @@
 .tool-section {
   display: grid;
   gap: #{forge-spacing.variable(xsmall)};
+}
+
+.tool-actions {
+  display: flex;
+  gap: #{forge-spacing.variable(small)};
+  margin-inline-start: auto;
 }
 
 .section-label {
