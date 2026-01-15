@@ -46,4 +46,5 @@ forge-ai-chat-interface {
   color: #{forge-theme.variable(text-medium)};
   text-align: center;
   margin-block-start: #{forge-spacing.variable(xxsmall)};
+  margin-block-end: calc(#{forge-spacing.variable(small)} * -1);
 }
