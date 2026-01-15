@@ -38,15 +38,14 @@ interface ToolCallState {
 }
 
 export class AgUiAdapter extends AgentAdapter {
-  #config: AgUiAdapterConfig;
   #agent: AgUiAgent;
   #toolCalls = new Map<string, ToolCallState>();
   #threadId: string;
   #textBuffers = new Map<string, string>();
+  #context: Record<string, unknown> = {};
 
   constructor(config: AgUiAdapterConfig, threadId?: string) {
     super();
-    this.#config = config;
     this.#threadId = threadId ?? generateId();
     this.#agent = new HttpAgentWithCredentials({
       url: config.url,
@@ -55,6 +54,9 @@ export class AgUiAdapter extends AgentAdapter {
     this.#agent.threadId = this.#threadId;
     if (config.tools) {
       this.setTools(config.tools);
+    }
+    if (config.context) {
+      this.#context = { ...config.context };
     }
     this.#setupSubscriber();
   }
@@ -66,6 +68,14 @@ export class AgUiAdapter extends AgentAdapter {
   public set threadId(value: string) {
     this.#threadId = value;
     this.#agent.threadId = value;
+  }
+
+  public setContext(context: Record<string, unknown>): void {
+    this.#context = { ...context };
+  }
+
+  public getContext(): Record<string, unknown> {
+    return { ...this.#context };
   }
 
   public static async create(config: AgUiAdapterConfig & { threadId?: string }): Promise<AgUiAdapter> {
@@ -96,7 +106,7 @@ export class AgUiAdapter extends AgentAdapter {
     }
 
     const transformedMessages = this.#transformMessages(messages);
-    const context = this.#config.context ? this.#transformContext(this.#config.context) : undefined;
+    const context = Object.keys(this.#context).length ? this.#transformContext(this.#context) : undefined;
 
     this.#agent.setMessages(transformedMessages);
 
