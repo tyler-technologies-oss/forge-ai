@@ -72,9 +72,7 @@ export class AiActionsToolbarComponent extends LitElement {
 
   private _emitFeedbackEvent(action: 'positive' | 'negative', feedback?: string): void {
     const event = new CustomEvent<ForgeAiActionsToolbarFeedbackEventData>('forge-ai-actions-toolbar-feedback', {
-      detail: { action, feedback },
-      bubbles: true,
-      composed: true
+      detail: { action, feedback }
     });
     this.dispatchEvent(event);
   }

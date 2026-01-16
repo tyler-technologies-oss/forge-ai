@@ -4,6 +4,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { when } from 'lit/directives/when.js';
 import type { MessageItem, ToolDefinition, ToolCall, AssistantResponse } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
+import type { ForgeAiAssistantResponseFeedbackEventData } from '../ai-assistant-response';
 
 import '../ai-assistant-response';
 import '../ai-empty-state';
@@ -39,6 +40,7 @@ export interface ForgeAiMessageThreadRefreshEventData {
 
 export interface ForgeAiMessageThreadThumbsEventData {
   messageId: string;
+  feedback?: string;
 }
 
 export const AiMessageThreadComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-message-thread';
@@ -137,18 +139,14 @@ export class AiMessageThreadComponent extends LitElement {
     });
   }
 
-  #handleThumbsUp(messageId: string): void {
-    this.#dispatchEvent({
-      type: 'forge-ai-message-thread-thumbs-up',
-      detail: { messageId }
-    });
+  #handleThumbsUp(messageId: string, feedback?: string): void {
+    const detail: ForgeAiMessageThreadThumbsEventData = { messageId, feedback };
+    this.#dispatchEvent({ type: 'forge-ai-message-thread-thumbs-up', detail });
   }
 
-  #handleThumbsDown(messageId: string): void {
-    this.#dispatchEvent({
-      type: 'forge-ai-message-thread-thumbs-down',
-      detail: { messageId }
-    });
+  #handleThumbsDown(messageId: string, feedback?: string): void {
+    const detail: ForgeAiMessageThreadThumbsEventData = { messageId, feedback };
+    this.#dispatchEvent({ type: 'forge-ai-message-thread-thumbs-down', detail });
   }
 
   #renderToolCall(toolCall: ToolCall): TemplateResult {
@@ -170,10 +168,10 @@ export class AiMessageThreadComponent extends LitElement {
           this.#handleCopy(e.detail.responseId)}
         @forge-ai-assistant-response-refresh=${(e: CustomEvent<{ responseId: string }>) =>
           this.#handleRefresh(e.detail.responseId)}
-        @forge-ai-assistant-response-thumbs-up=${(e: CustomEvent<{ responseId: string }>) =>
-          this.#handleThumbsUp(e.detail.responseId)}
-        @forge-ai-assistant-response-thumbs-down=${(e: CustomEvent<{ responseId: string }>) =>
-          this.#handleThumbsDown(e.detail.responseId)}>
+        @forge-ai-assistant-response-thumbs-up=${(e: CustomEvent<ForgeAiAssistantResponseFeedbackEventData>) =>
+          this.#handleThumbsUp(e.detail.responseId, e.detail.feedback)}
+        @forge-ai-assistant-response-thumbs-down=${(e: CustomEvent<ForgeAiAssistantResponseFeedbackEventData>) =>
+          this.#handleThumbsDown(e.detail.responseId, e.detail.feedback)}>
       </forge-ai-assistant-response>
     `;
   }

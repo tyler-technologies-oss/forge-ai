@@ -42,6 +42,7 @@ import type {
   UploadedFileMetadata
 } from './types.js';
 import { downloadFile, generateId } from './utils.js';
+import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
 
 import '../ai-attachment';
 import '../ai-chat-header';
@@ -75,6 +76,7 @@ declare global {
     'forge-ai-chatbot-file-select': CustomEvent<ForgeAiChatbotFileSelectEventData>;
     'forge-ai-voice-input-result': CustomEvent<ForgeAiVoiceInputResultEvent>;
     'forge-ai-chatbot-file-remove': CustomEvent<ForgeAiChatbotFileRemoveEventData>;
+    'forge-ai-chatbot-response-feedback': CustomEvent<ForgeAiChatbotResponseFeedbackEventData>;
   }
 }
 
@@ -94,6 +96,12 @@ export interface ForgeAiChatbotErrorEventData {
 
 export interface ForgeAiChatbotFileRemoveEventData {
   fileId: string;
+}
+
+export interface ForgeAiChatbotResponseFeedbackEventData {
+  messageId: string;
+  type: 'positive' | 'negative';
+  feedback?: string;
 }
 
 export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-chatbot';
@@ -130,6 +138,7 @@ export type FeatureToggle = 'on' | 'off';
  * @event {CustomEvent<void>} forge-ai-chatbot-minimize - Fired when header minimize button is clicked
  * @event {CustomEvent<void>} forge-ai-chatbot-clear - Fired when header clear option is selected (cancelable, prevents clearMessages() if default prevented)
  * @event {CustomEvent<void>} forge-ai-chatbot-info - Fired when header info option is selected
+ * @event {CustomEvent<ForgeAiChatbotResponseFeedbackEventData>} forge-ai-chatbot-response-feedback - Fired when user provides feedback on a response (thumbs up/down)
  */
 @customElement(AiChatbotComponentTagName)
 export class AiChatbotComponent extends LitElement {
@@ -617,14 +626,22 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.sendMessage(this.getMessages());
   }
 
-  #handleThumbsUp(evt: CustomEvent<{ messageId: string }>): void {
-    // TODO: Show popover thanking user for feedback
-    console.warn('thumbs-up', evt.detail.messageId);
+  #handleThumbsUp(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>): void {
+    const detail: ForgeAiChatbotResponseFeedbackEventData = {
+      messageId: evt.detail.messageId,
+      type: 'positive',
+      feedback: evt.detail.feedback
+    };
+    this.#dispatchEvent({ type: 'forge-ai-chatbot-response-feedback', detail });
   }
 
-  #handleThumbsDown(evt: CustomEvent<{ messageId: string }>): void {
-    // TODO: Show popover asking for feedback details
-    console.warn('thumbs-down', evt.detail.messageId);
+  #handleThumbsDown(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>): void {
+    const detail: ForgeAiChatbotResponseFeedbackEventData = {
+      messageId: evt.detail.messageId,
+      type: 'negative',
+      feedback: evt.detail.feedback
+    };
+    this.#dispatchEvent({ type: 'forge-ai-chatbot-response-feedback', detail });
   }
 
   #processFileUpload(file: File, timestamp: number): void {
