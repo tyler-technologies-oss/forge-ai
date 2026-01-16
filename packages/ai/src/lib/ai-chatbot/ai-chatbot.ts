@@ -809,6 +809,7 @@ export class AiChatbotComponent extends LitElement {
   }
 
   async #handleSuggestionSelect(evt: CustomEvent<ForgeAiSuggestionsEventData>): Promise<void> {
+    this.#promptRef.value?.addToHistory(evt.detail.text);
     await this.sendMessage(evt.detail.text);
     this.#promptRef.value?.focus();
   }
