@@ -8,6 +8,8 @@ import styles from './ai-prompt.scss?inline';
 
 import '../ai-slash-command-menu/ai-slash-command-menu.js';
 
+const MAX_HISTORY_SIZE = 50;
+
 declare global {
   interface HTMLElementTagNameMap {
     'forge-ai-prompt': AiPromptComponent;
@@ -117,6 +119,9 @@ export class AiPromptComponent extends LitElement {
   private _slashMenuElement!: HTMLElement & { handleKeyDown(event: KeyboardEvent): boolean };
 
   readonly #internals: ElementInternals;
+  #messageHistory: string[] = [];
+  #historyIndex = -1;
+  #draftMessage = '';
 
   constructor() {
     super();
@@ -139,6 +144,70 @@ export class AiPromptComponent extends LitElement {
   #setCssState(): void {
     toggleState(this.#internals, 'inline', this.variant === 'inline');
     toggleState(this.#internals, 'stacked', this.variant === 'stacked');
+  }
+
+  /**
+   * Adds a message to the input history for up/down arrow navigation.
+   * Use this when sending messages externally (e.g., from suggestions).
+   */
+  public addToHistory(message: string): void {
+    const trimmed = message?.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    if (this.#messageHistory[this.#messageHistory.length - 1] === trimmed) {
+      this.#resetHistoryNavigation();
+      return;
+    }
+
+    this.#messageHistory.push(trimmed);
+    if (this.#messageHistory.length > MAX_HISTORY_SIZE) {
+      this.#messageHistory.shift();
+    }
+    this.#resetHistoryNavigation();
+  }
+
+  #resetHistoryNavigation(): void {
+    this.#historyIndex = -1;
+    this.#draftMessage = '';
+  }
+
+  #navigateHistory(direction: number): boolean {
+    if (this.#messageHistory.length === 0) {
+      return false;
+    }
+    if (direction > 0 && this.#historyIndex === -1) {
+      return false;
+    }
+
+    if (direction < 0) {
+      if (this.#historyIndex === -1) {
+        this.#draftMessage = this.value;
+        this.#historyIndex = this.#messageHistory.length - 1;
+      } else if (this.#historyIndex > 0) {
+        this.#historyIndex--;
+      } else {
+        return false;
+      }
+    } else {
+      const newIndex = this.#historyIndex + 1;
+      if (newIndex >= this.#messageHistory.length) {
+        this.#historyIndex = -1;
+        this.value = this.#draftMessage;
+        if (this._inputElement) {
+          this._inputElement.value = this.#draftMessage;
+        }
+        return true;
+      }
+      this.#historyIndex = newIndex;
+    }
+
+    this.value = this.#messageHistory[this.#historyIndex];
+    if (this._inputElement) {
+      this._inputElement.value = this.#messageHistory[this.#historyIndex];
+    }
+    return true;
   }
 
   readonly #actionsSlot = html`<slot name="actions" @slotchange=${this.#handleSlotChange}></slot>`;
@@ -173,10 +242,11 @@ export class AiPromptComponent extends LitElement {
       return;
     }
 
+    const messageValue = this.value;
     const now = new Date();
     const event = new CustomEvent<ForgeAiPromptSendEventData>('forge-ai-prompt-send', {
       detail: {
-        value: this.value,
+        value: messageValue,
         time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         date: now
       },
@@ -186,8 +256,8 @@ export class AiPromptComponent extends LitElement {
     });
     this.dispatchEvent(event);
 
-    // Only clear input if event wasn't cancelled
     if (!event.defaultPrevented) {
+      this.addToHistory(messageValue);
       this.value = '';
       this._slashMenuOpen = false;
       this._slashMenuQuery = '';
@@ -196,6 +266,11 @@ export class AiPromptComponent extends LitElement {
 
   private _handleInput(event: InputEvent): void {
     this.value = (event.target as HTMLTextAreaElement).value;
+
+    if (this.#historyIndex !== -1) {
+      this.#draftMessage = this.value;
+      this.#historyIndex = -1;
+    }
 
     if (this.slashCommands.length === 0) {
       this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
@@ -220,6 +295,23 @@ export class AiPromptComponent extends LitElement {
       const handled = this._slashMenuElement.handleKeyDown(event);
       if (handled) {
         return;
+      }
+    }
+
+    const hasModifier = event.shiftKey || event.ctrlKey || event.metaKey;
+
+    // Check for history navigation
+    if (!hasModifier) {
+      if (event.key === 'ArrowUp') {
+        if (this.#navigateHistory(-1)) {
+          event.preventDefault();
+          return;
+        }
+      } else if (event.key === 'ArrowDown') {
+        if (this.#navigateHistory(1)) {
+          event.preventDefault();
+          return;
+        }
       }
     }
 
