@@ -627,6 +627,10 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleThumbsUp(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>): void {
+    this.#messageStateController.setResponseFeedback(evt.detail.messageId, {
+      type: 'positive',
+      reason: evt.detail.feedback
+    });
     const detail: ForgeAiChatbotResponseFeedbackEventData = {
       messageId: evt.detail.messageId,
       type: 'positive',
@@ -636,6 +640,10 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #handleThumbsDown(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>): void {
+    this.#messageStateController.setResponseFeedback(evt.detail.messageId, {
+      type: 'negative',
+      reason: evt.detail.feedback
+    });
     const detail: ForgeAiChatbotResponseFeedbackEventData = {
       messageId: evt.detail.messageId,
       type: 'negative',

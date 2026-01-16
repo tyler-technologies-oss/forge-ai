@@ -130,6 +130,7 @@ export interface ChatMessage {
   toolCalls?: ToolCall[];
   toolCallId?: string;
   eventStream?: StreamEvent[];
+  feedback?: ResponseFeedback;
 }
 
 export interface ToolCall<TArgs = Record<string, unknown>> {
@@ -148,12 +149,20 @@ export type ResponseItem =
   | { type: 'text'; messageId: string; content: string; status: 'streaming' | 'complete' }
   | { type: 'toolCall'; data: ToolCall };
 
+export type FeedbackType = 'positive' | 'negative';
+
+export interface ResponseFeedback {
+  type: FeedbackType;
+  reason?: string;
+}
+
 export interface AssistantResponse {
   id: string;
   children: ResponseItem[];
   status: 'streaming' | 'complete' | 'error';
   timestamp: number;
   eventStream?: StreamEvent[];
+  feedback?: ResponseFeedback;
 }
 
 export interface FileAttachment {

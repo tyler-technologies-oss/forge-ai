@@ -1,6 +1,7 @@
 import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AssistantResponse, StreamEvent, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiActionsToolbarFeedbackEventData } from '../ai-actions-toolbar';
@@ -222,6 +223,7 @@ export class AiAssistantResponseComponent extends LitElement {
       <div class="toolbar-container">
         <forge-ai-actions-toolbar
           ?enable-reactions=${this.enableReactions}
+          feedback-type=${ifDefined(this.response.feedback?.type)}
           @forge-ai-actions-toolbar-action=${this.#handleToolbarAction}
           @forge-ai-actions-toolbar-feedback=${this.#handleToolbarFeedback}>
         </forge-ai-actions-toolbar>

@@ -1,7 +1,8 @@
-import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
+import { LitElement, TemplateResult, html, unsafeCSS, type PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import type { ForgeAiPopoverComponent } from '../core/popover/popover.js';
+import type { FeedbackType } from '../ai-chatbot/types.js';
 
 import '../core/tooltip/tooltip.js';
 import '../core/popover/popover.js';
@@ -45,6 +46,9 @@ export class AiActionsToolbarComponent extends LitElement {
   @property({ type: Boolean, attribute: 'enable-reactions' })
   public enableReactions = false;
 
+  @property({ attribute: 'feedback-type' })
+  public feedbackType?: FeedbackType;
+
   @state()
   private _thumbsUpActive = false;
 
@@ -62,6 +66,13 @@ export class AiActionsToolbarComponent extends LitElement {
 
   @query('textarea')
   private _thumbsDownFeedbackTextarea?: HTMLTextAreaElement;
+
+  public override willUpdate(changedProperties: PropertyValues<this>): void {
+    if (changedProperties.has('feedbackType') && this.feedbackType) {
+      this._thumbsUpActive = this.feedbackType === 'positive';
+      this._thumbsDownActive = this.feedbackType === 'negative';
+    }
+  }
 
   private _emitActionEvent(action: AiActionsToolbarAction): void {
     const event = new CustomEvent<ForgeAiActionsToolbarActionEventData>('forge-ai-actions-toolbar-action', {
