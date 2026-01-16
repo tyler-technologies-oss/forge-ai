@@ -1,8 +1,10 @@
 import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AssistantResponse, StreamEvent, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
+import type { ForgeAiActionsToolbarFeedbackEventData } from '../ai-actions-toolbar';
 
 import '../ai-actions-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
@@ -20,9 +22,14 @@ declare global {
   interface HTMLElementEventMap {
     'forge-ai-assistant-response-copy': CustomEvent<{ responseId: string }>;
     'forge-ai-assistant-response-refresh': CustomEvent<{ responseId: string }>;
-    'forge-ai-assistant-response-thumbs-up': CustomEvent<{ responseId: string }>;
-    'forge-ai-assistant-response-thumbs-down': CustomEvent<{ responseId: string }>;
+    'forge-ai-assistant-response-thumbs-up': CustomEvent<ForgeAiAssistantResponseFeedbackEventData>;
+    'forge-ai-assistant-response-thumbs-down': CustomEvent<ForgeAiAssistantResponseFeedbackEventData>;
   }
+}
+
+export interface ForgeAiAssistantResponseFeedbackEventData {
+  responseId: string;
+  feedback?: string;
 }
 
 export const AiAssistantResponseComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-assistant-response';
@@ -34,8 +41,8 @@ export const AiAssistantResponseComponentTagName: keyof HTMLElementTagNameMap = 
  *
  * @event {CustomEvent<{ responseId: string }>} forge-ai-assistant-response-copy - Fired when copy action is clicked
  * @event {CustomEvent<{ responseId: string }>} forge-ai-assistant-response-refresh - Fired when refresh action is clicked
- * @event {CustomEvent<{ responseId: string }>} forge-ai-assistant-response-thumbs-up - Fired when thumbs up is clicked
- * @event {CustomEvent<{ responseId: string }>} forge-ai-assistant-response-thumbs-down - Fired when thumbs down is clicked
+ * @event {CustomEvent<ForgeAiAssistantResponseFeedbackEventData>} forge-ai-assistant-response-thumbs-up - Fired when thumbs up is clicked
+ * @event {CustomEvent<ForgeAiAssistantResponseFeedbackEventData>} forge-ai-assistant-response-thumbs-down - Fired when thumbs down is clicked
  */
 @customElement(AiAssistantResponseComponentTagName)
 export class AiAssistantResponseComponent extends LitElement {
@@ -135,11 +142,19 @@ export class AiAssistantResponseComponent extends LitElement {
 
   #handleToolbarAction(event: CustomEvent<{ action: string }>): void {
     const action = event.detail.action;
-    const eventType = `forge-ai-assistant-response-${action}` as keyof HTMLElementEventMap;
+    const eventType = `forge-ai-assistant-response-${action}`;
     const bubbleEvent = new CustomEvent(eventType, {
-      detail: { responseId: this.response.id },
-      bubbles: true,
-      composed: true
+      detail: { responseId: this.response.id }
+    });
+    this.dispatchEvent(bubbleEvent);
+  }
+
+  #handleToolbarFeedback(event: CustomEvent<ForgeAiActionsToolbarFeedbackEventData>): void {
+    const { action, feedback } = event.detail;
+    const eventType: keyof HTMLElementEventMap =
+      action === 'positive' ? 'forge-ai-assistant-response-thumbs-up' : 'forge-ai-assistant-response-thumbs-down';
+    const bubbleEvent = new CustomEvent<ForgeAiAssistantResponseFeedbackEventData>(eventType, {
+      detail: { responseId: this.response.id, feedback }
     });
     this.dispatchEvent(bubbleEvent);
   }
@@ -208,7 +223,9 @@ export class AiAssistantResponseComponent extends LitElement {
       <div class="toolbar-container">
         <forge-ai-actions-toolbar
           ?enable-reactions=${this.enableReactions}
-          @forge-ai-actions-toolbar-action=${this.#handleToolbarAction}>
+          feedback-type=${ifDefined(this.response.feedback?.type)}
+          @forge-ai-actions-toolbar-action=${this.#handleToolbarAction}
+          @forge-ai-actions-toolbar-feedback=${this.#handleToolbarFeedback}>
         </forge-ai-actions-toolbar>
         ${this.#debugButton}
       </div>

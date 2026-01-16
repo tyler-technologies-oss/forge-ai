@@ -60,6 +60,11 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
   );
   useEventListener(ref, "forge-ai-chatbot-clear", props.onForgeAiChatbotClear);
   useEventListener(ref, "forge-ai-chatbot-info", props.onForgeAiChatbotInfo);
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-response-feedback",
+    props.onForgeAiChatbotResponseFeedback,
+  );
 
   return React.createElement(
     "forge-ai-chatbot",

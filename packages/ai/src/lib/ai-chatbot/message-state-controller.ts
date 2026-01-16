@@ -6,7 +6,8 @@ import type {
   ToolDefinition,
   StreamEvent,
   AssistantResponse,
-  ResponseItem
+  ResponseItem,
+  ResponseFeedback
 } from './types.js';
 import type {
   MessageStartEvent,
@@ -403,7 +404,8 @@ export class MessageStateController implements ReactiveController {
           timestamp: response.timestamp,
           status: response.status === 'streaming' ? 'streaming' : response.status === 'error' ? 'error' : 'complete',
           toolCalls: toolCalls.length ? toolCalls : undefined,
-          eventStream: response.eventStream
+          eventStream: response.eventStream,
+          feedback: response.feedback
         };
 
         messages.push(message);
@@ -443,7 +445,8 @@ export class MessageStateController implements ReactiveController {
           children,
           status: msg.status === 'streaming' ? 'streaming' : msg.status === 'error' ? 'error' : 'complete',
           timestamp: msg.timestamp,
-          eventStream: msg.eventStream
+          eventStream: msg.eventStream,
+          feedback: msg.feedback
         };
 
         messageItems.push({ type: 'assistant', data: response });
@@ -454,6 +457,14 @@ export class MessageStateController implements ReactiveController {
 
     this._messageItems = messageItems;
     this.#notifyStateChange();
+  }
+
+  public setResponseFeedback(responseId: string, feedback: ResponseFeedback): void {
+    const item = this._messageItems.find(i => i.type === 'assistant' && i.data.id === responseId);
+    if (item?.type === 'assistant') {
+      item.data.feedback = feedback;
+      this.#notifyStateChange();
+    }
   }
 
   #appendEventToMessage(id: string, event: StreamEvent): void {

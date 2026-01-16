@@ -3,6 +3,7 @@ export type {
   ForgeAiChatbotMessageEventData,
   ForgeAiChatbotToolCallEventData,
   ForgeAiChatbotErrorEventData,
+  ForgeAiChatbotResponseFeedbackEventData,
   FeatureToggle
 } from './ai-chatbot.js';
 export { AiChatbotToolCallComponent, AiChatbotToolCallComponentTagName } from './ai-chatbot-tool-call.js';
@@ -47,7 +48,9 @@ export type {
   FileUploadHandler,
   FileRemoveCallbacks,
   ForgeAiChatbotFileSelectEventData,
-  ThreadState
+  ThreadState,
+  FeedbackType,
+  ResponseFeedback
 } from './types.js';
 
 // AG-UI adapter
