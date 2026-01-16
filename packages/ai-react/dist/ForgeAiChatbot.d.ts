@@ -117,6 +117,11 @@ export interface ForgeAiChatbotProps extends Pick<
 
   /** Fired when header info option is selected */
   onForgeAiChatbotInfo?: (event: CustomEvent<CustomEvent<void>>) => void;
+
+  /** Fired when user provides feedback on a response (thumbs up/down) */
+  onForgeAiChatbotResponseFeedback?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotResponseFeedbackEventData>>,
+  ) => void;
 }
 
 /**
@@ -135,6 +140,7 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **forge-ai-chatbot-minimize** - Fired when header minimize button is clicked
  * - **forge-ai-chatbot-clear** - Fired when header clear option is selected (cancelable, prevents clearMessages() if default prevented)
  * - **forge-ai-chatbot-info** - Fired when header info option is selected
+ * - **forge-ai-chatbot-response-feedback** - Fired when user provides feedback on a response (thumbs up/down)
  *
  * ### **Methods:**
  *  - **clearMessages(): _void_** - Clears all messages from the chat history.
