@@ -87,6 +87,7 @@ class AutoInterceptMockAdapter extends MockAdapter {
             setTimeout(() => {
               this._emitMessageEnd(messageId);
               this._updateState({ isRunning: false });
+              this._emitRunFinished();
             }, 50);
           }
         },
