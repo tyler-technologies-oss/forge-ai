@@ -19,11 +19,11 @@ main {
 
 .config-card {
   .config-container {
-    max-width: 960px;
+    max-width: 1100px;
     display: grid;
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: 1fr 1fr auto auto;
     gap: var(--forge-spacing-medium);
-    align-items: center;
+    align-items: end;
     margin-block-start: var(--forge-spacing-medium);
 
     > forge-button {

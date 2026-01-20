@@ -426,7 +426,7 @@ export class MessageStateController implements ReactiveController {
     this._activeResponse = null;
 
     for (const msg of messages) {
-      if (msg.role === 'assistant') {
+      if (msg.role === 'assistant' && msg.status !== 'error') {
         const children: ResponseItem[] = [];
 
         if (msg.content?.trim()) {
@@ -443,7 +443,7 @@ export class MessageStateController implements ReactiveController {
         const response: AssistantResponse = {
           id: msg.id,
           children,
-          status: msg.status === 'streaming' ? 'streaming' : msg.status === 'error' ? 'error' : 'complete',
+          status: msg.status === 'streaming' ? 'streaming' : 'complete',
           timestamp: msg.timestamp,
           eventStream: msg.eventStream,
           feedback: msg.feedback

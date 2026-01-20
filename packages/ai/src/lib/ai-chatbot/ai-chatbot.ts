@@ -343,6 +343,11 @@ export class AiChatbotComponent extends LitElement {
       return;
     }
     this.#messageStateController.completeResponse();
+    const messages = this.getMessages();
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === 'assistant' && lastMessage.status === 'complete') {
+      this.#dispatchMessageEvent('forge-ai-chatbot-message-received', lastMessage);
+    }
   }
 
   /**
@@ -488,6 +493,7 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(errorMessage);
+    this.#dispatchMessageEvent('forge-ai-chatbot-message-received', errorMessage);
     this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: event.message } });
   }
 
@@ -501,6 +507,7 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(abortMessage);
+    this.#dispatchMessageEvent('forge-ai-chatbot-message-received', abortMessage);
   }
 
   #handleStateChange(_state: AdapterState): void {
@@ -550,7 +557,6 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(userMessage);
-    this.#dispatchEvent({ type: 'forge-ai-chatbot-message-sent', detail: { message: userMessage } });
 
     try {
       this.adapter.sendMessage(this.getMessages());
@@ -559,6 +565,8 @@ export class AiChatbotComponent extends LitElement {
       this.#messageStateController.updateMessageStatus(userMessage.id, 'error');
       const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
       this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: errorMessage } });
+    } finally {
+      this.#dispatchMessageEvent('forge-ai-chatbot-message-sent', userMessage.id);
     }
   }
 
@@ -626,30 +634,27 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.sendMessage(this.getMessages());
   }
 
-  #handleThumbsUp(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>): void {
+  #handleFeedback(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>, type: 'positive' | 'negative'): void {
     this.#messageStateController.setResponseFeedback(evt.detail.messageId, {
-      type: 'positive',
+      type,
       reason: evt.detail.feedback
     });
-    const detail: ForgeAiChatbotResponseFeedbackEventData = {
-      messageId: evt.detail.messageId,
-      type: 'positive',
-      feedback: evt.detail.feedback
-    };
-    this.#dispatchEvent({ type: 'forge-ai-chatbot-response-feedback', detail });
+    this.#dispatchEvent({
+      type: 'forge-ai-chatbot-response-feedback',
+      detail: {
+        messageId: evt.detail.messageId,
+        type,
+        feedback: evt.detail.feedback
+      }
+    });
+  }
+
+  #handleThumbsUp(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>): void {
+    this.#handleFeedback(evt, 'positive');
   }
 
   #handleThumbsDown(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>): void {
-    this.#messageStateController.setResponseFeedback(evt.detail.messageId, {
-      type: 'negative',
-      reason: evt.detail.feedback
-    });
-    const detail: ForgeAiChatbotResponseFeedbackEventData = {
-      messageId: evt.detail.messageId,
-      type: 'negative',
-      feedback: evt.detail.feedback
-    };
-    this.#dispatchEvent({ type: 'forge-ai-chatbot-response-feedback', detail });
+    this.#handleFeedback(evt, 'negative');
   }
 
   #processFileUpload(file: File, timestamp: number): void {
@@ -899,12 +904,20 @@ export class AiChatbotComponent extends LitElement {
    * Restores thread state from a serialized ThreadState object.
    * @param state - ThreadState object to restore
    */
-  public setThreadState(state: ThreadState): void {
+  public async setThreadState(state: ThreadState): Promise<void> {
     this.setMessages(state.messages);
 
     if (state.threadId && this.adapter) {
       this.adapter.threadId = state.threadId;
     }
+
+    await this.updateComplete;
+
+    // Populate prompt history with user messages
+    const userMessages = state.messages.filter(msg => msg.role === 'user').map(msg => msg.content);
+    this.#promptRef.value?.setHistory(userMessages);
+
+    this.scrollToBottom({ behavior: 'instant' });
   }
 
   get #sessionFilesTemplate(): TemplateResult | typeof nothing {
@@ -1043,5 +1056,17 @@ export class AiChatbotComponent extends LitElement {
     });
     this.dispatchEvent(event);
     return event;
+  }
+
+  #dispatchMessageEvent(
+    type: 'forge-ai-chatbot-message-sent' | 'forge-ai-chatbot-message-received',
+    messageOrId: ChatMessage | string
+  ): void {
+    const message =
+      typeof messageOrId === 'string' ? this.#messageStateController.getMessage(messageOrId) : messageOrId;
+
+    if (message) {
+      this.#dispatchEvent({ type, detail: { message } });
+    }
   }
 }

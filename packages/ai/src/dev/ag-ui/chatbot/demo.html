@@ -35,6 +35,7 @@
               <label for="agentId">Agent ID</label>
             </forge-text-field>
             <forge-button id="reconnectBtn" variant="raised" disabled>Reconnect</forge-button>
+            <forge-switch id="persist" id="persist">Persist thread state</forge-switch>
           </div>
         </forge-card>
 
@@ -42,7 +43,7 @@
         <div class="layout">
           <!-- Main Content (Chatbot) -->
           <forge-card class="chatbot-card">
-            <forge-ai-chatbot id="chatbot" file-upload="on"></forge-ai-chatbot>
+            <forge-ai-chatbot id="chatbot" file-upload="on" enable-reactions></forge-ai-chatbot>
           </forge-card>
 
           <!-- Right Sidebar -->
