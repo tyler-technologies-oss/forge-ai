@@ -150,7 +150,7 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **abort(): _void_** - Aborts the current streaming response.
  * - **scrollToBottom({ behavior }: _{ behavior?: ScrollBehavior }_): _Promise<void>_** - Scrolls the chat interface to the bottom.
  * - **getThreadState(): __** - Gets the complete serializable thread state including threadId and messages.
- * - **setThreadState(state: _ThreadState_): _void_** - Restores thread state from a serialized ThreadState object.
+ * - **setThreadState(state: _ThreadState_): _Promise<void>_** - Restores thread state from a serialized ThreadState object.
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content

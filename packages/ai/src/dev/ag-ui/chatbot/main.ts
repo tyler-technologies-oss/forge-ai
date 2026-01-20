@@ -20,8 +20,11 @@ import {
   defineListItemComponent,
   definePopoverComponent,
   defineScaffoldComponent,
+  defineStackComponent,
+  defineSwitchComponent,
   defineTextFieldComponent,
-  IconRegistry
+  IconRegistry,
+  type SwitchComponent
 } from '@tylertech/forge';
 
 import './recipe-card.js';
@@ -38,6 +41,8 @@ definePopoverComponent();
 defineIconComponent();
 defineTextFieldComponent();
 defineButtonComponent();
+defineSwitchComponent();
+defineStackComponent();
 
 IconRegistry.define([tylIconForgeLogo, tylIconInfoOutline]);
 
@@ -47,16 +52,21 @@ const eventStreamHeader = document.getElementById('eventStreamHeader') as HTMLEl
 const baseUrlInput = document.getElementById('baseUrl') as HTMLInputElement;
 const agentIdInput = document.getElementById('agentId') as HTMLInputElement;
 const reconnectBtn = document.getElementById('reconnectBtn') as ButtonComponent;
+const persistSwitch = document.getElementById('persist') as SwitchComponent;
 
 const urlParams = new URLSearchParams(window.location.search);
 const urlBaseUrl = urlParams.get('baseUrl');
 const urlAgentId = urlParams.get('agentId');
+const urlPersist = urlParams.get('persist');
 
 if (urlBaseUrl) {
   baseUrlInput.value = urlBaseUrl;
 }
 if (urlAgentId) {
   agentIdInput.value = urlAgentId;
+}
+if (urlPersist === 'true') {
+  persistSwitch.checked = true;
 }
 
 let initialBaseUrl = baseUrlInput.value;
@@ -200,6 +210,59 @@ const tools: Array<ToolDefinition<any>> = [showConfettiTool, displayRecipeTool, 
 let threadId = generateId();
 let adapter: AgUiAdapter;
 
+const THREAD_STATE_KEY = 'chatbot-thread-state';
+
+/**
+ * Saves current thread state to localStorage after each message.
+ * Enables conversation persistence across page refreshes.
+ */
+function saveThreadState(): void {
+  if (!persistSwitch.checked) {
+    return;
+  }
+  const threadState = chatbot.getThreadState();
+  localStorage.setItem(THREAD_STATE_KEY, JSON.stringify(threadState));
+  console.log('💾 Thread state saved:', threadState);
+}
+
+function getSavedThreadId(): string | null {
+  if (!persistSwitch.checked) {
+    return null;
+  }
+  const savedState = localStorage.getItem(THREAD_STATE_KEY);
+  if (savedState) {
+    try {
+      const threadState = JSON.parse(savedState);
+      return threadState.threadId || null;
+    } catch (error) {
+      console.error('Failed to parse saved thread state:', error);
+    }
+  }
+  return null;
+}
+
+async function loadThreadState(): Promise<void> {
+  if (!persistSwitch.checked) {
+    return;
+  }
+  const savedState = localStorage.getItem(THREAD_STATE_KEY);
+  if (savedState) {
+    try {
+      const threadState = JSON.parse(savedState);
+      await chatbot.setThreadState(threadState);
+      console.log('✅ Thread state restored:', threadState);
+      addEventToStream('THREAD_RESTORED', { messageCount: threadState.messages?.length || 0 });
+    } catch (error) {
+      console.error('Failed to restore thread state:', error);
+    }
+  }
+}
+
+function clearThreadState(): void {
+  localStorage.removeItem(THREAD_STATE_KEY);
+  console.log('🗑️ Thread state cleared');
+}
+
 function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
   const newAdapter = new AgUiAdapter(
     {
@@ -305,12 +368,23 @@ function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
   return newAdapter;
 }
 
-function initializeAdapter(baseUrl: string, agentId: string): void {
+async function initializeAdapter(baseUrl: string, agentId: string, restoreState = false): Promise<void> {
   adapter?.disconnect();
 
-  threadId = generateId();
+  if (restoreState) {
+    const savedThreadId = getSavedThreadId();
+    threadId = savedThreadId || generateId();
+  } else {
+    threadId = generateId();
+    clearThreadState();
+  }
+
   adapter = createAdapter(baseUrl, agentId);
   chatbot.adapter = adapter;
+
+  if (restoreState) {
+    await loadThreadState();
+  }
 
   initialBaseUrl = baseUrl;
   initialAgentId = agentId;
@@ -323,6 +397,13 @@ function initializeAdapter(baseUrl: string, agentId: string): void {
   const params = new URLSearchParams(window.location.search);
   params.set('baseUrl', baseUrl);
   params.set('agentId', agentId);
+
+  if (persistSwitch.checked) {
+    params.set('persist', persistSwitch.checked.toString());
+  } else {
+    params.delete('persist');
+  }
+
   const newUrl = `${window.location.pathname}?${params.toString()}`;
   window.history.replaceState({}, '', newUrl);
 }
@@ -335,6 +416,21 @@ function checkForChanges(): void {
 baseUrlInput.addEventListener('input', checkForChanges);
 agentIdInput.addEventListener('input', checkForChanges);
 
+persistSwitch.addEventListener('change', () => {
+  const params = new URLSearchParams(window.location.search);
+  if (persistSwitch.checked) {
+    params.set('persist', persistSwitch.checked.toString());
+  } else {
+    params.delete('persist');
+  }
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState({}, '', newUrl);
+
+  if (!persistSwitch.checked) {
+    clearThreadState();
+  }
+});
+
 reconnectBtn.addEventListener('click', () => {
   const baseUrl = baseUrlInput.value.trim();
   const agentId = agentIdInput.value.trim();
@@ -346,7 +442,7 @@ reconnectBtn.addEventListener('click', () => {
   initializeAdapter(baseUrl, agentId);
 });
 
-initializeAdapter(baseUrlInput.value, agentIdInput.value);
+initializeAdapter(baseUrlInput.value, agentIdInput.value, true);
 chatbot.suggestions = [
   { text: 'What can you help me with?', value: 'What can you help me with?' },
   { text: 'Show me confetti!', value: 'Show me confetti!' },
@@ -364,12 +460,18 @@ chatbot.agentInfo = {
 
 chatbot.addEventListener('forge-ai-chatbot-message-sent', (e: CustomEvent) => {
   addEventToStream('USER_MESSAGE', e.detail.message);
+  saveThreadState();
 });
 
 chatbot.addEventListener('forge-ai-chatbot-message-received', (e: CustomEvent) => {
   addEventToStream('ASSISTANT_MESSAGE', e.detail.message);
+  saveThreadState();
 });
 
 chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<ForgeAiChatbotToolCallEventData>) => {
   console.log('🔧 Tool call:', e);
+});
+
+chatbot.addEventListener('forge-ai-chatbot-response-feedback', (e: CustomEvent) => {
+  console.log('👍👎 Response feedback:', e.detail);
 });
