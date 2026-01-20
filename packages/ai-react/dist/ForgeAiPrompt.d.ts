@@ -114,7 +114,11 @@ export interface ForgeAiPromptProps extends Pick<
  * - **forge-ai-prompt-debug-toggle** - Fired when the debug icon button is clicked.
  *
  * ### **Methods:**
- *  - **closeSlashMenu(): _void_** - Closes the slash command menu
+ *  - **addToHistory(message: _string_): _void_** - Adds a message to the input history for up/down arrow navigation.
+ * Use this when sending messages externally (e.g., from suggestions).
+ * - **setHistory(messages: _string[]_): _void_** - Replaces the entire message history with the provided messages.
+ * Use this when restoring thread state from persistence.
+ * - **closeSlashMenu(): _void_** - Closes the slash command menu
  * - **focus(): _void_** - Focuses the textarea element
  *
  * ### **Slots:**

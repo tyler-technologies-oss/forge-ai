@@ -57,12 +57,12 @@ export interface ForgeAiAssistantResponseProps extends Pick<
 
   /** Fired when thumbs up is clicked */
   onForgeAiAssistantResponseThumbsUp?: (
-    event: CustomEvent<CustomEvent<{ responseId: string }>>,
+    event: CustomEvent<CustomEvent<ForgeAiAssistantResponseFeedbackEventData>>,
   ) => void;
 
   /** Fired when thumbs down is clicked */
   onForgeAiAssistantResponseThumbsDown?: (
-    event: CustomEvent<CustomEvent<{ responseId: string }>>,
+    event: CustomEvent<CustomEvent<ForgeAiAssistantResponseFeedbackEventData>>,
   ) => void;
 }
 

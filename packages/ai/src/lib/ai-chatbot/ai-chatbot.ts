@@ -47,6 +47,7 @@ import {
   type ConfirmActionToolArgs,
   type ConfirmActionToolResult
 } from '../tools/ai-confirm-tool-call';
+import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
 
 import '../ai-attachment';
 import '../ai-chat-header';
@@ -81,6 +82,7 @@ declare global {
     'forge-ai-chatbot-file-select': CustomEvent<ForgeAiChatbotFileSelectEventData>;
     'forge-ai-voice-input-result': CustomEvent<ForgeAiVoiceInputResultEvent>;
     'forge-ai-chatbot-file-remove': CustomEvent<ForgeAiChatbotFileRemoveEventData>;
+    'forge-ai-chatbot-response-feedback': CustomEvent<ForgeAiChatbotResponseFeedbackEventData>;
   }
 }
 
@@ -100,6 +102,12 @@ export interface ForgeAiChatbotErrorEventData {
 
 export interface ForgeAiChatbotFileRemoveEventData {
   fileId: string;
+}
+
+export interface ForgeAiChatbotResponseFeedbackEventData {
+  messageId: string;
+  type: 'positive' | 'negative';
+  feedback?: string;
 }
 
 export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-chatbot';
@@ -136,6 +144,7 @@ export type FeatureToggle = 'on' | 'off';
  * @event {CustomEvent<void>} forge-ai-chatbot-minimize - Fired when header minimize button is clicked
  * @event {CustomEvent<void>} forge-ai-chatbot-clear - Fired when header clear option is selected (cancelable, prevents clearMessages() if default prevented)
  * @event {CustomEvent<void>} forge-ai-chatbot-info - Fired when header info option is selected
+ * @event {CustomEvent<ForgeAiChatbotResponseFeedbackEventData>} forge-ai-chatbot-response-feedback - Fired when user provides feedback on a response (thumbs up/down)
  */
 @customElement(AiChatbotComponentTagName)
 export class AiChatbotComponent extends LitElement {
@@ -358,6 +367,11 @@ export class AiChatbotComponent extends LitElement {
       return;
     }
     this.#messageStateController.completeResponse();
+    const messages = this.getMessages();
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === 'assistant' && lastMessage.status === 'complete') {
+      this.#dispatchMessageEvent('forge-ai-chatbot-message-received', lastMessage);
+    }
   }
 
   /**
@@ -529,6 +543,7 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(errorMessage);
+    this.#dispatchMessageEvent('forge-ai-chatbot-message-received', errorMessage);
     this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: event.message } });
   }
 
@@ -542,6 +557,7 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(abortMessage);
+    this.#dispatchMessageEvent('forge-ai-chatbot-message-received', abortMessage);
   }
 
   #handleStateChange(_state: AdapterState): void {
@@ -591,7 +607,6 @@ export class AiChatbotComponent extends LitElement {
     };
 
     this.#messageStateController.addMessage(userMessage);
-    this.#dispatchEvent({ type: 'forge-ai-chatbot-message-sent', detail: { message: userMessage } });
 
     try {
       this.adapter.sendMessage(this.getMessages());
@@ -600,6 +615,8 @@ export class AiChatbotComponent extends LitElement {
       this.#messageStateController.updateMessageStatus(userMessage.id, 'error');
       const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
       this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: errorMessage } });
+    } finally {
+      this.#dispatchMessageEvent('forge-ai-chatbot-message-sent', userMessage.id);
     }
   }
 
@@ -713,14 +730,27 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.sendMessage(this.getMessages());
   }
 
-  #handleThumbsUp(evt: CustomEvent<{ messageId: string }>): void {
-    // TODO: Show popover thanking user for feedback
-    console.warn('thumbs-up', evt.detail.messageId);
+  #handleFeedback(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>, type: 'positive' | 'negative'): void {
+    this.#messageStateController.setResponseFeedback(evt.detail.messageId, {
+      type,
+      reason: evt.detail.feedback
+    });
+    this.#dispatchEvent({
+      type: 'forge-ai-chatbot-response-feedback',
+      detail: {
+        messageId: evt.detail.messageId,
+        type,
+        feedback: evt.detail.feedback
+      }
+    });
   }
 
-  #handleThumbsDown(evt: CustomEvent<{ messageId: string }>): void {
-    // TODO: Show popover asking for feedback details
-    console.warn('thumbs-down', evt.detail.messageId);
+  #handleThumbsUp(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>): void {
+    this.#handleFeedback(evt, 'positive');
+  }
+
+  #handleThumbsDown(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>): void {
+    this.#handleFeedback(evt, 'negative');
   }
 
   #processFileUpload(file: File, timestamp: number): void {
@@ -970,12 +1000,20 @@ export class AiChatbotComponent extends LitElement {
    * Restores thread state from a serialized ThreadState object.
    * @param state - ThreadState object to restore
    */
-  public setThreadState(state: ThreadState): void {
+  public async setThreadState(state: ThreadState): Promise<void> {
     this.setMessages(state.messages);
 
     if (state.threadId && this.adapter) {
       this.adapter.threadId = state.threadId;
     }
+
+    await this.updateComplete;
+
+    // Populate prompt history with user messages
+    const userMessages = state.messages.filter(msg => msg.role === 'user').map(msg => msg.content);
+    this.#promptRef.value?.setHistory(userMessages);
+
+    this.scrollToBottom({ behavior: 'instant' });
   }
 
   get #sessionFilesTemplate(): TemplateResult | typeof nothing {
@@ -1130,5 +1168,17 @@ export class AiChatbotComponent extends LitElement {
     });
     this.dispatchEvent(event);
     return event;
+  }
+
+  #dispatchMessageEvent(
+    type: 'forge-ai-chatbot-message-sent' | 'forge-ai-chatbot-message-received',
+    messageOrId: ChatMessage | string
+  ): void {
+    const message =
+      typeof messageOrId === 'string' ? this.#messageStateController.getMessage(messageOrId) : messageOrId;
+
+    if (message) {
+      this.#dispatchEvent({ type, detail: { message } });
+    }
   }
 }

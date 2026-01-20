@@ -168,6 +168,18 @@ export class AiPromptComponent extends LitElement {
     this.#resetHistoryNavigation();
   }
 
+  /**
+   * Replaces the entire message history with the provided messages.
+   * Use this when restoring thread state from persistence.
+   */
+  public setHistory(messages: string[]): void {
+    this.#messageHistory = messages
+      .map(msg => msg?.trim())
+      .filter(msg => msg.length > 0)
+      .slice(-MAX_HISTORY_SIZE);
+    this.#resetHistoryNavigation();
+  }
+
   #resetHistoryNavigation(): void {
     this.#historyIndex = -1;
     this.#draftMessage = '';

@@ -183,6 +183,7 @@ const meta = {
     const onClear = action('forge-ai-chatbot-clear');
     const onExport = action('forge-ai-chatbot-export');
     const onInfo = action('forge-ai-chatbot-info');
+    const onFeedback = action('forge-ai-chatbot-response-feedback');
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
@@ -210,7 +211,8 @@ const meta = {
             @forge-ai-chatbot-minimize=${onMinimize}
             @forge-ai-chatbot-clear=${onClear}
             @forge-ai-chat-header-export=${onExport}
-            @forge-ai-chatbot-info=${onInfo}>
+            @forge-ai-chatbot-info=${onInfo}
+            @forge-ai-chatbot-response-feedback=${(evt: CustomEvent) => onFeedback(evt.detail)}>
             <span slot="empty-state-heading">How can I help you today?</span>
             <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
           </forge-ai-chatbot>
@@ -893,3 +895,107 @@ class MixedResponseAdapter extends MockAdapter {
     return Math.random().toString(36).slice(2, 11);
   }
 }
+
+export const WithFeedbackPersistence: Story = {
+  args: {
+    enableReactions: true
+  },
+  render: (args: any) => {
+    const STORAGE_KEY = 'ai-chatbot-feedback-state';
+
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const initialMessages: ChatMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        content: 'What is TypeScript?',
+        timestamp: Date.now() - 60000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        content:
+          'TypeScript is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. It adds optional static typing and class-based object-oriented programming to the language.',
+        timestamp: Date.now() - 59000,
+        status: 'complete',
+        feedback: { type: 'positive' }
+      },
+      {
+        id: 'user-2',
+        role: 'user',
+        content: 'What are the benefits?',
+        timestamp: Date.now() - 30000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-2',
+        role: 'assistant',
+        content:
+          'Key benefits include: better IDE support with autocompletion and refactoring, catching errors at compile time rather than runtime, improved code documentation through types, and easier maintenance of large codebases.',
+        timestamp: Date.now() - 29000,
+        status: 'complete',
+        feedback: { type: 'negative', reason: 'Missing information about interfaces' }
+      }
+    ];
+
+    setTimeout(() => {
+      const chatbot = document.querySelector('forge-ai-chatbot') as any;
+      if (!chatbot) return;
+
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          chatbot.setThreadState(state);
+        } catch (error) {
+          console.error('Failed to restore thread state:', error);
+          chatbot.setThreadState({ messages: initialMessages });
+        }
+      } else {
+        chatbot.setThreadState({ messages: initialMessages });
+      }
+
+      chatbot.addEventListener('forge-ai-chatbot-response-feedback', () => {
+        const state = chatbot.getThreadState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      });
+
+      chatbot.addEventListener('forge-ai-chatbot-message-received', () => {
+        const state = chatbot.getThreadState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      });
+
+      chatbot.addEventListener('forge-ai-chatbot-clear', () => {
+        localStorage.removeItem(STORAGE_KEY);
+      });
+    }, 0);
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Feedback Persistence Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            This demo shows pre-loaded messages with feedback state. The first response has thumbs up, the second has
+            thumbs down. Give feedback on new responses and refresh to see it persist.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="Feedback Persistence"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-response-feedback=${action('forge-ai-chatbot-response-feedback')}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
