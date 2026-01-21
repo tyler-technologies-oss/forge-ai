@@ -2,8 +2,10 @@ import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { classMap } from 'lit/directives/class-map.js';
 import type { AssistantResponse, StreamEvent, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
+import { TypewriterController } from '../ai-chatbot/typewriter-controller.js';
 import type { ForgeAiActionsToolbarFeedbackEventData } from '../ai-actions-toolbar';
 
 import '../ai-actions-toolbar';
@@ -68,6 +70,7 @@ export class AiAssistantResponseComponent extends LitElement {
 
   #internals = this.attachInternals();
   #markdownController!: MarkdownStreamController;
+  #typewriterController!: TypewriterController;
 
   readonly #debugIcon = html`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -79,10 +82,25 @@ export class AiAssistantResponseComponent extends LitElement {
   public override connectedCallback(): void {
     super.connectedCallback();
     this.#markdownController = new MarkdownStreamController(this);
+    this.#typewriterController = new TypewriterController(this);
   }
 
   public override willUpdate(): void {
     this.#updateEmptyState();
+    this.#syncTypewriterState();
+  }
+
+  #syncTypewriterState(): void {
+    const isRestoredFromState = this.response.status === 'complete';
+
+    for (const child of this.response.children) {
+      if (child.type === 'text') {
+        this.#typewriterController.setBuffer(child.messageId, child.content);
+        if (isRestoredFromState || child.status === 'complete') {
+          this.#typewriterController.revealInstantly(child.messageId);
+        }
+      }
+    }
   }
 
   get #hasVisibleContent(): boolean {
@@ -108,11 +126,19 @@ export class AiAssistantResponseComponent extends LitElement {
   }
 
   #renderTextChunk(child: ResponseItem & { type: 'text' }): TemplateResult | typeof nothing {
-    if (!child.content.trim()) {
+    const displayContent = this.#typewriterController.getDisplayContent(child.messageId);
+    if (!displayContent.trim()) {
       return nothing;
     }
-    const renderedHtml = this.#markdownController.getCachedHtml(child.messageId, child.content);
-    return html`<div class="text-chunk">${unsafeHTML(renderedHtml)}</div>`;
+
+    const isRevealing = this.#typewriterController.isRevealing(child.messageId);
+    const isStreamComplete = this.#typewriterController.isComplete(child.messageId);
+    const showCursor = isRevealing || (this.response.status === 'streaming' && !isStreamComplete);
+
+    const renderedHtml = this.#markdownController.getCachedHtml(child.messageId, displayContent);
+    const classes = { 'text-chunk': true, revealing: isRevealing, 'show-cursor': showCursor };
+
+    return html` <div class=${classMap(classes)}>${unsafeHTML(renderedHtml)}</div> `;
   }
 
   #renderToolCall(toolCall: ToolCall): TemplateResult | typeof nothing {

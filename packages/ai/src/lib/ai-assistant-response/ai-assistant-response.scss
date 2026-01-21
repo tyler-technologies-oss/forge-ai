@@ -4,6 +4,9 @@
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 
+$cursor-blink-duration: 1s;
+$fade-distance: 3ch;
+
 :host {
   display: block;
   box-sizing: border-box;
@@ -102,6 +105,44 @@
     margin-block-end: #{forge-spacing.variable(medium)};
     overflow-wrap: anywhere;
     line-height: 1.5;
+  }
+
+  &.revealing {
+    mask-image: linear-gradient(to left, transparent 0%, black $fade-distance);
+    mask-position: right;
+    mask-size: 100% 100%;
+  }
+}
+
+.text-chunk.show-cursor > :last-child::after {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 1.2em;
+  background-color: #{forge-theme.variable(primary)};
+  margin-inline-start: 2px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  animation: cursor-blink $cursor-blink-duration step-end infinite;
+}
+
+@keyframes cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-chunk.show-cursor > :last-child::after {
+    animation: none;
+  }
+
+  .text-chunk.revealing {
+    mask-image: none;
   }
 }
 
