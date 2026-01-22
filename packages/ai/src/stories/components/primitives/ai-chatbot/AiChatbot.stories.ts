@@ -100,37 +100,36 @@ const meta = {
     const onFeedback = action('forge-ai-chatbot-response-feedback');
 
     return html`
-      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
-        <forge-ai-gradient-container>
-          <forge-ai-chatbot
-            .adapter=${adapter}
-            placeholder=${args.placeholder}
-            title-text=${args.titleText}
-            file-upload=${args.fileUpload}
-            voice-input=${args.voiceInput}
-            debug-command=${args.debugCommand}
-            ?show-expand-button=${args.showExpandButton}
-            ?show-minimize-button=${args.showMinimizeButton}
-            ?expanded=${args.expanded}
-            ?enable-reactions=${args.enableReactions}
-            .minimizeIcon=${args.minimizeIcon}
-            .disclaimerText=${args.disclaimerText}
-            @forge-ai-chatbot-connected=${onConnected}
-            @forge-ai-chatbot-disconnected=${onDisconnected}
-            @forge-ai-chatbot-message-sent=${onMessageSent}
-            @forge-ai-chatbot-message-received=${onMessageReceived}
-            @forge-ai-chatbot-tool-call=${onToolCall}
-            @forge-ai-chatbot-error=${onError}
-            @forge-ai-chatbot-expand=${onExpand}
-            @forge-ai-chatbot-minimize=${onMinimize}
-            @forge-ai-chatbot-clear=${onClear}
-            @forge-ai-chat-header-export=${onExport}
-            @forge-ai-chatbot-info=${onInfo}
-            @forge-ai-chatbot-response-feedback=${(evt: CustomEvent) => onFeedback(evt.detail)}>
-            <span slot="empty-state-heading">How can I help you today?</span>
-            <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
-          </forge-ai-chatbot>
-        </forge-ai-gradient-container>
+      <div>
+        <forge-ai-chatbot
+          style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;"
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          debug-command=${args.debugCommand}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
+          .disclaimerText=${args.disclaimerText}
+          @forge-ai-chatbot-connected=${onConnected}
+          @forge-ai-chatbot-disconnected=${onDisconnected}
+          @forge-ai-chatbot-message-sent=${onMessageSent}
+          @forge-ai-chatbot-message-received=${onMessageReceived}
+          @forge-ai-chatbot-tool-call=${onToolCall}
+          @forge-ai-chatbot-error=${onError}
+          @forge-ai-chatbot-expand=${onExpand}
+          @forge-ai-chatbot-minimize=${onMinimize}
+          @forge-ai-chatbot-clear=${onClear}
+          @forge-ai-chat-header-export=${onExport}
+          @forge-ai-chatbot-info=${onInfo}
+          @forge-ai-chatbot-response-feedback=${(evt: CustomEvent) => onFeedback(evt.detail)}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
       </div>
     `;
   }
