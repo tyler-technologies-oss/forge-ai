@@ -5,6 +5,7 @@ import { when } from 'lit/directives/when.js';
 import type { MessageItem, ToolDefinition, ToolCall, AssistantResponse } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiAssistantResponseFeedbackEventData } from '../ai-assistant-response';
+import type { FeatureToggle } from '../ai-chatbot/ai-chatbot.js';
 
 import '../ai-assistant-response';
 import '../ai-empty-state';
@@ -13,9 +14,9 @@ import '../ai-response-message';
 import '../ai-thinking-indicator';
 import '../ai-user-message';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
+import '../core/tooltip/tooltip.js';
 
 import styles from './ai-message-thread.scss?inline';
-import { FeatureToggle } from '../ai-chatbot/ai-chatbot.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -107,7 +108,11 @@ export class AiMessageThreadComponent extends LitElement {
 
   #handleScroll = (): void => {
     const { scrollTop, scrollHeight, clientHeight } = this._messageThreadContainer;
-    this.#canAutoScroll = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+    const canAutoScroll = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+    if (canAutoScroll !== this.#canAutoScroll) {
+      this.#canAutoScroll = canAutoScroll;
+      this.requestUpdate();
+    }
   };
 
   public scrollToBottom({
@@ -123,6 +128,28 @@ export class AiMessageThreadComponent extends LitElement {
       top: container.scrollHeight,
       behavior
     });
+  }
+
+  #handleScrollToBottomClick = (): void => {
+    this.scrollToBottom({ force: true, behavior: 'smooth' });
+  };
+
+  get #scrollToBottomButton(): TemplateResult | typeof nothing {
+    if (this.#canAutoScroll) {
+      return nothing;
+    }
+    return html`
+      <button
+        id="scroll-to-bottom-btn"
+        class="forge-fab scroll-to-bottom-button"
+        aria-label="Scroll to bottom"
+        @click=${this.#handleScrollToBottomClick}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M7.03 13.92h4V5l2.01-.03v8.95h3.99l-5 5Z" />
+        </svg>
+      </button>
+      <forge-ai-tooltip for="scroll-to-bottom-btn" placement="top">Scroll to bottom</forge-ai-tooltip>
+    `;
   }
 
   #handleCopy(messageId: string): void {
@@ -290,6 +317,7 @@ export class AiMessageThreadComponent extends LitElement {
       <div class="message-thread" @scroll=${this.autoScroll ? this.#handleScroll : undefined}>
         ${this.#emptyState} ${this.#messages} ${this.#thinkingIndicator}
       </div>
+      ${this.#scrollToBottomButton}
     `;
   }
 

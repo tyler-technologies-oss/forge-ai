@@ -2,10 +2,13 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+@use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
+@use '@tylertech/forge/dist/floating-action-button/forge-floating-action-button';
 
 :host {
   display: grid;
   height: 100%;
+  position: relative;
 }
 
 .message-thread {
@@ -35,4 +38,38 @@
   @include forge-typography.style(subheading2);
   color: #{forge-theme.variable(text-medium)};
   padding-block: #{forge-spacing.variable(small)};
+}
+
+.scroll-to-bottom-button {
+  --forge-fab-size: 40px;
+  --forge-fab-background: #{forge-theme.variable(surface)};
+
+  position: absolute;
+  bottom: #{forge-spacing.variable(xxsmall)};
+  left: 50%;
+  transform: translateX(-50%) translateY(24px);
+  opacity: 0;
+  z-index: 1;
+  animation-name: scroll-button-enter;
+  animation-duration: #{forge-animation.variable(duration-medium1)};
+  animation-timing-function: #{forge-animation.variable(easing-decelerate)};
+  animation-fill-mode: forwards;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+}
+
+@keyframes scroll-button-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
