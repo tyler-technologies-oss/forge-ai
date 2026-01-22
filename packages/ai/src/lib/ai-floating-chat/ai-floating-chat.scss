@@ -1,3 +1,9 @@
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+
 :host {
   display: block;
+}
+
+::slotted(forge-ai-chatbot) {
+  border-radius: #{forge-shape.variable(large)};
 }

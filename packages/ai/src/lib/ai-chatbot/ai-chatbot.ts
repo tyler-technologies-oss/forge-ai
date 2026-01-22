@@ -616,6 +616,41 @@ export class AiChatbotComponent extends LitElement {
     }
   }
 
+  async #handleUserCopy(evt: CustomEvent<{ messageId: string }>): Promise<void> {
+    const messageId = evt.detail.messageId;
+    const message = this.#messageStateController.getMessage(messageId);
+
+    if (!message || message.role !== 'user') {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(message.content);
+    } catch {
+      // Silent fail
+    }
+  }
+
+  #handleUserResend(evt: CustomEvent<{ messageId: string }>): void {
+    if (!this.adapter) {
+      return;
+    }
+
+    const messageId = evt.detail.messageId;
+    const messageIndex = this.#messageItems.findIndex(item => item.type === 'message' && item.data.id === messageId);
+
+    if (messageIndex === -1) {
+      return;
+    }
+
+    const responseIndex = messageIndex + 1;
+    if (responseIndex < this.#messageItems.length) {
+      this.#messageStateController.removeMessageItemsFrom(responseIndex);
+    }
+
+    this.adapter.sendMessage(this.getMessages());
+  }
+
   #handleRefresh(evt: CustomEvent<{ messageId: string }>): void {
     if (!this.adapter) {
       return;
@@ -1002,7 +1037,9 @@ export class AiChatbotComponent extends LitElement {
         @forge-ai-message-thread-copy=${this.#handleCopy}
         @forge-ai-message-thread-refresh=${this.#handleRefresh}
         @forge-ai-message-thread-thumbs-up=${this.#handleThumbsUp}
-        @forge-ai-message-thread-thumbs-down=${this.#handleThumbsDown}>
+        @forge-ai-message-thread-thumbs-down=${this.#handleThumbsDown}
+        @forge-ai-message-thread-user-copy=${this.#handleUserCopy}
+        @forge-ai-message-thread-user-resend=${this.#handleUserResend}>
         <slot name="empty-state-heading" slot="empty-state-heading"></slot>
         <slot name="empty-state-message" slot="empty-state-message"></slot>
         <forge-ai-suggestions
