@@ -65,6 +65,6 @@ span {
 
 .timestamp {
   @include forge-typography.style(label2);
-  color: #{forge-theme.variable(text-low)};
+  color: #{forge-theme.variable(text-medium)};
   padding-inline: #{forge-spacing.variable(xxsmall)};
 }
