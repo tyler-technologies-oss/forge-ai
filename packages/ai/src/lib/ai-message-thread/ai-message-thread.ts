@@ -28,6 +28,8 @@ declare global {
     'forge-ai-message-thread-refresh': CustomEvent<ForgeAiMessageThreadRefreshEventData>;
     'forge-ai-message-thread-thumbs-up': CustomEvent<ForgeAiMessageThreadThumbsEventData>;
     'forge-ai-message-thread-thumbs-down': CustomEvent<ForgeAiMessageThreadThumbsEventData>;
+    'forge-ai-message-thread-user-copy': CustomEvent<ForgeAiMessageThreadCopyEventData>;
+    'forge-ai-message-thread-user-resend': CustomEvent<ForgeAiMessageThreadRefreshEventData>;
   }
 }
 
@@ -176,6 +178,20 @@ export class AiMessageThreadComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-message-thread-thumbs-down', detail });
   }
 
+  #handleUserCopy(messageId: string): void {
+    this.#dispatchEvent({
+      type: 'forge-ai-message-thread-user-copy',
+      detail: { messageId }
+    });
+  }
+
+  #handleUserResend(messageId: string): void {
+    this.#dispatchEvent({
+      type: 'forge-ai-message-thread-user-resend',
+      detail: { messageId }
+    });
+  }
+
   #renderToolCall(toolCall: ToolCall): TemplateResult {
     const toolDefinition = this.tools?.get(toolCall.name);
     return html`<forge-ai-chatbot-tool-call
@@ -292,7 +308,18 @@ export class AiMessageThreadComponent extends LitElement {
       const msg = item.data;
       if (msg.role === 'user') {
         const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
-        return html`<forge-ai-user-message>${unsafeHTML(renderedHtml)}</forge-ai-user-message>`;
+        return html`
+          <forge-ai-user-message
+            message-id=${msg.id}
+            .timestamp=${msg.timestamp}
+            ?streaming=${this.showThinking}
+            @forge-ai-user-message-copy=${(e: CustomEvent<{ messageId: string }>) =>
+              this.#handleUserCopy(e.detail.messageId)}
+            @forge-ai-user-message-resend=${(e: CustomEvent<{ messageId: string }>) =>
+              this.#handleUserResend(e.detail.messageId)}>
+            ${unsafeHTML(renderedHtml)}
+          </forge-ai-user-message>
+        `;
       } else if (msg.role === 'system') {
         return html`<div class="system-message">${msg.content}</div>`;
       } else if (msg.status === 'error') {

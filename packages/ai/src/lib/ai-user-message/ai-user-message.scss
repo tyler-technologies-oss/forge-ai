@@ -1,6 +1,7 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
 
 :host {
   display: inline-block;
@@ -11,6 +12,7 @@
   display: grid;
   grid-template-rows: 1fr;
   margin-inline-start: #{forge-spacing.variable(xxlarge)};
+  position: relative;
 }
 
 .ai-message-container {
@@ -27,4 +29,42 @@ span {
   @include forge-typography.style(body1);
   color: #{forge-theme.variable(on-surface)};
   overflow-wrap: break-word;
+}
+
+.toolbar-container {
+  position: absolute;
+  bottom: -28px;
+  right: 0;
+  transition:
+    opacity 200ms ease-in-out,
+    transform 200ms ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.grid-container:hover .toolbar-container,
+.grid-container .toolbar-container:focus-within {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+:host(:not(:last-of-type)) .grid-container::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: 0;
+  right: 0;
+  height: 40px;
+}
+
+.timestamp {
+  @include forge-typography.style(label2);
+  color: #{forge-theme.variable(text-low)};
+  padding-inline: #{forge-spacing.variable(xxsmall)};
 }
