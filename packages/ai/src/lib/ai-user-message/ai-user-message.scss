@@ -54,7 +54,7 @@ span {
   pointer-events: auto;
 }
 
-:host(:not(:last-of-type)) .grid-container::after {
+.grid-container::after {
   content: '';
   position: absolute;
   bottom: -40px;
