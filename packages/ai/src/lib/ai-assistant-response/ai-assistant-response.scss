@@ -14,11 +14,6 @@
 
 .assistant-response {
   position: relative;
-
-  // Add extra margin after last chatbot tool call if not followed by text chunk
-  > forge-ai-chatbot-tool-call:last-of-type:not(:has(+ .text-chunk)) {
-    margin-block-end: #{forge-spacing.variable(large)};
-  }
 }
 
 .text-chunk {
