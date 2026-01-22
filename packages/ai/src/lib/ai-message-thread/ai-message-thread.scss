@@ -1,8 +1,10 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 @use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
+@use '../utils/markdown-styles' as markdown;
 @use '@tylertech/forge/dist/floating-action-button/forge-floating-action-button';
 
 :host {
@@ -16,7 +18,7 @@
 
   display: flex;
   flex-direction: column;
-  gap: #{forge-spacing.variable(medium)};
+  gap: #{forge-spacing.variable(xlarge)};
   padding-block-end: #{forge-spacing.variable(large)};
   overflow-y: auto;
   padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxlarge)}
@@ -72,4 +74,9 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+}
+
+// Markdown formatting style overrides
+forge-ai-user-message {
+  @include markdown.markdown-content;
 }

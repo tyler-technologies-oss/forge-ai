@@ -28,11 +28,3 @@ span {
   color: #{forge-theme.variable(on-surface)};
   overflow-wrap: break-word;
 }
-
-::slotted(p:first-child) {
-  margin-block-start: 0;
-}
-
-::slotted(p:last-child) {
-  margin-block-end: 0;
-}
