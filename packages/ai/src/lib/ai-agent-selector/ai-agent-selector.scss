@@ -1,0 +1,124 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-width: 0;
+  position: relative;
+}
+
+.title-text,
+.trigger-text {
+  @include forge-typography.style(heading1);
+
+  font-weight: 500;
+  color: #{forge-theme.variable(on-surface)};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.title-text {
+  display: block;
+}
+
+.trigger-button {
+  display: inline-flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
+  max-width: 100%;
+  min-width: 0;
+  padding: #{forge-spacing.variable(xxsmall)} #{forge-spacing.variable(xsmall)};
+  border: 1px solid transparent;
+  border-radius: #{forge-shape.variable(medium)};
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+
+  &:hover:not(:disabled) {
+    background-color: #{forge-theme.variable(surface-container-minimum)};
+    border-color: #{forge-theme.variable(outline)};
+  }
+
+  &:focus-visible {
+    outline: 2px solid #{forge-theme.variable(primary)};
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
+  }
+}
+
+.trigger-text {
+  flex: 1;
+}
+
+.dropdown-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  fill: #{forge-theme.variable(text-medium)};
+  transition: transform 150ms ease;
+  margin-inline-end: -6px;
+
+  :host([open]) & {
+    transform: rotate(180deg);
+  }
+}
+
+.agent-list {
+  @include forge-scrollbar.base;
+
+  min-width: 200px;
+  max-width: 400px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: #{forge-spacing.variable(xxsmall)} 0;
+}
+
+.agent-item {
+  display: flex;
+  align-items: center;
+  padding: #{forge-spacing.variable(small)} #{forge-spacing.variable(medium)};
+  cursor: pointer;
+  outline: none;
+  transition: background-color 150ms ease;
+
+  &:focus-visible {
+    outline: 2px solid #{forge-theme.variable(primary)};
+    outline-offset: -2px;
+  }
+
+  &--focused {
+    background-color: #{forge-theme.variable(surface-container-low)};
+  }
+
+  &--selected {
+    background-color: #{forge-theme.variable(primary-container-low)};
+
+    .agent-name {
+      color: #{forge-theme.variable(on-primary-container-low)};
+      font-weight: 500;
+    }
+  }
+
+  &:hover {
+    background-color: #{forge-theme.variable(surface-container)};
+  }
+}
+
+.agent-name {
+  @include forge-typography.style(body1);
+
+  color: #{forge-theme.variable(on-surface)};
+}

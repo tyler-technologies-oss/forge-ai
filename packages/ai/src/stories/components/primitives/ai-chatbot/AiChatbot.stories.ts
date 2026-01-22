@@ -751,6 +751,53 @@ class MixedResponseAdapter extends MockAdapter {
   }
 }
 
+export const WithAgents: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const agents = [
+      { id: 'gpt-4', name: 'GPT-4', description: 'Most capable model for complex tasks' },
+      { id: 'gpt-3.5', name: 'GPT-3.5 Turbo', description: 'Fast and efficient for most tasks' },
+      { id: 'claude', name: 'Claude 3', description: 'Excellent for analysis and writing' },
+      { id: 'gemini', name: 'Gemini Pro', description: "Google's multimodal AI model" }
+    ];
+
+    const onAgentChange = action('forge-ai-chatbot-agent-change');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Agent Selector Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Click on the header title to see the agent selector dropdown. The consumer handles any actions when agent
+            changes via the event.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .agents=${agents}
+          selected-agent-id="gpt-4"
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
+          @forge-ai-chatbot-agent-change=${(e: CustomEvent) => onAgentChange(e.detail)}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
 export const WithFeedbackPersistence: Story = {
   args: {
     enableReactions: true

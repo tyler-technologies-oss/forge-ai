@@ -29,6 +29,7 @@
   align-items: center;
   gap: #{forge-spacing.variable(medium)};
   overflow: hidden;
+  min-width: 0;
 
   .title {
     @include forge-typography.style(heading1);
@@ -42,6 +43,11 @@
       2.5vw,
       #{forge-typography.variable(heading3, font-size)}
     );
+  }
+
+  forge-ai-agent-selector {
+    min-width: 0;
+    flex: 1;
   }
 }
 
