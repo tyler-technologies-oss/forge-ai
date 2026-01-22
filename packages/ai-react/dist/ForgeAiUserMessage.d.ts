@@ -18,6 +18,12 @@ export interface ForgeAiUserMessageProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
+  /** undefined */
+  streaming?: boolean;
+
+  /** undefined */
+  messageId?: ForgeAiUserMessageElement["messageId"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -38,11 +44,25 @@ export interface ForgeAiUserMessageProps extends Pick<
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
+
+  /** Fired when user clicks copy button */
+  onForgeAiUserMessageCopy?: (
+    event: CustomEvent<CustomEvent<ForgeAiUserMessageCopyEventData>>,
+  ) => void;
+
+  /** Fired when user clicks resend button */
+  onForgeAiUserMessageResend?: (
+    event: CustomEvent<CustomEvent<ForgeAiUserMessageResendEventData>>,
+  ) => void;
 }
 
 /**
  *
  * ---
  *
+ *
+ * ### **Events:**
+ *  - **forge-ai-user-message-copy** - Fired when user clicks copy button
+ * - **forge-ai-user-message-resend** - Fired when user clicks resend button
  */
 export const ForgeAiUserMessage: React.ForwardRefExoticComponent<ForgeAiUserMessageProps>;
