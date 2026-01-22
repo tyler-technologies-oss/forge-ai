@@ -94,10 +94,21 @@ export class AiMessageThreadComponent extends LitElement {
 
   #markdownController!: MarkdownStreamController;
   #canAutoScroll = true;
+  #resizeObserver?: ResizeObserver;
 
   public override connectedCallback(): void {
     super.connectedCallback();
     this.#markdownController = new MarkdownStreamController(this);
+    this.#resizeObserver = new ResizeObserver(() => this.#checkScrollState());
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#resizeObserver?.disconnect();
+  }
+
+  public override firstUpdated(): void {
+    this.#resizeObserver?.observe(this._messageThreadContainer);
   }
 
   public override updated(changedProperties: PropertyValues<this>): void {
@@ -108,13 +119,22 @@ export class AiMessageThreadComponent extends LitElement {
     }
   }
 
-  #handleScroll = (): void => {
-    const { scrollTop, scrollHeight, clientHeight } = this._messageThreadContainer;
+  #checkScrollState(): void {
+    const container = this._messageThreadContainer;
+    if (!container) {
+      return;
+    }
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
     const canAutoScroll = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
     if (canAutoScroll !== this.#canAutoScroll) {
       this.#canAutoScroll = canAutoScroll;
       this.requestUpdate();
     }
+  }
+
+  #handleScroll = (): void => {
+    this.#checkScrollState();
   };
 
   public scrollToBottom({
