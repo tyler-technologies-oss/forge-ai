@@ -185,6 +185,35 @@ export class AiPromptComponent extends LitElement {
     this.#draftMessage = '';
   }
 
+  #isCursorOnFirstLine(): boolean {
+    const cursorPos = this._inputElement?.selectionStart ?? 0;
+    const textBeforeCursor = this.value.substring(0, cursorPos);
+    return !textBeforeCursor.includes('\n');
+  }
+
+  #isCursorOnLastLine(): boolean {
+    const cursorPos = this._inputElement?.selectionStart ?? 0;
+    const textAfterCursor = this.value.substring(cursorPos);
+    return !textAfterCursor.includes('\n');
+  }
+
+  #isCursorAtStart(): boolean {
+    return (this._inputElement?.selectionStart ?? 0) === 0;
+  }
+
+  #isCursorAtEnd(): boolean {
+    return (this._inputElement?.selectionStart ?? 0) === this.value.length;
+  }
+
+  #moveCursorToStart(): void {
+    this._inputElement?.setSelectionRange(0, 0);
+  }
+
+  #moveCursorToEnd(): void {
+    const len = this.value.length;
+    this._inputElement?.setSelectionRange(len, len);
+  }
+
   #navigateHistory(direction: number): boolean {
     if (this.#messageHistory.length === 0) {
       return false;
@@ -312,15 +341,28 @@ export class AiPromptComponent extends LitElement {
 
     const hasModifier = event.shiftKey || event.ctrlKey || event.metaKey;
 
-    // Check for history navigation
+    // Check for history navigation (two-step: move to boundary first, then navigate)
     if (!hasModifier) {
-      if (event.key === 'ArrowUp') {
-        if (this.#navigateHistory(-1)) {
+      if (event.key === 'ArrowUp' && this.#isCursorOnFirstLine()) {
+        if (this.#isCursorAtStart()) {
+          if (this.#navigateHistory(-1)) {
+            this.#moveCursorToStart();
+            event.preventDefault();
+            return;
+          }
+        } else {
+          this.#moveCursorToStart();
           event.preventDefault();
           return;
         }
-      } else if (event.key === 'ArrowDown') {
-        if (this.#navigateHistory(1)) {
+      } else if (event.key === 'ArrowDown' && this.#isCursorOnLastLine()) {
+        if (this.#isCursorAtEnd()) {
+          if (this.#navigateHistory(1)) {
+            event.preventDefault();
+            return;
+          }
+        } else {
+          this.#moveCursorToEnd();
           event.preventDefault();
           return;
         }
