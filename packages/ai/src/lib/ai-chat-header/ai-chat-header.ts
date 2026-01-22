@@ -166,6 +166,78 @@ export class AiChatHeaderComponent extends LitElement {
         </div>
         <div class="end">
           ${when(
+            this.showMinimizeButton,
+            () => html`
+              <button
+                id="minimize-button"
+                @click=${this.#handleMinimizeClick}
+                aria-label="Minimize chat window"
+                aria-describedby="minimize-tooltip"
+                class="forge-icon-button forge-icon-button--large ai-icon-button">
+                ${when(
+                  this.minimizeIcon === 'default',
+                  () => html`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path fill="none" d="M0 0h24v24H0z" />
+                      <path d="M6 19h12v2H6z" />
+                    </svg>
+                  `,
+                  () => html`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <defs>
+                        <style>
+                          .cls-1 {
+                            fill: none;
+                          }
+                        </style>
+                      </defs>
+                      <path d="M0 0h24v24H0Z" class="cls-1" />
+                      <path d="M0 0h24v24H0Z" class="cls-1" />
+                      <path d="M0 0h24v24H0Z" class="cls-1" />
+                      <path
+                        d="M15.89 5H3v14h12.89ZM7.65 15.46l2.58-2.59H4.56v-2h5.67L7.65 8.28l1.41-1.41 5 5-5 5ZM17.89 4.98H21v14.04h-3.11z"
+                        class="cls-1" />
+                      <path d="M9.06 6.87 7.65 8.28l2.58 2.59H4.56v2h5.67l-2.58 2.59 1.41 1.41 5-5z" />
+                      <path
+                        d="M21 3H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2M3 5h12.89v14H3Zm18 14h-3.11V5H21Z" />
+                    </svg>
+                  `
+                )}
+              </button>
+              <forge-ai-tooltip id="minimize-tooltip" for="minimize-button" placement="bottom">
+                Minimize chat to taskbar
+              </forge-ai-tooltip>
+            `
+          )}
+          ${when(
+            this.showExpandButton,
+            () => html`
+              <button
+                id="expand-button"
+                @click=${this.#handleExpandClick}
+                aria-label=${this.expanded ? 'Collapse chat window' : 'Expand chat window'}
+                aria-describedby="expand-tooltip"
+                class="forge-icon-button forge-icon-button--large ai-icon-button">
+                ${when(
+                  this.expanded,
+                  () => html`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path d="M14 14h5v2h-3v3h-2zm-9 0h5v5H8v-3H5zm3-9h2v5H5V8h3zm11 3v2h-5V5h2v3z" />
+                    </svg>
+                  `,
+                  () => html`
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zm3 9h2v5h-5v-2h3zm-7 3v2H5v-5h2v3z" />
+                    </svg>
+                  `
+                )}
+              </button>
+              <forge-ai-tooltip id="expand-tooltip" for="expand-button" placement="bottom">
+                ${this.expanded ? 'Collapse to smaller window' : 'Expand to full window'}
+              </forge-ai-tooltip>
+            `
+          )}
+          ${when(
             this.options === 'enabled' && this.#hasAvailableOptions,
             () => html`
               <forge-ai-dropdown-menu
@@ -223,78 +295,6 @@ export class AiChatHeaderComponent extends LitElement {
                   `
                 )}
               </forge-ai-dropdown-menu>
-            `
-          )}
-          ${when(
-            this.showExpandButton,
-            () => html`
-              <button
-                id="expand-button"
-                @click=${this.#handleExpandClick}
-                aria-label=${this.expanded ? 'Collapse chat window' : 'Expand chat window'}
-                aria-describedby="expand-tooltip"
-                class="forge-icon-button forge-icon-button--large ai-icon-button">
-                ${when(
-                  this.expanded,
-                  () => html`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <path d="M14 14h5v2h-3v3h-2zm-9 0h5v5H8v-3H5zm3-9h2v5H5V8h3zm11 3v2h-5V5h2v3z" />
-                    </svg>
-                  `,
-                  () => html`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zm3 9h2v5h-5v-2h3zm-7 3v2H5v-5h2v3z" />
-                    </svg>
-                  `
-                )}
-              </button>
-              <forge-ai-tooltip id="expand-tooltip" for="expand-button" placement="bottom">
-                ${this.expanded ? 'Collapse to smaller window' : 'Expand to full window'}
-              </forge-ai-tooltip>
-            `
-          )}
-          ${when(
-            this.showMinimizeButton,
-            () => html`
-              <button
-                id="minimize-button"
-                @click=${this.#handleMinimizeClick}
-                aria-label="Minimize chat window"
-                aria-describedby="minimize-tooltip"
-                class="forge-icon-button forge-icon-button--large ai-icon-button">
-                ${when(
-                  this.minimizeIcon === 'default',
-                  () => html`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <path fill="none" d="M0 0h24v24H0z" />
-                      <path d="M6 19h12v2H6z" />
-                    </svg>
-                  `,
-                  () => html`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <defs>
-                        <style>
-                          .cls-1 {
-                            fill: none;
-                          }
-                        </style>
-                      </defs>
-                      <path d="M0 0h24v24H0Z" class="cls-1" />
-                      <path d="M0 0h24v24H0Z" class="cls-1" />
-                      <path d="M0 0h24v24H0Z" class="cls-1" />
-                      <path
-                        d="M15.89 5H3v14h12.89ZM7.65 15.46l2.58-2.59H4.56v-2h5.67L7.65 8.28l1.41-1.41 5 5-5 5ZM17.89 4.98H21v14.04h-3.11z"
-                        class="cls-1" />
-                      <path d="M9.06 6.87 7.65 8.28l2.58 2.59H4.56v2h5.67l-2.58 2.59 1.41 1.41 5-5z" />
-                      <path
-                        d="M21 3H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2M3 5h12.89v14H3Zm18 14h-3.11V5H21Z" />
-                    </svg>
-                  `
-                )}
-              </button>
-              <forge-ai-tooltip id="minimize-tooltip" for="minimize-button" placement="bottom">
-                Minimize chat to taskbar
-              </forge-ai-tooltip>
             `
           )}
         </div>
