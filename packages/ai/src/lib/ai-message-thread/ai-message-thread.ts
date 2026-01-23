@@ -30,6 +30,7 @@ declare global {
     'forge-ai-message-thread-thumbs-down': CustomEvent<ForgeAiMessageThreadThumbsEventData>;
     'forge-ai-message-thread-user-copy': CustomEvent<ForgeAiMessageThreadCopyEventData>;
     'forge-ai-message-thread-user-resend': CustomEvent<ForgeAiMessageThreadRefreshEventData>;
+    'forge-ai-message-thread-user-edit': CustomEvent<ForgeAiMessageThreadEditEventData>;
   }
 }
 
@@ -44,6 +45,11 @@ export interface ForgeAiMessageThreadRefreshEventData {
 export interface ForgeAiMessageThreadThumbsEventData {
   messageId: string;
   feedback?: string;
+}
+
+export interface ForgeAiMessageThreadEditEventData {
+  messageId: string;
+  content: string;
 }
 
 export const AiMessageThreadComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-message-thread';
@@ -212,6 +218,13 @@ export class AiMessageThreadComponent extends LitElement {
     });
   }
 
+  #handleUserEdit(messageId: string, content: string): void {
+    this.#dispatchEvent({
+      type: 'forge-ai-message-thread-user-edit',
+      detail: { messageId, content }
+    });
+  }
+
   #renderToolCall(toolCall: ToolCall): TemplateResult {
     const toolDefinition = this.tools?.get(toolCall.name);
     return html`<forge-ai-chatbot-tool-call
@@ -332,11 +345,14 @@ export class AiMessageThreadComponent extends LitElement {
           <forge-ai-user-message
             message-id=${msg.id}
             .timestamp=${msg.timestamp}
+            .content=${msg.content}
             ?streaming=${this.showThinking}
             @forge-ai-user-message-copy=${(e: CustomEvent<{ messageId: string }>) =>
               this.#handleUserCopy(e.detail.messageId)}
             @forge-ai-user-message-resend=${(e: CustomEvent<{ messageId: string }>) =>
-              this.#handleUserResend(e.detail.messageId)}>
+              this.#handleUserResend(e.detail.messageId)}
+            @forge-ai-user-message-edit=${(e: CustomEvent<{ messageId: string; content: string }>) =>
+              this.#handleUserEdit(e.detail.messageId, e.detail.content)}>
             ${unsafeHTML(renderedHtml)}
           </forge-ai-user-message>
         `;

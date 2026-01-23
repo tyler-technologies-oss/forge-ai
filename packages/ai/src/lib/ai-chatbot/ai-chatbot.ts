@@ -651,6 +651,28 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.sendMessage(this.getMessages());
   }
 
+  #handleUserEdit(evt: CustomEvent<{ messageId: string; content: string }>): void {
+    if (!this.adapter) {
+      return;
+    }
+
+    const { messageId, content } = evt.detail;
+    const messageIndex = this.#messageItems.findIndex(item => item.type === 'message' && item.data.id === messageId);
+
+    if (messageIndex === -1) {
+      return;
+    }
+
+    this.#messageStateController.updateMessageContent(messageId, content);
+
+    const responseIndex = messageIndex + 1;
+    if (responseIndex < this.#messageItems.length) {
+      this.#messageStateController.removeMessageItemsFrom(responseIndex);
+    }
+
+    this.adapter.sendMessage(this.getMessages());
+  }
+
   #handleRefresh(evt: CustomEvent<{ messageId: string }>): void {
     if (!this.adapter) {
       return;
@@ -1039,7 +1061,8 @@ export class AiChatbotComponent extends LitElement {
         @forge-ai-message-thread-thumbs-up=${this.#handleThumbsUp}
         @forge-ai-message-thread-thumbs-down=${this.#handleThumbsDown}
         @forge-ai-message-thread-user-copy=${this.#handleUserCopy}
-        @forge-ai-message-thread-user-resend=${this.#handleUserResend}>
+        @forge-ai-message-thread-user-resend=${this.#handleUserResend}
+        @forge-ai-message-thread-user-edit=${this.#handleUserEdit}>
         <slot name="empty-state-heading" slot="empty-state-heading"></slot>
         <slot name="empty-state-message" slot="empty-state-message"></slot>
         <forge-ai-suggestions

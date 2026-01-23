@@ -1,7 +1,9 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '@tylertech/forge/dist/button/forge-button';
 
 :host {
   display: inline-block;
@@ -45,6 +47,14 @@ span {
   transform: translateY(-8px);
   pointer-events: none;
   z-index: 1;
+
+  .forge-icon-button {
+    color: #{forge-theme.variable(text-medium)};
+
+    &:hover {
+      color: #{forge-theme.variable(text-high)};
+    }
+  }
 }
 
 .grid-container:hover .toolbar-container,
@@ -67,4 +77,42 @@ span {
   @include forge-typography.style(label2);
   color: #{forge-theme.variable(text-medium)};
   padding-inline: #{forge-spacing.variable(xxsmall)};
+}
+
+.edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(small)};
+  padding: #{forge-spacing.variable(medium)};
+  background-color: #{forge-theme.variable(surface-container-minimum)};
+  border-radius: #{forge-spacing.variable(xsmall)};
+  border-start-end-radius: 0;
+}
+
+.edit-textarea {
+  @include forge-typography.style(body1);
+  @include forge-scrollbar.base;
+
+  width: 100%;
+  min-height: 60px;
+  max-height: 150px;
+  field-sizing: content;
+  resize: none;
+  border: 1px solid #{forge-theme.variable(outline)};
+  border-radius: #{forge-spacing.variable(xxsmall)};
+  padding: #{forge-spacing.variable(small)};
+  background-color: #{forge-theme.variable(surface)};
+  color: #{forge-theme.variable(on-surface)};
+  outline: none;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #{forge-theme.variable(primary)};
+  }
+}
+
+.edit-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: #{forge-spacing.variable(small)};
 }
