@@ -1,0 +1,4 @@
+import{j as t,M as r,T as i,C as m}from"./blocks-BPD54u-9.js";import{useMDXComponents as n}from"./index-CQW6B2sf.js";import{A as a,D as p}from"./AiUserMessage.stories-Cs2SDx2V.js";import"./preload-helper-PPVm8Dsz.js";import"./_commonjsHelpers-CqkleIqs.js";import"./iframe-BCiei324.js";import"./ai-user-message-93xAR1jc.js";import"./custom-element-UsVr97OX.js";import"./property-BHcuA25v.js";import"./base-Cvtvbcdv.js";import"./when-CI7b_ccM.js";import"./tooltip-CmXrsQsc.js";import"./class-map-CXmOtiF8.js";import"./overlay-B6dwsa-g.js";function e(o){const s={p:"p",...n(),...o.components};return t.jsxs(t.Fragment,{children:[t.jsx(r,{of:a}),`
+`,t.jsx(i,{}),`
+`,t.jsx(s.p,{children:"The AI User Message component displays user-submitted messages with consistent styling and formatting for chat interfaces."}),`
+`,t.jsx(m,{of:p})]})}function T(o={}){const{wrapper:s}={...n(),...o.components};return s?t.jsx(s,{...o,children:t.jsx(e,{...o})}):e(o)}export{T as default};
