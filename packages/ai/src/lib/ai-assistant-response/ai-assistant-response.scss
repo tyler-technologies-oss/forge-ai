@@ -1,8 +1,7 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
-@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
-@use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '../utils/markdown-styles' as markdown;
 
 :host {
   display: block;
@@ -15,99 +14,15 @@
 
 .assistant-response {
   position: relative;
-  margin-inline-end: #{forge-spacing.variable(xxlarge)};
-
-  // Add extra margin after last chatbot tool call if not followed by text chunk
-  > forge-ai-chatbot-tool-call:last-of-type:not(:has(+ .text-chunk)) {
-    margin-block-end: #{forge-spacing.variable(large)};
-  }
 }
 
 .text-chunk {
-  @include forge-typography.style(body1);
-  color: #{forge-theme.variable(on-surface)};
-  overflow-wrap: break-word;
-
-  // Markdown formatting style overrides
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin: 1.75rem 0 #{forge-spacing.variable(small)};
-  }
-
-  strong {
-    font-weight: 500;
-  }
-
-  a {
-    color: #{forge-theme.variable(primary)};
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid #{forge-theme.variable(outline)};
-  }
-
-  code {
-    color: #{forge-theme.variable(on-surface-container-low)};
-    background-color: #{forge-theme.variable(surface-container-low)};
-    border-radius: #{forge-shape.variable(medium)};
-    padding: #{forge-spacing.variable(xxxsmall)} #{forge-spacing.variable(xxsmall)};
-    font-size: 0.75rem;
-  }
-
-  pre {
-    border: 1px solid #{forge-theme.variable(outline)};
-    border-radius: #{forge-shape.variable(medium)};
-    margin-block: #{forge-spacing.variable(medium)} 0;
-
-    code {
-      display: block;
-      padding: #{forge-spacing.variable(xsmall)} #{forge-spacing.variable(small)};
-      color: #{forge-theme.variable(on-surface-container-minimum)};
-      background: #{forge-theme.variable(surface-container-minimum)};
-      overflow-x: auto;
-    }
-  }
-
-  > p:has(+ ol),
-  > p:has(+ ul) {
-    margin-block-end: #{forge-spacing.variable(small)};
-  }
-
-  > ul {
-    list-style-type: disc;
-    padding-inline-start: 1.6875rem;
-  }
-
-  > ol {
-    padding-inline-start: 1.75rem;
-  }
-
-  > ol,
-  > ul {
-    margin: #{forge-spacing.variable(xsmall)} 0;
-    margin-block-end: #{forge-spacing.variable(medium)};
-  }
-
-  > :first-child {
-    margin-block-start: 0;
-  }
-
-  > p {
-    margin-block-end: #{forge-spacing.variable(medium)};
-    overflow-wrap: anywhere;
-    line-height: 1.5;
-  }
+  @include markdown.markdown-content;
 }
 
 .toolbar-container {
   position: absolute;
-  bottom: -28px;
+  bottom: -28px; // Centered within the gap of the message thread spacing
   left: 0;
   transition:
     opacity 200ms ease-in-out,

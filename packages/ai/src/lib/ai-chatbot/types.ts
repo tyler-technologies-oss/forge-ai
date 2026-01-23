@@ -137,6 +137,7 @@ export interface ChatMessage {
   toolCallId?: string;
   eventStream?: StreamEvent[];
   feedback?: ResponseFeedback;
+  children?: ResponseItem[];
 }
 
 export interface ToolCall<TArgs = Record<string, unknown>> {

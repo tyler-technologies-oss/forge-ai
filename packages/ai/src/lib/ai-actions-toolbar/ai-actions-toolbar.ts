@@ -168,7 +168,7 @@ export class AiActionsToolbarComponent extends LitElement {
     return html`
       <button
         id="thumbs-up-btn"
-        aria-label="Thumbs up"
+        aria-label="Good response"
         class="forge-icon-button forge-icon-button--small ${this._thumbsUpActive ? 'is-active-positive' : ''}"
         @click=${this._handleThumbsUp}>
         ${this._thumbsUpActive
@@ -181,7 +181,7 @@ export class AiActionsToolbarComponent extends LitElement {
                 d="M5 9v12H1V9zm4 12a2 2 0 0 1-2-2V9c0-.55.22-1.05.59-1.41L14.17 1l1.06 1.06c.27.27.44.64.44 1.05l-.03.32L14.69 8H21a2 2 0 0 1 2 2v2c0 .26-.05.5-.14.73l-3.02 7.05C19.54 20.5 18.83 21 18 21zm0-2h9.03L21 12v-2h-8.79l1.13-5.32L9 9.03z" />
             </svg>`}
       </button>
-      <forge-ai-tooltip for="thumbs-up-btn" placement="bottom">Thumbs up</forge-ai-tooltip>
+      <forge-ai-tooltip for="thumbs-up-btn" placement="bottom">Good response</forge-ai-tooltip>
     `;
   }
 
@@ -189,7 +189,7 @@ export class AiActionsToolbarComponent extends LitElement {
     return html`
       <button
         id="thumbs-down-btn"
-        aria-label="Thumbs down"
+        aria-label="Bad response"
         class="forge-icon-button forge-icon-button--small ${this._thumbsDownActive || this._popoverOpen
           ? 'is-active-negative'
           : ''}"
@@ -204,7 +204,7 @@ export class AiActionsToolbarComponent extends LitElement {
                 d="M19 15V3h4v12zM15 3a2 2 0 0 1 2 2v10c0 .55-.22 1.05-.59 1.41L9.83 23l-1.06-1.06c-.27-.27-.44-.64-.44-1.06l.03-.31.95-4.57H3a2 2 0 0 1-2-2v-2c0-.26.05-.5.14-.73l3.02-7.05C4.46 3.5 5.17 3 6 3zm0 2H5.97L3 12v2h8.78l-1.13 5.32L15 14.97z" />
             </svg>`}
       </button>
-      <forge-ai-tooltip for="thumbs-down-btn" placement="bottom">Thumbs down</forge-ai-tooltip>
+      <forge-ai-tooltip for="thumbs-down-btn" placement="bottom">Bad response</forge-ai-tooltip>
       <forge-ai-popover
         .anchor=${this._thumbsDownButton ?? null}
         placement="bottom"

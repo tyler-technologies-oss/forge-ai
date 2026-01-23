@@ -478,6 +478,10 @@ chatbot.addEventListener('forge-ai-chatbot-message-sent', (e: CustomEvent) => {
   saveThreadState();
 });
 
+chatbot.addEventListener('forge-ai-chatbot-clear', () => {
+  clearThreadState();
+});
+
 const agentThreadStates = new Map<string, ReturnType<typeof chatbot.getThreadState>>();
 
 chatbot.addEventListener('forge-ai-chatbot-message-received', (e: CustomEvent) => {

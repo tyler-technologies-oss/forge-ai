@@ -7,6 +7,10 @@
   display: block;
 }
 
+.forge-page-state {
+  margin-block-start: 0;
+}
+
 .welcome-container {
   display: flex;
   flex-direction: column;
@@ -25,8 +29,8 @@
 }
 
 .graphic {
-  height: 144px;
-  width: 144px;
+  height: 200px;
+  width: 200px;
 }
 
 .suggestion-container {

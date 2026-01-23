@@ -18,7 +18,7 @@ forge-ai-chat-interface {
 
 .ai-dialog {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
 
   background: #{forge-theme.variable(surface-bright)};
