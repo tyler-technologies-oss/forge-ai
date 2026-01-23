@@ -3,6 +3,10 @@
 @use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+@use '@tylertech/forge/sass/state-layer' as forge-state-layer;
+@use '@tylertech/forge/sass/list/list-item' as forge-list-item;
+@use '@tylertech/forge/dist/button/forge-button';
+@use '@tylertech/forge/dist/field/forge-field';
 
 :host {
   display: inline-flex;
@@ -29,38 +33,8 @@
 }
 
 .trigger-button {
-  display: inline-flex;
-  align-items: center;
-  gap: #{forge-spacing.variable(xxsmall)};
-  max-width: 100%;
-  min-width: 0;
-  padding: #{forge-spacing.variable(xxsmall)} #{forge-spacing.variable(xsmall)};
-  border: 1px solid transparent;
-  border-radius: #{forge-shape.variable(medium)};
-  background: transparent;
-  cursor: pointer;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease;
-
-  &:hover:not(:disabled) {
-    background-color: #{forge-theme.variable(surface-container-minimum)};
-    border-color: #{forge-theme.variable(outline)};
-  }
-
-  &:focus-visible {
-    outline: 2px solid #{forge-theme.variable(primary)};
-    outline-offset: 2px;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.38;
-  }
-}
-
-.trigger-text {
-  flex: 1;
+  --forge-focus-indicator-outward-offset: 0px; // Requires px unit
+  padding-inline-start: 0;
 }
 
 .dropdown-icon {
@@ -71,7 +45,7 @@
   transition: transform 150ms ease;
   margin-inline-end: -6px;
 
-  :host([open]) & {
+  :host(:state(open)) & {
     transform: rotate(180deg);
   }
 }
@@ -79,20 +53,25 @@
 .agent-list {
   @include forge-scrollbar.base;
 
-  min-width: 200px;
+  min-width: 256px;
   max-width: 400px;
   max-height: 300px;
   overflow-y: auto;
-  padding: #{forge-spacing.variable(xxsmall)} 0;
+  padding: #{forge-spacing.variable(xxsmall)} 0 #{forge-spacing.variable(xxsmall)};
 }
 
 .agent-item {
-  display: flex;
-  align-items: center;
-  padding: #{forge-spacing.variable(small)} #{forge-spacing.variable(medium)};
+  @include forge-list-item.tokens;
+  @include forge-list-item.base;
+  @include forge-list-item.dense;
+  @include forge-state-layer.standalone;
+  @include forge-list-item.provide-theme(
+    (
+      padding: 0 forge-spacing.variable(xxsmall)
+    )
+  );
+
   cursor: pointer;
-  outline: none;
-  transition: background-color 150ms ease;
 
   &:focus-visible {
     outline: 2px solid #{forge-theme.variable(primary)};
@@ -104,21 +83,63 @@
   }
 
   &--selected {
-    background-color: #{forge-theme.variable(primary-container-low)};
+    @include forge-list-item.selected;
+    @include forge-state-layer.provide-theme(
+      (
+        color: #{forge-list-item.token(selected-color)}
+      )
+    );
 
     .agent-name {
-      color: #{forge-theme.variable(on-primary-container-low)};
       font-weight: 500;
     }
   }
 
-  &:hover {
-    background-color: #{forge-theme.variable(surface-container)};
+  &__selection-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: forge-spacing.variable(medium);
   }
 }
 
-.agent-name {
-  @include forge-typography.style(body1);
+.selection-icon {
+  fill: currentColor;
+  width: 16px;
+  height: 16px;
+}
 
-  color: #{forge-theme.variable(on-surface)};
+.agent-list-separator {
+  height: 1px;
+  background-color: #{forge-theme.variable(outline)};
+  margin: #{forge-spacing.variable(xxsmall)} 0;
+}
+
+.agent-name {
+  @include forge-list-item.text-container;
+  @include forge-list-item.dense-text;
+}
+
+.dropdown-header {
+  @include forge-typography.style(heading1);
+
+  padding: #{forge-spacing.variable(small)} #{forge-spacing.variable(small)} #{forge-spacing.variable(xxsmall)};
+}
+
+.filter-field {
+  padding: #{forge-spacing.variable(xsmall)} #{forge-spacing.variable(small)} #{forge-spacing.variable(small)};
+  border-bottom: 1px solid #{forge-theme.variable(outline)};
+}
+
+.search-icon {
+  width: 24px;
+  height: 24px;
+  fill: #{forge-theme.variable(text-medium)};
+}
+
+.no-results {
+  padding: #{forge-spacing.variable(small)};
+  color: #{forge-theme.variable(text-medium)};
+  text-align: center;
 }

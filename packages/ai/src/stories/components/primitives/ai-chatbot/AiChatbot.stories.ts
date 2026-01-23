@@ -8,7 +8,6 @@ import '$lib/ai-suggestions';
 import '$lib/ai-voice-input';
 import { type ToolDefinition, type Suggestion, type ChatMessage } from '$lib/ai-chatbot';
 import { MockAdapter } from '../../../utils/mock-adapter';
-import { ForgeAiAssistantResponseFeedbackEventData } from '../../../../lib/ai-assistant-response/ai-assistant-response';
 
 const component = 'forge-ai-chatbot';
 
@@ -751,6 +750,19 @@ class MixedResponseAdapter extends MockAdapter {
 }
 
 export const WithAgents: Story = {
+  parameters: {
+    controls: { include: ['agentListSize', 'titleText'] }
+  },
+  argTypes: {
+    agentListSize: {
+      control: 'select',
+      options: ['small', 'large'],
+      description: 'Toggle between small (4) and large (50) agent lists'
+    }
+  },
+  args: {
+    agentListSize: 'small'
+  },
   render: (args: any) => {
     const adapter = new MockAdapter({
       simulateStreaming: true,
@@ -759,13 +771,67 @@ export const WithAgents: Story = {
       responseDelay: 500
     });
 
-    const agents = [
-      { id: 'gpt-4', name: 'GPT-4', description: 'Most capable model for complex tasks' },
-      { id: 'gpt-3.5', name: 'GPT-3.5 Turbo', description: 'Fast and efficient for most tasks' },
-      { id: 'claude', name: 'Claude 3', description: 'Excellent for analysis and writing' },
-      { id: 'gemini', name: 'Gemini Pro', description: "Google's multimodal AI model" }
+    const smallAgentList = [
+      { id: 'general', name: 'General Assistant', description: 'Versatile helper for everyday tasks and questions' },
+      { id: 'code-review', name: 'Code Review Assistant', description: 'Analyzes code for best practices and issues' },
+      { id: 'docs', name: 'Documentation Helper', description: 'Generates and maintains technical documentation' },
+      { id: 'devops', name: 'DevOps Engineer', description: 'CI/CD pipelines and infrastructure automation' }
     ];
 
+    const largeAgentList = [
+      { id: 'general', name: 'General Assistant', description: 'Versatile helper for everyday tasks and questions' },
+      { id: 'code-review', name: 'Code Review Assistant', description: 'Analyzes code for best practices and issues' },
+      { id: 'docs', name: 'Documentation Helper', description: 'Generates and maintains technical documentation' },
+      { id: 'database', name: 'Database Expert', description: 'SQL optimization and schema design' },
+      { id: 'devops', name: 'DevOps Engineer', description: 'CI/CD pipelines and infrastructure automation' },
+      { id: 'security', name: 'Security Analyst', description: 'Security risks and mitigation strategies' },
+      { id: 'api', name: 'API Designer', description: 'RESTful API design and documentation' },
+      { id: 'testing', name: 'Testing Specialist', description: 'Unit tests and test strategies' },
+      { id: 'performance', name: 'Performance Optimizer', description: 'Application performance analysis' },
+      { id: 'accessibility', name: 'Accessibility Auditor', description: 'WCAG compliance and inclusive design' },
+      { id: 'ux', name: 'UX Researcher', description: 'User experience insights and usability' },
+      { id: 'data-science', name: 'Data Scientist', description: 'Data analysis and machine learning' },
+      { id: 'cloud', name: 'Cloud Architect', description: 'Scalable cloud infrastructure design' },
+      { id: 'mobile', name: 'Mobile Developer', description: 'iOS and Android development' },
+      { id: 'frontend', name: 'Frontend Expert', description: 'Modern frontend frameworks and CSS' },
+      { id: 'backend', name: 'Backend Specialist', description: 'Server-side architecture and APIs' },
+      { id: 'microservices', name: 'Microservices Guru', description: 'Distributed service architectures' },
+      { id: 'graphql', name: 'GraphQL Expert', description: 'GraphQL APIs and query optimization' },
+      { id: 'typescript', name: 'TypeScript Wizard', description: 'Advanced TypeScript patterns' },
+      { id: 'git', name: 'Git Specialist', description: 'Git workflows and branching strategies' },
+      { id: 'kubernetes', name: 'Kubernetes Admin', description: 'Container orchestration and Helm charts' },
+      { id: 'terraform', name: 'Terraform Expert', description: 'Infrastructure as code' },
+      { id: 'monitoring', name: 'Monitoring Specialist', description: 'Observability and logging solutions' },
+      { id: 'messaging', name: 'Message Queue Expert', description: 'Kafka and event-driven architectures' },
+      { id: 'caching', name: 'Redis Specialist', description: 'Caching strategies and optimization' },
+      { id: 'search', name: 'Elasticsearch Expert', description: 'Full-text search and ELK stack' },
+      { id: 'auth', name: 'OAuth Specialist', description: 'Authentication and identity management' },
+      { id: 'realtime', name: 'WebSocket Expert', description: 'Real-time communication systems' },
+      { id: 'pwa', name: 'PWA Developer', description: 'Progressive web apps and offline support' },
+      { id: 'webcomponents', name: 'Web Components Expert', description: 'Custom elements and shadow DOM' },
+      { id: 'css', name: 'CSS Architect', description: 'Design systems and scalable styling' },
+      { id: 'animation', name: 'Animation Specialist', description: 'CSS animations and micro-interactions' },
+      { id: 'seo', name: 'SEO Optimizer', description: 'Search optimization and structured data' },
+      { id: 'i18n', name: 'Localization Expert', description: 'Internationalization and RTL support' },
+      { id: 'pdf', name: 'PDF Generator', description: 'Document generation and print styles' },
+      { id: 'email', name: 'Email Template Designer', description: 'HTML email templates' },
+      { id: 'payments', name: 'Payment Integration', description: 'Secure payment processing' },
+      { id: 'geo', name: 'Geolocation Expert', description: 'Maps and location-based services' },
+      { id: 'video', name: 'Video Streaming Specialist', description: 'HLS, WebRTC, and video processing' },
+      { id: 'image', name: 'Image Processing Expert', description: 'Image optimization and CDN strategies' },
+      { id: 'notifications', name: 'Notification System Designer', description: 'Push notifications and alerts' },
+      { id: 'workflow', name: 'Workflow Automation', description: 'Business process automation' },
+      { id: 'reports', name: 'Report Generator', description: 'Dynamic reporting and visualization' },
+      { id: 'audit', name: 'Audit Logger', description: 'Compliance logging and data governance' },
+      { id: 'ratelimit', name: 'Rate Limiting Expert', description: 'API throttling and abuse prevention' },
+      { id: 'features', name: 'Feature Flag Manager', description: 'Feature toggles and A/B testing' },
+      { id: 'config', name: 'Config Management', description: 'Environment and secrets management' },
+      { id: 'errors', name: 'Error Handling Expert', description: 'Error boundaries and retry strategies' },
+      { id: 'legacy', name: 'Legacy Code Modernizer', description: 'Refactoring and migration planning' },
+      { id: 'erp', name: 'ERP Agent', description: 'Enterprise resource planning software' }
+    ];
+
+    const agents = args.agentListSize === 'large' ? largeAgentList : smallAgentList;
     const onAgentChange = action('forge-ai-chatbot-agent-change');
 
     return html`
@@ -773,14 +839,13 @@ export const WithAgents: Story = {
         <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
           <strong>Agent Selector Demo</strong>
           <p style="margin: 8px 0 0 0; font-size: 14px;">
-            Click on the header title to see the agent selector dropdown. The consumer handles any actions when agent
-            changes via the event.
+            Click on the header title to see the agent selector dropdown. Use the "agentListSize" control to toggle
+            between a small list (4 agents) and a large list (50 agents) which shows the search filter.
           </p>
         </div>
         <forge-ai-chatbot
           .adapter=${adapter}
           .agents=${agents}
-          selected-agent-id="gpt-4"
           placeholder=${args.placeholder}
           title-text=${args.titleText}
           file-upload=${args.fileUpload}

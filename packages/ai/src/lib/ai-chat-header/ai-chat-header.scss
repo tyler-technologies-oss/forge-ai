@@ -27,8 +27,8 @@
 .start {
   display: flex;
   align-items: center;
-  gap: #{forge-spacing.variable(medium)};
-  overflow: hidden;
+  gap: #{forge-spacing.variable(xsmall)};
+  overflow: visible;
   min-width: 0;
 
   .title {

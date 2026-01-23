@@ -108,7 +108,7 @@ export interface ForgeAiChatbotResponseFeedbackEventData {
 }
 
 export interface ForgeAiChatbotAgentChangeEventData {
-  agent: Agent;
+  agent: Agent | undefined;
   previousAgentId: string | undefined;
 }
 
@@ -859,7 +859,7 @@ export class AiChatbotComponent extends LitElement {
     });
 
     if (!changeEvt.defaultPrevented) {
-      this.selectedAgentId = agent.id;
+      this.selectedAgentId = agent?.id;
       this.clearMessages();
     }
   }

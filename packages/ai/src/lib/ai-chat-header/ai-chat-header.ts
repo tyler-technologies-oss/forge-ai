@@ -36,7 +36,7 @@ declare global {
 }
 
 export interface ForgeAiChatHeaderAgentChangeEventData {
-  agent: Agent;
+  agent: Agent | undefined;
   previousAgentId: string | undefined;
 }
 
@@ -171,7 +171,7 @@ export class AiChatHeaderComponent extends LitElement {
   }
 
   get #titleElement(): TemplateResult {
-    if (this.agents.length > 0) {
+    if (this.agents.length) {
       return html`
         <forge-ai-agent-selector
           .agents=${this.agents}
@@ -179,12 +179,18 @@ export class AiChatHeaderComponent extends LitElement {
           .titleText=${this.titleText}
           ?disabled=${this.disableAgentSelector}
           @forge-ai-agent-selector-change=${this.#handleAgentChange}>
+          <slot name="icon" slot="icon">
+            <forge-ai-icon></forge-ai-icon>
+          </slot>
         </forge-ai-agent-selector>
       `;
     }
 
     const tagName = unsafeStatic(`h${this.headingLevel}`);
     return staticHtml`
+      <slot name="icon" slot="icon">
+        <forge-ai-icon></forge-ai-icon>
+      </slot>
       <${tagName} class="title" id="title-container">${this.titleText}</${tagName}>
       ${when(
         this._isTitleOverflowing,
@@ -196,12 +202,7 @@ export class AiChatHeaderComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="header">
-        <div class="start" id="title-container">
-          <slot name="icon">
-            <forge-ai-icon></forge-ai-icon>
-          </slot>
-          ${this.#titleElement}
-        </div>
+        <div class="start" id="title-container">${this.#titleElement}</div>
         <div class="end">
           ${when(
             this.showMinimizeButton,
