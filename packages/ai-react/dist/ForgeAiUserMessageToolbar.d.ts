@@ -1,9 +1,9 @@
 import React from "react";
-import { ForgeAiAssistantResponse as ForgeAiAssistantResponseElement } from "@tylertech/forge-ai/ai-assistant-response";
+import { ForgeAiUserMessageToolbar as ForgeAiUserMessageToolbarElement } from "@tylertech/forge-ai/ai-user-message-toolbar";
 
-export type { ForgeAiAssistantResponseElement };
+export type { ForgeAiUserMessageToolbarElement };
 
-export interface ForgeAiAssistantResponseProps extends Pick<
+export interface ForgeAiUserMessageToolbarProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -19,10 +19,7 @@ export interface ForgeAiAssistantResponseProps extends Pick<
   | "onBlur"
 > {
   /** undefined */
-  enableReactions?: boolean;
-
-  /** undefined */
-  debugMode?: boolean;
+  streaming?: boolean;
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -45,36 +42,30 @@ export interface ForgeAiAssistantResponseProps extends Pick<
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
-  /** Fired when copy action is clicked */
-  onForgeAiAssistantResponseCopy?: (
-    event: CustomEvent<CustomEvent<{ responseId: string }>>,
+  /** Fired when copy button is clicked */
+  onForgeAiUserMessageToolbarCopy?: (
+    event: CustomEvent<CustomEvent<void>>,
   ) => void;
 
-  /** Fired when resend action is clicked */
-  onForgeAiAssistantResponseResend?: (
-    event: CustomEvent<CustomEvent<{ responseId: string }>>,
+  /** Fired when resend button is clicked */
+  onForgeAiUserMessageToolbarResend?: (
+    event: CustomEvent<CustomEvent<void>>,
   ) => void;
 
-  /** Fired when thumbs up is clicked */
-  onForgeAiAssistantResponseThumbsUp?: (
-    event: CustomEvent<CustomEvent<ForgeAiAssistantResponseFeedbackEventData>>,
-  ) => void;
-
-  /** Fired when thumbs down is clicked */
-  onForgeAiAssistantResponseThumbsDown?: (
-    event: CustomEvent<CustomEvent<ForgeAiAssistantResponseFeedbackEventData>>,
+  /** Fired when edit button is clicked */
+  onForgeAiUserMessageToolbarEdit?: (
+    event: CustomEvent<CustomEvent<void>>,
   ) => void;
 }
 
 /**
- * Renders a complete assistant response with interleaved text chunks and tool calls.
+ * Toolbar for user message actions including copy, resend, and edit.
  * ---
  *
  *
  * ### **Events:**
- *  - **forge-ai-assistant-response-copy** - Fired when copy action is clicked
- * - **forge-ai-assistant-response-resend** - Fired when resend action is clicked
- * - **forge-ai-assistant-response-thumbs-up** - Fired when thumbs up is clicked
- * - **forge-ai-assistant-response-thumbs-down** - Fired when thumbs down is clicked
+ *  - **forge-ai-user-message-toolbar-copy** - Fired when copy button is clicked
+ * - **forge-ai-user-message-toolbar-resend** - Fired when resend button is clicked
+ * - **forge-ai-user-message-toolbar-edit** - Fired when edit button is clicked
  */
-export const ForgeAiAssistantResponse: React.ForwardRefExoticComponent<ForgeAiAssistantResponseProps>;
+export const ForgeAiUserMessageToolbar: React.ForwardRefExoticComponent<ForgeAiUserMessageToolbarProps>;

@@ -56,9 +56,9 @@ export interface ForgeAiMessageThreadProps extends Pick<
     event: CustomEvent<CustomEvent<ForgeAiMessageThreadCopyEventData>>,
   ) => void;
 
-  /** Fired when user clicks refresh on a message */
-  onForgeAiMessageThreadRefresh?: (
-    event: CustomEvent<CustomEvent<ForgeAiMessageThreadRefreshEventData>>,
+  /** Fired when user clicks resend on a message */
+  onForgeAiMessageThreadResend?: (
+    event: CustomEvent<CustomEvent<ForgeAiMessageThreadResendEventData>>,
   ) => void;
 
   /** Fired when user gives thumbs up */
@@ -79,7 +79,7 @@ export interface ForgeAiMessageThreadProps extends Pick<
  *
  * ### **Events:**
  *  - **forge-ai-message-thread-copy** - Fired when user clicks copy on a message
- * - **forge-ai-message-thread-refresh** - Fired when user clicks refresh on a message
+ * - **forge-ai-message-thread-resend** - Fired when user clicks resend on a message
  * - **forge-ai-message-thread-thumbs-up** - Fired when user gives thumbs up
  * - **forge-ai-message-thread-thumbs-down** - Fired when user gives thumbs down
  *

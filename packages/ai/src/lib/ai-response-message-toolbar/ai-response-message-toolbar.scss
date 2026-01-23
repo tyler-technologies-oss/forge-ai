@@ -4,23 +4,18 @@
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/button/forge-button';
 @use '@tylertech/forge/dist/field/forge-field';
+@use '../utils/toolbar' as toolbar;
 
 :host {
   display: block;
 }
 
-.actions-toolbar {
-  display: flex;
-  align-items: center;
-  gap: #{forge-spacing.variable(xxsmall)};
+.response-message-toolbar {
+  @include toolbar.toolbar-layout;
 }
 
 .forge-icon-button {
-  color: #{forge-theme.variable(text-medium)};
-
-  &:hover {
-    color: #{forge-theme.variable(text-high)};
-  }
+  @include toolbar.toolbar-icon-button;
 
   &.is-active-positive {
     color: #{forge-theme.variable(success)};
@@ -32,8 +27,6 @@
     background-color: #{forge-theme.variable(error-container)};
   }
 }
-
-/* Popover Styles */
 
 .popover-content {
   display: flex;
