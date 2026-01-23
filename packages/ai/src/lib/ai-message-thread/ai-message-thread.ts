@@ -5,6 +5,7 @@ import { when } from 'lit/directives/when.js';
 import type { MessageItem, ToolDefinition, ToolCall, AssistantResponse } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiAssistantResponseFeedbackEventData } from '../ai-assistant-response';
+import type { FeatureToggle } from '../ai-chatbot/ai-chatbot.js';
 
 import '../ai-assistant-response';
 import '../ai-empty-state';
@@ -13,9 +14,9 @@ import '../ai-response-message';
 import '../ai-thinking-indicator';
 import '../ai-user-message';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
+import '../core/tooltip/tooltip.js';
 
 import styles from './ai-message-thread.scss?inline';
-import { FeatureToggle } from '../ai-chatbot/ai-chatbot.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -27,6 +28,8 @@ declare global {
     'forge-ai-message-thread-refresh': CustomEvent<ForgeAiMessageThreadRefreshEventData>;
     'forge-ai-message-thread-thumbs-up': CustomEvent<ForgeAiMessageThreadThumbsEventData>;
     'forge-ai-message-thread-thumbs-down': CustomEvent<ForgeAiMessageThreadThumbsEventData>;
+    'forge-ai-message-thread-user-copy': CustomEvent<ForgeAiMessageThreadCopyEventData>;
+    'forge-ai-message-thread-user-resend': CustomEvent<ForgeAiMessageThreadRefreshEventData>;
   }
 }
 
@@ -91,10 +94,21 @@ export class AiMessageThreadComponent extends LitElement {
 
   #markdownController!: MarkdownStreamController;
   #canAutoScroll = true;
+  #resizeObserver?: ResizeObserver;
 
   public override connectedCallback(): void {
     super.connectedCallback();
     this.#markdownController = new MarkdownStreamController(this);
+    this.#resizeObserver = new ResizeObserver(() => this.#checkScrollState());
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#resizeObserver?.disconnect();
+  }
+
+  public override firstUpdated(): void {
+    this.#resizeObserver?.observe(this._messageThreadContainer);
   }
 
   public override updated(changedProperties: PropertyValues<this>): void {
@@ -105,9 +119,22 @@ export class AiMessageThreadComponent extends LitElement {
     }
   }
 
+  #checkScrollState(): void {
+    const container = this._messageThreadContainer;
+    if (!container) {
+      return;
+    }
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const canAutoScroll = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+    if (canAutoScroll !== this.#canAutoScroll) {
+      this.#canAutoScroll = canAutoScroll;
+      this.requestUpdate();
+    }
+  }
+
   #handleScroll = (): void => {
-    const { scrollTop, scrollHeight, clientHeight } = this._messageThreadContainer;
-    this.#canAutoScroll = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+    this.#checkScrollState();
   };
 
   public scrollToBottom({
@@ -123,6 +150,28 @@ export class AiMessageThreadComponent extends LitElement {
       top: container.scrollHeight,
       behavior
     });
+  }
+
+  #handleScrollToBottomClick = (): void => {
+    this.scrollToBottom({ force: true, behavior: 'smooth' });
+  };
+
+  get #scrollToBottomButton(): TemplateResult | typeof nothing {
+    if (this.#canAutoScroll) {
+      return nothing;
+    }
+    return html`
+      <button
+        id="scroll-to-bottom-btn"
+        class="forge-fab scroll-to-bottom-button"
+        aria-label="Scroll to bottom"
+        @click=${this.#handleScrollToBottomClick}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M7.03 13.92h4V5l2.01-.03v8.95h3.99l-5 5Z" />
+        </svg>
+      </button>
+      <forge-ai-tooltip for="scroll-to-bottom-btn" placement="top">Scroll to bottom</forge-ai-tooltip>
+    `;
   }
 
   #handleCopy(messageId: string): void {
@@ -147,6 +196,20 @@ export class AiMessageThreadComponent extends LitElement {
   #handleThumbsDown(messageId: string, feedback?: string): void {
     const detail: ForgeAiMessageThreadThumbsEventData = { messageId, feedback };
     this.#dispatchEvent({ type: 'forge-ai-message-thread-thumbs-down', detail });
+  }
+
+  #handleUserCopy(messageId: string): void {
+    this.#dispatchEvent({
+      type: 'forge-ai-message-thread-user-copy',
+      detail: { messageId }
+    });
+  }
+
+  #handleUserResend(messageId: string): void {
+    this.#dispatchEvent({
+      type: 'forge-ai-message-thread-user-resend',
+      detail: { messageId }
+    });
   }
 
   #renderToolCall(toolCall: ToolCall): TemplateResult {
@@ -265,7 +328,18 @@ export class AiMessageThreadComponent extends LitElement {
       const msg = item.data;
       if (msg.role === 'user') {
         const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
-        return html`<forge-ai-user-message>${unsafeHTML(renderedHtml)}</forge-ai-user-message>`;
+        return html`
+          <forge-ai-user-message
+            message-id=${msg.id}
+            .timestamp=${msg.timestamp}
+            ?streaming=${this.showThinking}
+            @forge-ai-user-message-copy=${(e: CustomEvent<{ messageId: string }>) =>
+              this.#handleUserCopy(e.detail.messageId)}
+            @forge-ai-user-message-resend=${(e: CustomEvent<{ messageId: string }>) =>
+              this.#handleUserResend(e.detail.messageId)}>
+            ${unsafeHTML(renderedHtml)}
+          </forge-ai-user-message>
+        `;
       } else if (msg.role === 'system') {
         return html`<div class="system-message">${msg.content}</div>`;
       } else if (msg.status === 'error') {
@@ -290,6 +364,7 @@ export class AiMessageThreadComponent extends LitElement {
       <div class="message-thread" @scroll=${this.autoScroll ? this.#handleScroll : undefined}>
         ${this.#emptyState} ${this.#messages} ${this.#thinkingIndicator}
       </div>
+      ${this.#scrollToBottomButton}
     `;
   }
 

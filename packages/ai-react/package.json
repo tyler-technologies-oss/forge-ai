@@ -1,6 +1,6 @@
 {
   "name": "@tylertech/forge-ai-react",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "A React adapter for Tyler Forge™ AI Web Components.",
   "repository": "tyler-technologies-oss/forge-ai",
   "author": "Tyler Technologies, Inc.",

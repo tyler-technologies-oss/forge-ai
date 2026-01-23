@@ -4,6 +4,8 @@ import { classMap } from 'lit/directives/class-map.js';
 
 import styles from './ai-voice-input.scss?inline';
 
+import '../core/tooltip/tooltip.js';
+
 declare global {
   interface HTMLElementTagNameMap {
     'forge-ai-voice-input': AiVoiceInputComponent;
@@ -153,6 +155,7 @@ export class AiVoiceInputComponent extends LitElement {
     return html`
       <div class="ai-voice-input">
         <button
+          id="voice-btn"
           class=${classes}
           @click=${this._toggleRecording}
           aria-label=${this._isRecording ? 'Stop recording' : 'Start recording'}
@@ -163,6 +166,9 @@ export class AiVoiceInputComponent extends LitElement {
               d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3m5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72z" />
           </svg>
         </button>
+        <forge-ai-tooltip for="voice-btn" placement="top"
+          >${this._isRecording ? 'Stop recording' : 'Dictate'}</forge-ai-tooltip
+        >
       </div>
     `;
   }

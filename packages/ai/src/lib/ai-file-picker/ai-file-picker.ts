@@ -5,6 +5,8 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 
 import styles from './ai-file-picker.scss?inline';
 
+import '../core/tooltip/tooltip.js';
+
 declare global {
   interface HTMLElementTagNameMap {
     'forge-ai-file-picker': AiFilePickerComponent;
@@ -271,6 +273,7 @@ export class AiFilePickerComponent extends LitElement {
 
     return html`
       <button
+        id="file-picker-btn"
         class=${classMap(buttonClasses)}
         type="button"
         ?disabled=${this.disabled}
@@ -278,6 +281,9 @@ export class AiFilePickerComponent extends LitElement {
         aria-label="Select file to upload">
         ${this.#buttonContent}
       </button>
+      ${this.variant === 'icon-button'
+        ? html`<forge-ai-tooltip for="file-picker-btn" placement="top">Add file(s)</forge-ai-tooltip>`
+        : ''}
     `;
   }
 

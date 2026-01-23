@@ -3,9 +3,10 @@ import DOMPurify from 'dompurify';
 import remend from 'remend';
 import { v4 as uuidv4 } from 'uuid';
 
-const DOMPURIFY_CONFIG = {
+const DOMPURIFY_CONFIG: DOMPurify.Config = {
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
-  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover']
+  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
+  ADD_ATTR: ['target', 'rel']
 };
 
 /**
@@ -20,7 +21,17 @@ export function generateId(): string {
  */
 export function renderMarkdown(content: string): string {
   const completedMarkdown = remend(content);
-  const rawHtml = marked.parse(completedMarkdown, { async: false, gfm: true, breaks: true }) as string;
+  const renderer = new marked.Renderer();
+  renderer.link = function (args) {
+    const link = marked.Renderer.prototype.link.call(this, args);
+    return link.replace(/^<a /, '<a target="_blank" rel="noreferrer noopener" ');
+  };
+  const rawHtml = marked.parse(completedMarkdown, {
+    async: false,
+    gfm: true,
+    breaks: true,
+    renderer
+  }) as string;
   return DOMPurify.sanitize(rawHtml, DOMPURIFY_CONFIG);
 }
 

@@ -463,6 +463,10 @@ chatbot.addEventListener('forge-ai-chatbot-message-sent', (e: CustomEvent) => {
   saveThreadState();
 });
 
+chatbot.addEventListener('forge-ai-chatbot-clear', () => {
+  clearThreadState();
+});
+
 chatbot.addEventListener('forge-ai-chatbot-message-received', (e: CustomEvent) => {
   addEventToStream('ASSISTANT_MESSAGE', e.detail.message);
   saveThreadState();
