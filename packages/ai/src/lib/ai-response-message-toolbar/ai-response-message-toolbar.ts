@@ -7,40 +7,41 @@ import type { FeedbackType } from '../ai-chatbot/types.js';
 import '../core/tooltip/tooltip.js';
 import '../core/popover/popover.js';
 
-import styles from './ai-actions-toolbar.scss?inline';
+import styles from './ai-response-message-toolbar.scss?inline';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'forge-ai-actions-toolbar': AiActionsToolbarComponent;
+    'forge-ai-response-message-toolbar': AiResponseMessageToolbarComponent;
   }
 
   interface HTMLElementEventMap {
-    'forge-ai-actions-toolbar-action': CustomEvent<ForgeAiActionsToolbarActionEventData>;
-    'forge-ai-actions-toolbar-feedback': CustomEvent<ForgeAiActionsToolbarFeedbackEventData>;
+    'forge-ai-response-message-toolbar-action': CustomEvent<ForgeAiResponseMessageToolbarActionEventData>;
+    'forge-ai-response-message-toolbar-feedback': CustomEvent<ForgeAiResponseMessageToolbarFeedbackEventData>;
   }
 }
 
-export interface ForgeAiActionsToolbarActionEventData {
-  action: AiActionsToolbarAction;
+export interface ForgeAiResponseMessageToolbarActionEventData {
+  action: AiResponseMessageToolbarAction;
 }
 
-export interface ForgeAiActionsToolbarFeedbackEventData {
+export interface ForgeAiResponseMessageToolbarFeedbackEventData {
   action: 'positive' | 'negative';
   feedback?: string;
 }
 
-export type AiActionsToolbarAction = 'refresh' | 'copy' | 'thumbs-up' | 'thumbs-down';
+export type AiResponseMessageToolbarAction = 'resend' | 'copy' | 'thumbs-up' | 'thumbs-down';
 
-export const AiActionsToolbarComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-actions-toolbar';
+export const AiResponseMessageToolbarComponentTagName: keyof HTMLElementTagNameMap =
+  'forge-ai-response-message-toolbar';
 
 /**
- * @tag forge-ai-actions-toolbar
+ * @tag forge-ai-response-message-toolbar
  *
- * @event {CustomEvent<ForgeAiActionsToolbarActionEventData>} forge-ai-actions-toolbar-action - Fired when an action button is clicked. The detail contains the action type.
- * @event {CustomEvent<ForgeAiActionsToolbarFeedbackEventData>} forge-ai-actions-toolbar-feedback - Fired when feedback is submitted. The detail contains the action and optional feedback text.
+ * @event {CustomEvent<ForgeAiResponseMessageToolbarActionEventData>} forge-ai-response-message-toolbar-action - Fired when an action button is clicked. The detail contains the action type.
+ * @event {CustomEvent<ForgeAiResponseMessageToolbarFeedbackEventData>} forge-ai-response-message-toolbar-feedback - Fired when feedback is submitted. The detail contains the action and optional feedback text.
  */
-@customElement(AiActionsToolbarComponentTagName)
-export class AiActionsToolbarComponent extends LitElement {
+@customElement(AiResponseMessageToolbarComponentTagName)
+export class AiResponseMessageToolbarComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   @property({ type: Boolean, attribute: 'enable-reactions' })
@@ -74,30 +75,36 @@ export class AiActionsToolbarComponent extends LitElement {
     }
   }
 
-  private _emitActionEvent(action: AiActionsToolbarAction): void {
-    const event = new CustomEvent<ForgeAiActionsToolbarActionEventData>('forge-ai-actions-toolbar-action', {
-      detail: { action }
-    });
+  #emitActionEvent(action: AiResponseMessageToolbarAction): void {
+    const event = new CustomEvent<ForgeAiResponseMessageToolbarActionEventData>(
+      'forge-ai-response-message-toolbar-action',
+      {
+        detail: { action }
+      }
+    );
     this.dispatchEvent(event);
   }
 
-  private _emitFeedbackEvent(action: 'positive' | 'negative', feedback?: string): void {
-    const event = new CustomEvent<ForgeAiActionsToolbarFeedbackEventData>('forge-ai-actions-toolbar-feedback', {
-      detail: { action, feedback }
-    });
+  #emitFeedbackEvent(action: 'positive' | 'negative', feedback?: string): void {
+    const event = new CustomEvent<ForgeAiResponseMessageToolbarFeedbackEventData>(
+      'forge-ai-response-message-toolbar-feedback',
+      {
+        detail: { action, feedback }
+      }
+    );
     this.dispatchEvent(event);
   }
 
-  private _handleThumbsUp(): void {
+  #handleThumbsUp(): void {
     this._thumbsUpActive = true;
     this._thumbsDownActive = false;
     if (this._thumbsDownPopover) {
       this._thumbsDownPopover.open = false;
     }
-    this._emitFeedbackEvent('positive');
+    this.#emitFeedbackEvent('positive');
   }
 
-  private async _handleThumbsDown(): Promise<void> {
+  async #handleThumbsDown(): Promise<void> {
     if (this._thumbsDownPopover) {
       const willOpen = !this._thumbsDownPopover.open;
       if (willOpen) {
@@ -113,48 +120,48 @@ export class AiActionsToolbarComponent extends LitElement {
     this._thumbsUpActive = false;
   }
 
-  private _handleFeedbackSubmit(): void {
+  #handleFeedbackSubmit(): void {
     const feedbackText = this._thumbsDownFeedbackTextarea?.value || '';
-    this._emitFeedbackEvent('negative', feedbackText);
+    this.#emitFeedbackEvent('negative', feedbackText);
     this._thumbsDownActive = true;
     if (this._thumbsDownPopover) {
       this._thumbsDownPopover.open = false;
     }
   }
 
-  private _handleFeedbackCancel(): void {
+  #handleFeedbackCancel(): void {
     if (this._thumbsDownPopover) {
       this._thumbsDownPopover.open = false;
     }
   }
 
-  private _handlePopoverToggle(evt: CustomEvent): void {
+  #handlePopoverToggle(evt: CustomEvent): void {
     this._popoverOpen = evt.detail.open;
   }
 
-  private get _refreshButtonTemplate(): TemplateResult {
+  get #resendButtonTemplate(): TemplateResult {
     return html`
       <button
-        id="refresh-btn"
-        aria-label="Refresh"
+        id="resend-btn"
+        aria-label="Resend"
         class="forge-icon-button forge-icon-button--small"
-        @click=${() => this._emitActionEvent('refresh')}>
+        @click=${() => this.#emitActionEvent('resend')}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path
             d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 0 0-8 8 8 8 0 0 0 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z" />
         </svg>
       </button>
-      <forge-ai-tooltip for="refresh-btn" placement="bottom">Resend</forge-ai-tooltip>
+      <forge-ai-tooltip for="resend-btn" placement="bottom">Resend</forge-ai-tooltip>
     `;
   }
 
-  private get _copyButtonTemplate(): TemplateResult {
+  get #copyButtonTemplate(): TemplateResult {
     return html`
       <button
         id="copy-btn"
         aria-label="Copy content"
         class="forge-icon-button forge-icon-button--small"
-        @click=${() => this._emitActionEvent('copy')}>
+        @click=${() => this.#emitActionEvent('copy')}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path
             d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12z" />
@@ -164,13 +171,13 @@ export class AiActionsToolbarComponent extends LitElement {
     `;
   }
 
-  private get _thumbsUpButtonTemplate(): TemplateResult {
+  get #thumbsUpButtonTemplate(): TemplateResult {
     return html`
       <button
         id="thumbs-up-btn"
         aria-label="Good response"
         class="forge-icon-button forge-icon-button--small ${this._thumbsUpActive ? 'is-active-positive' : ''}"
-        @click=${this._handleThumbsUp}>
+        @click=${this.#handleThumbsUp}>
         ${this._thumbsUpActive
           ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path
@@ -185,7 +192,7 @@ export class AiActionsToolbarComponent extends LitElement {
     `;
   }
 
-  private get _thumbsDownButtonTemplate(): TemplateResult {
+  get #thumbsDownButtonTemplate(): TemplateResult {
     return html`
       <button
         id="thumbs-down-btn"
@@ -193,7 +200,7 @@ export class AiActionsToolbarComponent extends LitElement {
         class="forge-icon-button forge-icon-button--small ${this._thumbsDownActive || this._popoverOpen
           ? 'is-active-negative'
           : ''}"
-        @click=${this._handleThumbsDown}>
+        @click=${this.#handleThumbsDown}>
         ${this._thumbsDownActive || this._popoverOpen
           ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path
@@ -211,13 +218,13 @@ export class AiActionsToolbarComponent extends LitElement {
         .shift=${true}
         flip
         arrow
-        @forge-ai-popover-toggle=${this._handlePopoverToggle}>
-        ${this._feedbackFormTemplate}
+        @forge-ai-popover-toggle=${this.#handlePopoverToggle}>
+        ${this.#feedbackFormTemplate}
       </forge-ai-popover>
     `;
   }
 
-  private get _feedbackFormTemplate(): TemplateResult {
+  get #feedbackFormTemplate(): TemplateResult {
     return html`
       <div class="popover-content">
         <div class="popover-header">Leave feedback for this response</div>
@@ -225,8 +232,8 @@ export class AiActionsToolbarComponent extends LitElement {
           <textarea placeholder="Enter your feedback..."></textarea>
         </div>
         <div class="popover-actions">
-          <button class="forge-button forge-button--outlined" @click=${this._handleFeedbackCancel}>Cancel</button>
-          <button class="forge-button forge-button--filled" @click=${this._handleFeedbackSubmit}>Submit</button>
+          <button class="forge-button forge-button--outlined" @click=${this.#handleFeedbackCancel}>Cancel</button>
+          <button class="forge-button forge-button--filled" @click=${this.#handleFeedbackSubmit}>Submit</button>
         </div>
       </div>
     `;
@@ -234,9 +241,9 @@ export class AiActionsToolbarComponent extends LitElement {
 
   public override render(): TemplateResult {
     return html`
-      <div class="actions-toolbar">
-        ${this._refreshButtonTemplate} ${this._copyButtonTemplate}
-        ${when(this.enableReactions, () => html`${this._thumbsUpButtonTemplate} ${this._thumbsDownButtonTemplate}`)}
+      <div class="response-message-toolbar">
+        ${this.#resendButtonTemplate} ${this.#copyButtonTemplate}
+        ${when(this.enableReactions, () => html`${this.#thumbsUpButtonTemplate} ${this.#thumbsDownButtonTemplate}`)}
       </div>
     `;
   }

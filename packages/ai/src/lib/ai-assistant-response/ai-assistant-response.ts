@@ -4,9 +4,9 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import type { AssistantResponse, StreamEvent, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
-import type { ForgeAiActionsToolbarFeedbackEventData } from '../ai-actions-toolbar';
+import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-response-message-toolbar';
 
-import '../ai-actions-toolbar';
+import '../ai-response-message-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
 import '../ai-event-stream-viewer';
 import '../core/popover/popover.js';
@@ -21,7 +21,7 @@ declare global {
 
   interface HTMLElementEventMap {
     'forge-ai-assistant-response-copy': CustomEvent<{ responseId: string }>;
-    'forge-ai-assistant-response-refresh': CustomEvent<{ responseId: string }>;
+    'forge-ai-assistant-response-resend': CustomEvent<{ responseId: string }>;
     'forge-ai-assistant-response-thumbs-up': CustomEvent<ForgeAiAssistantResponseFeedbackEventData>;
     'forge-ai-assistant-response-thumbs-down': CustomEvent<ForgeAiAssistantResponseFeedbackEventData>;
   }
@@ -40,7 +40,7 @@ export const AiAssistantResponseComponentTagName: keyof HTMLElementTagNameMap = 
  * @summary Renders a complete assistant response with interleaved text chunks and tool calls.
  *
  * @event {CustomEvent<{ responseId: string }>} forge-ai-assistant-response-copy - Fired when copy action is clicked
- * @event {CustomEvent<{ responseId: string }>} forge-ai-assistant-response-refresh - Fired when refresh action is clicked
+ * @event {CustomEvent<{ responseId: string }>} forge-ai-assistant-response-resend - Fired when resend action is clicked
  * @event {CustomEvent<ForgeAiAssistantResponseFeedbackEventData>} forge-ai-assistant-response-thumbs-up - Fired when thumbs up is clicked
  * @event {CustomEvent<ForgeAiAssistantResponseFeedbackEventData>} forge-ai-assistant-response-thumbs-down - Fired when thumbs down is clicked
  */
@@ -149,7 +149,7 @@ export class AiAssistantResponseComponent extends LitElement {
     this.dispatchEvent(bubbleEvent);
   }
 
-  #handleToolbarFeedback(event: CustomEvent<ForgeAiActionsToolbarFeedbackEventData>): void {
+  #handleToolbarFeedback(event: CustomEvent<ForgeAiResponseMessageToolbarFeedbackEventData>): void {
     const { action, feedback } = event.detail;
     const eventType: keyof HTMLElementEventMap =
       action === 'positive' ? 'forge-ai-assistant-response-thumbs-up' : 'forge-ai-assistant-response-thumbs-down';
@@ -221,12 +221,12 @@ export class AiAssistantResponseComponent extends LitElement {
 
     return html`
       <div class="toolbar-container">
-        <forge-ai-actions-toolbar
+        <forge-ai-response-message-toolbar
           ?enable-reactions=${this.enableReactions}
           feedback-type=${ifDefined(this.response.feedback?.type)}
-          @forge-ai-actions-toolbar-action=${this.#handleToolbarAction}
-          @forge-ai-actions-toolbar-feedback=${this.#handleToolbarFeedback}>
-        </forge-ai-actions-toolbar>
+          @forge-ai-response-message-toolbar-action=${this.#handleToolbarAction}
+          @forge-ai-response-message-toolbar-feedback=${this.#handleToolbarFeedback}>
+        </forge-ai-response-message-toolbar>
         ${this.#debugButton}
       </div>
     `;

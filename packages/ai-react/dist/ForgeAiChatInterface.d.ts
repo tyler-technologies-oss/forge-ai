@@ -51,6 +51,5 @@ export interface ForgeAiChatInterfaceProps extends Pick<
  * - **suggestions** - Slot for AI suggestions component
  * - **attachments** - Slot for file attachments component
  * - **prompt** - Slot for AI prompt component
- * - **confirmation** - Slot for confirmation prompt overlay
  */
 export const ForgeAiChatInterface: React.ForwardRefExoticComponent<ForgeAiChatInterfaceProps>;
