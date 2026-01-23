@@ -17,6 +17,11 @@ export const ForgeAiUserMessage = forwardRef((props, forwardedRef) => {
     "forge-ai-user-message-resend",
     props.onForgeAiUserMessageResend,
   );
+  useEventListener(
+    ref,
+    "forge-ai-user-message-edit",
+    props.onForgeAiUserMessageEdit,
+  );
 
   return React.createElement(
     "forge-ai-user-message",

@@ -15,8 +15,8 @@
   background: #{forge-theme.variable(surface-container-minimum)};
   border-radius: #{forge-shape.variable(medium)};
   border: 1px solid #{forge-theme.variable(outline)};
+  margin-block: #{forge-spacing.variable(medium)};
   padding: #{forge-spacing.variable(xxsmall)} #{forge-spacing.variable(xsmall)};
-  margin-block-end: #{forge-spacing.variable(medium)};
   overflow: hidden;
 }
 

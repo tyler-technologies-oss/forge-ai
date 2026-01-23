@@ -358,6 +358,16 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
+  public updateMessageContent(id: string, content: string): void {
+    this._messageItems = this._messageItems.map(item => {
+      if (item.type === 'message' && item.data.id === id) {
+        return { ...item, data: { ...item.data, content } };
+      }
+      return item;
+    });
+    this.#notifyStateChange();
+  }
+
   public removeMessageItem(index: number): void {
     this._messageItems = this._messageItems.filter((_, i) => i !== index);
     this.#notifyStateChange();

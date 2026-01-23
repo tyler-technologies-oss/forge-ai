@@ -54,6 +54,11 @@ export interface ForgeAiUserMessageProps extends Pick<
   onForgeAiUserMessageResend?: (
     event: CustomEvent<CustomEvent<ForgeAiUserMessageResendEventData>>,
   ) => void;
+
+  /** Fired when user saves edited message */
+  onForgeAiUserMessageEdit?: (
+    event: CustomEvent<CustomEvent<ForgeAiUserMessageEditEventData>>,
+  ) => void;
 }
 
 /**
@@ -64,5 +69,6 @@ export interface ForgeAiUserMessageProps extends Pick<
  * ### **Events:**
  *  - **forge-ai-user-message-copy** - Fired when user clicks copy button
  * - **forge-ai-user-message-resend** - Fired when user clicks resend button
+ * - **forge-ai-user-message-edit** - Fired when user saves edited message
  */
 export const ForgeAiUserMessage: React.ForwardRefExoticComponent<ForgeAiUserMessageProps>;
