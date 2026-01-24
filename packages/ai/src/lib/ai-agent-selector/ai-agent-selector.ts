@@ -27,6 +27,8 @@ export interface ForgeAiAgentSelectorChangeEventData {
 
 export const AiAgentSelectorComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-agent-selector';
 
+const MIN_AGENTS_FOR_FILTER = 5;
+
 /**
  * @summary Agent selector component for switching between AI agents.
  *
@@ -106,7 +108,7 @@ export class AiAgentSelectorComponent extends LitElement {
   }
 
   get #shouldShowFilter(): boolean {
-    return this.agents.length > 5;
+    return this.agents.length > MIN_AGENTS_FOR_FILTER;
   }
 
   get #filteredAgents(): Agent[] {
