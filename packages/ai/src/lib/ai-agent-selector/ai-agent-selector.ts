@@ -472,7 +472,7 @@ export class AiAgentSelectorComponent extends LitElement {
         flip
         shift
         @forge-ai-popover-toggle=${this.#handlePopoverToggle}>
-        <div class="dropdown-header">Switch Agent</div>
+        <div class="dropdown-header">Switch to another agent</div>
         ${when(this.#shouldShowFilter, () => this.#filterFieldTemplate)}
         <div class="agent-list" role="listbox" aria-label="Select an agent" @keydown=${this.#handleKeyDown}>
           ${this.#defaultOptionTemplate} ${this.#agentListTemplate}
