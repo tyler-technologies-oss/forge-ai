@@ -14,8 +14,8 @@ export const ForgeAiAssistantResponse = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
-    "forge-ai-assistant-response-resend",
-    props.onForgeAiAssistantResponseResend,
+    "forge-ai-assistant-response-refresh",
+    props.onForgeAiAssistantResponseRefresh,
   );
   useEventListener(
     ref,

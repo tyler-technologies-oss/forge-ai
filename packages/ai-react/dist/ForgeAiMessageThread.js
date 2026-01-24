@@ -20,8 +20,8 @@ export const ForgeAiMessageThread = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
-    "forge-ai-message-thread-resend",
-    props.onForgeAiMessageThreadResend,
+    "forge-ai-message-thread-refresh",
+    props.onForgeAiMessageThreadRefresh,
   );
   useEventListener(
     ref,

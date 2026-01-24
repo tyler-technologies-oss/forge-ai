@@ -1,9 +1,9 @@
 import React from "react";
-import { ForgeAiResponseMessageToolbar as ForgeAiResponseMessageToolbarElement } from "@tylertech/forge-ai/ai-response-message-toolbar";
+import { ForgeAiActionsToolbar as ForgeAiActionsToolbarElement } from "@tylertech/forge-ai/ai-actions-toolbar";
 
-export type { ForgeAiResponseMessageToolbarElement };
+export type { ForgeAiActionsToolbarElement };
 
-export interface ForgeAiResponseMessageToolbarProps extends Pick<
+export interface ForgeAiActionsToolbarProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -22,7 +22,7 @@ export interface ForgeAiResponseMessageToolbarProps extends Pick<
   enableReactions?: boolean;
 
   /** undefined */
-  feedbackType?: ForgeAiResponseMessageToolbarElement["feedbackType"];
+  feedbackType?: ForgeAiActionsToolbarElement["feedbackType"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -46,17 +46,13 @@ export interface ForgeAiResponseMessageToolbarProps extends Pick<
   tabIndex?: number;
 
   /** Fired when an action button is clicked. The detail contains the action type. */
-  onForgeAiResponseMessageToolbarAction?: (
-    event: CustomEvent<
-      CustomEvent<ForgeAiResponseMessageToolbarActionEventData>
-    >,
+  onForgeAiActionsToolbarAction?: (
+    event: CustomEvent<CustomEvent<ForgeAiActionsToolbarActionEventData>>,
   ) => void;
 
   /** Fired when feedback is submitted. The detail contains the action and optional feedback text. */
-  onForgeAiResponseMessageToolbarFeedback?: (
-    event: CustomEvent<
-      CustomEvent<ForgeAiResponseMessageToolbarFeedbackEventData>
-    >,
+  onForgeAiActionsToolbarFeedback?: (
+    event: CustomEvent<CustomEvent<ForgeAiActionsToolbarFeedbackEventData>>,
   ) => void;
 }
 
@@ -66,7 +62,7 @@ export interface ForgeAiResponseMessageToolbarProps extends Pick<
  *
  *
  * ### **Events:**
- *  - **forge-ai-response-message-toolbar-action** - Fired when an action button is clicked. The detail contains the action type.
- * - **forge-ai-response-message-toolbar-feedback** - Fired when feedback is submitted. The detail contains the action and optional feedback text.
+ *  - **forge-ai-actions-toolbar-action** - Fired when an action button is clicked. The detail contains the action type.
+ * - **forge-ai-actions-toolbar-feedback** - Fired when feedback is submitted. The detail contains the action and optional feedback text.
  */
-export const ForgeAiResponseMessageToolbar: React.ForwardRefExoticComponent<ForgeAiResponseMessageToolbarProps>;
+export const ForgeAiActionsToolbar: React.ForwardRefExoticComponent<ForgeAiActionsToolbarProps>;

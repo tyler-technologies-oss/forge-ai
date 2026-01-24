@@ -50,8 +50,8 @@ export interface ForgeAiAssistantResponseProps extends Pick<
     event: CustomEvent<CustomEvent<{ responseId: string }>>,
   ) => void;
 
-  /** Fired when resend action is clicked */
-  onForgeAiAssistantResponseResend?: (
+  /** Fired when refresh action is clicked */
+  onForgeAiAssistantResponseRefresh?: (
     event: CustomEvent<CustomEvent<{ responseId: string }>>,
   ) => void;
 
@@ -73,7 +73,7 @@ export interface ForgeAiAssistantResponseProps extends Pick<
  *
  * ### **Events:**
  *  - **forge-ai-assistant-response-copy** - Fired when copy action is clicked
- * - **forge-ai-assistant-response-resend** - Fired when resend action is clicked
+ * - **forge-ai-assistant-response-refresh** - Fired when refresh action is clicked
  * - **forge-ai-assistant-response-thumbs-up** - Fired when thumbs up is clicked
  * - **forge-ai-assistant-response-thumbs-down** - Fired when thumbs down is clicked
  */

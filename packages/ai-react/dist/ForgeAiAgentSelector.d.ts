@@ -1,9 +1,12 @@
 import React from "react";
-import { ForgeAiUserMessageToolbar as ForgeAiUserMessageToolbarElement } from "@tylertech/forge-ai/ai-user-message-toolbar";
+import {
+  ForgeAiAgentSelector as ForgeAiAgentSelectorElement,
+  CustomEvent,
+} from "@tylertech/forge-ai/ai-agent-selector";
 
-export type { ForgeAiUserMessageToolbarElement };
+export type { ForgeAiAgentSelectorElement, CustomEvent };
 
-export interface ForgeAiUserMessageToolbarProps extends Pick<
+export interface ForgeAiAgentSelectorProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -18,8 +21,14 @@ export interface ForgeAiUserMessageToolbarProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
-  /** undefined */
-  streaming?: boolean;
+  /** Disables the selector (e.g., during streaming) */
+  disabled?: boolean;
+
+  /** ID of the currently selected agent */
+  selectedAgentId?: ForgeAiAgentSelectorElement["selectedAgentId"];
+
+  /** Fallback text when no agent is selected */
+  titleText?: ForgeAiAgentSelectorElement["titleText"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -42,30 +51,19 @@ export interface ForgeAiUserMessageToolbarProps extends Pick<
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
-  /** Fired when copy button is clicked */
-  onForgeAiUserMessageToolbarCopy?: (
-    event: CustomEvent<CustomEvent<void>>,
-  ) => void;
+  /** Array of available agents */
+  agents?: ForgeAiAgentSelectorElement["agents"];
 
-  /** Fired when resend button is clicked */
-  onForgeAiUserMessageToolbarResend?: (
-    event: CustomEvent<CustomEvent<void>>,
-  ) => void;
-
-  /** Fired when edit button is clicked */
-  onForgeAiUserMessageToolbarEdit?: (
-    event: CustomEvent<CustomEvent<void>>,
-  ) => void;
+  /** Fired when an agent is selected */
+  onForgeAiAgentSelectorChange?: (event: CustomEvent) => void;
 }
 
 /**
- * Toolbar for user message actions including copy, resend, and edit.
+ * Agent selector component for switching between AI agents.
  * ---
  *
  *
  * ### **Events:**
- *  - **forge-ai-user-message-toolbar-copy** - Fired when copy button is clicked
- * - **forge-ai-user-message-toolbar-resend** - Fired when resend button is clicked
- * - **forge-ai-user-message-toolbar-edit** - Fired when edit button is clicked
+ *  - **forge-ai-agent-selector-change** - Fired when an agent is selected
  */
-export const ForgeAiUserMessageToolbar: React.ForwardRefExoticComponent<ForgeAiUserMessageToolbarProps>;
+export const ForgeAiAgentSelector: React.ForwardRefExoticComponent<ForgeAiAgentSelectorProps>;

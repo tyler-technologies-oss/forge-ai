@@ -18,6 +18,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     titleText,
     headingLevel,
     disclaimerText,
+    selectedAgentId,
     ...filteredProps
   } = props;
 
@@ -86,6 +87,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       "title-text": props.titleText || props["title-text"],
       "heading-level": props.headingLevel || props["heading-level"],
       "disclaimer-text": props.disclaimerText || props["disclaimer-text"],
+      "selected-agent-id": props.selectedAgentId || props["selected-agent-id"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
