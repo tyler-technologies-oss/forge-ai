@@ -6,11 +6,36 @@ import * as AiAgentSelectorStories from './AiAgentSelector.stories';
 
 <Title />
 
-TODO: A basic description of the `Ai Agent Selector` component goes here.
+Agent selector dropdown for switching between AI agents. Displays the current agent name with a dropdown menu to select from available options. When no agents are provided, shows static title text. A search filter appears automatically when more than 5 agents are available.
 
 <Canvas of={AiAgentSelectorStories.Demo} />
 
-TODO: If applicable, add any additional content for the `Ai Agent Selector` component here.
+## Usage
+
+The agent selector is a **controlled component** - it emits a change event but does not update its own selection. The parent component must update `selectedAgentId` in response to the event.
+
+```ts
+function handleChange(e: CustomEvent<ForgeAiAgentSelectorChangeEventData>) {
+  const { agent, previousAgentId } = e.detail;
+  // Update your state with the new agent
+  this.selectedAgentId = agent?.id;
+}
+```
+
+### With Chatbot
+
+When using `<forge-ai-chatbot>`, pass `agents` directly to the chatbot component. The agent selector is integrated into the chat header automatically:
+
+```html
+<forge-ai-chatbot
+  .adapter="${adapter}"
+  .agents="${agents}"
+  .selectedAgentId="${selectedAgentId}"
+  @forge-ai-chatbot-agent-change="${handleAgentChange}">
+</forge-ai-chatbot>
+```
+
+The chatbot handles selection state internally and clears the conversation when switching agents.
 
 ## API
 
@@ -18,4 +43,10 @@ TODO: If applicable, add any additional content for the `Ai Agent Selector` comp
 
 ## Accessibility
 
-TODO: If applicable, add accessibility guidelines for the `Ai Agent Selector` component here.
+The agent selector supports full keyboard navigation:
+
+- **Enter / Space** - Open dropdown or select focused item
+- **Escape** - Close dropdown and return focus to trigger
+- **Arrow Down / Up** - Navigate through agent options
+- **Home** - Jump to default option
+- **End** - Jump to last agent
