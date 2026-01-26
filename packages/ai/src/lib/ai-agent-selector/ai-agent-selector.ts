@@ -89,8 +89,6 @@ export class AiAgentSelectorComponent extends LitElement {
   @query('.filter-input')
   private _filterInput?: HTMLInputElement;
 
-  #openedViaKeyboard = false;
-
   get #selectedAgent(): Agent | undefined {
     return this.agents.find(a => a.id === this.selectedAgentId);
   }
@@ -159,7 +157,6 @@ export class AiAgentSelectorComponent extends LitElement {
     if (this.disabled) {
       return;
     }
-    this.#openedViaKeyboard = false;
     this._open = !this._open;
     if (this._open) {
       this._focusedIndex = -1;
@@ -174,10 +171,7 @@ export class AiAgentSelectorComponent extends LitElement {
       this._triggerButton?.focus();
     } else {
       this.#scrollToSelectedOrTop();
-      if (this.#openedViaKeyboard) {
-        this.#focusFilterOrFirstItem();
-        this.#openedViaKeyboard = false;
-      }
+      this.#focusFilterOrFirstItem();
     }
   }
 
@@ -196,7 +190,6 @@ export class AiAgentSelectorComponent extends LitElement {
       case ' ':
         if (event.target === this._triggerButton) {
           event.preventDefault();
-          this.#openedViaKeyboard = true;
           this._open = true;
         } else if (event.key === 'Enter' && this._open) {
           event.preventDefault();
@@ -222,7 +215,6 @@ export class AiAgentSelectorComponent extends LitElement {
         if (this._open) {
           this.#moveSelection(1);
         } else if (event.target === this._triggerButton) {
-          this.#openedViaKeyboard = true;
           this._open = true;
         }
         break;
