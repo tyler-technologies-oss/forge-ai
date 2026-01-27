@@ -859,22 +859,42 @@ export class AiChatbotComponent extends LitElement {
     }
   }
 
+  #formatToolCallForExport(toolCall: ToolCall): string {
+    const lines = [`  Tool: ${toolCall.name}`, `  Args: ${JSON.stringify(toolCall.args)}`];
+
+    if (toolCall.status === 'error') {
+      const errorMsg =
+        typeof toolCall.result === 'object' && toolCall.result !== null && 'error' in toolCall.result
+          ? (toolCall.result as { error: string }).error
+          : 'Unknown error';
+      lines.push(`  Error: ${errorMsg}`);
+    } else if (toolCall.result !== undefined) {
+      lines.push(`  Result: ${JSON.stringify(toolCall.result)}`);
+    }
+
+    return lines.join('\n');
+  }
+
   #handleExport(): void {
-    const messages: ChatMessage[] = this.getMessages();
+    const messages = this.getMessages();
     if (messages.length === 0) {
       return;
     }
 
-    // Format chat history as text
-    const chatText: string = messages
-      .map((message: ChatMessage) => {
-        const timestamp: string = new Date(message.timestamp).toLocaleString();
-        const role: string = message.role === 'user' ? 'You' : 'Assistant';
-        return `[${timestamp}] ${role}:\n${message.content}\n`;
+    const chatText = messages
+      .map(message => {
+        const timestamp = new Date(message.timestamp).toLocaleString();
+        const role = message.role === 'user' ? 'You' : 'Assistant';
+        let output = `[${timestamp}] ${role}:\n${message.content}\n`;
+
+        if (message.toolCalls?.length) {
+          output += '\n' + message.toolCalls.map(tc => this.#formatToolCallForExport(tc)).join('\n\n') + '\n';
+        }
+
+        return output;
       })
       .join('\n');
 
-    // Generate filename and download
     const filename = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
     downloadFile(chatText, filename, 'text/plain');
   }
