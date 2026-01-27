@@ -850,7 +850,7 @@ export class AiChatbotComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-info' });
   }
 
-  #handleHeaderAgentChange(event: CustomEvent<ForgeAiChatHeaderAgentChangeEventData>): void {
+  #handleAgentChange(event: CustomEvent<ForgeAiChatHeaderAgentChangeEventData>): void {
     const { agent, previousAgentId } = event.detail;
 
     const changeEvt = this.#dispatchEvent({
@@ -860,7 +860,9 @@ export class AiChatbotComponent extends LitElement {
 
     if (!changeEvt.defaultPrevented) {
       this.selectedAgentId = agent?.id;
-      this.clearMessages();
+      if (this.adapter) {
+        this.adapter.threadId = generateId();
+      }
     }
   }
 
@@ -1139,7 +1141,7 @@ export class AiChatbotComponent extends LitElement {
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}
           @forge-ai-chat-header-export=${this.#handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}
-          @forge-ai-chat-header-agent-change=${this.#handleHeaderAgentChange}>
+          @forge-ai-chat-header-agent-change=${this.#handleAgentChange}>
         </forge-ai-chat-header>
         ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
         ${when(this.disclaimerText, () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`)}

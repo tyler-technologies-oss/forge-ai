@@ -455,7 +455,6 @@ const agents = [
 ];
 
 chatbot.agents = agents;
-chatbot.selectedAgentId = agents[0].id;
 
 initializeAdapter(baseUrlInput.value, agentIdInput.value, true);
 chatbot.suggestions = [
@@ -505,7 +504,6 @@ chatbot.addEventListener('forge-ai-chatbot-response-feedback', (e: CustomEvent) 
 chatbot.addEventListener('forge-ai-chatbot-agent-change', async (e: CustomEvent) => {
   const { agent, previousAgentId } = e.detail;
   console.log('🔄 Agent changed:', { agent, previousAgentId });
-  addEventToStream('AGENT_CHANGE', { agent, previousAgentId });
 
   if (previousAgentId) {
     agentThreadStates.set(previousAgentId, chatbot.getThreadState());
@@ -513,13 +511,16 @@ chatbot.addEventListener('forge-ai-chatbot-agent-change', async (e: CustomEvent)
   }
 
   const baseUrl = baseUrlInput.value.trim();
+  const agentId = agent?.id ?? agentIdInput.value.trim();
   threadId = generateId();
-  adapter = createAdapter(baseUrl, agent.id);
+  adapter = createAdapter(baseUrl, agentId);
   chatbot.adapter = adapter;
 
-  const savedState = agentThreadStates.get(agent.id);
-  if (savedState) {
-    await chatbot.setThreadState(savedState);
-    console.log('✅ Restored thread state for agent:', agent.id);
+  if (agent) {
+    const savedState = agentThreadStates.get(agent.id);
+    if (savedState) {
+      await chatbot.setThreadState(savedState);
+      console.log('✅ Restored thread state for agent:', agent.id);
+    }
   }
 });
