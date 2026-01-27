@@ -224,6 +224,7 @@ export class AiAssistantResponseComponent extends LitElement {
         <forge-ai-response-message-toolbar
           ?enable-reactions=${this.enableReactions}
           feedback-type=${ifDefined(this.response.feedback?.type)}
+          feedback-reason=${ifDefined(this.response.feedback?.reason)}
           @forge-ai-response-message-toolbar-action=${this.#handleToolbarAction}
           @forge-ai-response-message-toolbar-feedback=${this.#handleToolbarFeedback}>
         </forge-ai-response-message-toolbar>
