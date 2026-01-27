@@ -2,8 +2,8 @@
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
-@use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/button/forge-button';
+@use '../utils/toolbar' as toolbar;
 
 :host {
   display: inline-block;
@@ -34,34 +34,13 @@ span {
 }
 
 .toolbar-container {
-  position: absolute;
-  bottom: -28px;
+  @include toolbar.toolbar-container;
   right: 0;
-  transition:
-    opacity 200ms ease-in-out,
-    transform 200ms ease-in-out;
-  display: flex;
-  align-items: center;
-  gap: #{forge-spacing.variable(xxsmall)};
-  opacity: 0;
-  transform: translateY(-8px);
-  pointer-events: none;
-  z-index: 1;
-
-  .forge-icon-button {
-    color: #{forge-theme.variable(text-medium)};
-
-    &:hover {
-      color: #{forge-theme.variable(text-high)};
-    }
-  }
 }
 
 .grid-container:hover .toolbar-container,
 .grid-container .toolbar-container:focus-within {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  @include toolbar.toolbar-container-visible;
 }
 
 .grid-container::after {
@@ -71,12 +50,6 @@ span {
   left: 0;
   right: 0;
   height: 40px;
-}
-
-.timestamp {
-  @include forge-typography.style(label2);
-  color: #{forge-theme.variable(text-medium)};
-  padding-inline: #{forge-spacing.variable(xxsmall)};
 }
 
 .edit-container {

@@ -1,8 +1,7 @@
 import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { when } from 'lit/directives/when.js';
 
-import '../core/tooltip/tooltip.js';
+import '../ai-user-message-toolbar';
 
 import styles from './ai-user-message.scss?inline';
 
@@ -62,27 +61,6 @@ export class AiUserMessageComponent extends LitElement {
   @state()
   private _editContent = '';
 
-  readonly #refreshIcon = html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path
-        d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 0 0-8 8 8 8 0 0 0 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z" />
-    </svg>
-  `;
-
-  readonly #copyIcon = html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path
-        d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12z" />
-    </svg>
-  `;
-
-  readonly #editIcon = html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path
-        d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z" />
-    </svg>
-  `;
-
   readonly #messageContainer = html`
     <div class="ai-message-container">
       <span>
@@ -90,29 +68,6 @@ export class AiUserMessageComponent extends LitElement {
       </span>
     </div>
   `;
-
-  get #formattedTime(): string {
-    if (!this.timestamp) {
-      return '';
-    }
-    return new Date(this.timestamp).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  get #formattedFullDate(): string {
-    if (!this.timestamp) {
-      return '';
-    }
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
-    }).format(this.timestamp);
-  }
 
   get #isSaveDisabled(): boolean {
     const trimmed = this._editContent.trim();
@@ -137,51 +92,24 @@ export class AiUserMessageComponent extends LitElement {
   }
 
   get #toolbar(): TemplateResult | typeof nothing {
-    if (!this.messageId || this._editing) {
+    if (!this.messageId || this._editing || !this.timestamp) {
       return nothing;
     }
 
     return html`
       <div class="toolbar-container">
-        <span id="timestamp" class="timestamp">${this.#formattedTime}</span>
-        <forge-ai-tooltip for="timestamp" placement="bottom">${this.#formattedFullDate}</forge-ai-tooltip>
-
-        ${when(
-          !this.streaming,
-          () => html`
-            <button
-              id="resend-btn"
-              aria-label="Resend message"
-              class="forge-icon-button forge-icon-button--small"
-              @click=${this.#handleResend}>
-              ${this.#refreshIcon}
-            </button>
-            <forge-ai-tooltip for="resend-btn" placement="bottom">Resend</forge-ai-tooltip>
-
-            <button
-              id="edit-btn"
-              aria-label="Edit message"
-              class="forge-icon-button forge-icon-button--small"
-              @click=${this.#handleEditClick}>
-              ${this.#editIcon}
-            </button>
-            <forge-ai-tooltip for="edit-btn" placement="bottom">Edit</forge-ai-tooltip>
-          `
-        )}
-
-        <button
-          id="copy-btn"
-          aria-label="Copy message"
-          class="forge-icon-button forge-icon-button--small"
-          @click=${this.#handleCopy}>
-          ${this.#copyIcon}
-        </button>
-        <forge-ai-tooltip for="copy-btn" placement="bottom">Copy</forge-ai-tooltip>
+        <forge-ai-user-message-toolbar
+          .timestamp=${this.timestamp}
+          ?streaming=${this.streaming}
+          @forge-ai-user-message-toolbar-copy=${this.#handleToolbarCopy}
+          @forge-ai-user-message-toolbar-resend=${this.#handleToolbarResend}
+          @forge-ai-user-message-toolbar-edit=${this.#handleToolbarEdit}>
+        </forge-ai-user-message-toolbar>
       </div>
     `;
   }
 
-  #handleCopy(): void {
+  #handleToolbarCopy(): void {
     this.dispatchEvent(
       new CustomEvent('forge-ai-user-message-copy', {
         detail: { messageId: this.messageId },
@@ -191,7 +119,7 @@ export class AiUserMessageComponent extends LitElement {
     );
   }
 
-  #handleResend(): void {
+  #handleToolbarResend(): void {
     this.dispatchEvent(
       new CustomEvent('forge-ai-user-message-resend', {
         detail: { messageId: this.messageId },
@@ -201,7 +129,7 @@ export class AiUserMessageComponent extends LitElement {
     );
   }
 
-  #handleEditClick(): void {
+  #handleToolbarEdit(): void {
     this._editContent = this.content ?? '';
     this._editing = true;
   }

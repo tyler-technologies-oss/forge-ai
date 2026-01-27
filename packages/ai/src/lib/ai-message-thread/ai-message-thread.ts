@@ -25,11 +25,11 @@ declare global {
 
   interface HTMLElementEventMap {
     'forge-ai-message-thread-copy': CustomEvent<ForgeAiMessageThreadCopyEventData>;
-    'forge-ai-message-thread-refresh': CustomEvent<ForgeAiMessageThreadRefreshEventData>;
+    'forge-ai-message-thread-resend': CustomEvent<ForgeAiMessageThreadResendEventData>;
     'forge-ai-message-thread-thumbs-up': CustomEvent<ForgeAiMessageThreadThumbsEventData>;
     'forge-ai-message-thread-thumbs-down': CustomEvent<ForgeAiMessageThreadThumbsEventData>;
     'forge-ai-message-thread-user-copy': CustomEvent<ForgeAiMessageThreadCopyEventData>;
-    'forge-ai-message-thread-user-resend': CustomEvent<ForgeAiMessageThreadRefreshEventData>;
+    'forge-ai-message-thread-user-resend': CustomEvent<ForgeAiMessageThreadResendEventData>;
     'forge-ai-message-thread-user-edit': CustomEvent<ForgeAiMessageThreadEditEventData>;
   }
 }
@@ -38,7 +38,7 @@ export interface ForgeAiMessageThreadCopyEventData {
   messageId: string;
 }
 
-export interface ForgeAiMessageThreadRefreshEventData {
+export interface ForgeAiMessageThreadResendEventData {
   messageId: string;
 }
 
@@ -69,7 +69,7 @@ const SCROLL_THRESHOLD = 100;
  * @slot empty-state-actions - Slot for custom empty state actions (e.g., suggestions)
  *
  * @event {CustomEvent<ForgeAiMessageThreadCopyEventData>} forge-ai-message-thread-copy - Fired when user clicks copy on a message
- * @event {CustomEvent<ForgeAiMessageThreadRefreshEventData>} forge-ai-message-thread-refresh - Fired when user clicks refresh on a message
+ * @event {CustomEvent<ForgeAiMessageThreadResendEventData>} forge-ai-message-thread-resend - Fired when user clicks resend on a message
  * @event {CustomEvent<ForgeAiMessageThreadThumbsEventData>} forge-ai-message-thread-thumbs-up - Fired when user gives thumbs up
  * @event {CustomEvent<ForgeAiMessageThreadThumbsEventData>} forge-ai-message-thread-thumbs-down - Fired when user gives thumbs down
  */
@@ -187,9 +187,9 @@ export class AiMessageThreadComponent extends LitElement {
     });
   }
 
-  #handleRefresh(messageId: string): void {
+  #handleResend(messageId: string): void {
     this.#dispatchEvent({
-      type: 'forge-ai-message-thread-refresh',
+      type: 'forge-ai-message-thread-resend',
       detail: { messageId }
     });
   }
@@ -242,8 +242,8 @@ export class AiMessageThreadComponent extends LitElement {
         ?debug-mode=${this.debugMode}
         @forge-ai-assistant-response-copy=${(e: CustomEvent<{ responseId: string }>) =>
           this.#handleCopy(e.detail.responseId)}
-        @forge-ai-assistant-response-refresh=${(e: CustomEvent<{ responseId: string }>) =>
-          this.#handleRefresh(e.detail.responseId)}
+        @forge-ai-assistant-response-resend=${(e: CustomEvent<{ responseId: string }>) =>
+          this.#handleResend(e.detail.responseId)}
         @forge-ai-assistant-response-thumbs-up=${(e: CustomEvent<ForgeAiAssistantResponseFeedbackEventData>) =>
           this.#handleThumbsUp(e.detail.responseId, e.detail.feedback)}
         @forge-ai-assistant-response-thumbs-down=${(e: CustomEvent<ForgeAiAssistantResponseFeedbackEventData>) =>

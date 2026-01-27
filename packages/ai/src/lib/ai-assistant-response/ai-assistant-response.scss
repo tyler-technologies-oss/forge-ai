@@ -1,7 +1,7 @@
-@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '../utils/markdown-styles' as markdown;
+@use '../utils/toolbar' as toolbar;
 
 :host {
   display: block;
@@ -21,29 +21,15 @@
 }
 
 .toolbar-container {
-  position: absolute;
-  bottom: -28px; // Centered within the gap of the message thread spacing
+  @include toolbar.toolbar-container;
   left: 0;
-  transition:
-    opacity 200ms ease-in-out,
-    transform 200ms ease-in-out;
-  display: flex;
-  gap: #{forge-spacing.variable(xxsmall)};
-  opacity: 0;
-  transform: translateY(-8px);
-  pointer-events: none;
-  z-index: 1;
 }
 
-// Show toolbar on hover or focus within
 .assistant-response[data-complete]:hover .toolbar-container,
 .assistant-response[data-complete] .toolbar-container:focus-within {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  @include toolbar.toolbar-container-visible;
 }
 
-// Hover bridge to maintain hover state when moving mouse to toolbar (not needed for last response)
 :host(:not(:last-of-type)) .assistant-response[data-complete]::after {
   content: '';
   position: absolute;
@@ -53,11 +39,8 @@
   height: 40px;
 }
 
-// Always show toolbar for last response
 :host(:last-of-type) .assistant-response[data-complete] .toolbar-container {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  @include toolbar.toolbar-container-visible;
 }
 
 .debug-button {
