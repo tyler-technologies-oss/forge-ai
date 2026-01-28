@@ -101,7 +101,7 @@ const meta = {
     ]);
 
     const onCopy = action('forge-ai-message-thread-copy');
-    const onRefresh = action('forge-ai-message-thread-refresh');
+    const onResend = action('forge-ai-message-thread-resend');
     const onThumbsUp = action('forge-ai-message-thread-thumbs-up');
     const onThumbsDown = action('forge-ai-message-thread-thumbs-down');
     const onScrollRequest = action('forge-ai-message-thread-scroll-request');
@@ -116,7 +116,7 @@ const meta = {
           ?show-thinking=${args.showThinking}
           auto-scroll=${args.autoScroll}
           @forge-ai-message-thread-copy=${onCopy}
-          @forge-ai-message-thread-refresh=${onRefresh}
+          @forge-ai-message-thread-resend=${onResend}
           @forge-ai-message-thread-thumbs-up=${onThumbsUp}
           @forge-ai-message-thread-thumbs-down=${onThumbsDown}
           @forge-ai-message-thread-scroll-request=${onScrollRequest}>

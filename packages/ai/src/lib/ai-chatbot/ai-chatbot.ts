@@ -673,7 +673,7 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.sendMessage(this.getMessages());
   }
 
-  #handleRefresh(evt: CustomEvent<{ messageId: string }>): void {
+  #handleResend(evt: CustomEvent<{ messageId: string }>): void {
     if (!this.adapter) {
       return;
     }
@@ -1077,7 +1077,7 @@ export class AiChatbotComponent extends LitElement {
         ?show-thinking=${this.#isStreaming}
         ?debug-mode=${this.debugMode}
         @forge-ai-message-thread-copy=${this.#handleCopy}
-        @forge-ai-message-thread-refresh=${this.#handleRefresh}
+        @forge-ai-message-thread-resend=${this.#handleResend}
         @forge-ai-message-thread-thumbs-up=${this.#handleThumbsUp}
         @forge-ai-message-thread-thumbs-down=${this.#handleThumbsDown}
         @forge-ai-message-thread-user-copy=${this.#handleUserCopy}
