@@ -2,6 +2,7 @@ export * from './ai-assistant-response';
 export * from './ai-response-message-toolbar';
 export * from './ai-user-message-toolbar';
 export * from './ai-agent-info';
+export * from './ai-agent-selector';
 export * from './ai-artifact';
 export * from './ai-attachment';
 export * from './ai-button';

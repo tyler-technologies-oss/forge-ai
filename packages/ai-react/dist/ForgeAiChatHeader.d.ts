@@ -30,6 +30,9 @@ export interface ForgeAiChatHeaderProps extends Pick<
   /** Indicates the current expanded state for displaying the appropriate expand/collapse icon */
   expanded?: boolean;
 
+  /** Disables the agent selector (e.g., during streaming) */
+  disableAgentSelector?: boolean;
+
   /** Controls which minimize icon to display */
   minimizeIcon?: ForgeAiChatHeaderElement["minimizeIcon"];
 
@@ -47,6 +50,9 @@ export interface ForgeAiChatHeaderProps extends Pick<
 
   /** The title text to display in the header (default: 'AI Assistant') */
   titleText?: ForgeAiChatHeaderElement["titleText"];
+
+  /** ID of the currently selected agent */
+  selectedAgentId?: ForgeAiChatHeaderElement["selectedAgentId"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -72,11 +78,17 @@ export interface ForgeAiChatHeaderProps extends Pick<
   /** Agent information to display in the info dialog */
   agentInfo?: ForgeAiChatHeaderElement["agentInfo"];
 
+  /** Array of available agents for the agent selector */
+  agents?: ForgeAiChatHeaderElement["agents"];
+
   /** Fired when the export option is selected */
   onForgeAiChatHeaderExport?: (event: CustomEvent) => void;
 
   /** Fired when the clear chat option is selected */
   onForgeAiChatHeaderClear?: (event: CustomEvent) => void;
+
+  /** undefined */
+  onForgeAiChatHeaderAgentChange?: (event: CustomEvent) => void;
 
   /** Fired when the expand button is clicked */
   onForgeAiChatHeaderExpand?: (event: CustomEvent) => void;
@@ -93,6 +105,7 @@ export interface ForgeAiChatHeaderProps extends Pick<
  * ### **Events:**
  *  - **forge-ai-chat-header-export** - Fired when the export option is selected
  * - **forge-ai-chat-header-clear** - Fired when the clear chat option is selected
+ * - **forge-ai-chat-header-agent-change**
  * - **forge-ai-chat-header-expand** - Fired when the expand button is clicked
  * - **forge-ai-chat-header-minimize** - Fired when the minimize button is clicked
  *
