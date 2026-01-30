@@ -181,7 +181,7 @@ export class AiSlashCommandMenuComponent extends LitElement {
             placement="top-start"
             .open=${this.open}
             dismiss-mode="manual"
-            .offset=${{ mainAxis: 24, crossAxis: -14 }}
+            .offset=${{ mainAxis: 8, crossAxis: -14 }}
             @forge-ai-popover-toggle=${this.#handlePopoverToggle}>
             <div class="slash-command-menu__header">
               <span>Slash Commands</span>

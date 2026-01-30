@@ -616,7 +616,64 @@ export class AiChatbotComponent extends LitElement {
     }
   }
 
-  #handleRefresh(evt: CustomEvent<{ messageId: string }>): void {
+  async #handleUserCopy(evt: CustomEvent<{ messageId: string }>): Promise<void> {
+    const messageId = evt.detail.messageId;
+    const message = this.#messageStateController.getMessage(messageId);
+
+    if (!message || message.role !== 'user') {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(message.content);
+    } catch {
+      // Silent fail
+    }
+  }
+
+  #handleUserResend(evt: CustomEvent<{ messageId: string }>): void {
+    if (!this.adapter) {
+      return;
+    }
+
+    const messageId = evt.detail.messageId;
+    const messageIndex = this.#messageItems.findIndex(item => item.type === 'message' && item.data.id === messageId);
+
+    if (messageIndex === -1) {
+      return;
+    }
+
+    const responseIndex = messageIndex + 1;
+    if (responseIndex < this.#messageItems.length) {
+      this.#messageStateController.removeMessageItemsFrom(responseIndex);
+    }
+
+    this.adapter.sendMessage(this.getMessages());
+  }
+
+  #handleUserEdit(evt: CustomEvent<{ messageId: string; content: string }>): void {
+    if (!this.adapter) {
+      return;
+    }
+
+    const { messageId, content } = evt.detail;
+    const messageIndex = this.#messageItems.findIndex(item => item.type === 'message' && item.data.id === messageId);
+
+    if (messageIndex === -1) {
+      return;
+    }
+
+    this.#messageStateController.updateMessageContent(messageId, content);
+
+    const responseIndex = messageIndex + 1;
+    if (responseIndex < this.#messageItems.length) {
+      this.#messageStateController.removeMessageItemsFrom(responseIndex);
+    }
+
+    this.adapter.sendMessage(this.getMessages());
+  }
+
+  #handleResend(evt: CustomEvent<{ messageId: string }>): void {
     if (!this.adapter) {
       return;
     }
@@ -802,22 +859,42 @@ export class AiChatbotComponent extends LitElement {
     }
   }
 
+  #formatToolCallForExport(toolCall: ToolCall): string {
+    const lines = [`  Tool: ${toolCall.name}`, `  Args: ${JSON.stringify(toolCall.args)}`];
+
+    if (toolCall.status === 'error') {
+      const errorMsg =
+        typeof toolCall.result === 'object' && toolCall.result !== null && 'error' in toolCall.result
+          ? (toolCall.result as { error: string }).error
+          : 'Unknown error';
+      lines.push(`  Error: ${errorMsg}`);
+    } else if (toolCall.result !== undefined) {
+      lines.push(`  Result: ${JSON.stringify(toolCall.result)}`);
+    }
+
+    return lines.join('\n');
+  }
+
   #handleExport(): void {
-    const messages: ChatMessage[] = this.getMessages();
+    const messages = this.getMessages();
     if (messages.length === 0) {
       return;
     }
 
-    // Format chat history as text
-    const chatText: string = messages
-      .map((message: ChatMessage) => {
-        const timestamp: string = new Date(message.timestamp).toLocaleString();
-        const role: string = message.role === 'user' ? 'You' : 'Assistant';
-        return `[${timestamp}] ${role}:\n${message.content}\n`;
+    const chatText = messages
+      .map(message => {
+        const timestamp = new Date(message.timestamp).toLocaleString();
+        const role = message.role === 'user' ? 'You' : 'Assistant';
+        let output = `[${timestamp}] ${role}:\n${message.content}\n`;
+
+        if (message.toolCalls?.length) {
+          output += '\n' + message.toolCalls.map(tc => this.#formatToolCallForExport(tc)).join('\n\n') + '\n';
+        }
+
+        return output;
       })
       .join('\n');
 
-    // Generate filename and download
     const filename = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
     downloadFile(chatText, filename, 'text/plain');
   }
@@ -1000,9 +1077,12 @@ export class AiChatbotComponent extends LitElement {
         ?show-thinking=${this.#isStreaming}
         ?debug-mode=${this.debugMode}
         @forge-ai-message-thread-copy=${this.#handleCopy}
-        @forge-ai-message-thread-refresh=${this.#handleRefresh}
+        @forge-ai-message-thread-resend=${this.#handleResend}
         @forge-ai-message-thread-thumbs-up=${this.#handleThumbsUp}
-        @forge-ai-message-thread-thumbs-down=${this.#handleThumbsDown}>
+        @forge-ai-message-thread-thumbs-down=${this.#handleThumbsDown}
+        @forge-ai-message-thread-user-copy=${this.#handleUserCopy}
+        @forge-ai-message-thread-user-resend=${this.#handleUserResend}
+        @forge-ai-message-thread-user-edit=${this.#handleUserEdit}>
         <slot name="empty-state-heading" slot="empty-state-heading"></slot>
         <slot name="empty-state-message" slot="empty-state-message"></slot>
         <forge-ai-suggestions

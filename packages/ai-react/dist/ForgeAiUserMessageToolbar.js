@@ -1,25 +1,30 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import "@tylertech/forge-ai/ai-actions-toolbar";
+import "@tylertech/forge-ai/ai-user-message-toolbar";
 import { useEventListener } from "./react-utils.js";
 
-export const ForgeAiActionsToolbar = forwardRef((props, forwardedRef) => {
+export const ForgeAiUserMessageToolbar = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { enableReactions, feedbackType, ...filteredProps } = props;
+  const { streaming, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
     ref,
-    "forge-ai-actions-toolbar-action",
-    props.onForgeAiActionsToolbarAction,
+    "forge-ai-user-message-toolbar-copy",
+    props.onForgeAiUserMessageToolbarCopy,
   );
   useEventListener(
     ref,
-    "forge-ai-actions-toolbar-feedback",
-    props.onForgeAiActionsToolbarFeedback,
+    "forge-ai-user-message-toolbar-resend",
+    props.onForgeAiUserMessageToolbarResend,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-user-message-toolbar-edit",
+    props.onForgeAiUserMessageToolbarEdit,
   );
 
   return React.createElement(
-    "forge-ai-actions-toolbar",
+    "forge-ai-user-message-toolbar",
     {
       ref: (node) => {
         ref.current = node;
@@ -30,13 +35,12 @@ export const ForgeAiActionsToolbar = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
-      "feedback-type": props.feedbackType || props["feedback-type"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      "enable-reactions": props.enableReactions ? true : undefined,
+      streaming: props.streaming ? true : undefined,
       style: { ...props.style },
     },
     props.children,

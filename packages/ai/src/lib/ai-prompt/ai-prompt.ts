@@ -7,6 +7,7 @@ import type { SlashCommand, ForgeAiSlashCommandMenuSelectEventData } from '../ai
 import styles from './ai-prompt.scss?inline';
 
 import '../ai-slash-command-menu/ai-slash-command-menu.js';
+import '../core/tooltip/tooltip.js';
 
 const MAX_HISTORY_SIZE = 50;
 
@@ -185,6 +186,35 @@ export class AiPromptComponent extends LitElement {
     this.#draftMessage = '';
   }
 
+  #isCursorOnFirstLine(): boolean {
+    const cursorPos = this._inputElement?.selectionStart ?? 0;
+    const textBeforeCursor = this.value.substring(0, cursorPos);
+    return !textBeforeCursor.includes('\n');
+  }
+
+  #isCursorOnLastLine(): boolean {
+    const cursorPos = this._inputElement?.selectionStart ?? 0;
+    const textAfterCursor = this.value.substring(cursorPos);
+    return !textAfterCursor.includes('\n');
+  }
+
+  #isCursorAtStart(): boolean {
+    return (this._inputElement?.selectionStart ?? 0) === 0;
+  }
+
+  #isCursorAtEnd(): boolean {
+    return (this._inputElement?.selectionStart ?? 0) === this.value.length;
+  }
+
+  #moveCursorToStart(): void {
+    this._inputElement?.setSelectionRange(0, 0);
+  }
+
+  #moveCursorToEnd(): void {
+    const len = this.value.length;
+    this._inputElement?.setSelectionRange(len, len);
+  }
+
   #navigateHistory(direction: number): boolean {
     if (this.#messageHistory.length === 0) {
       return false;
@@ -312,15 +342,28 @@ export class AiPromptComponent extends LitElement {
 
     const hasModifier = event.shiftKey || event.ctrlKey || event.metaKey;
 
-    // Check for history navigation
+    // Check for history navigation (two-step: move to boundary first, then navigate)
     if (!hasModifier) {
-      if (event.key === 'ArrowUp') {
-        if (this.#navigateHistory(-1)) {
+      if (event.key === 'ArrowUp' && this.#isCursorOnFirstLine()) {
+        if (this.#isCursorAtStart()) {
+          if (this.#navigateHistory(-1)) {
+            this.#moveCursorToStart();
+            event.preventDefault();
+            return;
+          }
+        } else {
+          this.#moveCursorToStart();
           event.preventDefault();
           return;
         }
-      } else if (event.key === 'ArrowDown') {
-        if (this.#navigateHistory(1)) {
+      } else if (event.key === 'ArrowDown' && this.#isCursorOnLastLine()) {
+        if (this.#isCursorAtEnd()) {
+          if (this.#navigateHistory(1)) {
+            event.preventDefault();
+            return;
+          }
+        } else {
+          this.#moveCursorToEnd();
           event.preventDefault();
           return;
         }
@@ -475,6 +518,7 @@ export class AiPromptComponent extends LitElement {
               this.debugMode,
               () => html`
                 <button
+                  id="debug-btn"
                   aria-label="Exit debug mode"
                   class="forge-icon-button forge-icon-button--medium forge-icon-button--tonal ai-icon-button debug-button"
                   @click=${this._handleDebugToggle}>
@@ -483,9 +527,11 @@ export class AiPromptComponent extends LitElement {
                       d="M20 8h-2.81a5.985 5.985 0 0 0-1.82-1.96L17 4.41 15.59 3l-2.17 2.17a6.002 6.002 0 0 0-2.83 0L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z" />
                   </svg>
                 </button>
+                <forge-ai-tooltip for="debug-btn" placement="top">Exit debug mode</forge-ai-tooltip>
               `
             )}
             <button
+              id="send-btn"
               aria-label=${this.#shouldShowStopButton ? 'Stop' : 'Send message'}
               class="forge-icon-button forge-icon-button--medium ai-icon-button"
               ?disabled=${this.sendDisabled || this.inputDisabled}
@@ -498,6 +544,9 @@ export class AiPromptComponent extends LitElement {
                     <path d="m2 21 21-9L2 3v7l15 2-15 2z" />
                   </svg>`}
             </button>
+            <forge-ai-tooltip for="send-btn" placement="top"
+              >${this.#shouldShowStopButton ? 'Stop' : 'Send'}</forge-ai-tooltip
+            >
           </div>
           ${when(this.variant === 'stacked', () => html`${this.#conditionalActions}`)}
         </div>

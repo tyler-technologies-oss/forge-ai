@@ -7,6 +7,7 @@
   display: block;
   height: 100%;
   flex-grow: 1;
+  border-radius: inherit;
 
   --_ai-chat-interface-message-container-padding: 0;
 }
@@ -17,6 +18,12 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: linear-gradient(
+    to top,
+    #{forge-theme.variable(primary-container-minimum)},
+    #{forge-theme.variable(surface)}
+  );
+  border-radius: inherit;
 }
 
 .messages-container {
@@ -27,12 +34,6 @@
     var(--_ai-chat-interface-message-container-padding)
   );
   overflow-y: auto;
-  background: linear-gradient(
-    to top,
-    #{forge-theme.variable(primary-container-minimum)},
-    #{forge-theme.variable(surface)}
-  );
-  border-block-end: 1px solid #{forge-theme.variable(outline)};
   display: grid;
   flex-grow: 1;
   gap: #{forge-spacing.variable(medium)};

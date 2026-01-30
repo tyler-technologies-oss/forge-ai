@@ -358,6 +358,16 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
+  public updateMessageContent(id: string, content: string): void {
+    this._messageItems = this._messageItems.map(item => {
+      if (item.type === 'message' && item.data.id === id) {
+        return { ...item, data: { ...item.data, content } };
+      }
+      return item;
+    });
+    this.#notifyStateChange();
+  }
+
   public removeMessageItem(index: number): void {
     this._messageItems = this._messageItems.filter((_, i) => i !== index);
     this.#notifyStateChange();
@@ -405,7 +415,8 @@ export class MessageStateController implements ReactiveController {
           status: response.status === 'streaming' ? 'streaming' : response.status === 'error' ? 'error' : 'complete',
           toolCalls: toolCalls.length ? toolCalls : undefined,
           eventStream: response.eventStream,
-          feedback: response.feedback
+          feedback: response.feedback,
+          children: response.children
         };
 
         messages.push(message);
@@ -427,16 +438,25 @@ export class MessageStateController implements ReactiveController {
 
     for (const msg of messages) {
       if (msg.role === 'assistant' && msg.status !== 'error') {
-        const children: ResponseItem[] = [];
+        let children: ResponseItem[];
 
-        if (msg.content?.trim()) {
-          children.push({ type: 'text', messageId: msg.id, content: msg.content, status: 'complete' });
-        }
-
-        if (msg.toolCalls) {
-          for (const toolCall of msg.toolCalls) {
-            children.push({ type: 'toolCall', data: toolCall });
-            this._toolCalls.set(toolCall.id, toolCall);
+        if (msg.children?.length) {
+          children = msg.children.map(child => {
+            if (child.type === 'toolCall') {
+              this._toolCalls.set(child.data.id, child.data);
+            }
+            return child;
+          });
+        } else {
+          children = [];
+          if (msg.content?.trim()) {
+            children.push({ type: 'text', messageId: msg.id, content: msg.content, status: 'complete' });
+          }
+          if (msg.toolCalls) {
+            for (const toolCall of msg.toolCalls) {
+              children.push({ type: 'toolCall', data: toolCall });
+              this._toolCalls.set(toolCall.id, toolCall);
+            }
           }
         }
 

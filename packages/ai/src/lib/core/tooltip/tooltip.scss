@@ -25,7 +25,7 @@
     position: absolute;
     width: 10px;
     height: 10px;
-    background: #{forge-theme.variable(text-high)};
+    background: var(--forge-tooltip-background, #{forge-theme.variable(surface-inverse)});
     transform: rotate(45deg);
     z-index: -1;
     filter: drop-shadow(0 2px 4px rgb(0, 0, 0, 0.2));
