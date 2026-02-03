@@ -69,3 +69,13 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {};
+
+export const ThreadContainer: Story = {
+  render: () => {
+    return html`
+      <div style="height: 600px; border: 1px solid var(--forge-theme-outline);">
+        <forge-ai-thread-container></forge-ai-thread-container>
+      </div>
+    `;
+  }
+};
