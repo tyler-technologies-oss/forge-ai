@@ -168,6 +168,9 @@ export class AiChatbotComponent extends LitElement {
   @property({ type: Boolean, attribute: 'show-minimize-button' })
   public showMinimizeButton = false;
 
+  @property({ type: Boolean, attribute: 'show-history-button' })
+  public showHistoryButton = false;
+
   @property({ type: Boolean })
   public expanded = false;
 
@@ -1108,6 +1111,7 @@ export class AiChatbotComponent extends LitElement {
           slot="header"
           ?show-expand-button=${this.showExpandButton}
           ?show-minimize-button=${this.showMinimizeButton}
+          ?show-history-button=${this.showHistoryButton}
           ?expanded=${this.expanded}
           export-option=${this.#hasMessages ? 'enabled' : 'off'}
           clear-option=${this.#hasMessages ? 'enabled' : 'off'}

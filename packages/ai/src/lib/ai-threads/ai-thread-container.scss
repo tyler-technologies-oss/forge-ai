@@ -62,9 +62,20 @@
   padding: 16px;
 }
 
+.history-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 ::slotted([slot='thread-body']) {
   height: 100%;
   display: block; /* Ensures height applies if it's an inline element */
+}
+
+.forge-list-item {
+  --forge-list-item-padding: 0 8px;
+  --forge-list-item-shape: 4px;
 }
 
 .chat-history-drawer {

@@ -44,6 +44,17 @@
     );
   }
 }
+.icon-container {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
+}
+
+.vertical-divider {
+  height: 18px;
+  width: 1px;
+  background-color: #{forge-theme.variable(outline)};
+}
 
 .end {
   display: flex;

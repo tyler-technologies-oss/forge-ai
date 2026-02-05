@@ -11,6 +11,10 @@ declare global {
   interface HTMLElementTagNameMap {
     'forge-ai-thread-container': AiThreadContainerComponent;
   }
+
+  interface HTMLElementEventMap {
+    'forge-ai-thread-container-layout-change': CustomEvent<{ narrow: boolean }>;
+  }
 }
 
 export const AiThreadContainerComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-thread-container';
@@ -20,6 +24,8 @@ export const AiThreadContainerComponentTagName: keyof HTMLElementTagNameMap = 'f
  *
  * @state open - The drawer is open
  * @state narrow - The container is below the drawer breakpoint
+ *
+ * @event {CustomEvent<{ narrow: boolean }>} forge-ai-thread-container-layout-change - Fired when the layout changes between narrow and wide modes
  */
 @customElement(AiThreadContainerComponentTagName)
 export class AiThreadContainerComponent extends LitElement {
@@ -40,6 +46,7 @@ export class AiThreadContainerComponent extends LitElement {
 
   readonly #internals: ElementInternals;
   #resizeObserver?: ResizeObserver;
+  #firstObservation = true;
 
   constructor() {
     super();
@@ -59,19 +66,19 @@ export class AiThreadContainerComponent extends LitElement {
 
   readonly #threadList: TemplateResult = html`
     <ul class="forge-list">
-      <li class="forge-list-item forge-list-item--interactive">
+      <li class="forge-list-item forge-list-item--dense forge-list-item--interactive">
         <button>
-          <span>Title</span>
+          <span>Chat history item</span>
         </button>
       </li>
-      <li class="forge-list-item forge-list-item--interactive">
+      <li class="forge-list-item forge-list-item--dense forge-list-item--interactive">
         <button>
-          <span>Title</span>
+          <span>This is a title</span>
         </button>
       </li>
-      <li class="forge-list-item forge-list-item--interactive">
+      <li class="forge-list-item forge-list-item--dense forge-list-item--interactive">
         <button>
-          <span>Title</span>
+          <span>A third one</span>
         </button>
       </li>
     </ul>
@@ -87,14 +94,26 @@ export class AiThreadContainerComponent extends LitElement {
     </button>
   `;
 
-  get #drawerContent(): TemplateResult {
-    return html` <div class="history-container">${this.#searchField} ${this.#threadList} ${this.#newChatButton}</div> `;
-  }
+  readonly #clearHistoryButton: TemplateResult = html`
+    <button class="forge-button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+        <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
+      </svg>
+      Clear history
+    </button>
+  `;
 
-  #handleShowHistory(): void {
-    this.open = true;
-    toggleState(this.#internals, 'open', true);
-    this._dialog.show();
+  get #drawerContent(): TemplateResult {
+    return html`
+      <div class="history-container">
+        ${this.#searchField} ${this.#threadList}
+        <div class="history-buttons">
+          ${this.#clearHistoryButton}
+          <hr class="forge-divider" />
+          ${this.#newChatButton}
+        </div>
+      </div>
+    `;
   }
 
   #handleDialogClose(): void {
@@ -112,13 +131,33 @@ export class AiThreadContainerComponent extends LitElement {
     this.#cleanupResizeObserver();
   }
 
+  public toggleHistoryDrawer(): void {
+    this.open = true;
+    toggleState(this.#internals, 'open', true);
+    this._dialog.show();
+  }
+
   #setupResizeObserver(): void {
     this.#resizeObserver = new ResizeObserver(entries => {
       const width = entries[0].contentRect.width;
       const isNarrow = width < DRAWER_BREAKPOINT;
-      if (this._narrow !== isNarrow) {
+      const stateChanged = this._narrow !== isNarrow;
+
+      if (stateChanged) {
         this._narrow = isNarrow;
         toggleState(this.#internals, 'narrow', isNarrow);
+      }
+
+      // Emit event on first observation or when state changes
+      if (this.#firstObservation || stateChanged) {
+        this.#firstObservation = false;
+        this.dispatchEvent(
+          new CustomEvent('forge-ai-thread-container-layout-change', {
+            detail: { narrow: isNarrow },
+            bubbles: true,
+            composed: true
+          })
+        );
       }
     });
 
@@ -135,6 +174,7 @@ export class AiThreadContainerComponent extends LitElement {
       this.#resizeObserver.disconnect();
       this.#resizeObserver = undefined;
     }
+    this.#firstObservation = true;
   }
 
   public override render(): TemplateResult {
@@ -143,23 +183,6 @@ export class AiThreadContainerComponent extends LitElement {
         ${when(
           this._narrow,
           () => html`
-            <button
-              aria-label="Show chat history"
-              class="forge-icon-button forge-icon-button--small chat-history-button"
-              @click=${this.#handleShowHistory}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <title>Show chat history</title>
-                <path d="M0 0h24v24H0Z" fill="none" />
-                <path d="M0 0h24v24H0Z" fill="none" />
-                <path d="M0 0h24v24H0Z" fill="none" />
-                <path
-                  d="M3 4.98h3.11v14.04H3zM8.11 19H21V5H8.11ZM13 8.28l1.41-1.41 5 5-5 5L13 15.46l2.58-2.59H9.94v-2h5.67Z"
-                  fill="none" />
-                <path d="M9.94 12.87h5.67l-2.58 2.59 1.41 1.41 5-5-5-5-1.41 1.41 2.58 2.59H9.94z" />
-                <path
-                  d="M21 3H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2M3 5h3.11v14H3Zm18 14H8.11V5H21Z" />
-              </svg>
-            </button>
             <dialog
               id="css-dialog"
               class="chat-history-drawer forge-dialog forge-dialog--modal forge-dialog--left-sheet"

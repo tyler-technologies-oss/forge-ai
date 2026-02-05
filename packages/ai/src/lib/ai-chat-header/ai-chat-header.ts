@@ -29,6 +29,7 @@ declare global {
     'forge-ai-chat-header-minimize': CustomEvent<void>;
     'forge-ai-chat-header-clear': CustomEvent<void>;
     'forge-ai-chat-header-export': CustomEvent<void>;
+    'forge-ai-chat-header-toggle-history': CustomEvent<void>;
   }
 }
 
@@ -64,6 +65,7 @@ export interface AgentInfo {
  * @event forge-ai-chat-header-minimize - Fired when the minimize button is clicked
  * @event forge-ai-chat-header-clear - Fired when the clear chat option is selected
  * @event forge-ai-chat-header-export - Fired when the export option is selected
+ * @event forge-ai-chat-header-toggle-history - Fired when the toggle history button is clicked
  */
 @customElement(AiChatHeaderComponentTagName)
 export class AiChatHeaderComponent extends LitElement {
@@ -80,6 +82,12 @@ export class AiChatHeaderComponent extends LitElement {
    */
   @property({ type: Boolean, attribute: 'show-minimize-button' })
   public showMinimizeButton = false;
+
+  /**
+   * Controls whether the history toggle button is visible
+   */
+  @property({ type: Boolean, attribute: 'show-history-button' })
+  public showHistoryButton = false;
 
   /**
    * Indicates the current expanded state for displaying the appropriate expand/collapse icon
@@ -144,6 +152,32 @@ export class AiChatHeaderComponent extends LitElement {
     return this.exportOption === 'enabled' || this.clearOption === 'enabled' || !!this.agentInfo;
   }
 
+  get #historyToggleButton(): TemplateResult {
+    return html`
+      <button
+        id="history-toggle-button"
+        aria-label="Show chat history"
+        class="forge-icon-button forge-icon-button--small chat-history-button"
+        @click=${this.#toggleChatHistory}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <title>Show chat history</title>
+          <path d="M0 0h24v24H0Z" fill="none" />
+          <path d="M0 0h24v24H0Z" fill="none" />
+          <path d="M0 0h24v24H0Z" fill="none" />
+          <path
+            d="M3 4.98h3.11v14.04H3zM8.11 19H21V5H8.11ZM13 8.28l1.41-1.41 5 5-5 5L13 15.46l2.58-2.59H9.94v-2h5.67Z"
+            fill="none" />
+          <path d="M9.94 12.87h5.67l-2.58 2.59 1.41 1.41 5-5-5-5-1.41 1.41 2.58 2.59H9.94z" />
+          <path
+            d="M21 3H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2M3 5h3.11v14H3Zm18 14H8.11V5H21Z" />
+        </svg>
+      </button>
+      <forge-ai-tooltip id="history-tooltip" for="history-toggle-button" placement="bottom">
+        Show chat history
+      </forge-ai-tooltip>
+    `;
+  }
+
   get #titleElement(): TemplateResult {
     const tagName = unsafeStatic(`h${this.headingLevel}`);
     return staticHtml`
@@ -160,7 +194,11 @@ export class AiChatHeaderComponent extends LitElement {
       <div class="header">
         <div class="start" id="title-container">
           <slot name="icon">
-            <forge-ai-icon></forge-ai-icon>
+            <div class="icon-container">
+              ${when(this.showHistoryButton, () => this.#historyToggleButton)}
+              ${when(this.showHistoryButton, () => html`<div class="vertical-divider"></div>`)}
+              <forge-ai-icon></forge-ai-icon>
+            </div>
           </slot>
           ${this.#titleElement}
         </div>
@@ -348,6 +386,14 @@ export class AiChatHeaderComponent extends LitElement {
 
   #handleMinimizeClick(): void {
     const event = new CustomEvent('forge-ai-chat-header-minimize', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  #toggleChatHistory(): void {
+    const event = new CustomEvent('forge-ai-chat-header-toggle-history', {
       bubbles: true,
       composed: true
     });
