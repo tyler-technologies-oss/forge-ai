@@ -18,3 +18,15 @@ body {
   margin: 0;
   height: 100dvh;
 }
+
+.card-demo {
+  display: grid;
+  place-content: center;
+  padding: 64px;
+}
+
+.card {
+  width: 500px;
+  height: 700px;
+  --forge-card-padding: 0;
+}

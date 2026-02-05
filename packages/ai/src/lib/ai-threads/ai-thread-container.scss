@@ -1,20 +1,72 @@
+@use '@tylertech/forge/dist/drawer/forge-drawer.css';
+@use '@tylertech/forge/dist/icon-button/forge-icon-button.css';
+@use '@tylertech/forge/dist/dialog/forge-dialog.css';
+@use '@tylertech/forge/dist/list/forge-list';
+@use '@tylertech/forge/dist/field/forge-field';
+@use '@tylertech/forge/dist/icon/forge-icon';
+@use '@tylertech/forge/dist/divider/forge-divider';
+@use '@tylertech/forge/dist/button/forge-button';
+
 :host {
+  --forge-drawer-width: 320px;
   display: block;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .container {
+  position: relative;
   display: grid;
-  grid-template-columns: 300px 1fr;
   grid-template-rows: auto 1fr;
   height: 100%;
+  overflow: hidden;
 }
 
 .header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
   grid-column: 1/-1;
+  gap: 8px;
+  --forge-spacing-xsmall: 0;
+  padding-inline: 12px;
+}
+
+.body-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 100%;
+}
+
+:host(:state(narrow)) {
+  .body-container {
+    grid-template-columns: 1fr;
+  }
+
+  dialog {
+    --forge-dialog-shape: 0;
+  }
+}
+
+.forge-drawer {
+  grid-template-rows: 1fr;
+}
+
+.history-container {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 8px;
+  height: 100%;
+  width: 100%;
+  padding: 16px;
 }
 
 ::slotted([slot='thread-body']) {
   height: 100%;
   display: block; /* Ensures height applies if it's an inline element */
+}
+
+.chat-history-drawer {
+  position: absolute;
 }
