@@ -27,6 +27,7 @@ export class AiThreadListComponent extends LitElement {
 
   get #threadList(): TemplateResult {
     return html`
+      <span class="title">Your chats</span>
       <ul class="forge-list forge-list--navlist">
         ${this.threads.map(
           thread => html`

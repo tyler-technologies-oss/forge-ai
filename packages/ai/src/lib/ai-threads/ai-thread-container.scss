@@ -1,3 +1,4 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/dist/drawer/forge-drawer.css';
 @use '@tylertech/forge/dist/icon-button/forge-icon-button.css';
 @use '@tylertech/forge/dist/dialog/forge-dialog.css';
@@ -27,9 +28,9 @@
   grid-template-columns: auto 1fr;
   align-items: center;
   grid-column: 1/-1;
-  gap: 8px;
+  gap: #{forge-spacing.variable(xsmall)};
   --forge-spacing-xsmall: 0;
-  padding-inline: 12px;
+  padding-inline: #{forge-spacing.variable(small)};
 }
 
 .body-container {
@@ -56,16 +57,16 @@
   box-sizing: border-box;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  gap: 8px;
+  gap: #{forge-spacing.variable(medium)};
   height: 100%;
   width: 100%;
-  padding: 16px;
+  padding: #{forge-spacing.variable(medium)};
 }
 
 .history-buttons {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: #{forge-spacing.variable(medium)};
 }
 
 ::slotted([slot='thread-body']) {
