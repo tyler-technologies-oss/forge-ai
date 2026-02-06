@@ -13,22 +13,7 @@
   <body class="card-demo">
     <forge-card class="card">
       <forge-ai-thread-container>
-        <div slot="thread-left">
-          <forge-list>
-            <forge-list-item value="list-item-1">
-              <span>List item 1</span>
-            </forge-list-item>
-            <forge-list-item value="list-item-2">
-              <span>List item 2</span>
-            </forge-list-item>
-            <forge-list-item value="list-item-3">
-              <span>List item 3</span>
-            </forge-list-item>
-            <forge-list-item value="list-item-4">
-              <span>List item 4</span>
-            </forge-list-item>
-          </forge-list>
-        </div>
+        <forge-ai-thread-list id="thread-list" slot="thread-list"></forge-ai-thread-list>
         <div slot="thread-body">
           <forge-ai-chatbot></forge-ai-chatbot>
         </div>
