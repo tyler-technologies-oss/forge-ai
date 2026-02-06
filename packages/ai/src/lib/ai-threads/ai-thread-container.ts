@@ -22,6 +22,10 @@ export const AiThreadContainerComponentTagName: keyof HTMLElementTagNameMap = 'f
 /**
  * @tag forge-ai-thread-container
  *
+ * @slot thread-list - Slot for the thread list component
+ * @slot thread-header - Slot for the thread header content
+ * @slot thread-body - Slot for the thread body content
+ *
  * @state open - The drawer is open
  * @state narrow - The container is below the drawer breakpoint
  *
@@ -64,25 +68,7 @@ export class AiThreadContainerComponent extends LitElement {
     </div>
   `;
 
-  readonly #threadList: TemplateResult = html`
-    <ul class="forge-list">
-      <li class="forge-list-item forge-list-item--dense forge-list-item--interactive">
-        <button>
-          <span>Chat history item</span>
-        </button>
-      </li>
-      <li class="forge-list-item forge-list-item--dense forge-list-item--interactive">
-        <button>
-          <span>This is a title</span>
-        </button>
-      </li>
-      <li class="forge-list-item forge-list-item--dense forge-list-item--interactive">
-        <button>
-          <span>A third one</span>
-        </button>
-      </li>
-    </ul>
-  `;
+  readonly #threadListSlot = html`<slot name="thread-list"></slot>`;
 
   readonly #newChatButton: TemplateResult = html`
     <button class="forge-button forge-button--tonal">
@@ -106,7 +92,7 @@ export class AiThreadContainerComponent extends LitElement {
   get #drawerContent(): TemplateResult {
     return html`
       <div class="history-container">
-        ${this.#searchField} ${this.#threadList}
+        ${this.#searchField} ${this.#threadListSlot}
         <div class="history-buttons">
           ${this.#clearHistoryButton}
           <hr class="forge-divider" />
