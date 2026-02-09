@@ -8,7 +8,7 @@ import '$lib/ai-suggestions';
 import '$lib/ai-voice-input';
 import { type ToolDefinition, type Suggestion, type ChatMessage } from '$lib/ai-chatbot';
 import { MockAdapter } from '../../../utils/mock-adapter';
-import { ForgeAiAssistantResponseFeedbackEventData } from '../../../../lib/ai-assistant-response/ai-assistant-response';
+import { smallAgentList, largeAgentList } from '../../../utils/mock-agents';
 
 const component = 'forge-ai-chatbot';
 
@@ -749,6 +749,59 @@ class MixedResponseAdapter extends MockAdapter {
     return Math.random().toString(36).slice(2, 11);
   }
 }
+
+export const WithAgents: Story = {
+  parameters: {
+    controls: { include: ['agentListSize', 'titleText'] }
+  },
+  argTypes: {
+    agentListSize: {
+      control: 'select',
+      options: ['small', 'large'],
+      description: 'Toggle between small (4) and large (50) agent lists'
+    }
+  },
+  args: {
+    agentListSize: 'small'
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const agents = args.agentListSize === 'large' ? largeAgentList : smallAgentList;
+    const onAgentChange = action('forge-ai-chatbot-agent-change');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Agent Selector Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Click on the header title to see the agent selector dropdown. Use the "agentListSize" control to toggle
+            between a small list (4 agents) and a large list (50 agents) which shows the search filter.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .agents=${agents}
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
+          @forge-ai-chatbot-agent-change=${(e: CustomEvent) => onAgentChange(e.detail)}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
 
 export const WithFeedbackPersistence: Story = {
   args: {

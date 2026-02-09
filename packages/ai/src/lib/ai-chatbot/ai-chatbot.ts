@@ -10,6 +10,7 @@ import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData 
 import type { AiPromptComponent, ForgeAiPromptSendEventData, ForgeAiPromptCommandEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData, Suggestion } from '../ai-suggestions';
 import type { ForgeAiVoiceInputResultEvent } from '../ai-voice-input';
+import type { ForgeAiChatHeaderAgentChangeEventData } from '../ai-chat-header';
 import {
   AgentAdapter,
   type AdapterState,
@@ -27,6 +28,7 @@ import { SubscriptionManager } from './event-emitter.js';
 import { FileUploadManager } from './file-upload-manager.js';
 import { MessageStateController } from './message-state-controller.js';
 import type {
+  Agent,
   ChatMessage,
   FileAttachment,
   FileUploadCallbacks,
@@ -77,6 +79,7 @@ declare global {
     'forge-ai-voice-input-result': CustomEvent<ForgeAiVoiceInputResultEvent>;
     'forge-ai-chatbot-file-remove': CustomEvent<ForgeAiChatbotFileRemoveEventData>;
     'forge-ai-chatbot-response-feedback': CustomEvent<ForgeAiChatbotResponseFeedbackEventData>;
+    'forge-ai-chatbot-agent-change': CustomEvent<ForgeAiChatbotAgentChangeEventData>;
   }
 }
 
@@ -102,6 +105,11 @@ export interface ForgeAiChatbotResponseFeedbackEventData {
   messageId: string;
   type: 'positive' | 'negative';
   feedback?: string;
+}
+
+export interface ForgeAiChatbotAgentChangeEventData {
+  agent: Agent | undefined;
+  previousAgentId: string | undefined;
 }
 
 export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-chatbot';
@@ -191,6 +199,12 @@ export class AiChatbotComponent extends LitElement {
 
   @property({ attribute: 'disclaimer-text' })
   public disclaimerText: string | null | undefined = 'AI can make mistakes. Always verify responses.';
+
+  @property({ attribute: false })
+  public agents: Agent[] = [];
+
+  @property({ attribute: 'selected-agent-id' })
+  public selectedAgentId?: string;
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #messageThreadRef = createRef<AiMessageThreadComponent>();
@@ -836,6 +850,22 @@ export class AiChatbotComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-info' });
   }
 
+  #handleAgentChange(event: CustomEvent<ForgeAiChatHeaderAgentChangeEventData>): void {
+    const { agent, previousAgentId } = event.detail;
+
+    const changeEvt = this.#dispatchEvent({
+      type: 'forge-ai-chatbot-agent-change',
+      detail: { agent, previousAgentId }
+    });
+
+    if (!changeEvt.defaultPrevented) {
+      this.selectedAgentId = agent?.id;
+      if (this.adapter) {
+        this.adapter.threadId = generateId();
+      }
+    }
+  }
+
   #handleDebugToggle(): void {
     this.debugMode = !this.debugMode;
   }
@@ -921,6 +951,14 @@ export class AiChatbotComponent extends LitElement {
    */
   public setMessages(messages: ChatMessage[]): void {
     this.#messageStateController.setMessages(messages);
+  }
+
+  /**
+   * Gets the currently selected agent.
+   * @returns The selected agent or undefined if none selected
+   */
+  public getSelectedAgent(): Agent | undefined {
+    return this.agents.find(a => a.id === this.selectedAgentId);
   }
 
   /**
@@ -1109,17 +1147,21 @@ export class AiChatbotComponent extends LitElement {
           ?show-expand-button=${this.showExpandButton}
           ?show-minimize-button=${this.showMinimizeButton}
           ?expanded=${this.expanded}
+          ?disable-agent-selector=${this.#isStreaming}
           export-option=${this.#hasMessages ? 'enabled' : 'off'}
           clear-option=${this.#hasMessages ? 'enabled' : 'off'}
           .minimizeIcon=${this.minimizeIcon}
           .agentInfo=${this.agentInfo}
           .headingLevel=${this.headingLevel}
           .titleText=${this.titleText}
+          .agents=${this.agents}
+          .selectedAgentId=${this.selectedAgentId}
           @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
           @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}
           @forge-ai-chat-header-export=${this.#handleExport}
-          @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
+          @forge-ai-chat-header-info=${this.#handleHeaderInfo}
+          @forge-ai-chat-header-agent-change=${this.#handleAgentChange}>
         </forge-ai-chat-header>
         ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
         ${when(this.disclaimerText, () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`)}

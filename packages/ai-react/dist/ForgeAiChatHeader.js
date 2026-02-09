@@ -8,13 +8,16 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
     showExpandButton,
     showMinimizeButton,
     expanded,
+    disableAgentSelector,
     minimizeIcon,
     options,
     exportOption,
     clearOption,
     headingLevel,
     titleText,
+    selectedAgentId,
     agentInfo,
+    agents,
     ...filteredProps
   } = props;
 
@@ -31,6 +34,11 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
+    "forge-ai-chat-header-agent-change",
+    props.onForgeAiChatHeaderAgentChange,
+  );
+  useEventListener(
+    ref,
     "forge-ai-chat-header-expand",
     props.onForgeAiChatHeaderExpand,
   );
@@ -42,6 +50,7 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
 
   /** Properties - run whenever a property has changed */
   useProperties(ref, "agentInfo", props.agentInfo);
+  useProperties(ref, "agents", props.agents);
 
   return React.createElement(
     "forge-ai-chat-header",
@@ -61,6 +70,7 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
       "clear-option": props.clearOption || props["clear-option"],
       "heading-level": props.headingLevel || props["heading-level"],
       "title-text": props.titleText || props["title-text"],
+      "selected-agent-id": props.selectedAgentId || props["selected-agent-id"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
@@ -69,6 +79,7 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
       "show-expand-button": props.showExpandButton ? true : undefined,
       "show-minimize-button": props.showMinimizeButton ? true : undefined,
       expanded: props.expanded ? true : undefined,
+      "disable-agent-selector": props.disableAgentSelector ? true : undefined,
       style: { ...props.style },
     },
     props.children,

@@ -4,6 +4,7 @@ export type {
   ForgeAiChatbotToolCallEventData,
   ForgeAiChatbotErrorEventData,
   ForgeAiChatbotResponseFeedbackEventData,
+  ForgeAiChatbotAgentChangeEventData,
   FeatureToggle
 } from './ai-chatbot.js';
 export { AiChatbotToolCallComponent, AiChatbotToolCallComponentTagName } from './ai-chatbot-tool-call.js';
@@ -36,6 +37,7 @@ export {
 
 // Chatbot types
 export type {
+  Agent,
   ChatMessage,
   ToolDefinition,
   ToolCall,
