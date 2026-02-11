@@ -214,7 +214,7 @@ export class AiChatbotComponent extends LitElement {
   #fileUploadManager!: FileUploadManager;
   #toolsMap?: Map<string, ToolDefinition>;
   #adapterSubscriptions?: SubscriptionManager;
-  #executingToolHandlers = 0;
+  #pendingToolHandlers = new Set<string>();
 
   get #slashCommands(): SlashCommand[] {
     const commands: SlashCommand[] = [];
@@ -242,7 +242,7 @@ export class AiChatbotComponent extends LitElement {
   }
 
   get #isStreaming(): boolean {
-    return (this.adapter?.isRunning ?? false) || this.#executingToolHandlers > 0;
+    return (this.adapter?.isRunning ?? false) || this.#pendingToolHandlers.size > 0;
   }
 
   get #isUploading(): boolean {
@@ -353,7 +353,7 @@ export class AiChatbotComponent extends LitElement {
   }
 
   #tryCompleteResponse(): void {
-    if (this.#executingToolHandlers > 0 || this.adapter?.isRunning) {
+    if (this.#pendingToolHandlers.size > 0 || this.adapter?.isRunning) {
       return;
     }
     this.#messageStateController.completeResponse();
@@ -473,7 +473,7 @@ export class AiChatbotComponent extends LitElement {
     ) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void,
     args: Record<string, unknown>
   ): Promise<void> {
-    this.#executingToolHandlers++;
+    this.#pendingToolHandlers.add(toolCallId);
     this.requestUpdate();
 
     try {
@@ -491,7 +491,7 @@ export class AiChatbotComponent extends LitElement {
         result: { error: (error as Error).message }
       });
     } finally {
-      this.#executingToolHandlers--;
+      this.#pendingToolHandlers.delete(toolCallId);
       this.#tryCompleteResponse();
       this.requestUpdate();
     }
@@ -607,11 +607,19 @@ export class AiChatbotComponent extends LitElement {
     this.#handleStop();
   }
 
-  async #handleCopy(evt: CustomEvent<{ messageId: string }>): Promise<void> {
-    const responseId = evt.detail.messageId;
-    const responseItem = this.#messageItems.find(item => item.type === 'assistant' && item.data.id === responseId);
+  async #copyToClipboard(content: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(content);
+    } catch {
+      // Silent fail
+    }
+  }
 
-    if (!responseItem || responseItem.type !== 'assistant') {
+  async #handleCopy(evt: CustomEvent<{ messageId: string }>): Promise<void> {
+    const responseItem = this.#messageItems.find(
+      item => item.type === 'assistant' && item.data.id === evt.detail.messageId
+    );
+    if (responseItem?.type !== 'assistant') {
       return;
     }
 
@@ -623,86 +631,55 @@ export class AiChatbotComponent extends LitElement {
       .map(c => c.content)
       .join('\n\n');
 
-    try {
-      await navigator.clipboard.writeText(textContent);
-    } catch {
-      // Silent fail
-    }
+    await this.#copyToClipboard(textContent);
   }
 
   async #handleUserCopy(evt: CustomEvent<{ messageId: string }>): Promise<void> {
-    const messageId = evt.detail.messageId;
-    const message = this.#messageStateController.getMessage(messageId);
+    const message = this.#messageStateController.getMessage(evt.detail.messageId);
+    if (message?.role === 'user') {
+      await this.#copyToClipboard(message.content);
+    }
+  }
 
-    if (!message || message.role !== 'user') {
+  #resendFromIndex(index: number, options?: { newContent?: string; includeIndex?: boolean }): void {
+    if (!this.adapter || index === -1) {
       return;
     }
 
-    try {
-      await navigator.clipboard.writeText(message.content);
-    } catch {
-      // Silent fail
+    if (options?.newContent) {
+      const item = this.#messageItems[index];
+      if (item?.type === 'message') {
+        this.#messageStateController.updateMessageContent(item.data.id, options.newContent);
+      }
     }
+
+    const removeFrom = options?.includeIndex ? index : index + 1;
+    if (removeFrom < this.#messageItems.length) {
+      this.#messageStateController.removeMessageItemsFrom(removeFrom);
+    }
+
+    this.adapter.sendMessage(this.getMessages());
   }
 
   #handleUserResend(evt: CustomEvent<{ messageId: string }>): void {
-    if (!this.adapter) {
-      return;
-    }
-
-    const messageId = evt.detail.messageId;
-    const messageIndex = this.#messageItems.findIndex(item => item.type === 'message' && item.data.id === messageId);
-
-    if (messageIndex === -1) {
-      return;
-    }
-
-    const responseIndex = messageIndex + 1;
-    if (responseIndex < this.#messageItems.length) {
-      this.#messageStateController.removeMessageItemsFrom(responseIndex);
-    }
-
-    this.adapter.sendMessage(this.getMessages());
+    const index = this.#messageItems.findIndex(
+      item => item.type === 'message' && item.data.id === evt.detail.messageId
+    );
+    this.#resendFromIndex(index);
   }
 
   #handleUserEdit(evt: CustomEvent<{ messageId: string; content: string }>): void {
-    if (!this.adapter) {
-      return;
-    }
-
-    const { messageId, content } = evt.detail;
-    const messageIndex = this.#messageItems.findIndex(item => item.type === 'message' && item.data.id === messageId);
-
-    if (messageIndex === -1) {
-      return;
-    }
-
-    this.#messageStateController.updateMessageContent(messageId, content);
-
-    const responseIndex = messageIndex + 1;
-    if (responseIndex < this.#messageItems.length) {
-      this.#messageStateController.removeMessageItemsFrom(responseIndex);
-    }
-
-    this.adapter.sendMessage(this.getMessages());
+    const index = this.#messageItems.findIndex(
+      item => item.type === 'message' && item.data.id === evt.detail.messageId
+    );
+    this.#resendFromIndex(index, { newContent: evt.detail.content });
   }
 
   #handleResend(evt: CustomEvent<{ messageId: string }>): void {
-    if (!this.adapter) {
-      return;
-    }
-
-    const responseId = evt.detail.messageId;
-    const responseIndex = this.#messageItems.findIndex(
-      item => item.type === 'assistant' && item.data.id === responseId
+    const index = this.#messageItems.findIndex(
+      item => item.type === 'assistant' && item.data.id === evt.detail.messageId
     );
-
-    if (responseIndex === -1) {
-      return;
-    }
-
-    this.#messageStateController.removeMessageItemsFrom(responseIndex);
-    this.adapter.sendMessage(this.getMessages());
+    this.#resendFromIndex(index, { includeIndex: true });
   }
 
   #handleFeedback(evt: CustomEvent<ForgeAiMessageThreadThumbsEventData>, type: 'positive' | 'negative'): void {
@@ -929,9 +906,6 @@ export class AiChatbotComponent extends LitElement {
     downloadFile(chatText, filename, 'text/plain');
   }
 
-  /**
-   * Clears all messages from the chat history.
-   */
   public clearMessages(): void {
     this.#messageStateController.clearMessages();
     this.#fileUploadManager.clear();
