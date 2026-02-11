@@ -486,10 +486,21 @@ export class AiChatbotComponent extends LitElement {
       const handlerReturn = await handler(context);
       await this.#sendToolResult(toolCallId, this.#createToolResponse(toolName, handlerReturn));
     } catch (error) {
+      console.error(`Tool handler error [${toolName}]:`, error);
       this.#messageStateController.updateToolCallInResponse(toolCallId, {
         status: 'error',
         result: { error: (error as Error).message }
       });
+
+      const errorMessage: ChatMessage = {
+        id: generateId(),
+        role: 'assistant',
+        content: 'An unexpected error occurred.',
+        timestamp: Date.now(),
+        status: 'error'
+      };
+      this.#messageStateController.addMessage(errorMessage);
+      this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: (error as Error).message } });
     } finally {
       this.#pendingToolHandlers.delete(toolCallId);
       this.#tryCompleteResponse();
