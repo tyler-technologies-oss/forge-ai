@@ -163,7 +163,7 @@ export class AiMessageThreadComponent extends LitElement {
   };
 
   get #scrollToBottomButton(): TemplateResult | typeof nothing {
-    if (this.#canAutoScroll) {
+    if (this.#canAutoScroll || !this.messageItems.length) {
       return nothing;
     }
     return html`
