@@ -20,8 +20,8 @@
 .ai-message-container {
   padding-block: #{forge-spacing.variable(xsmall)};
   padding-inline: #{forge-spacing.variable(medium)};
-  background-color: #{forge-theme.variable(surface-container-minimum)};
-  color: #{forge-theme.variable(on-surface)};
+  background-color: #{forge-theme.variable(primary-container-low)};
+  color: #{forge-theme.variable(on-primary-container-low)};
   border-radius: #{forge-spacing.variable(xsmall)};
   border-start-end-radius: 0;
   margin-inline-start: auto;
