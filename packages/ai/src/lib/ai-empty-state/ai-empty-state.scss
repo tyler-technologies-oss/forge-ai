@@ -17,7 +17,7 @@
   align-items: center;
   justify-content: center;
   gap: #{forge-spacing.variable(medium)};
-  max-width: 768px;
+  width: 100%;
 }
 
 .heading {

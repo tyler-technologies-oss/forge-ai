@@ -6,6 +6,7 @@
 :host {
   display: block;
   width: 100%;
+  max-inline-size: var(--forge-ai-suggestions-inline-size, 768px);
 }
 
 .scroll-container {
