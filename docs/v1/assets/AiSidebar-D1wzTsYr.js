@@ -1,0 +1,49 @@
+import{j as e,M as t,T as o,C as d}from"./blocks-BC5dfeXQ.js";import{useMDXComponents as r}from"./index-D1lwM9wx.js";import{C as l}from"./CustomArgTypes-C0vAgDUr.js";import{A as c}from"./AiSidebar.stories-BbUTPuUB.js";import"./preload-helper-PPVm8Dsz.js";import"./_commonjsHelpers-CqkleIqs.js";import"./iframe-ysd04RiF.js";import"./icon-registry-D8cCWsde.js";import"./constants-Co83GciG.js";import"./service-adapter-CgOYZRmu.js";import"./ai-sidebar-wk9W1cx-.js";import"./index-C66NApLE.js";import"./custom-element-UsVr97OX.js";import"./property-D0tvJkfb.js";import"./focus-indicator-Bb03499P.js";import"./base-CPpLRmUR.js";import"./class-map-Dp-jJjYy.js";import"./ai-chat-interface-CHrhEFyU.js";import"./ai-dropdown-menu-item-CNnGPmFK.js";import"./query-assigned-elements-CzwJtfVa.js";import"./when-CI7b_ccM.js";import"./ai-gradient-container-Rq1HQVyL.js";import"./utils-BGBq21po.js";import"./ai-prompt-BaoAWkpb.js";import"./popover-D_gj7SBn.js";import"./overlay-BAFHgN0N.js";import"./tooltip-UR00y06g.js";import"./ai-chat-header-DfDs9wBj.js";import"./ref-DLupEwAA.js";import"./ai-icon-DxsyDm8K.js";import"./ai-dropdown-menu-Ge9qwWQ3.js";import"./if-defined-F4wxjC9t.js";import"./ai-modal-C-OPdRMv.js";import"./ai-agent-info-DiGfDCN0.js";import"./ai-agent-selector-Ds7a7MIg.js";import"./ai-user-message-yrRvcVMp.js";import"./ai-user-message-toolbar-BuOnIGqu.js";import"./ai-response-message-CeT22_Kd.js";import"./ai-button-7iF051H6.js";function s(n){const i={code:"code",h2:"h2",h3:"h3",li:"li",p:"p",strong:"strong",table:"table",tbody:"tbody",td:"td",th:"th",thead:"thead",tr:"tr",ul:"ul",...r(),...n.components};return e.jsxs(e.Fragment,{children:[e.jsx(t,{of:c}),`
+`,e.jsx(o,{children:"AI Sidebar"}),`
+`,e.jsx(i.p,{children:"The AI Sidebar component is a container component that provides a drawer-style sidebar interface using Forge CSS-only drawer classes. This component serves as the foundational container for sidebar-based AI interfaces, offering positioning control and backdrop interaction."}),`
+`,e.jsx(i.h2,{id:"features",children:"Features"}),`
+`,e.jsxs(i.ul,{children:[`
+`,e.jsxs(i.li,{children:[e.jsx(i.strong,{children:"Flexible positioning"}),": Supports both left and right sidebar positions"]}),`
+`,e.jsxs(i.li,{children:[e.jsx(i.strong,{children:"Backdrop interaction"}),": Clicking the backdrop closes the sidebar"]}),`
+`,e.jsxs(i.li,{children:[e.jsx(i.strong,{children:"CSS-based animations"}),": Smooth slide-in/slide-out transitions"]}),`
+`,e.jsxs(i.li,{children:[e.jsx(i.strong,{children:"Responsive design"}),": Adapts to mobile viewports with full-width display"]}),`
+`,e.jsxs(i.li,{children:[e.jsx(i.strong,{children:"Accessibility support"}),": Proper ARIA attributes for screen readers"]}),`
+`,e.jsxs(i.li,{children:[e.jsx(i.strong,{children:"Event-driven API"}),": Emits events for open/close state changes"]}),`
+`]}),`
+`,e.jsx(i.h2,{id:"when-to-use",children:"When to Use"}),`
+`,e.jsx(i.p,{children:"Use the AI Sidebar component when you want:"}),`
+`,e.jsxs(i.ul,{children:[`
+`,e.jsx(i.li,{children:"A container for sidebar-based content (typically AI chat interfaces)"}),`
+`,e.jsx(i.li,{children:"Control over sidebar positioning (left or right)"}),`
+`,e.jsx(i.li,{children:"A foundational component for building custom sidebar compositions"}),`
+`,e.jsx(i.li,{children:"Direct control over the sidebar behavior without built-in chat interface logic"}),`
+`]}),`
+`,e.jsxs(i.p,{children:["For a complete sidebar chat solution, consider using the ",e.jsx(i.code,{children:"ai-sidebar-chat"})," form factor component which combines this container with the chat interface automatically."]}),`
+`,e.jsx(i.h2,{id:"basic-usage",children:"Basic Usage"}),`
+`,e.jsx(d,{children:e.jsx("div",{style:{position:"relative",height:"400px",overflow:"hidden"},children:e.jsx("forge-ai-sidebar",{children:e.jsxs("forge-ai-chat-interface",{children:[e.jsx("forge-ai-chat-header",{slot:"header","show-minimize-button":!0}),e.jsx("forge-ai-user-message",{children:"Hello! Can you help me understand how to use TypeScript generics?"}),e.jsx("forge-ai-response-message",{children:e.jsx(i.p,{children:`I'd be happy to help you understand TypeScript generics! Generics allow you to create reusable components that
+can work with different types while maintain type safety.`})})]})})})}),`
+`,e.jsx(i.h2,{id:"api",children:"API"}),`
+`,e.jsx(i.h3,{id:"properties",children:"Properties"}),`
+`,e.jsx(l,{}),`
+`,e.jsx(i.h3,{id:"methods",children:"Methods"}),`
+`,e.jsxs(i.ul,{children:[`
+`,e.jsxs(i.li,{children:[e.jsx(i.code,{children:"show()"}),": Opens the sidebar"]}),`
+`,e.jsxs(i.li,{children:[e.jsx(i.code,{children:"close()"}),": Closes the sidebar"]}),`
+`,e.jsxs(i.li,{children:[e.jsx(i.code,{children:"toggle()"}),": Toggles the sidebar open/closed state"]}),`
+`]}),`
+`,e.jsx(i.h3,{id:"events",children:"Events"}),`
+`,e.jsxs(i.ul,{children:[`
+`,e.jsxs(i.li,{children:[e.jsx(i.code,{children:"forge-ai-sidebar-open"}),": Fired when the sidebar is opened"]}),`
+`,e.jsxs(i.li,{children:[e.jsx(i.code,{children:"forge-ai-sidebar-close"}),": Fired when the sidebar is closed"]}),`
+`]}),`
+`,e.jsx(i.h2,{id:"positioning",children:"Positioning"}),`
+`,e.jsx(i.p,{children:"The sidebar supports two positions:"}),`
+`,e.jsxs(i.ul,{children:[`
+`,e.jsxs(i.li,{children:[e.jsx(i.strong,{children:e.jsx(i.code,{children:"right"})})," (default): Sidebar slides in from the right edge"]}),`
+`,e.jsxs(i.li,{children:[e.jsx(i.strong,{children:e.jsx(i.code,{children:"left"})}),": Sidebar slides in from the left edge"]}),`
+`]}),`
+`,e.jsx(i.h2,{id:"responsive-behavior",children:"Responsive Behavior"}),`
+`,e.jsx(i.p,{children:"On mobile viewports (≤768px), the sidebar automatically becomes full-width regardless of positioning, providing an optimal mobile experience."}),`
+`,e.jsx(i.h2,{id:"comparison-with-form-factor-component",children:"Comparison with Form Factor Component"}),`
+`,e.jsxs(i.table,{children:[e.jsx(i.thead,{children:e.jsxs(i.tr,{children:[e.jsx(i.th,{children:"Approach"}),e.jsx(i.th,{children:"Best For"}),e.jsx(i.th,{children:"Pros"}),e.jsx(i.th,{children:"Cons"})]})}),e.jsxs(i.tbody,{children:[e.jsxs(i.tr,{children:[e.jsx(i.td,{children:e.jsx(i.strong,{children:"ai-sidebar"})}),e.jsx(i.td,{children:"Custom compositions"}),e.jsx(i.td,{children:"Maximum flexibility, reusable container"}),e.jsx(i.td,{children:"Manual content setup required"})]}),e.jsxs(i.tr,{children:[e.jsx(i.td,{children:e.jsx(i.strong,{children:"ai-sidebar-chat"})}),e.jsx(i.td,{children:"Complete sidebar chat"}),e.jsx(i.td,{children:"Easy to use, built-in chat interface"}),e.jsx(i.td,{children:"Less flexible, opinionated setup"})]})]})]}),`
+`,e.jsxs(i.p,{children:["Choose the atomic ",e.jsx(i.code,{children:"ai-sidebar"})," component when you need a flexible container, or use ",e.jsx(i.code,{children:"ai-sidebar-chat"})," for a complete solution."]})]})}function Q(n={}){const{wrapper:i}={...r(),...n.components};return i?e.jsx(i,{...n,children:e.jsx(s,{...n})}):s(n)}export{Q as default};
