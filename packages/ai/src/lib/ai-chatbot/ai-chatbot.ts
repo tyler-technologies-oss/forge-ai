@@ -356,7 +356,7 @@ export class AiChatbotComponent extends LitElement {
     if (this.#executingToolHandlers > 0 || this.adapter?.isRunning) {
       return;
     }
-    this.#messageStateController.completeResponse();
+    this.#messageStateController.tryFinalizeResponse();
     const messages = this.getMessages();
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === 'assistant' && lastMessage.status === 'complete') {

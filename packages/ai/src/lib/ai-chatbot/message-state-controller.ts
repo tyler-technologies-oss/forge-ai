@@ -254,7 +254,7 @@ export class MessageStateController implements ReactiveController {
     }
   }
 
-  public completeResponse(): void {
+  public tryFinalizeResponse(): void {
     if (!this._activeResponse) {
       return;
     }
@@ -317,6 +317,8 @@ export class MessageStateController implements ReactiveController {
   }
 
   public addMessage(message: ChatMessage, event?: MessageStartEvent): void {
+    this.tryFinalizeResponse();
+
     const existing = this.getMessage(message.id);
     if (existing) {
       return;
