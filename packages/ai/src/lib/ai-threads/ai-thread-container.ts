@@ -51,6 +51,7 @@ export class AiThreadContainerComponent extends LitElement {
   readonly #internals: ElementInternals;
   #resizeObserver?: ResizeObserver;
   #firstObservation = true;
+  #boundEscapeHandler = this.#handleWindowObjectEscapeKeydown.bind(this);
 
   constructor() {
     super();
@@ -105,10 +106,11 @@ export class AiThreadContainerComponent extends LitElement {
   #handleDialogClose(): void {
     this.open = false;
     toggleState(this.#internals, 'open', false);
+    window.removeEventListener('keydown', this.#boundEscapeHandler);
   }
 
-  #handleDialogKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
+  #handleWindowObjectEscapeKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.open && this._narrow) {
       this._dialog.close();
     }
   }
@@ -121,12 +123,14 @@ export class AiThreadContainerComponent extends LitElement {
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.#cleanupResizeObserver();
+    window.removeEventListener('keydown', this.#boundEscapeHandler);
   }
 
   public toggleHistoryDrawer(): void {
     this.open = true;
     toggleState(this.#internals, 'open', true);
     this._dialog.show();
+    window.addEventListener('keydown', this.#boundEscapeHandler);
   }
 
   #setupResizeObserver(): void {
@@ -178,8 +182,7 @@ export class AiThreadContainerComponent extends LitElement {
             <dialog
               id="css-dialog"
               class="chat-history-drawer forge-dialog forge-dialog--modal forge-dialog--left-sheet"
-              @close=${this.#handleDialogClose}
-              @keydown=${this.#handleDialogKeydown}>
+              @close=${this.#handleDialogClose}>
               ${this.#drawerContent}
             </dialog>
           `
