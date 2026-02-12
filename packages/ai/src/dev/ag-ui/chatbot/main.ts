@@ -497,6 +497,10 @@ chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<For
   console.log('🔧 Tool call:', e);
 });
 
+chatbot.addEventListener('forge-ai-chatbot-error', () => {
+  saveThreadState();
+});
+
 chatbot.addEventListener('forge-ai-chatbot-response-feedback', (e: CustomEvent) => {
   console.log('👍👎 Response feedback:', e.detail);
 });

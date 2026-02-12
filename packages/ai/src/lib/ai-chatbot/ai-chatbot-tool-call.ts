@@ -230,18 +230,20 @@ export class AiChatbotToolCallComponent extends LitElement {
   }
 
   public override render(): TemplateResult | typeof nothing {
+    const isError = this.toolCall.status === 'error';
     const isComplete = this.toolCall.status === 'complete';
+    const showDetails = isComplete || isError;
 
     if (!this.debugMode) {
       return this.#customRenderer;
     }
 
     return html`
-      <div class="tool-call">
+      <div class="tool-call ${isError ? 'tool-call--error' : ''}">
         <span class="status-icon">${this.#statusIcon}</span>
         <span class="tool-name">${this.toolDefinition?.displayName ?? this.toolCall.name}</span>
         <div class="tool-actions">
-          ${isComplete
+          ${showDetails
             ? html`
                 <div>
                   <button
@@ -260,7 +262,7 @@ export class AiChatbotToolCallComponent extends LitElement {
             : nothing}
         </div>
       </div>
-      ${isComplete
+      ${showDetails
         ? html`
             <forge-ai-popover
               .anchor=${this._infoButton as Element | null}

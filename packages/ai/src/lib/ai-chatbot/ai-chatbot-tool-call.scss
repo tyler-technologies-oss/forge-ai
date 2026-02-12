@@ -18,6 +18,15 @@
   margin-block: #{forge-spacing.variable(medium)};
   padding: #{forge-spacing.variable(xxsmall)} #{forge-spacing.variable(xsmall)};
   overflow: hidden;
+
+  &--error {
+    border-color: #{forge-theme.variable(error)};
+    background: #{forge-theme.variable(error-container-low)};
+
+    .status-icon {
+      color: #{forge-theme.variable(error)};
+    }
+  }
 }
 
 .debug-button {
@@ -87,4 +96,17 @@
   font-size: 0.85em;
   white-space: pre-wrap;
   word-wrap: break-word;
+}
+
+.tool-error {
+  @include forge-typography.style(body2);
+
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xsmall)};
+  color: #{forge-theme.variable(error)};
+  padding: #{forge-spacing.variable(small)};
+  margin-block: #{forge-spacing.variable(small)};
+  background: #{forge-theme.variable(error-container-low)};
+  border-radius: #{forge-shape.variable(medium)};
 }

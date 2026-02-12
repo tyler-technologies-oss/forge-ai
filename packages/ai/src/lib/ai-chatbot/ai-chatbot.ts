@@ -356,7 +356,7 @@ export class AiChatbotComponent extends LitElement {
     if (this.#executingToolHandlers > 0 || this.adapter?.isRunning) {
       return;
     }
-    this.#messageStateController.completeResponse();
+    this.#messageStateController.tryFinalizeResponse();
     const messages = this.getMessages();
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === 'assistant' && lastMessage.status === 'complete') {
@@ -486,10 +486,21 @@ export class AiChatbotComponent extends LitElement {
       const handlerReturn = await handler(context);
       await this.#sendToolResult(toolCallId, this.#createToolResponse(toolName, handlerReturn));
     } catch (error) {
+      console.error(`Tool handler error [${toolName}]:`, error);
       this.#messageStateController.updateToolCallInResponse(toolCallId, {
         status: 'error',
         result: { error: (error as Error).message }
       });
+
+      const errorMessage: ChatMessage = {
+        id: generateId(),
+        role: 'assistant',
+        content: 'An unexpected error occurred.',
+        timestamp: Date.now(),
+        status: 'error'
+      };
+      this.#messageStateController.addMessage(errorMessage);
+      this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: (error as Error).message } });
     } finally {
       this.#executingToolHandlers--;
       this.#tryCompleteResponse();
