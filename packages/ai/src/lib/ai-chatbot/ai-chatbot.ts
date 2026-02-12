@@ -1,5 +1,5 @@
 import { LitElement, html, nothing, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
 import type { AgentInfo } from '../ai-agent-info';
@@ -123,6 +123,7 @@ export type FeatureToggle = 'on' | 'off';
  *
  * @slot header - Slot for custom header content
  * @slot empty-state - Slot for custom empty state content (overrides default suggestions)
+ * @slot thread-list - Slot for the thread list component (shown in history drawer when showHistoryButton is true)
  *
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
@@ -195,6 +196,12 @@ export class AiChatbotComponent extends LitElement {
   @property({ attribute: 'disclaimer-text' })
   public disclaimerText: string | null | undefined = 'AI can make mistakes. Always verify responses.';
 
+  @state()
+  private _historyDrawerOpen = false;
+
+  @query('#history-dialog')
+  private _historyDialog!: HTMLDialogElement;
+
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #messageThreadRef = createRef<AiMessageThreadComponent>();
   #promptRef = createRef<AiPromptComponent>();
@@ -204,6 +211,7 @@ export class AiChatbotComponent extends LitElement {
   #toolsMap?: Map<string, ToolDefinition>;
   #adapterSubscriptions?: SubscriptionManager;
   #executingToolHandlers = 0;
+  #boundEscapeHandler = this.#handleWindowEscapeKeydown.bind(this);
 
   get #slashCommands(): SlashCommand[] {
     const commands: SlashCommand[] = [];
@@ -277,6 +285,7 @@ export class AiChatbotComponent extends LitElement {
     super.disconnectedCallback();
     this.#adapterSubscriptions?.unsubscribe();
     this.adapter?.disconnect();
+    window.removeEventListener('keydown', this.#boundEscapeHandler);
   }
 
   public override willUpdate(changedProperties: PropertyValues<this>): void {
@@ -839,6 +848,10 @@ export class AiChatbotComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-info' });
   }
 
+  #handleHeaderToggleHistory(): void {
+    this.toggleHistoryDrawer();
+  }
+
   #handleDebugToggle(): void {
     this.debugMode = !this.debugMode;
   }
@@ -900,6 +913,17 @@ export class AiChatbotComponent extends LitElement {
 
     const filename = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
     downloadFile(chatText, filename, 'text/plain');
+  }
+
+  #handleHistoryDialogClose(): void {
+    this._historyDrawerOpen = false;
+    window.removeEventListener('keydown', this.#boundEscapeHandler);
+  }
+
+  #handleWindowEscapeKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this._historyDrawerOpen) {
+      this._historyDialog.close();
+    }
   }
 
   /**
@@ -982,23 +1006,38 @@ export class AiChatbotComponent extends LitElement {
 
   /**
    * Restores thread state from a serialized ThreadState object.
-   * @param state - ThreadState object to restore
+   * @param threadState - ThreadState object to restore
    */
-  public async setThreadState(state: ThreadState): Promise<void> {
-    this.setMessages(state.messages);
+  public async setThreadState(threadState: ThreadState): Promise<void> {
+    this.setMessages(threadState.messages);
 
-    if (state.threadId && this.adapter) {
-      this.adapter.threadId = state.threadId;
+    if (threadState.threadId && this.adapter) {
+      this.adapter.threadId = threadState.threadId;
     }
 
     await this.updateComplete;
 
     // Populate prompt history with user messages
-    const userMessages = state.messages.filter(msg => msg.role === 'user').map(msg => msg.content);
+    const userMessages = threadState.messages.filter(msg => msg.role === 'user').map(msg => msg.content);
     this.#promptRef.value?.setHistory(userMessages);
 
     this.scrollToBottom({ behavior: 'instant' });
   }
+
+  /**
+   * Toggles the history drawer open/closed.
+   */
+  public toggleHistoryDrawer(): void {
+    if (this._historyDrawerOpen) {
+      this._historyDialog.close();
+    } else {
+      this._historyDrawerOpen = true;
+      this._historyDialog.show();
+      window.addEventListener('keydown', this.#boundEscapeHandler);
+    }
+  }
+
+  readonly #drawerContent: TemplateResult = html` <div class="history-container">Chat history here</div> `;
 
   get #sessionFilesTemplate(): TemplateResult | typeof nothing {
     const completed = this.#fileUploadManager.completedAttachments;
@@ -1100,34 +1139,51 @@ export class AiChatbotComponent extends LitElement {
 
   public override render(): TemplateResult {
     return html`
-      <forge-ai-chat-interface
-        ${ref(this.#chatInterfaceRef)}
-        role="region"
-        aria-label="AI chatbot"
-        aria-live="polite"
-        aria-busy=${this.#isStreaming}>
-        <forge-ai-chat-header
-          ${ref(this.#headerRef)}
-          slot="header"
-          ?show-expand-button=${this.showExpandButton}
-          ?show-minimize-button=${this.showMinimizeButton}
-          ?show-history-button=${this.showHistoryButton}
-          ?expanded=${this.expanded}
-          export-option=${this.#hasMessages ? 'enabled' : 'off'}
-          clear-option=${this.#hasMessages ? 'enabled' : 'off'}
-          .minimizeIcon=${this.minimizeIcon}
-          .agentInfo=${this.agentInfo}
-          .headingLevel=${this.headingLevel}
-          .titleText=${this.titleText}
-          @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
-          @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
-          @forge-ai-chat-header-clear=${this.#handleHeaderClear}
-          @forge-ai-chat-header-export=${this.#handleExport}
-          @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
-        </forge-ai-chat-header>
-        ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
-        ${when(this.disclaimerText, () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`)}
-      </forge-ai-chat-interface>
+      <div class="chatbot-container">
+        <forge-ai-chat-interface
+          ${ref(this.#chatInterfaceRef)}
+          role="region"
+          aria-label="AI chatbot"
+          aria-live="polite"
+          aria-busy=${this.#isStreaming}>
+          <forge-ai-chat-header
+            ${ref(this.#headerRef)}
+            slot="header"
+            ?show-expand-button=${this.showExpandButton}
+            ?show-minimize-button=${this.showMinimizeButton}
+            ?show-history-button=${this.showHistoryButton}
+            ?expanded=${this.expanded}
+            export-option=${this.#hasMessages ? 'enabled' : 'off'}
+            clear-option=${this.#hasMessages ? 'enabled' : 'off'}
+            .minimizeIcon=${this.minimizeIcon}
+            .agentInfo=${this.agentInfo}
+            .headingLevel=${this.headingLevel}
+            .titleText=${this.titleText}
+            @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
+            @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
+            @forge-ai-chat-header-clear=${this.#handleHeaderClear}
+            @forge-ai-chat-header-export=${this.#handleExport}
+            @forge-ai-chat-header-info=${this.#handleHeaderInfo}
+            @forge-ai-chat-header-toggle-history=${this.#handleHeaderToggleHistory}>
+          </forge-ai-chat-header>
+          ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
+          ${when(
+            this.disclaimerText,
+            () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`
+          )}
+          ${when(
+            this.showHistoryButton,
+            () => html`
+              <dialog
+                id="history-dialog"
+                class="chat-history-drawer forge-dialog forge-dialog--modal forge-dialog--left-sheet"
+                @close=${this.#handleHistoryDialogClose}>
+                ${this.#drawerContent}
+              </dialog>
+            `
+          )}
+        </forge-ai-chat-interface>
+      </div>
     `;
   }
 

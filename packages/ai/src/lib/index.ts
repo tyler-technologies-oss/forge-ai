@@ -7,6 +7,7 @@ export * from './ai-attachment';
 export * from './ai-button';
 export * from './ai-chain-of-thought';
 export * from './ai-chat-header';
+export * from './ai-chat-history';
 export * from './ai-chat-interface';
 export * from './ai-chatbot';
 export * from './ai-confirmation-prompt';

@@ -1,26 +1,26 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import type { Thread } from './ai-threads';
+import type { Thread } from '../ai-threads/ai-threads';
 
-import styles from './ai-thread-list.scss?inline';
+import styles from './ai-chat-history.scss?inline';
 import '../ai-dropdown-menu/ai-dropdown-menu.js';
 import '../ai-dropdown-menu/ai-dropdown-menu-item.js';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'forge-ai-thread-list': AiThreadListComponent;
+    'forge-ai-chat-history': AiChatHistoryComponent;
   }
 }
 
-export const AiThreadListComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-thread-list';
+export const AiChatHistoryComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-chat-history';
 
 /**
- * @tag forge-ai-thread-list
+ * @tag forge-ai-chat-history
  *
  * @description A component that displays a list of chat history items
  */
-@customElement(AiThreadListComponentTagName)
-export class AiThreadListComponent extends LitElement {
+@customElement(AiChatHistoryComponentTagName)
+export class AiChatHistoryComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   /** Array of threads to display */
@@ -98,6 +98,6 @@ export class AiThreadListComponent extends LitElement {
   }
 
   public override render(): TemplateResult {
-    return html`<div class="thread-list-container">${this.#threadList}</div>`;
+    return html`<div class="chat-history-container">${this.#threadList}</div>`;
   }
 }
