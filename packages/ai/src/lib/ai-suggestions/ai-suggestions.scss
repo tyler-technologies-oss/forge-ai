@@ -45,8 +45,14 @@
 
 .suggestion {
   --forge-button-shape: #{forge-shape.variable(medium)};
-  --forge-button-tonal-background: #{forge-theme.variable(tertiary-container)};
-  --forge-button-tonal-color: #{forge-theme.variable(on-tertiary-container)};
+  --forge-button-tonal-background: var(
+    --forge-ai-chatbot-suggestion-background,
+    #{forge-theme.variable(tertiary-container)}
+  );
+  --forge-button-tonal-color: var(
+    --forge-ai-chatbot-suggestion-foreground,
+    #{forge-theme.variable(on-tertiary-container)}
+  );
   --forge-button-height: 32px;
 
   max-inline-size: var(--forge-ai-suggestion-max-width, 82.5%);

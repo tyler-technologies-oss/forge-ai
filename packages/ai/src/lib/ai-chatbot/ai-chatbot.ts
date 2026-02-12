@@ -136,6 +136,10 @@ export type FeatureToggle = 'on' | 'off';
  * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  * @property {string | null | undefined} disclaimerText - The disclaimer text to display below the prompt. Set to empty string, null, or undefined to hide.
  *
+ * @cssproperty --forge-ai-chatbot-icon-color - The fill color for the AI icon. Defaults to `tertiary`.
+ * @cssproperty --forge-ai-chatbot-suggestion-background - The background color for suggestion buttons. Defaults to `tertiary-container`.
+ * @cssproperty --forge-ai-chatbot-suggestion-foreground - The text color for suggestion buttons. Defaults to `on-tertiary-container`.
+ *
  * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
  * @event {CustomEvent<void>} forge-ai-chatbot-disconnected - Fired when adapter disconnects
  * @event {CustomEvent<ForgeAiChatbotMessageEventData>} forge-ai-chatbot-message-sent - Fired when user sends a message
