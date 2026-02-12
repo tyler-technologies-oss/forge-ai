@@ -38,12 +38,6 @@ export class AiThreadListComponent extends LitElement {
                 <span class="thread-title">${thread.title}</span>
               </button>
               <div class="forge-list-item__end more-details-button">
-                <!-- <button aria-label="View more thread details" class=" forge-icon-button forge-icon-button--small">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path
-                      d="M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2" />
-                  </svg>
-                </button> -->
                 <forge-ai-dropdown-menu variant="icon-button" selection-mode="none" popover-placement="bottom-start">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -54,28 +48,45 @@ export class AiThreadListComponent extends LitElement {
                       d="M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2" />
                   </svg>
 
-                  <forge-ai-dropdown-menu-item value="gpt-4.1">
-                    <span>GPT-4.1</span>
-                    <!-- <span slot="description">More capable, advanced reasoning</span> -->
+                  <forge-ai-dropdown-menu-item value="delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start">
+                      <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
+                    </svg>
+                    <span>Delete chat</span>
                     <forge-icon name="sparkles" slot="start"></forge-icon>
                   </forge-ai-dropdown-menu-item>
 
-                  <forge-ai-dropdown-menu-item value="gpt-4">
-                    <span>GPT-4</span>
-                    <!-- <span slot="description">Advanced reasoning capabilities</span> -->
-                    <forge-icon name="sparkles" slot="start"></forge-icon>
-                  </forge-ai-dropdown-menu-item>
-
-                  <forge-ai-dropdown-menu-item value="claude-sonnet-4">
-                    <span>Claude Sonnet 4</span>
-                    <!-- <span slot="description">Powerful and steerable</span> -->
-                    <forge-icon name="sparkles" slot="start"></forge-icon>
-                  </forge-ai-dropdown-menu-item>
-
-                  <forge-ai-dropdown-menu-item value="claude-sonnet-4.5">
-                    <span>Claude Sonnet 4.5</span>
-                    <!-- <span slot="description">Improved steerability and creativity</span> -->
-                    <forge-icon name="sparkles" slot="start"></forge-icon>
+                  <forge-ai-dropdown-menu-item value="new">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start">
+                      <path
+                        d="M22 8v5.81c-.88-.51-1.9-.81-3-.81-3.31 0-6 2.69-6 6 0 .34.04.67.09 1H4a2 2 0 0 1-2-2V6c0-1.11.89-2 2-2h6l2 2h8a2 2 0 0 1 2 2m-6 10h2v4h2v-4h2l-3-3z" />
+                    </svg>
+                    <span>Move to project</span>
+                    <forge-ai-dropdown-menu selection-mode="none">
+                      <forge-ai-dropdown-menu-item value="file">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start">
+                          <path fill="none" d="M0 0h24v24H0z" />
+                          <path
+                            d="M20 6h-8l-2-2H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2m-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3z" />
+                        </svg>
+                        <span>New project</span>
+                      </forge-ai-dropdown-menu-item>
+                      <forge-ai-dropdown-menu-item-group>
+                        <span slot="label">Your projects</span>
+                        <forge-ai-dropdown-menu-item value="claude-sonnet-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start">
+                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8z" />
+                          </svg>
+                          <span>Project one</span>
+                        </forge-ai-dropdown-menu-item>
+                        <forge-ai-dropdown-menu-item value="claude-sonnet-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start">
+                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8z" />
+                          </svg>
+                          <span>Project two</span>
+                        </forge-ai-dropdown-menu-item>
+                      </forge-ai-dropdown-menu-item-group>
+                    </forge-ai-dropdown-menu>
                   </forge-ai-dropdown-menu-item>
                 </forge-ai-dropdown-menu>
               </div>

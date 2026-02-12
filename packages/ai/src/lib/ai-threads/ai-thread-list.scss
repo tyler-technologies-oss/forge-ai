@@ -60,5 +60,11 @@
 
 forge-ai-dropdown-menu {
   --forge-list-item-height: initial;
-  --forge-list-item-padding: initial;
+  --forge-list-item-padding: #{forge-spacing.variable(small)};
+}
+
+forge-ai-dropdown-menu-item svg {
+  height: 20px;
+  width: 20px;
+  margin-inline-end: #{forge-spacing.variable(small)};
 }
