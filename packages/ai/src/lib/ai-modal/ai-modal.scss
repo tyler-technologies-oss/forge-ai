@@ -5,6 +5,10 @@
   display: contents;
 }
 
+.forge-dialog::backdrop {
+  position: fixed;
+}
+
 dialog.forge-dialog:not(.forge-dialog--fullscreen) {
   height: var(--forge-ai-modal-height, 80vh);
   width: var(--forge-ai-modal-width, 80vw);

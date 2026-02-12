@@ -57,6 +57,9 @@ export interface ForgeAiChatbotProps extends Pick<
   /** The disclaimer text to display below the prompt. Set to empty string, null, or undefined to hide. */
   disclaimerText?: ForgeAiChatbotElement["disclaimerText"];
 
+  /** undefined */
+  selectedAgentId?: ForgeAiChatbotElement["selectedAgentId"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -146,6 +149,7 @@ export interface ForgeAiChatbotProps extends Pick<
  *  - **clearMessages(): _void_** - Clears all messages from the chat history.
  * - **getMessages(): __** - Gets the current message history.
  * - **setMessages(messages: _ChatMessage[]_): _void_** - Sets the message history. Useful for restoring conversation state.
+ * - **getSelectedAgent(): __** - Gets the currently selected agent.
  * - **sendMessage(content: _string_, files: _File[]_): _Promise<void>_** - Programmatically sends a message as the user.
  * - **abort(): _void_** - Aborts the current streaming response.
  * - **scrollToBottom({ behavior }: _{ behavior?: ScrollBehavior }_): _Promise<void>_** - Scrolls the chat interface to the bottom.
@@ -154,6 +158,12 @@ export interface ForgeAiChatbotProps extends Pick<
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content
+ * - **icon** - Slot for custom header icon (default: forge-ai-icon)
  * - **empty-state** - Slot for custom empty state content (overrides default suggestions)
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-chatbot-icon-color** - The fill color for the AI icon. Defaults to `tertiary`. _(default: undefined)_
+ * - **--forge-ai-chatbot-suggestion-background** - The background color for suggestion buttons. Defaults to `tertiary-container`. _(default: undefined)_
+ * - **--forge-ai-chatbot-suggestion-foreground** - The text color for suggestion buttons. Defaults to `on-tertiary-container`. _(default: undefined)_
  */
 export const ForgeAiChatbot: React.ForwardRefExoticComponent<ForgeAiChatbotProps>;

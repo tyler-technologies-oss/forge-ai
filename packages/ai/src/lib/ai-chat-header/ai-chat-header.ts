@@ -4,7 +4,8 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import type { AiModalComponent } from '../ai-modal';
-import type { HeadingLevel } from '../ai-chatbot/types';
+import type { Agent, HeadingLevel } from '../ai-chatbot/types';
+import type { ForgeAiAgentSelectorChangeEventData } from '../ai-agent-selector';
 import '../ai-icon/ai-icon';
 import '../core/tooltip/tooltip.js';
 import '../ai-dropdown-menu/ai-dropdown-menu.js';
@@ -12,6 +13,7 @@ import '../ai-dropdown-menu/ai-dropdown-menu-item.js';
 import '../ai-dropdown-menu/ai-dropdown-menu-separator.js';
 import '../ai-modal/ai-modal.js';
 import '../ai-agent-info/ai-agent-info.js';
+import '../ai-agent-selector/ai-agent-selector.js';
 
 import styles from './ai-chat-header.scss?inline';
 
@@ -29,7 +31,13 @@ declare global {
     'forge-ai-chat-header-minimize': CustomEvent<void>;
     'forge-ai-chat-header-clear': CustomEvent<void>;
     'forge-ai-chat-header-export': CustomEvent<void>;
+    'forge-ai-chat-header-agent-change': CustomEvent<ForgeAiChatHeaderAgentChangeEventData>;
   }
+}
+
+export interface ForgeAiChatHeaderAgentChangeEventData {
+  agent: Agent | undefined;
+  previousAgentId: string | undefined;
 }
 
 export type MinimizeIconType = 'default' | 'panel';
@@ -129,13 +137,31 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ attribute: 'title-text' })
   public titleText = 'AI Assistant';
 
+  /**
+   * Array of available agents for the agent selector
+   */
+  @property({ attribute: false })
+  public agents: Agent[] = [];
+
+  /**
+   * ID of the currently selected agent
+   */
+  @property({ attribute: 'selected-agent-id' })
+  public selectedAgentId?: string;
+
+  /**
+   * Disables the agent selector (e.g., during streaming)
+   */
+  @property({ type: Boolean, attribute: 'disable-agent-selector' })
+  public disableAgentSelector = false;
+
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
   @state()
   private _isTitleOverflowing = false;
 
   public override updated(changedProperties: PropertyValues<this>): void {
-    if (changedProperties.has('titleText') || changedProperties.has('headingLevel')) {
+    if ((changedProperties.has('titleText') || changedProperties.has('headingLevel')) && this.agents.length === 0) {
       this.#checkTitleOverflow();
     }
   }
@@ -145,8 +171,26 @@ export class AiChatHeaderComponent extends LitElement {
   }
 
   get #titleElement(): TemplateResult {
+    if (this.agents.length) {
+      return html`
+        <forge-ai-agent-selector
+          .agents=${this.agents}
+          .selectedAgentId=${this.selectedAgentId}
+          .titleText=${this.titleText}
+          ?disabled=${this.disableAgentSelector}
+          @forge-ai-agent-selector-change=${this.#handleAgentChange}>
+          <slot name="icon" slot="icon">
+            <forge-ai-icon></forge-ai-icon>
+          </slot>
+        </forge-ai-agent-selector>
+      `;
+    }
+
     const tagName = unsafeStatic(`h${this.headingLevel}`);
     return staticHtml`
+      <slot name="icon" slot="icon">
+        <forge-ai-icon></forge-ai-icon>
+      </slot>
       <${tagName} class="title" id="title-container">${this.titleText}</${tagName}>
       ${when(
         this._isTitleOverflowing,
@@ -158,12 +202,7 @@ export class AiChatHeaderComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="header">
-        <div class="start" id="title-container">
-          <slot name="icon">
-            <forge-ai-icon></forge-ai-icon>
-          </slot>
-          ${this.#titleElement}
-        </div>
+        <div class="start" id="title-container">${this.#titleElement}</div>
         <div class="end">
           ${when(
             this.showMinimizeButton,
@@ -382,6 +421,16 @@ export class AiChatHeaderComponent extends LitElement {
 
   #handleModalClose(): void {
     this.#agentInfoModalRef.value?.close();
+  }
+
+  #handleAgentChange(event: CustomEvent<ForgeAiAgentSelectorChangeEventData>): void {
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-chat-header-agent-change', {
+        detail: event.detail,
+        bubbles: true,
+        composed: true
+      })
+    );
   }
 
   /**

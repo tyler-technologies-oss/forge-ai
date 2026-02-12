@@ -5,7 +5,8 @@ import { useEventListener } from "./react-utils.js";
 export const ForgeAiResponseMessageToolbar = forwardRef(
   (props, forwardedRef) => {
     const ref = useRef(null);
-    const { enableReactions, feedbackType, ...filteredProps } = props;
+    const { enableReactions, feedbackType, feedbackReason, ...filteredProps } =
+      props;
 
     /** Event listeners - run once */
     useEventListener(
@@ -32,6 +33,7 @@ export const ForgeAiResponseMessageToolbar = forwardRef(
         },
         ...filteredProps,
         "feedback-type": props.feedbackType || props["feedback-type"],
+        "feedback-reason": props.feedbackReason || props["feedback-reason"],
         class: props.className,
         exportparts: props.exportparts,
         for: props.htmlFor,

@@ -10,6 +10,7 @@ import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData 
 import type { AiPromptComponent, ForgeAiPromptSendEventData, ForgeAiPromptCommandEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData, Suggestion } from '../ai-suggestions';
 import type { ForgeAiVoiceInputResultEvent } from '../ai-voice-input';
+import type { ForgeAiChatHeaderAgentChangeEventData } from '../ai-chat-header';
 import {
   AgentAdapter,
   type AdapterState,
@@ -27,6 +28,7 @@ import { SubscriptionManager } from './event-emitter.js';
 import { FileUploadManager } from './file-upload-manager.js';
 import { MessageStateController } from './message-state-controller.js';
 import type {
+  Agent,
   ChatMessage,
   FileAttachment,
   FileUploadCallbacks,
@@ -83,6 +85,7 @@ declare global {
     'forge-ai-voice-input-result': CustomEvent<ForgeAiVoiceInputResultEvent>;
     'forge-ai-chatbot-file-remove': CustomEvent<ForgeAiChatbotFileRemoveEventData>;
     'forge-ai-chatbot-response-feedback': CustomEvent<ForgeAiChatbotResponseFeedbackEventData>;
+    'forge-ai-chatbot-agent-change': CustomEvent<ForgeAiChatbotAgentChangeEventData>;
   }
 }
 
@@ -110,6 +113,11 @@ export interface ForgeAiChatbotResponseFeedbackEventData {
   feedback?: string;
 }
 
+export interface ForgeAiChatbotAgentChangeEventData {
+  agent: Agent | undefined;
+  previousAgentId: string | undefined;
+}
+
 export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-chatbot';
 
 /**
@@ -128,11 +136,16 @@ export type FeatureToggle = 'on' | 'off';
  * It uses an adapter pattern to abstract communication, allowing for AG-UI or custom protocol implementations.
  *
  * @slot header - Slot for custom header content
+ * @slot icon - Slot for custom header icon (default: forge-ai-icon)
  * @slot empty-state - Slot for custom empty state content (overrides default suggestions)
  *
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  * @property {string | null | undefined} disclaimerText - The disclaimer text to display below the prompt. Set to empty string, null, or undefined to hide.
+ *
+ * @cssproperty --forge-ai-chatbot-icon-color - The fill color for the AI icon. Defaults to `tertiary`.
+ * @cssproperty --forge-ai-chatbot-suggestion-background - The background color for suggestion buttons. Defaults to `tertiary-container`.
+ * @cssproperty --forge-ai-chatbot-suggestion-foreground - The text color for suggestion buttons. Defaults to `on-tertiary-container`.
  *
  * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
  * @event {CustomEvent<void>} forge-ai-chatbot-disconnected - Fired when adapter disconnects
@@ -197,6 +210,12 @@ export class AiChatbotComponent extends LitElement {
 
   @property({ attribute: 'disclaimer-text' })
   public disclaimerText: string | null | undefined = 'AI can make mistakes. Always verify responses.';
+
+  @property({ attribute: false })
+  public agents: Agent[] = [];
+
+  @property({ attribute: 'selected-agent-id' })
+  public selectedAgentId?: string;
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   #messageThreadRef = createRef<AiMessageThreadComponent>();
@@ -366,7 +385,7 @@ export class AiChatbotComponent extends LitElement {
     if (this.#executingToolHandlers > 0 || this.adapter?.isRunning || this.#pendingConfirmation) {
       return;
     }
-    this.#messageStateController.completeResponse();
+    this.#messageStateController.tryFinalizeResponse();
     const messages = this.getMessages();
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === 'assistant' && lastMessage.status === 'complete') {
@@ -522,10 +541,21 @@ export class AiChatbotComponent extends LitElement {
       const handlerReturn = await handler(context);
       await this.#sendToolResult(toolCallId, this.#createToolResponse(toolName, handlerReturn));
     } catch (error) {
+      console.error(`Tool handler error [${toolName}]:`, error);
       this.#messageStateController.updateToolCallInResponse(toolCallId, {
         status: 'error',
         result: { error: (error as Error).message }
       });
+
+      const errorMessage: ChatMessage = {
+        id: generateId(),
+        role: 'assistant',
+        content: 'An unexpected error occurred.',
+        timestamp: Date.now(),
+        status: 'error'
+      };
+      this.#messageStateController.addMessage(errorMessage);
+      this.#dispatchEvent({ type: 'forge-ai-chatbot-error', detail: { error: (error as Error).message } });
     } finally {
       this.#executingToolHandlers--;
       this.#tryCompleteResponse();
@@ -769,7 +799,7 @@ export class AiChatbotComponent extends LitElement {
     this.adapter.sendMessage(this.getMessages());
   }
 
-  #handleRefresh(evt: CustomEvent<{ messageId: string }>): void {
+  #handleResend(evt: CustomEvent<{ messageId: string }>): void {
     if (!this.adapter) {
       return;
     }
@@ -932,6 +962,22 @@ export class AiChatbotComponent extends LitElement {
     this.#dispatchEvent({ type: 'forge-ai-chatbot-info' });
   }
 
+  #handleAgentChange(event: CustomEvent<ForgeAiChatHeaderAgentChangeEventData>): void {
+    const { agent, previousAgentId } = event.detail;
+
+    const changeEvt = this.#dispatchEvent({
+      type: 'forge-ai-chatbot-agent-change',
+      detail: { agent, previousAgentId }
+    });
+
+    if (!changeEvt.defaultPrevented) {
+      this.selectedAgentId = agent?.id;
+      if (this.adapter) {
+        this.adapter.threadId = generateId();
+      }
+    }
+  }
+
   #handleDebugToggle(): void {
     this.debugMode = !this.debugMode;
   }
@@ -955,22 +1001,42 @@ export class AiChatbotComponent extends LitElement {
     }
   }
 
+  #formatToolCallForExport(toolCall: ToolCall): string {
+    const lines = [`  Tool: ${toolCall.name}`, `  Args: ${JSON.stringify(toolCall.args)}`];
+
+    if (toolCall.status === 'error') {
+      const errorMsg =
+        typeof toolCall.result === 'object' && toolCall.result !== null && 'error' in toolCall.result
+          ? (toolCall.result as { error: string }).error
+          : 'Unknown error';
+      lines.push(`  Error: ${errorMsg}`);
+    } else if (toolCall.result !== undefined) {
+      lines.push(`  Result: ${JSON.stringify(toolCall.result)}`);
+    }
+
+    return lines.join('\n');
+  }
+
   #handleExport(): void {
-    const messages: ChatMessage[] = this.getMessages();
+    const messages = this.getMessages();
     if (messages.length === 0) {
       return;
     }
 
-    // Format chat history as text
-    const chatText: string = messages
-      .map((message: ChatMessage) => {
-        const timestamp: string = new Date(message.timestamp).toLocaleString();
-        const role: string = message.role === 'user' ? 'You' : 'Assistant';
-        return `[${timestamp}] ${role}:\n${message.content}\n`;
+    const chatText = messages
+      .map(message => {
+        const timestamp = new Date(message.timestamp).toLocaleString();
+        const role = message.role === 'user' ? 'You' : 'Assistant';
+        let output = `[${timestamp}] ${role}:\n${message.content}\n`;
+
+        if (message.toolCalls?.length) {
+          output += '\n' + message.toolCalls.map(tc => this.#formatToolCallForExport(tc)).join('\n\n') + '\n';
+        }
+
+        return output;
       })
       .join('\n');
 
-    // Generate filename and download
     const filename = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
     downloadFile(chatText, filename, 'text/plain');
   }
@@ -997,6 +1063,14 @@ export class AiChatbotComponent extends LitElement {
    */
   public setMessages(messages: ChatMessage[]): void {
     this.#messageStateController.setMessages(messages);
+  }
+
+  /**
+   * Gets the currently selected agent.
+   * @returns The selected agent or undefined if none selected
+   */
+  public getSelectedAgent(): Agent | undefined {
+    return this.agents.find(a => a.id === this.selectedAgentId);
   }
 
   /**
@@ -1169,7 +1243,7 @@ export class AiChatbotComponent extends LitElement {
         ?show-thinking=${this.#isStreaming}
         ?debug-mode=${this.debugMode}
         @forge-ai-message-thread-copy=${this.#handleCopy}
-        @forge-ai-message-thread-refresh=${this.#handleRefresh}
+        @forge-ai-message-thread-resend=${this.#handleResend}
         @forge-ai-message-thread-thumbs-up=${this.#handleThumbsUp}
         @forge-ai-message-thread-thumbs-down=${this.#handleThumbsDown}
         @forge-ai-message-thread-user-copy=${this.#handleUserCopy}
@@ -1201,17 +1275,24 @@ export class AiChatbotComponent extends LitElement {
           ?show-expand-button=${this.showExpandButton}
           ?show-minimize-button=${this.showMinimizeButton}
           ?expanded=${this.expanded}
+          ?disable-agent-selector=${this.#isStreaming}
           export-option=${this.#hasMessages ? 'enabled' : 'off'}
           clear-option=${this.#hasMessages ? 'enabled' : 'off'}
           .minimizeIcon=${this.minimizeIcon}
           .agentInfo=${this.agentInfo}
           .headingLevel=${this.headingLevel}
           .titleText=${this.titleText}
+          .agents=${this.agents}
+          .selectedAgentId=${this.selectedAgentId}
           @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
           @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}
           @forge-ai-chat-header-export=${this.#handleExport}
-          @forge-ai-chat-header-info=${this.#handleHeaderInfo}>
+          @forge-ai-chat-header-info=${this.#handleHeaderInfo}
+          @forge-ai-chat-header-agent-change=${this.#handleAgentChange}>
+          <slot name="icon" slot="icon">
+            <forge-ai-icon></forge-ai-icon>
+          </slot>
         </forge-ai-chat-header>
         ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#confirmationPrompt} ${this.#promptSlot}
         ${when(this.disclaimerText, () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`)}

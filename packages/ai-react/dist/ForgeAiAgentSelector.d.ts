@@ -1,9 +1,12 @@
 import React from "react";
-import { ForgeAiResponseMessageToolbar as ForgeAiResponseMessageToolbarElement } from "@tylertech/forge-ai/ai-response-message-toolbar";
+import {
+  ForgeAiAgentSelector as ForgeAiAgentSelectorElement,
+  CustomEvent,
+} from "@tylertech/forge-ai/ai-agent-selector";
 
-export type { ForgeAiResponseMessageToolbarElement };
+export type { ForgeAiAgentSelectorElement, CustomEvent };
 
-export interface ForgeAiResponseMessageToolbarProps extends Pick<
+export interface ForgeAiAgentSelectorProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -18,14 +21,14 @@ export interface ForgeAiResponseMessageToolbarProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
-  /** undefined */
-  enableReactions?: boolean;
+  /** Disables the selector (e.g., during streaming) */
+  disabled?: boolean;
 
-  /** undefined */
-  feedbackType?: ForgeAiResponseMessageToolbarElement["feedbackType"];
+  /** ID of the currently selected agent */
+  selectedAgentId?: ForgeAiAgentSelectorElement["selectedAgentId"];
 
-  /** undefined */
-  feedbackReason?: ForgeAiResponseMessageToolbarElement["feedbackReason"];
+  /** Fallback text when no agent is selected */
+  titleText?: ForgeAiAgentSelectorElement["titleText"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -48,28 +51,19 @@ export interface ForgeAiResponseMessageToolbarProps extends Pick<
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
-  /** Fired when an action button is clicked. The detail contains the action type. */
-  onForgeAiResponseMessageToolbarAction?: (
-    event: CustomEvent<
-      CustomEvent<ForgeAiResponseMessageToolbarActionEventData>
-    >,
-  ) => void;
+  /** Array of available agents */
+  agents?: ForgeAiAgentSelectorElement["agents"];
 
-  /** Fired when feedback is submitted. The detail contains the action and optional feedback text. */
-  onForgeAiResponseMessageToolbarFeedback?: (
-    event: CustomEvent<
-      CustomEvent<ForgeAiResponseMessageToolbarFeedbackEventData>
-    >,
-  ) => void;
+  /** Fired when an agent is selected */
+  onForgeAiAgentSelectorChange?: (event: CustomEvent) => void;
 }
 
 /**
- *
+ * Agent selector component for switching between AI agents.
  * ---
  *
  *
  * ### **Events:**
- *  - **forge-ai-response-message-toolbar-action** - Fired when an action button is clicked. The detail contains the action type.
- * - **forge-ai-response-message-toolbar-feedback** - Fired when feedback is submitted. The detail contains the action and optional feedback text.
+ *  - **forge-ai-agent-selector-change** - Fired when an agent is selected
  */
-export const ForgeAiResponseMessageToolbar: React.ForwardRefExoticComponent<ForgeAiResponseMessageToolbarProps>;
+export const ForgeAiAgentSelector: React.ForwardRefExoticComponent<ForgeAiAgentSelectorProps>;

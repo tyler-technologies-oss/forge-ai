@@ -16,3 +16,7 @@
     font-weight: bold;
   }
 }
+
+::slotted(*) {
+  margin-block: 0;
+}

@@ -50,6 +50,9 @@ export class AiResponseMessageToolbarComponent extends LitElement {
   @property({ attribute: 'feedback-type' })
   public feedbackType?: FeedbackType;
 
+  @property({ attribute: 'feedback-reason' })
+  public feedbackReason?: string;
+
   @state()
   private _thumbsUpActive = false;
 
@@ -229,7 +232,7 @@ export class AiResponseMessageToolbarComponent extends LitElement {
       <div class="popover-content">
         <div class="popover-header">Leave feedback for this response</div>
         <div class="forge-field">
-          <textarea placeholder="Enter your feedback..."></textarea>
+          <textarea placeholder="Enter your feedback..." .value=${this.feedbackReason ?? ''}></textarea>
         </div>
         <div class="popover-actions">
           <button class="forge-button forge-button--outlined" @click=${this.#handleFeedbackCancel}>Cancel</button>

@@ -290,6 +290,7 @@ export class AgentRunner {
           result = this.#createToolResponse(event.name, handlerReturn);
         } catch (error) {
           const err = error as Error;
+          console.error(`Tool handler error [${event.name}]:`, err);
           result = { error: err.message };
           toolCall.status = 'error';
           toolCall.result = result;

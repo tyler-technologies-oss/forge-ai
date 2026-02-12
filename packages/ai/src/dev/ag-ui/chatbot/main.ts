@@ -282,7 +282,6 @@ function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
     },
     threadId
   );
-
   newAdapter.onFileUpload(async ({ file, markComplete, markError, onAbort, updateProgress }) => {
     console.log('Starting upload for file:', file.name);
 
@@ -442,6 +441,21 @@ reconnectBtn.addEventListener('click', () => {
   initializeAdapter(baseUrl, agentId);
 });
 
+const agents = [
+  {
+    id: 'agent-f586a37b-5a2d-4984-b791-5301105854e9',
+    name: 'Tyler Forge Agent',
+    description: 'An AI assistant that can help you with Tyler Forge UI framework related questions and tasks.'
+  },
+  {
+    id: 'agent-4a5a6c19-3009-4ab2-b7f8-ffee889eb71f',
+    name: 'ERP Agent',
+    description: 'An AI assistant that can help you with Tyler Technologies ERP software related questions and tasks.'
+  }
+];
+
+chatbot.agents = agents;
+
 initializeAdapter(baseUrlInput.value, agentIdInput.value, true);
 chatbot.suggestions = [
   { text: 'What can you help me with?', value: 'What can you help me with?' },
@@ -467,8 +481,15 @@ chatbot.addEventListener('forge-ai-chatbot-clear', () => {
   clearThreadState();
 });
 
+const agentThreadStates = new Map<string, ReturnType<typeof chatbot.getThreadState>>();
+
 chatbot.addEventListener('forge-ai-chatbot-message-received', (e: CustomEvent) => {
   addEventToStream('ASSISTANT_MESSAGE', e.detail.message);
+
+  const agentId = chatbot.selectedAgentId;
+  if (agentId) {
+    agentThreadStates.set(agentId, chatbot.getThreadState());
+  }
   saveThreadState();
 });
 
@@ -476,6 +497,34 @@ chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<For
   console.log('🔧 Tool call:', e);
 });
 
+chatbot.addEventListener('forge-ai-chatbot-error', () => {
+  saveThreadState();
+});
+
 chatbot.addEventListener('forge-ai-chatbot-response-feedback', (e: CustomEvent) => {
   console.log('👍👎 Response feedback:', e.detail);
+});
+
+chatbot.addEventListener('forge-ai-chatbot-agent-change', async (e: CustomEvent) => {
+  const { agent, previousAgentId } = e.detail;
+  console.log('🔄 Agent changed:', { agent, previousAgentId });
+
+  if (previousAgentId) {
+    agentThreadStates.set(previousAgentId, chatbot.getThreadState());
+    console.log('💾 Saved thread state for agent:', previousAgentId);
+  }
+
+  const baseUrl = baseUrlInput.value.trim();
+  const agentId = agent?.id ?? agentIdInput.value.trim();
+  threadId = generateId();
+  adapter = createAdapter(baseUrl, agentId);
+  chatbot.adapter = adapter;
+
+  if (agent) {
+    const savedState = agentThreadStates.get(agent.id);
+    if (savedState) {
+      await chatbot.setThreadState(savedState);
+      console.log('✅ Restored thread state for agent:', agent.id);
+    }
+  }
 });
