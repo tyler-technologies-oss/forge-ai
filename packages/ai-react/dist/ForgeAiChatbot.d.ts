@@ -158,6 +158,12 @@ export interface ForgeAiChatbotProps extends Pick<
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content
+ * - **icon** - Slot for custom header icon (default: forge-ai-icon)
  * - **empty-state** - Slot for custom empty state content (overrides default suggestions)
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-chatbot-icon-color** - The fill color for the AI icon. Defaults to `tertiary`. _(default: undefined)_
+ * - **--forge-ai-chatbot-suggestion-background** - The background color for suggestion buttons. Defaults to `tertiary-container`. _(default: undefined)_
+ * - **--forge-ai-chatbot-suggestion-foreground** - The text color for suggestion buttons. Defaults to `on-tertiary-container`. _(default: undefined)_
  */
 export const ForgeAiChatbot: React.ForwardRefExoticComponent<ForgeAiChatbotProps>;
