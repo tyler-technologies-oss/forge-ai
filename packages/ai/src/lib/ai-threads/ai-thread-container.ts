@@ -107,6 +107,12 @@ export class AiThreadContainerComponent extends LitElement {
     toggleState(this.#internals, 'open', false);
   }
 
+  #handleDialogKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this._dialog.close();
+    }
+  }
+
   public override connectedCallback(): void {
     super.connectedCallback();
     this.#setupResizeObserver();
@@ -172,7 +178,8 @@ export class AiThreadContainerComponent extends LitElement {
             <dialog
               id="css-dialog"
               class="chat-history-drawer forge-dialog forge-dialog--modal forge-dialog--left-sheet"
-              @close=${this.#handleDialogClose}>
+              @close=${this.#handleDialogClose}
+              @keydown=${this.#handleDialogKeydown}>
               ${this.#drawerContent}
             </dialog>
           `

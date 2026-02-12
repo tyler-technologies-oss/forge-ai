@@ -10,7 +10,7 @@
 
 .title {
   @include forge-typography.style(heading1);
-  margin-block: #{forge-spacing.variable(xxsmall)};
+  margin-block: #{forge-spacing.variable(small)};
 }
 
 .thread-list-container {
@@ -19,9 +19,10 @@
   height: 100%;
 }
 
-.forge-list-item {
+.custom-list-item {
   --forge-list-item-height: 32px;
-  margin-inline: calc(#{forge-spacing.variable(xsmall)} * -1) 0;
+  --forge-list-item-padding: 4px;
+  margin-inline: calc(#{forge-spacing.variable(xxsmall)} * -1) 0;
   margin-block: 0;
 
   button {
@@ -35,6 +36,7 @@
   &:focus-within {
     .more-details-button {
       display: block;
+      --forge-icon-button-size: 24px;
     }
   }
 }
@@ -54,4 +56,9 @@
 
 .more-details-button {
   display: none;
+}
+
+forge-ai-dropdown-menu {
+  --forge-list-item-height: initial;
+  --forge-list-item-padding: initial;
 }

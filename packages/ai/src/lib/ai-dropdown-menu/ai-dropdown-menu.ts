@@ -437,7 +437,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
         id="dropdown-trigger"
         class=${classMap({
           'forge-button': this.variant === 'button',
-          'forge-icon-button': this.variant === 'icon-button'
+          'forge-icon-button forge-icon-button--dense': this.variant === 'icon-button'
         })}
         type="button"
         aria-expanded=${this.open}
