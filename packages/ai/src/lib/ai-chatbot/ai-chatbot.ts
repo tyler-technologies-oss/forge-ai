@@ -130,6 +130,7 @@ export type FeatureToggle = 'on' | 'off';
  * It uses an adapter pattern to abstract communication, allowing for AG-UI or custom protocol implementations.
  *
  * @slot header - Slot for custom header content
+ * @slot icon - Slot for custom header icon (default: forge-ai-icon)
  * @slot empty-state - Slot for custom empty state content (overrides default suggestions)
  *
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
@@ -1177,6 +1178,9 @@ export class AiChatbotComponent extends LitElement {
           @forge-ai-chat-header-export=${this.#handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}
           @forge-ai-chat-header-agent-change=${this.#handleAgentChange}>
+          <slot name="icon" slot="icon">
+            <forge-ai-icon></forge-ai-icon>
+          </slot>
         </forge-ai-chat-header>
         ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
         ${when(this.disclaimerText, () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`)}
