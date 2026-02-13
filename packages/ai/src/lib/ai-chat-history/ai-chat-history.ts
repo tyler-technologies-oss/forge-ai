@@ -27,11 +27,29 @@ export class AiChatHistoryComponent extends LitElement {
   @property({ type: Array })
   public threads: Thread[] = [];
 
+  #handleThreadRename(evt: CustomEvent<{ threadId: string; newTitle: string }>): void {
+    const { threadId, newTitle } = evt.detail;
+    const threadIndex = this.threads.findIndex(thread => thread.id === threadId);
+
+    if (threadIndex !== -1) {
+      this.threads = [
+        ...this.threads.slice(0, threadIndex),
+        { ...this.threads[threadIndex], title: newTitle },
+        ...this.threads.slice(threadIndex + 1)
+      ];
+    }
+  }
+
   get #threadList(): TemplateResult {
     return html`
       <span class="title">Your chats</span>
       <ul class="forge-list forge-list--navlist">
-        ${this.threads.map(thread => html`<forge-ai-chat-history-item .thread=${thread}></forge-ai-chat-history-item>`)}
+        ${this.threads.map(
+          thread =>
+            html`<forge-ai-chat-history-item
+              .thread=${thread}
+              @thread-rename=${this.#handleThreadRename}></forge-ai-chat-history-item>`
+        )}
       </ul>
     `;
   }
