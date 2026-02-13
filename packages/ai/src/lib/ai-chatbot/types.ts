@@ -1,4 +1,13 @@
 /**
+ * Represents a chat thread/conversation in the history
+ */
+export interface Thread {
+  id: string;
+  title: string;
+  timestamp?: number;
+}
+
+/**
  * Valid HTML heading levels for accessibility and semantic structure
  */
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;

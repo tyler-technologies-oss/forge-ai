@@ -36,6 +36,7 @@ import type {
   MessageItem,
   SlashCommand,
   SlashCommandId,
+  Thread,
   ThreadState,
   ToolCall,
   ToolDefinition,
@@ -46,6 +47,7 @@ import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
 
 import '../ai-attachment';
 import '../ai-chat-header';
+import '../ai-chat-history';
 import '../ai-chat-interface';
 import '../ai-file-picker';
 import '../ai-message-thread';
@@ -195,6 +197,9 @@ export class AiChatbotComponent extends LitElement {
 
   @property({ attribute: 'disclaimer-text' })
   public disclaimerText: string | null | undefined = 'AI can make mistakes. Always verify responses.';
+
+  @property({ attribute: false })
+  public chatHistory: Thread[] = [];
 
   @state()
   private _historyDrawerOpen = false;
@@ -1037,7 +1042,13 @@ export class AiChatbotComponent extends LitElement {
     }
   }
 
-  readonly #drawerContent: TemplateResult = html` <div class="history-container">Chat history here</div> `;
+  get #drawerContent(): TemplateResult {
+    return html`
+      <div class="history-container">
+        <forge-ai-chat-history .threads=${this.chatHistory}></forge-ai-chat-history>
+      </div>
+    `;
+  }
 
   get #sessionFilesTemplate(): TemplateResult | typeof nothing {
     const completed = this.#fileUploadManager.completedAttachments;

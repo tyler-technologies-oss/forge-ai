@@ -6,6 +6,7 @@
 
 :host {
   display: block;
+  width: 250px;
 }
 
 .title {
@@ -51,7 +52,12 @@
 }
 
 .thread-title {
-  @include forge-typography.style(body1);
+  @include forge-typography.style(label2);
+
+  width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .more-details-button {

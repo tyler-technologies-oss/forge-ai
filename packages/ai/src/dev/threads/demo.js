@@ -1,4 +1,3 @@
-import '../../lib/ai-threads/ai-thread-container';
 import '../../lib/ai-chat-history';
 import '../../lib/ai-chat-header';
 import '../../lib/ai-chatbot';
@@ -7,23 +6,53 @@ import '../../lib/ai-prompt';
 import '../../lib/ai-voice-input';
 import '../../lib/ai-file-picker';
 
-const TC = document.querySelector('forge-ai-thread-container');
 const CHATBOT = document.querySelector('forge-ai-chatbot');
-const CHAT_HISTORY = document.querySelector('#chat-history');
 
-// Set up sample thread data
-CHAT_HISTORY.threads = [
-  { id: '1', title: 'History item 1', time: '10:00 AM', date: new Date('2024-01-01') },
-  { id: '2', title: 'History item 2', time: '11:30 AM', date: new Date('2024-01-02') },
-  { id: '3', title: 'History item 3', time: '2:15 PM', date: new Date('2024-01-03') },
-  { id: '4', title: 'History item 4', time: '4:45 PM', date: new Date('2024-01-04') }
+// Sample chat history threads
+const chatThreads = [
+  {
+    id: '1',
+    title: 'How to implement authentication',
+    timestamp: Date.now() - 86400000 // 1 day ago
+  },
+  {
+    id: '2',
+    title: 'Best practices for React hooks',
+    timestamp: Date.now() - 172800000 // 2 days ago
+  },
+  {
+    id: '3',
+    title: 'Setting up TypeScript configuration',
+    timestamp: Date.now() - 259200000 // 3 days ago
+  },
+  {
+    id: '4',
+    title: 'Debugging memory leaks in Node.js',
+    timestamp: Date.now() - 345600000 // 4 days ago
+  },
+  {
+    id: '5',
+    title: 'CSS Grid vs Flexbox comparison',
+    timestamp: Date.now() - 432000000 // 5 days ago
+  },
+  {
+    id: '6',
+    title: 'Understanding async/await patterns',
+    timestamp: Date.now() - 518400000 // 6 days ago
+  },
+  {
+    id: '7',
+    title: 'Web Components best practices',
+    timestamp: Date.now() - 604800000 // 7 days ago
+  },
+  {
+    id: '8',
+    title: 'Performance optimization techniques',
+    timestamp: Date.now() - 691200000 // 8 days ago
+  }
 ];
 
-TC.addEventListener('forge-ai-thread-container-layout-change', event => {
-  if (event.detail.narrow) {
-    CHATBOT.showHistoryButton = true;
-    CHATBOT.addEventListener('forge-ai-chat-header-toggle-history', () => {
-      TC.toggleHistoryDrawer();
-    });
-  }
-});
+// Assign the threads to the chatbot
+if (CHATBOT) {
+  CHATBOT.chatHistory = chatThreads;
+}
