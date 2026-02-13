@@ -55,4 +55,6 @@ const chatThreads = [
 // Assign the threads to the chatbot
 if (CHATBOT) {
   CHATBOT.chatHistory = chatThreads;
+  // Test empty state by uncommenting the line below
+  // CHATBOT.chatHistory = [];
 }
