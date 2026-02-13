@@ -40,8 +40,11 @@ export class AiChatHistoryItemComponent extends LitElement {
   #handleRenameClick(): void {
     this._isEditing = true;
     requestAnimationFrame(() => {
-      this._inputElement?.focus();
-      this._inputElement?.select();
+      if (this._inputElement) {
+        this._inputElement?.focus();
+        this._inputElement?.select();
+        this._inputElement.scrollLeft = 0;
+      }
     });
   }
 
