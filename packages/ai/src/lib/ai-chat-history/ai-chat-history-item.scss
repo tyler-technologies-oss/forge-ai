@@ -1,5 +1,6 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/dist/list/forge-list';
 @use '@tylertech/forge/dist/icon-button/forge-icon-button.css';
@@ -11,9 +12,9 @@
 
 .custom-list-item {
   --forge-list-item-height: 32px;
-  --forge-list-item-padding: 4px;
-  --forge-list-item-gap: 8px;
-  --forge-list-item-shape: 8px;
+  --forge-list-item-padding: #{forge-spacing.variable(xxsmall)};
+  --forge-list-item-gap: #{forge-spacing.variable(xsmall)};
+  --forge-list-item-shape: #{forge-shape.variable(large)};
   display: grid;
   grid-template-columns: 1fr auto;
   margin-inline: calc(#{forge-spacing.variable(xxsmall)} * -1) 0;

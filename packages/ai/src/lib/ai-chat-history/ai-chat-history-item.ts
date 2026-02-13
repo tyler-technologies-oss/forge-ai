@@ -21,6 +21,7 @@ export const AiChatHistoryItemComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @description A component that displays a single chat history item
  *
  * @event {CustomEvent<{threadId: string, newTitle: string}>} thread-rename - Emitted when a thread is renamed
+ * @event {CustomEvent<{threadId: string}>} thread-delete - Emitted when a thread delete is requested
  */
 @customElement(AiChatHistoryItemComponentTagName)
 export class AiChatHistoryItemComponent extends LitElement {
@@ -42,6 +43,18 @@ export class AiChatHistoryItemComponent extends LitElement {
       this._inputElement?.focus();
       this._inputElement?.select();
     });
+  }
+
+  #handleDeleteClick(): void {
+    this.dispatchEvent(
+      new CustomEvent('thread-delete', {
+        detail: {
+          threadId: this.thread.id
+        },
+        bubbles: true,
+        composed: true
+      })
+    );
   }
 
   #handleInputBlur(): void {
@@ -127,7 +140,7 @@ export class AiChatHistoryItemComponent extends LitElement {
                     d="M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2" />
                 </svg>
 
-                <forge-ai-dropdown-menu-item value="delete">
+                <forge-ai-dropdown-menu-item value="delete" @click=${this.#handleDeleteClick}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start">
                     <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
                   </svg>

@@ -40,6 +40,11 @@ export class AiChatHistoryComponent extends LitElement {
     }
   }
 
+  #handleThreadDelete(evt: CustomEvent<{ threadId: string }>): void {
+    const { threadId } = evt.detail;
+    this.threads = this.threads.filter(thread => thread.id !== threadId);
+  }
+
   get #threadList(): TemplateResult {
     return html`
       <span class="title">Your chats</span>
@@ -48,7 +53,8 @@ export class AiChatHistoryComponent extends LitElement {
           thread =>
             html`<forge-ai-chat-history-item
               .thread=${thread}
-              @thread-rename=${this.#handleThreadRename}></forge-ai-chat-history-item>`
+              @thread-rename=${this.#handleThreadRename}
+              @thread-delete=${this.#handleThreadDelete}></forge-ai-chat-history-item>`
         )}
       </ul>
     `;
