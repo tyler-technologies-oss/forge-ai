@@ -79,6 +79,11 @@
   display: flex;
   gap: #{forge-spacing.variable(small)};
   margin-inline-start: auto;
+
+  > * {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .section-label {
