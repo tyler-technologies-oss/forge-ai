@@ -76,6 +76,12 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
   handler?: (
     context: HandlerContext<THandlerArgs>
   ) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void;
+  /**
+   * When true, this tool will not require user confirmation via the confirmToolCall tool.
+   * Only applies when the confirmToolCall tool is included in the tools list.
+   * @default false
+   */
+  skipConfirmation?: boolean;
 }
 
 export interface MessageStartEvent {
