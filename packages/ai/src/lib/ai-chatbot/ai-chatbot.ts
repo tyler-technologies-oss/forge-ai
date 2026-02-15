@@ -80,6 +80,7 @@ declare global {
     'forge-ai-chatbot-file-remove': CustomEvent<ForgeAiChatbotFileRemoveEventData>;
     'forge-ai-chatbot-response-feedback': CustomEvent<ForgeAiChatbotResponseFeedbackEventData>;
     'forge-ai-chatbot-agent-change': CustomEvent<ForgeAiChatbotAgentChangeEventData>;
+    'forge-ai-chatbot-thread-state-change': CustomEvent<void>;
   }
 }
 
@@ -269,7 +270,8 @@ export class AiChatbotComponent extends LitElement {
     super.connectedCallback();
 
     this.#messageStateController = new MessageStateController(this, {
-      tools: this.#tools
+      tools: this.#tools,
+      onThreadSettled: () => this.#emitStateChange()
     });
 
     this.#fileUploadManager = new FileUploadManager({
@@ -533,7 +535,8 @@ export class AiChatbotComponent extends LitElement {
       role: 'system',
       content: 'Run cancelled',
       timestamp: Date.now(),
-      status: 'complete'
+      status: 'complete',
+      clientOnly: true
     };
 
     this.#messageStateController.addMessage(abortMessage);
@@ -879,6 +882,19 @@ export class AiChatbotComponent extends LitElement {
       if (this.adapter) {
         this.adapter.threadId = generateId();
       }
+
+      if (this.#hasMessages) {
+        const agentName = agent?.name ?? this.titleText;
+        const systemMessage: ChatMessage = {
+          id: generateId(),
+          role: 'system',
+          content: `Switched to ${agentName}`,
+          timestamp: Date.now(),
+          status: 'complete',
+          clientOnly: true
+        };
+        this.#messageStateController.addMessage(systemMessage);
+      }
     }
   }
 
@@ -1027,7 +1043,8 @@ export class AiChatbotComponent extends LitElement {
     return {
       threadId: this.adapter?.threadId,
       messages: this.getMessages(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      selectedAgentId: this.selectedAgentId
     };
   }
 
@@ -1041,6 +1058,8 @@ export class AiChatbotComponent extends LitElement {
     if (state.threadId && this.adapter) {
       this.adapter.threadId = state.threadId;
     }
+
+    this.selectedAgentId = state.selectedAgentId;
 
     await this.updateComplete;
 
@@ -1209,5 +1228,9 @@ export class AiChatbotComponent extends LitElement {
     if (message) {
       this.#dispatchEvent({ type, detail: { message } });
     }
+  }
+
+  #emitStateChange(): void {
+    this.#dispatchEvent({ type: 'forge-ai-chatbot-thread-state-change' });
   }
 }

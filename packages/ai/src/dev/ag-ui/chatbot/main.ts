@@ -474,30 +474,17 @@ chatbot.agentInfo = {
 
 chatbot.addEventListener('forge-ai-chatbot-message-sent', (e: CustomEvent) => {
   addEventToStream('USER_MESSAGE', e.detail.message);
-  saveThreadState();
 });
-
-chatbot.addEventListener('forge-ai-chatbot-clear', () => {
-  clearThreadState();
-});
-
-const agentThreadStates = new Map<string, ReturnType<typeof chatbot.getThreadState>>();
 
 chatbot.addEventListener('forge-ai-chatbot-message-received', (e: CustomEvent) => {
   addEventToStream('ASSISTANT_MESSAGE', e.detail.message);
-
-  const agentId = chatbot.selectedAgentId;
-  if (agentId) {
-    agentThreadStates.set(agentId, chatbot.getThreadState());
-  }
-  saveThreadState();
 });
 
 chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<ForgeAiChatbotToolCallEventData>) => {
   console.log('🔧 Tool call:', e);
 });
 
-chatbot.addEventListener('forge-ai-chatbot-error', () => {
+chatbot.addEventListener('forge-ai-chatbot-thread-state-change', () => {
   saveThreadState();
 });
 
@@ -509,22 +496,9 @@ chatbot.addEventListener('forge-ai-chatbot-agent-change', async (e: CustomEvent)
   const { agent, previousAgentId } = e.detail;
   console.log('🔄 Agent changed:', { agent, previousAgentId });
 
-  if (previousAgentId) {
-    agentThreadStates.set(previousAgentId, chatbot.getThreadState());
-    console.log('💾 Saved thread state for agent:', previousAgentId);
-  }
-
   const baseUrl = baseUrlInput.value.trim();
   const agentId = agent?.id ?? agentIdInput.value.trim();
   threadId = generateId();
   adapter = createAdapter(baseUrl, agentId);
   chatbot.adapter = adapter;
-
-  if (agent) {
-    const savedState = agentThreadStates.get(agent.id);
-    if (savedState) {
-      await chatbot.setThreadState(savedState);
-      console.log('✅ Restored thread state for agent:', agent.id);
-    }
-  }
 });

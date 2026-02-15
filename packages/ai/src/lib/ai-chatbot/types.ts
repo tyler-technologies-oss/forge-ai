@@ -138,6 +138,7 @@ export interface ChatMessage {
   eventStream?: StreamEvent[];
   feedback?: ResponseFeedback;
   children?: ResponseItem[];
+  clientOnly?: boolean;
 }
 
 export interface ToolCall<TArgs = Record<string, unknown>> {
@@ -233,4 +234,5 @@ export interface ThreadState {
   threadId?: string;
   messages: ChatMessage[];
   timestamp?: number;
+  selectedAgentId?: string;
 }

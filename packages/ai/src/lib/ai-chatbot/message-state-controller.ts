@@ -22,6 +22,7 @@ import { generateId } from './utils.js';
 
 export interface MessageStateControllerConfig {
   tools: Map<string, ToolDefinition>;
+  onThreadSettled?: () => void;
 }
 
 /**
@@ -263,6 +264,7 @@ export class MessageStateController implements ReactiveController {
     this.#updateResponseInItems();
     this._activeResponse = null;
     this.#notifyStateChange();
+    this._config.onThreadSettled?.();
   }
 
   #updateResponseInItems(): void {
@@ -333,6 +335,10 @@ export class MessageStateController implements ReactiveController {
         rawEvent: event.rawEvent
       });
     }
+
+    if (message.status === 'complete') {
+      this._config.onThreadSettled?.();
+    }
   }
 
   public getMessage(id: string): ChatMessage | undefined {
@@ -358,6 +364,10 @@ export class MessageStateController implements ReactiveController {
     }
 
     this.#notifyStateChange();
+
+    if (status === 'complete' || status === 'error') {
+      this._config.onThreadSettled?.();
+    }
   }
 
   public updateMessageContent(id: string, content: string): void {
@@ -380,6 +390,7 @@ export class MessageStateController implements ReactiveController {
     this._toolCalls.clear();
     this._activeResponse = null;
     this.#notifyStateChange();
+    this._config.onThreadSettled?.();
   }
 
   public removeMessageItemsFrom(index: number): void {

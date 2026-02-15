@@ -439,6 +439,7 @@ export class AgUiAdapter extends AgentAdapter {
   #transformMessages(messages: ChatMessage[]): Message[] {
     return messages
       .filter(msg => msg.role === 'user' || msg.role === 'assistant' || msg.role === 'system' || msg.role === 'tool')
+      .filter(msg => !msg.clientOnly)
       .filter(msg => {
         // Filter out assistant messages with empty content and no tool calls
         if (msg.role === 'assistant') {
