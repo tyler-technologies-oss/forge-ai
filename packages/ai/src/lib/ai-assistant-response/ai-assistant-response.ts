@@ -8,6 +8,7 @@ import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-respo
 
 import '../ai-response-message-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
+import '../ai-agent-tool-group';
 import '../ai-event-stream-viewer';
 import '../core/popover/popover.js';
 import '../core/tooltip/tooltip.js';
@@ -93,8 +94,13 @@ export class AiAssistantResponseComponent extends LitElement {
       if (this.debugMode) {
         return true;
       }
-      const toolDef = this.tools?.get(child.data.name);
-      return !!toolDef?.renderer && child.data.status === 'complete';
+      const toolCall = child.data;
+      const isAgentTool = toolCall.type === 'agent';
+      if (isAgentTool) {
+        return true;
+      }
+      const toolDef = this.tools?.get(toolCall.name);
+      return !!toolDef?.renderer && toolCall.status === 'complete';
     });
   }
 
@@ -131,13 +137,35 @@ export class AiAssistantResponseComponent extends LitElement {
   }
 
   get #children(): (TemplateResult | typeof nothing)[] {
-    return this.response.children.map(child => {
-      if (child.type === 'text') {
-        return this.#renderTextChunk(child);
-      } else {
-        return this.#renderToolCall(child.data);
+    const results: (TemplateResult | typeof nothing)[] = [];
+    let agentToolBuffer: ToolCall[] = [];
+
+    const flushAgentTools = (): void => {
+      if (agentToolBuffer.length > 0) {
+        results.push(html`<forge-ai-agent-tool-group .toolCalls=${[...agentToolBuffer]}></forge-ai-agent-tool-group>`);
+        agentToolBuffer = [];
       }
-    });
+    };
+
+    for (const child of this.response.children) {
+      if (child.type === 'text') {
+        flushAgentTools();
+        results.push(this.#renderTextChunk(child));
+      } else {
+        const toolCall = child.data;
+        const isAgentTool = toolCall.type === 'agent';
+
+        if (isAgentTool && !this.debugMode) {
+          agentToolBuffer.push(toolCall);
+        } else {
+          flushAgentTools();
+          results.push(this.#renderToolCall(toolCall));
+        }
+      }
+    }
+
+    flushAgentTools();
+    return results;
   }
 
   #handleToolbarAction(event: CustomEvent<{ action: string }>): void {

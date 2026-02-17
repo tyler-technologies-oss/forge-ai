@@ -3,6 +3,7 @@ export * from './ai-response-message-toolbar';
 export * from './ai-user-message-toolbar';
 export * from './ai-agent-info';
 export * from './ai-agent-selector';
+export * from './ai-agent-tool-group';
 export * from './ai-artifact';
 export * from './ai-attachment';
 export * from './ai-button';
