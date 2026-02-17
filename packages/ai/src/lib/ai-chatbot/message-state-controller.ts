@@ -91,13 +91,12 @@ export class MessageStateController implements ReactiveController {
   public addTextToResponse(messageId: string, content: string, event?: MessageStartEvent): void {
     const response = this._activeResponse ?? this.startResponse();
 
-    const existingIdx = response.children.findIndex(c => c.type === 'text' && c.messageId === messageId);
+    const lastChild = response.children[response.children.length - 1];
+    const isMatchingText =
+      lastChild?.type === 'text' && lastChild.messageId === messageId && lastChild.status === 'streaming';
 
-    if (existingIdx >= 0) {
-      const child = response.children[existingIdx];
-      if (child.type === 'text') {
-        child.content = content;
-      }
+    if (isMatchingText) {
+      lastChild.content = content;
     } else {
       response.children.push({ type: 'text', messageId, content, status: 'streaming' });
     }
@@ -118,10 +117,12 @@ export class MessageStateController implements ReactiveController {
   public appendTextDelta(messageId: string, delta: string, event?: MessageDeltaEvent): void {
     const response = this._activeResponse ?? this.startResponse();
 
-    const textChild = response.children.find(c => c.type === 'text' && c.messageId === messageId);
+    const lastChild = response.children[response.children.length - 1];
+    const isMatchingText =
+      lastChild?.type === 'text' && lastChild.messageId === messageId && lastChild.status === 'streaming';
 
-    if (textChild && textChild.type === 'text') {
-      textChild.content += delta;
+    if (isMatchingText) {
+      lastChild.content += delta;
     } else {
       response.children.push({ type: 'text', messageId, content: delta, status: 'streaming' });
     }
@@ -144,7 +145,9 @@ export class MessageStateController implements ReactiveController {
       return;
     }
 
-    const textChild = this._activeResponse.children.find(c => c.type === 'text' && c.messageId === messageId);
+    const textChild = [...this._activeResponse.children]
+      .reverse()
+      .find(c => c.type === 'text' && c.messageId === messageId);
 
     if (textChild && textChild.type === 'text') {
       textChild.status = 'complete';

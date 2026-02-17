@@ -1,0 +1,85 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/typography' as forge-typography;
+@use '@tylertech/forge/dist/button/forge-button';
+@use '@tylertech/forge/dist/list/forge-list';
+
+:host {
+  display: block;
+}
+
+.agent-tool-group {
+  border-radius: #{forge-shape.variable(medium)};
+  margin-block: #{forge-spacing.variable(medium)};
+
+  &--error {
+    border-color: #{forge-theme.variable(error)};
+    background: #{forge-theme.variable(error-container-low)};
+
+    .status-icon {
+      color: #{forge-theme.variable(error)};
+    }
+  }
+}
+
+.header {
+  --forge-button-justify-content: flex-start;
+  --forge-button-shape: #{forge-shape.variable(medium)};
+  --forge-focus-indicator-outward-offset: 0px;
+
+  gap: #{forge-spacing.variable(xsmall)};
+}
+
+.status-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: #{forge-theme.variable(text-medium)};
+}
+
+.status-text {
+  @include forge-typography.style(body1);
+
+  color: #{forge-theme.variable(text-medium)};
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: #{forge-theme.variable(text-low)};
+  transition: transform 200ms ease;
+  transform: rotate(90deg); // Down by default
+
+  :host([expanded]) & {
+    transform: rotate(270deg); // Up when expanded
+  }
+}
+
+.tool-list {
+  padding-inline-start: 36px;
+  padding-inline-end: #{forge-spacing.variable(small)};
+  padding-block-end: #{forge-spacing.variable(small)};
+}
+
+.tool-item {
+  --forge-list-item-padding: 0;
+  --forge-list-item-dense-one-line-height: 24px;
+  color: #{forge-theme.variable(text-medium)};
+
+  &--error {
+    color: #{forge-theme.variable(error)};
+  }
+}
+
+.tool-item__start {
+  color: #{forge-theme.variable(text-low)};
+}
+
+.error-badge {
+  @include forge-typography.style(label2);
+
+  padding: 0 #{forge-spacing.variable(xxsmall)};
+  border-radius: #{forge-shape.variable(small)};
+  background: #{forge-theme.variable(error-container-low)};
+  color: #{forge-theme.variable(error)};
+}
