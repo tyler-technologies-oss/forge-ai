@@ -84,6 +84,7 @@ export class AiChatHistoryItemComponent extends LitElement {
 
       this._isEditing = false;
     } else if (evt.key === 'Escape') {
+      evt.stopPropagation();
       this._isEditing = false;
     }
   }
