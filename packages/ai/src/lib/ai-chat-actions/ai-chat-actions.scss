@@ -1,0 +1,21 @@
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/typography' as forge-typography;
+@use '@tylertech/forge/dist/icon/forge-icon';
+@use '@tylertech/forge/dist/list/forge-list';
+@use '@tylertech/forge/dist/field/forge-field';
+@use '../utils/chat-list-item' as chat-list-item;
+
+:host {
+  display: block;
+}
+
+.custom-list-item {
+  @include chat-list-item.chat-list-item();
+  @include chat-list-item.chat-list-item-hover-actions();
+}
+
+.forge-icon {
+  height: 18px;
+  width: 18px;
+}

@@ -1,53 +1,30 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
-@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/dist/list/forge-list';
 @use '@tylertech/forge/dist/icon-button/forge-icon-button.css';
+@use '@tylertech/forge/dist/icon/forge-icon';
 @use '@tylertech/forge/dist/field/forge-field.css';
+@use '../utils/chat-list-item' as chat-list-item;
 
 :host {
   display: contents;
 }
 
 .custom-list-item {
+  @include chat-list-item.chat-list-item();
+  @include chat-list-item.chat-list-item-hover-actions();
+}
+
+.edit-list-item {
   --forge-list-item-height: 32px;
   --forge-list-item-padding: #{forge-spacing.variable(xxsmall)};
   --forge-list-item-gap: #{forge-spacing.variable(xsmall)};
-  --forge-list-item-shape: #{forge-shape.variable(large)};
+
   display: grid;
   grid-template-columns: 1fr auto;
-  margin-inline: calc(#{forge-spacing.variable(xxsmall)} * -1) 0;
-  margin-block: 0;
-  width: 100%;
-
-  button {
-    @include forge-typography.style(body2);
-    display: flex;
-    flex-direction: column;
-    text-box-trim: both;
-  }
-
-  .forge-field {
-    width: 100%;
-  }
-
-  &:hover,
-  &:focus-within {
-    .more-details-button {
-      display: block;
-      --forge-icon-button-size: 24px;
-    }
-  }
-}
-
-.thread-title {
-  @include forge-typography.style(label2);
-
-  width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding: 0;
+  gap: 0;
 }
 
 .thread-title-input {
@@ -70,13 +47,12 @@ forge-ai-dropdown-menu-item svg {
 }
 
 .rename-container {
+  padding-inline: #{forge-spacing.variable(xxsmall)};
   display: flex;
   gap: #{forge-spacing.variable(xsmall)};
   align-items: center;
-}
 
-.rename-actions {
-  display: flex;
-  align-items: center;
-  gap: #{forge-spacing.variable(xxxsmall)};
+  .forge-field {
+    width: 100%;
+  }
 }

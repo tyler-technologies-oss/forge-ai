@@ -46,6 +46,7 @@ import { downloadFile, generateId } from './utils.js';
 import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
 
 import '../ai-attachment';
+import '../ai-chat-actions';
 import '../ai-chat-header';
 import '../ai-chat-history';
 import '../ai-chat-interface';
@@ -173,6 +174,9 @@ export class AiChatbotComponent extends LitElement {
 
   @property({ type: Boolean, attribute: 'show-history-button' })
   public showHistoryButton = false;
+
+  @property({ type: Boolean, attribute: 'show-chat-actions' })
+  public showChatActions = false;
 
   @property({ type: Boolean })
   public expanded = false;
@@ -1045,6 +1049,7 @@ export class AiChatbotComponent extends LitElement {
   get #drawerContent(): TemplateResult {
     return html`
       <div class="history-container">
+        ${when(this.showChatActions, () => html`<forge-ai-chat-actions></forge-ai-chat-actions>`)}
         <forge-ai-chat-history .threads=${this.chatHistory}></forge-ai-chat-history>
       </div>
     `;
