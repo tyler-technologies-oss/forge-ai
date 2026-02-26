@@ -68,6 +68,14 @@ export * from './agent-runner.js';
 // Tool renderer helper
 export * from './create-tool-renderer.js';
 
+// Built-in tools
+export {
+  CONFIRM_TOOL_CALL_NAME,
+  confirmActionTool,
+  type ConfirmActionToolArgs as ConfirmToolCallArgs,
+  type ConfirmActionToolResult as ConfirmToolCallResult
+} from '../tools/ai-confirm-tool-call/index.js';
+
 // Controllers and managers
 export { MessageStateController, type MessageStateControllerConfig } from './message-state-controller.js';
 export { FileUploadManager, type FileUploadManagerConfig } from './file-upload-manager.js';
