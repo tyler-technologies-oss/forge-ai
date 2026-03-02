@@ -92,11 +92,9 @@ export class MessageStateController implements ReactiveController {
     const response = this._activeResponse ?? this.startResponse();
 
     const lastChild = response.children[response.children.length - 1];
-    const isMatchingText =
-      lastChild?.type === 'text' && lastChild.messageId === messageId && lastChild.status === 'streaming';
-
-    if (isMatchingText) {
+    if (lastChild?.type === 'text' && lastChild.messageId === messageId) {
       lastChild.content = content;
+      lastChild.status = 'streaming';
     } else {
       response.children.push({ type: 'text', messageId, content, status: 'streaming' });
     }
@@ -118,10 +116,7 @@ export class MessageStateController implements ReactiveController {
     const response = this._activeResponse ?? this.startResponse();
 
     const lastChild = response.children[response.children.length - 1];
-    const isMatchingText =
-      lastChild?.type === 'text' && lastChild.messageId === messageId && lastChild.status === 'streaming';
-
-    if (isMatchingText) {
+    if (lastChild?.type === 'text' && lastChild.messageId === messageId) {
       lastChild.content += delta;
     } else {
       response.children.push({ type: 'text', messageId, content: delta, status: 'streaming' });
@@ -169,8 +164,9 @@ export class MessageStateController implements ReactiveController {
   public addToolCallToResponse(toolCall: ToolCall, event?: ToolCallStartEvent): void {
     const response = this._activeResponse ?? this.startResponse();
 
-    this._toolCalls.set(toolCall.id, toolCall);
-    response.children.push({ type: 'toolCall', data: toolCall });
+    const toolCallWithTimestamp = { ...toolCall, startTimestamp: Date.now() };
+    this._toolCalls.set(toolCall.id, toolCallWithTimestamp);
+    response.children.push({ type: 'toolCall', data: toolCallWithTimestamp });
 
     if (event) {
       const streamEvent = {
@@ -200,7 +196,12 @@ export class MessageStateController implements ReactiveController {
       return;
     }
 
-    const updated = { ...toolCall, ...updates };
+    const isCompleting = updates.status === 'complete' || updates.status === 'error';
+    const updated = {
+      ...toolCall,
+      ...updates,
+      ...(isCompleting && !toolCall.endTimestamp ? { endTimestamp: Date.now() } : {})
+    };
     this._toolCalls.set(toolCallId, updated);
 
     if (this._activeResponse) {

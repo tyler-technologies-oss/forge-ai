@@ -185,7 +185,7 @@ export class AgUiAdapter extends AgentAdapter {
     textMessageBuffer: string;
     event: { messageId: string; delta?: string };
   }): void {
-    this.#processTextDelta(event.messageId, textMessageBuffer, false);
+    this.#processTextDelta(event.messageId, textMessageBuffer);
   }
 
   #handleTextMessageEnd({
@@ -195,7 +195,7 @@ export class AgUiAdapter extends AgentAdapter {
     textMessageBuffer: string;
     event: { messageId: string };
   }): void {
-    this.#processTextDelta(event.messageId, textMessageBuffer, true);
+    this.#processTextDelta(event.messageId, textMessageBuffer);
     this._emitMessageEnd(event.messageId, event);
   }
 
@@ -381,7 +381,7 @@ export class AgUiAdapter extends AgentAdapter {
     this._emitActivityDelta(event.patch, activityMessage, event);
   }
 
-  #processTextDelta(messageId: string, buffer: string, isFinal: boolean): void {
+  #processTextDelta(messageId: string, buffer: string): void {
     const previousBuffer = this.#textBuffers.get(messageId) ?? '';
     const delta = buffer.slice(previousBuffer.length);
 
@@ -389,11 +389,7 @@ export class AgUiAdapter extends AgentAdapter {
       this._emitMessageDelta(messageId, delta);
     }
 
-    if (isFinal) {
-      this.#textBuffers.delete(messageId);
-    } else {
-      this.#textBuffers.set(messageId, buffer);
-    }
+    this.#textBuffers.set(messageId, buffer);
   }
 
   #getToolCallOrWarn(toolCallId: string): ToolCallState | null {

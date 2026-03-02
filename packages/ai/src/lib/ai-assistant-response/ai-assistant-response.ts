@@ -8,7 +8,7 @@ import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-respo
 
 import '../ai-response-message-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
-import '../ai-agent-tool-group';
+import '../ai-tool-call-indicator';
 import '../ai-event-stream-viewer';
 import '../core/popover/popover.js';
 import '../core/tooltip/tooltip.js';
@@ -95,8 +95,7 @@ export class AiAssistantResponseComponent extends LitElement {
         return true;
       }
       const toolCall = child.data;
-      const isAgentTool = toolCall.type === 'agent';
-      if (isAgentTool) {
+      if (toolCall.type === 'agent') {
         return true;
       }
       const toolDef = this.tools?.get(toolCall.name);
@@ -140,16 +139,32 @@ export class AiAssistantResponseComponent extends LitElement {
     const results: (TemplateResult | typeof nothing)[] = [];
     let agentToolBuffer: ToolCall[] = [];
 
-    const flushAgentTools = (): void => {
+    const flushAgentIndicator = (reason: 'content' | 'end'): void => {
       if (agentToolBuffer.length > 0) {
-        results.push(html`<forge-ai-agent-tool-group .toolCalls=${[...agentToolBuffer]}></forge-ai-agent-tool-group>`);
+        const executingCount = agentToolBuffer.filter(tc => tc.status !== 'complete' && tc.status !== 'error').length;
+        const isComplete = executingCount === 0 && (reason === 'content' || this.response.status === 'complete');
+
+        let elapsedMs: number | undefined;
+        if (isComplete) {
+          const startTime = Math.min(...agentToolBuffer.map(tc => tc.startTimestamp ?? 0).filter(t => t > 0));
+          const endTime = Math.max(...agentToolBuffer.map(tc => tc.endTimestamp ?? 0).filter(t => t > 0));
+          if (startTime > 0 && endTime > 0) {
+            elapsedMs = endTime - startTime;
+          }
+        }
+
+        results.push(
+          html`<forge-ai-tool-call-indicator
+            ?complete=${isComplete}
+            .elapsedMs=${elapsedMs}></forge-ai-tool-call-indicator>`
+        );
         agentToolBuffer = [];
       }
     };
 
     for (const child of this.response.children) {
       if (child.type === 'text') {
-        flushAgentTools();
+        flushAgentIndicator('content');
         results.push(this.#renderTextChunk(child));
       } else {
         const toolCall = child.data;
@@ -158,13 +173,13 @@ export class AiAssistantResponseComponent extends LitElement {
         if (isAgentTool && !this.debugMode) {
           agentToolBuffer.push(toolCall);
         } else {
-          flushAgentTools();
+          flushAgentIndicator('content');
           results.push(this.#renderToolCall(toolCall));
         }
       }
     }
 
-    flushAgentTools();
+    flushAgentIndicator('end');
     return results;
   }
 

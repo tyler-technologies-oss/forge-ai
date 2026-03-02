@@ -466,6 +466,8 @@ export class AiChatbotComponent extends LitElement {
       } else {
         this.#sendToolResult(event.id, this.#createToolResponse(event.name));
       }
+    } else {
+      this.#messageStateController.updateToolCallInResponse(event.id, { status: 'complete' });
     }
   }
 
