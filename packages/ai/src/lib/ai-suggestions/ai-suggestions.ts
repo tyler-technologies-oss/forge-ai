@@ -180,7 +180,7 @@ export class AiSuggestionsComponent extends LitElement {
   get #blockLayout(): TemplateResult {
     return html`
       <div class="block-layout-container">
-        <ul class="forge-list">
+        <ul class="forge-list forge-list--block-layout">
           ${this.#suggestionButtons}
         </ul>
       </div>

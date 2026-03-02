@@ -1,5 +1,5 @@
 import { LitElement, PropertyValues, TemplateResult, html, unsafeCSS, nothing } from 'lit';
-import { customElement, property, queryAssignedNodes, query, state } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { toggleState } from '../utils';
 import type { SlashCommand, ForgeAiSlashCommandMenuSelectEventData } from '../ai-chatbot/types.js';
@@ -109,9 +109,6 @@ export class AiPromptComponent extends LitElement {
 
   @state()
   private _slashMenuQuery = '';
-
-  @queryAssignedNodes({ slot: 'actions', flatten: true })
-  private _actionsSlottedNodes!: Node[];
 
   @query('#chat-input')
   private _inputElement!: HTMLTextAreaElement;
@@ -258,17 +255,14 @@ export class AiPromptComponent extends LitElement {
     return this.running && !this.value.trim();
   }
 
-  get #conditionalActions(): TemplateResult | typeof nothing {
-    const hasActions = this._actionsSlottedNodes.length > 0;
-
-    return when(
-      hasActions,
-      () => html`
-        <div class="actions">${this.#actionsSlot}</div>
-        ${when(this.slashCommands.length, () => html`<div class="vertical-divider"></div>`)}
-      `,
-      () => html`${this.#actionsSlot}`
-    );
+  get #actions(): TemplateResult {
+    return html`
+      <div class="actions">
+        <div class="actions-start-container">${this.#actionsSlot}</div>
+        ${this.#sendButton}
+      </div>
+      ${when(this.slashCommands.length, () => html`<div class="vertical-divider"></div>`)}
+    `;
   }
 
   #handleSlotChange(evt: Event): void {
@@ -466,6 +460,44 @@ export class AiPromptComponent extends LitElement {
     this._slashMenuQuery = '';
   }
 
+  get #sendButton(): TemplateResult {
+    return html`
+      <button
+        id="send-btn"
+        aria-label=${this.#shouldShowStopButton ? 'Stop' : 'Send message'}
+        class="forge-icon-button forge-icon-button--small send-button"
+        ?disabled=${this.sendDisabled || this.inputDisabled}
+        @click=${this.#shouldShowStopButton ? this._handleStop : this._handleSend}>
+        ${this.#shouldShowStopButton
+          ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M18 18H6V6h12z" />
+            </svg>`
+          : html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="m2 21 21-9L2 3v7l15 2-15 2z" />
+            </svg>`}
+        <forge-ai-tooltip for="send-btn" placement="top"
+          >${this.#shouldShowStopButton ? 'Stop' : 'Send'}</forge-ai-tooltip
+        >
+      </button>
+    `;
+  }
+
+  get #debugButton(): TemplateResult {
+    return html`
+      <button
+        id="debug-btn"
+        aria-label="Exit debug mode"
+        class="forge-icon-button forge-icon-button--small forge-icon-button--tonal ai-icon-button debug-button"
+        @click=${this._handleDebugToggle}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M20 8h-2.81a5.985 5.985 0 0 0-1.82-1.96L17 4.41 15.59 3l-2.17 2.17a6.002 6.002 0 0 0-2.83 0L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z" />
+        </svg>
+        <forge-ai-tooltip for="debug-btn" placement="top">Exit debug mode</forge-ai-tooltip>
+      </button>
+    `;
+  }
+
   get #slashCommandMenu(): TemplateResult | typeof nothing {
     return when(
       this.slashCommands.length,
@@ -503,7 +535,7 @@ export class AiPromptComponent extends LitElement {
       <div class="input-container">
         <div class="forge-card">
           <div class="forge-field">
-            ${when(this.variant === 'inline', () => html`${this.#conditionalActions}`)}
+            ${when(this.variant === 'inline', () => html`${this.#actions}`)}
             <textarea
               id="chat-input"
               rows="1"
@@ -513,41 +545,9 @@ export class AiPromptComponent extends LitElement {
               @input=${this._handleInput}
               @keydown=${this._handleKeyDown}
               @paste=${this._handlePaste}></textarea>
-            ${when(
-              this.debugMode,
-              () => html`
-                <button
-                  id="debug-btn"
-                  aria-label="Exit debug mode"
-                  class="forge-icon-button forge-icon-button--small forge-icon-button--tonal ai-icon-button debug-button"
-                  @click=${this._handleDebugToggle}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path
-                      d="M20 8h-2.81a5.985 5.985 0 0 0-1.82-1.96L17 4.41 15.59 3l-2.17 2.17a6.002 6.002 0 0 0-2.83 0L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z" />
-                  </svg>
-                </button>
-                <forge-ai-tooltip for="debug-btn" placement="top">Exit debug mode</forge-ai-tooltip>
-              `
-            )}
-            <button
-              id="send-btn"
-              aria-label=${this.#shouldShowStopButton ? 'Stop' : 'Send message'}
-              class="forge-icon-button forge-icon-button--small ai-icon-button"
-              ?disabled=${this.sendDisabled || this.inputDisabled}
-              @click=${this.#shouldShowStopButton ? this._handleStop : this._handleSend}>
-              ${this.#shouldShowStopButton
-                ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M18 18H6V6h12z" />
-                  </svg>`
-                : html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="m2 21 21-9L2 3v7l15 2-15 2z" />
-                  </svg>`}
-            </button>
-            <forge-ai-tooltip for="send-btn" placement="top"
-              >${this.#shouldShowStopButton ? 'Stop' : 'Send'}</forge-ai-tooltip
-            >
+            ${when(this.debugMode, () => html` ${this.#debugButton} `)}
           </div>
-          ${when(this.variant === 'stacked', () => html`${this.#conditionalActions}`)}
+          ${when(this.variant === 'stacked', () => html`${this.#actions}`)}
         </div>
       </div>
       ${this.#slashCommandMenu}

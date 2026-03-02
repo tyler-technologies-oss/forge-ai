@@ -44,6 +44,14 @@
   }
 }
 
+:host(:state(block)) {
+  .forge-list {
+    display: flex;
+    flex-direction: column;
+    gap: #{forge-spacing.variable(xxsmall)};
+  }
+}
+
 .block-layout-container {
   max-width: 360px;
   display: flex;
