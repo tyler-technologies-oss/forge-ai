@@ -8,6 +8,7 @@ import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-respo
 
 import '../ai-response-message-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
+import '../ai-tool-call-indicator';
 import '../ai-event-stream-viewer';
 import '../core/popover/popover.js';
 import '../core/tooltip/tooltip.js';
@@ -93,8 +94,12 @@ export class AiAssistantResponseComponent extends LitElement {
       if (this.debugMode) {
         return true;
       }
-      const toolDef = this.tools?.get(child.data.name);
-      return !!toolDef?.renderer && child.data.status === 'complete';
+      const toolCall = child.data;
+      if (toolCall.type === 'agent') {
+        return true;
+      }
+      const toolDef = this.tools?.get(toolCall.name);
+      return !!toolDef?.renderer && toolCall.status === 'complete';
     });
   }
 
@@ -131,13 +136,51 @@ export class AiAssistantResponseComponent extends LitElement {
   }
 
   get #children(): (TemplateResult | typeof nothing)[] {
-    return this.response.children.map(child => {
-      if (child.type === 'text') {
-        return this.#renderTextChunk(child);
-      } else {
-        return this.#renderToolCall(child.data);
+    const results: (TemplateResult | typeof nothing)[] = [];
+    let agentToolBuffer: ToolCall[] = [];
+
+    const flushAgentIndicator = (reason: 'content' | 'end'): void => {
+      if (agentToolBuffer.length > 0) {
+        const executingCount = agentToolBuffer.filter(tc => tc.status !== 'complete' && tc.status !== 'error').length;
+        const isComplete = executingCount === 0 && (reason === 'content' || this.response.status === 'complete');
+
+        let elapsedMs: number | undefined;
+        if (isComplete) {
+          const startTime = Math.min(...agentToolBuffer.map(tc => tc.startTimestamp ?? 0).filter(t => t > 0));
+          const endTime = Math.max(...agentToolBuffer.map(tc => tc.endTimestamp ?? 0).filter(t => t > 0));
+          if (startTime > 0 && endTime > 0) {
+            elapsedMs = endTime - startTime;
+          }
+        }
+
+        results.push(
+          html`<forge-ai-tool-call-indicator
+            ?complete=${isComplete}
+            .elapsedMs=${elapsedMs}></forge-ai-tool-call-indicator>`
+        );
+        agentToolBuffer = [];
       }
-    });
+    };
+
+    for (const child of this.response.children) {
+      if (child.type === 'text') {
+        flushAgentIndicator('content');
+        results.push(this.#renderTextChunk(child));
+      } else {
+        const toolCall = child.data;
+        const isAgentTool = toolCall.type === 'agent';
+
+        if (isAgentTool && !this.debugMode) {
+          agentToolBuffer.push(toolCall);
+        } else {
+          flushAgentIndicator('content');
+          results.push(this.#renderToolCall(toolCall));
+        }
+      }
+    }
+
+    flushAgentIndicator('end');
+    return results;
   }
 
   #handleToolbarAction(event: CustomEvent<{ action: string }>): void {

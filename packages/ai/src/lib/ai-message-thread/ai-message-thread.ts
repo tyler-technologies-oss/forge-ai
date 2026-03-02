@@ -283,13 +283,16 @@ export class AiMessageThreadComponent extends LitElement {
       if (hasTextContent) {
         return nothing;
       }
-      const hasActiveResponseToolCall =
-        this.debugMode &&
-        response.children.some(
-          c =>
-            c.type === 'toolCall' &&
-            (c.data.status === 'parsing' || c.data.status === 'executing' || c.data.status === 'pending')
-        );
+      const hasActiveResponseToolCall = response.children.some(c => {
+        if (c.type !== 'toolCall') {
+          return false;
+        }
+        const isActive = c.data.status === 'parsing' || c.data.status === 'executing' || c.data.status === 'pending';
+        if (!isActive) {
+          return false;
+        }
+        return this.debugMode || c.data.type === 'agent';
+      });
       if (hasActiveResponseToolCall) {
         return nothing;
       }

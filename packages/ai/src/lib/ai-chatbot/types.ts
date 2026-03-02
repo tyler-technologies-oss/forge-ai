@@ -151,6 +151,8 @@ export interface ToolCall<TArgs = Record<string, unknown>> {
   status: 'pending' | 'parsing' | 'executing' | 'complete' | 'error';
   type: ToolType;
   eventStream?: StreamEvent[];
+  startTimestamp?: number;
+  endTimestamp?: number;
 }
 
 export type ResponseItem =

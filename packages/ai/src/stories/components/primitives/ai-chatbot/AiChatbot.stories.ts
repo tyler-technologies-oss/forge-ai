@@ -335,62 +335,23 @@ export const MixedResponses: Story = {
     const adapter = new MixedResponseAdapter();
 
     const suggestions = [
-      { text: 'Text only', value: 'text-only' },
-      { text: 'Tool only', value: 'tool-only' },
       { text: 'Text then tool', value: 'text-then-tool' },
       { text: 'Tool then text', value: 'tool-then-text' },
       { text: 'Text, tool, text', value: 'text-tool-text' },
       { text: 'Alternating', value: 'alternating' },
       { text: 'Multiple tools', value: 'multiple-tools' },
+      { text: 'Slow sequential tools', value: 'slow-sequential' },
       { text: 'Multiple text chunks', value: 'multiple-text' }
     ] as Suggestion[];
 
-    const tools: ToolDefinition[] = [
-      {
-        name: 'getCurrentWeather',
-        displayName: 'Get Weather',
-        description: 'Get the current weather for a location',
-        parameters: {
-          type: 'object',
-          properties: { location: { type: 'string' } },
-          required: ['location']
-        }
-      },
-      {
-        name: 'searchDatabase',
-        displayName: 'Search Database',
-        description: 'Search the database for records',
-        parameters: {
-          type: 'object',
-          properties: { query: { type: 'string' } },
-          required: ['query']
-        }
-      }
-    ];
-
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
-        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
-          <strong>Mixed Response Demo</strong>
-          <p style="margin: 8px 0 0 0; font-size: 14px;">
-            Click a suggestion to see different response patterns. Each pattern demonstrates how text and tool calls are
-            grouped within a single assistant response.
-          </p>
-        </div>
         <forge-ai-chatbot
           .adapter=${adapter}
           .suggestions=${suggestions}
-          .tools=${tools}
           placeholder=${args.placeholder}
           title-text="Mixed Responses"
-          debug-mode
-          ?enable-reactions=${args.enableReactions}
-          @forge-ai-chatbot-tool-call=${(e: CustomEvent) => {
-            setTimeout(() => {
-              const chatbot = e.target as any;
-              chatbot.submitToolResult(e.detail.toolCallId, { success: true, data: 'Mock result' });
-            }, 500);
-          }}>
+          ?enable-reactions=${args.enableReactions}>
         </forge-ai-chatbot>
       </div>
     `;
@@ -398,8 +359,10 @@ export const MixedResponses: Story = {
 };
 
 class MixedResponseAdapter extends MockAdapter {
-  #delay = 300;
-  #streamDelay = 30;
+  #initialDelay = 2000;
+  #toolExecutionDelay = 2000;
+  #textGapDelay = 500;
+  #streamDelay = 50;
 
   constructor() {
     super({ simulateStreaming: true, simulateTools: true });
@@ -413,11 +376,7 @@ class MixedResponseAdapter extends MockAdapter {
 
     this._emitRunStarted();
 
-    if (content.includes('text-only') || content === 'text only') {
-      this.#textOnly();
-    } else if (content.includes('tool-only') || content === 'tool only') {
-      this.#toolOnly();
-    } else if (content.includes('text-then-tool') || content === 'text then tool') {
+    if (content.includes('text-then-tool') || content === 'text then tool') {
       this.#textThenTool();
     } else if (content.includes('tool-then-text') || content === 'tool then text') {
       this.#toolThenText();
@@ -427,10 +386,10 @@ class MixedResponseAdapter extends MockAdapter {
       this.#alternating();
     } else if (content.includes('multiple-tools') || content === 'multiple tools') {
       this.#multipleTools();
+    } else if (content.includes('slow-sequential') || content === 'slow sequential tools') {
+      this.#slowSequentialTools();
     } else if (content.includes('multiple-text') || content === 'multiple text chunks') {
       this.#multipleText();
-    } else {
-      this.#textOnly();
     }
   }
 
@@ -449,53 +408,12 @@ class MixedResponseAdapter extends MockAdapter {
     });
   }
 
-  #textOnly(): void {
-    const messageId = this.#id();
-    this._emitMessageStart(messageId);
-    this.#streamText(
-      messageId,
-      'This is a text-only response with no tool calls. The entire response is just plain text content.',
-      () => {
-        this._emitMessageEnd(messageId);
-        this._updateState({ isRunning: false });
-        this._emitRunFinished();
-      }
-    );
-  }
-
-  #toolOnly(): void {
-    const messageId = this.#id();
-    const toolId = this.#id();
-    this._emitMessageStart(messageId);
-    setTimeout(() => {
-      this._emitToolCallStart({ id: toolId, messageId, name: 'getCurrentWeather' });
-      setTimeout(() => {
-        this._emitToolCallEnd({ id: toolId, messageId, name: 'getCurrentWeather', args: { location: 'New York' } });
-        this._emitToolResult({
-          toolCallId: toolId,
-          result: { temperature: 72, conditions: 'sunny' },
-          message: {
-            id: this.#id(),
-            role: 'tool',
-            content: '',
-            timestamp: Date.now(),
-            status: 'complete',
-            toolCallId: toolId
-          }
-        });
-        this._emitMessageEnd(messageId);
-        this._updateState({ isRunning: false });
-        this._emitRunFinished();
-      }, this.#delay);
-    }, this.#delay);
-  }
-
   #textThenTool(): void {
     const messageId = this.#id();
     const toolId = this.#id();
-    this._emitMessageStart(messageId);
-    this.#streamText(messageId, 'Let me check the weather for you.', () => {
-      setTimeout(() => {
+    setTimeout(() => {
+      this._emitMessageStart(messageId);
+      this.#streamText(messageId, 'Let me check the weather for you.', () => {
         this._emitToolCallStart({ id: toolId, messageId, name: 'getCurrentWeather' });
         setTimeout(() => {
           this._emitToolCallEnd({ id: toolId, messageId, name: 'getCurrentWeather', args: { location: 'Chicago' } });
@@ -514,16 +432,16 @@ class MixedResponseAdapter extends MockAdapter {
           this._emitMessageEnd(messageId);
           this._updateState({ isRunning: false });
           this._emitRunFinished();
-        }, this.#delay);
-      }, this.#delay);
-    });
+        }, this.#toolExecutionDelay);
+      });
+    }, this.#initialDelay);
   }
 
   #toolThenText(): void {
     const messageId = this.#id();
     const toolId = this.#id();
-    this._emitMessageStart(messageId);
     setTimeout(() => {
+      this._emitMessageStart(messageId);
       this._emitToolCallStart({ id: toolId, messageId, name: 'getCurrentWeather' });
       setTimeout(() => {
         this._emitToolCallEnd({ id: toolId, messageId, name: 'getCurrentWeather', args: { location: 'Boston' } });
@@ -546,55 +464,95 @@ class MixedResponseAdapter extends MockAdapter {
           this._updateState({ isRunning: false });
           this._emitRunFinished();
         });
-      }, this.#delay);
-    }, this.#delay);
+      }, this.#toolExecutionDelay);
+    }, this.#initialDelay);
   }
 
   #textToolText(): void {
     const messageId = this.#id();
-    const toolId = this.#id();
-    this._emitMessageStart(messageId);
-    this.#streamText(messageId, 'I will look up the weather information now.', () => {
-      setTimeout(() => {
-        this._emitToolCallStart({ id: toolId, messageId, name: 'getCurrentWeather' });
+    const tool1 = this.#id();
+    const tool2 = this.#id();
+    const tool3 = this.#id();
+
+    setTimeout(() => {
+      this._emitMessageStart(messageId);
+      this.#streamText(messageId, 'Let me gather that information for you.', () => {
+        this._emitToolCallStart({ id: tool1, messageId, name: 'fetchUserData' });
         setTimeout(() => {
-          this._emitToolCallEnd({ id: toolId, messageId, name: 'getCurrentWeather', args: { location: 'Seattle' } });
+          this._emitToolCallEnd({ id: tool1, messageId, name: 'fetchUserData', args: { userId: 'abc123' } });
           this._emitToolResult({
-            toolCallId: toolId,
-            result: { temperature: 55, conditions: 'rainy' },
+            toolCallId: tool1,
+            result: { name: 'Jane Smith', role: 'Admin' },
             message: {
-              id: this.#id(),
+              id: messageId,
               role: 'tool',
               content: '',
               timestamp: Date.now(),
               status: 'complete',
-              toolCallId: toolId
+              toolCallId: tool1
             }
           });
-          const textId = this.#id();
-          this._emitMessageStart(textId);
-          this.#streamText(textId, 'The weather looks great! Expect clear skies and mild temperatures.', () => {
-            this._emitMessageEnd(textId);
-            this._updateState({ isRunning: false });
-            this._emitRunFinished();
-          });
-        }, this.#delay);
-      }, this.#delay);
-    });
+
+          this._emitToolCallStart({ id: tool2, messageId, name: 'queryPermissions' });
+          setTimeout(() => {
+            this._emitToolCallEnd({ id: tool2, messageId, name: 'queryPermissions', args: { role: 'Admin' } });
+            this._emitToolResult({
+              toolCallId: tool2,
+              result: { canEdit: true, canDelete: true },
+              message: {
+                id: this.#id(),
+                role: 'tool',
+                content: '',
+                timestamp: Date.now(),
+                status: 'complete',
+                toolCallId: tool2
+              }
+            });
+
+            this._emitToolCallStart({ id: tool3, messageId, name: 'loadDashboard' });
+            setTimeout(() => {
+              this._emitToolCallEnd({ id: tool3, messageId, name: 'loadDashboard', args: { view: 'summary' } });
+              this._emitToolResult({
+                toolCallId: tool3,
+                result: { widgets: 5, lastUpdated: '2024-01-15' },
+                message: {
+                  id: this.#id(),
+                  role: 'tool',
+                  content: '',
+                  timestamp: Date.now(),
+                  status: 'complete',
+                  toolCallId: tool3
+                }
+              });
+
+              this.#streamText(
+                messageId,
+                'Done! I found the user profile, verified permissions, and loaded the dashboard. Everything is ready for you.',
+                () => {
+                  this._emitMessageEnd(messageId);
+                  this._updateState({ isRunning: false });
+                  this._emitRunFinished();
+                }
+              );
+            }, this.#toolExecutionDelay);
+          }, this.#toolExecutionDelay);
+        }, this.#toolExecutionDelay);
+      });
+    }, this.#initialDelay);
   }
 
   #alternating(): void {
-    const msg1 = this.#id();
+    const messageId = this.#id();
     const tool1 = this.#id();
     const tool2 = this.#id();
-    this._emitMessageStart(msg1);
-    this.#streamText(msg1, 'First, let me check the weather.', () => {
-      setTimeout(() => {
-        this._emitToolCallStart({ id: tool1, messageId: msg1, name: 'getCurrentWeather' });
+    setTimeout(() => {
+      this._emitMessageStart(messageId);
+      this.#streamText(messageId, 'First, let me check the weather.', () => {
+        this._emitToolCallStart({ id: tool1, messageId, name: 'getCurrentWeather' });
         setTimeout(() => {
           this._emitToolCallEnd({
             id: tool1,
-            messageId: msg1,
+            messageId,
             name: 'getCurrentWeather',
             args: { location: 'Denver' }
           });
@@ -610,43 +568,39 @@ class MixedResponseAdapter extends MockAdapter {
               toolCallId: tool1
             }
           });
-          const msg2 = this.#id();
-          this._emitMessageStart(msg2);
-          this.#streamText(msg2, 'Now let me search the database for related info.', () => {
+          this._emitMessageStart(messageId);
+          this.#streamText(messageId, 'Now let me search the database for related info.', () => {
+            this._emitToolCallStart({ id: tool2, messageId, name: 'searchDatabase' });
             setTimeout(() => {
-              this._emitToolCallStart({ id: tool2, messageId: msg2, name: 'searchDatabase' });
-              setTimeout(() => {
-                this._emitToolCallEnd({
-                  id: tool2,
-                  messageId: msg2,
-                  name: 'searchDatabase',
-                  args: { query: 'weather history' }
-                });
-                this._emitToolResult({
-                  toolCallId: tool2,
-                  result: { records: 42, summary: 'Historical data found' },
-                  message: {
-                    id: this.#id(),
-                    role: 'tool',
-                    content: '',
-                    timestamp: Date.now(),
-                    status: 'complete',
-                    toolCallId: tool2
-                  }
-                });
-                const msg3 = this.#id();
-                this._emitMessageStart(msg3);
-                this.#streamText(msg3, 'All done! I found the information you need.', () => {
-                  this._emitMessageEnd(msg3);
-                  this._updateState({ isRunning: false });
-                  this._emitRunFinished();
-                });
-              }, this.#delay);
-            }, this.#delay);
+              this._emitToolCallEnd({
+                id: tool2,
+                messageId,
+                name: 'searchDatabase',
+                args: { query: 'weather history' }
+              });
+              this._emitToolResult({
+                toolCallId: tool2,
+                result: { records: 42, summary: 'Historical data found' },
+                message: {
+                  id: this.#id(),
+                  role: 'tool',
+                  content: '',
+                  timestamp: Date.now(),
+                  status: 'complete',
+                  toolCallId: tool2
+                }
+              });
+              this._emitMessageStart(messageId);
+              this.#streamText(messageId, 'All done! I found the information you need.', () => {
+                this._emitMessageEnd(messageId);
+                this._updateState({ isRunning: false });
+                this._emitRunFinished();
+              });
+            }, this.#toolExecutionDelay);
           });
-        }, this.#delay);
-      }, this.#delay);
-    });
+        }, this.#toolExecutionDelay);
+      });
+    }, this.#initialDelay);
   }
 
   #multipleTools(): void {
@@ -654,8 +608,8 @@ class MixedResponseAdapter extends MockAdapter {
     const tool1 = this.#id();
     const tool2 = this.#id();
     const tool3 = this.#id();
-    this._emitMessageStart(messageId);
     setTimeout(() => {
+      this._emitMessageStart(messageId);
       this._emitToolCallStart({ id: tool1, messageId, name: 'getCurrentWeather' });
       setTimeout(() => {
         this._emitToolCallEnd({ id: tool1, messageId, name: 'getCurrentWeather', args: { location: 'Miami' } });
@@ -704,30 +658,148 @@ class MixedResponseAdapter extends MockAdapter {
             this._emitMessageEnd(messageId);
             this._updateState({ isRunning: false });
             this._emitRunFinished();
-          }, this.#delay);
-        }, this.#delay);
-      }, this.#delay);
-    }, this.#delay);
+          }, this.#toolExecutionDelay);
+        }, this.#toolExecutionDelay);
+      }, this.#toolExecutionDelay);
+    }, this.#initialDelay);
+  }
+
+  #slowSequentialTools(): void {
+    const slowDelay = 2500;
+
+    const runToolSequence = (
+      messageId: string,
+      tools: Array<{ name: string; args: Record<string, unknown>; result: unknown }>,
+      onComplete: () => void
+    ): void => {
+      let index = 0;
+      const runNext = (): void => {
+        if (index < tools.length) {
+          const tool = tools[index];
+          const toolId = this.#id();
+          this._emitToolCallStart({ id: toolId, messageId, name: tool.name });
+          setTimeout(() => {
+            this._emitToolCallEnd({ id: toolId, messageId, name: tool.name, args: tool.args });
+            this._emitToolResult({
+              toolCallId: toolId,
+              result: tool.result,
+              message: {
+                id: this.#id(),
+                role: 'tool',
+                content: '',
+                timestamp: Date.now(),
+                status: 'complete',
+                toolCallId: toolId
+              }
+            });
+            index++;
+            runNext();
+          }, slowDelay);
+        } else {
+          onComplete();
+        }
+      };
+      runNext();
+    };
+
+    const msg1 = this.#id();
+    setTimeout(() => {
+      this._emitMessageStart(msg1);
+      this.#streamText(
+        msg1,
+        "I'll help you with that comprehensive analysis. Let me gather the necessary data first.",
+        () => {
+          this._emitMessageEnd(msg1);
+
+          const msg2 = this.#id();
+          runToolSequence(
+            msg2,
+            [
+              { name: 'fetchUserProfile', args: { userId: '12345' }, result: { name: 'John Doe', role: 'Admin' } },
+              { name: 'queryDatabase', args: { table: 'orders' }, result: { count: 47, total: '$12,450' } },
+              { name: 'loadPermissions', args: { role: 'Admin' }, result: { canEdit: true, canDelete: true } },
+              {
+                name: 'fetchAccountSettings',
+                args: { userId: '12345' },
+                result: { theme: 'dark', notifications: true }
+              },
+              { name: 'loadRecentActivity', args: { limit: 20 }, result: { activities: 20, lastLogin: '2024-01-15' } },
+              { name: 'queryInventory', args: { warehouse: 'main' }, result: { items: 1250, lowStock: 12 } },
+              {
+                name: 'fetchPaymentMethods',
+                args: { userId: '12345' },
+                result: { cards: 2, defaultCard: 'Visa ****4242' }
+              },
+              {
+                name: 'loadShippingAddresses',
+                args: { userId: '12345' },
+                result: { addresses: 3, defaultAddress: 'Home' }
+              }
+            ],
+            () => {
+              const msg3 = this.#id();
+              this.#streamText(
+                msg3,
+                'Great, I found the user data and permissions. Now let me analyze the trends and generate your report.',
+                () => {
+                  this._emitMessageEnd(msg3);
+
+                  const msg4 = this.#id();
+                  runToolSequence(
+                    msg4,
+                    [
+                      {
+                        name: 'generateAnalyticsReport',
+                        args: { format: 'pdf', range: '30d' },
+                        result: { url: '/reports/analytics.pdf' }
+                      }
+                    ],
+                    () => {
+                      const msg5 = this.#id();
+                      this.#streamText(
+                        msg5,
+                        "All done! Here's what I found: John Doe has admin privileges with 47 orders totaling $12,450. The analytics report has been generated and is ready for download.",
+                        () => {
+                          this._emitMessageEnd(msg5);
+                          this._updateState({ isRunning: false });
+                          this._emitRunFinished();
+                        }
+                      );
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+    }, this.#initialDelay);
   }
 
   #multipleText(): void {
     const msg1 = this.#id();
-    this._emitMessageStart(msg1);
-    this.#streamText(msg1, 'This is the first text chunk of the response.', () => {
-      this._emitMessageEnd(msg1);
-      const msg2 = this.#id();
-      this._emitMessageStart(msg2);
-      this.#streamText(msg2, 'Here is another text chunk that follows immediately.', () => {
-        this._emitMessageEnd(msg2);
-        const msg3 = this.#id();
-        this._emitMessageStart(msg3);
-        this.#streamText(msg3, 'And finally, a third text chunk to complete the response!', () => {
-          this._emitMessageEnd(msg3);
-          this._updateState({ isRunning: false });
-          this._emitRunFinished();
-        });
+    setTimeout(() => {
+      this._emitMessageStart(msg1);
+      this.#streamText(msg1, 'This is the first text chunk of the response.', () => {
+        this._emitMessageEnd(msg1);
+        setTimeout(() => {
+          const msg2 = this.#id();
+          this._emitMessageStart(msg2);
+          this.#streamText(msg2, 'Here is another text chunk that follows immediately.', () => {
+            this._emitMessageEnd(msg2);
+            setTimeout(() => {
+              const msg3 = this.#id();
+              this._emitMessageStart(msg3);
+              this.#streamText(msg3, 'And finally, a third text chunk to complete the response!', () => {
+                this._emitMessageEnd(msg3);
+                this._updateState({ isRunning: false });
+                this._emitRunFinished();
+              });
+            }, this.#textGapDelay);
+          });
+        }, this.#textGapDelay);
       });
-    });
+    }, this.#initialDelay);
   }
 
   #streamText(messageId: string, text: string, onComplete: () => void): void {
@@ -742,7 +814,7 @@ class MixedResponseAdapter extends MockAdapter {
         onComplete();
       }
     };
-    setTimeout(stream, this.#delay);
+    stream();
   }
 
   #id(): string {
