@@ -157,13 +157,11 @@ export const WithSuggestions: Story = {
         value: 'lorem-ipsum'
       },
       { text: 'Create a presentation', value: 'presentation' },
-      { text: 'Write some code', value: 'code' },
-      { text: 'Plan a meeting', value: 'meeting' },
-      { text: 'Summarize a document', value: 'summarize' }
+      { text: 'Write some code', value: 'code' }
     ] as Suggestion[];
 
     return html`
-      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+      <div style="width: 100%; height: 800px; max-width: 800px; margin: 0 auto;">
         <forge-ai-chatbot
           .adapter=${adapter}
           .suggestions=${suggestions}
