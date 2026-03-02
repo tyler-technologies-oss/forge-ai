@@ -48,3 +48,7 @@ forge-ai-chat-interface {
   margin-block-start: #{forge-spacing.variable(xxsmall)};
   margin-block-end: calc(#{forge-spacing.variable(small)} * -1);
 }
+
+.suggestions-container {
+  align-self: start;
+}

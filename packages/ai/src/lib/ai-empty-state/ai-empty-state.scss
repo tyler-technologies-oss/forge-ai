@@ -13,6 +13,8 @@
   align-items: center;
   justify-content: center;
   gap: #{forge-spacing.variable(medium)};
+  max-width: 360px;
+  margin: 0 auto;
   width: 100%;
 }
 
@@ -30,17 +32,12 @@
 
 .message {
   @include forge-typography.style(body2);
+  text-align: center;
 }
 
 .graphic {
   height: 200px;
   width: 200px;
-}
-
-.suggestion-container {
-  display: flex;
-  flex-direction: column;
-  gap: #{forge-spacing.variable(small)};
 }
 
 ::slotted(:where(p, h1, h2, h3, h4, h5, h6)) {

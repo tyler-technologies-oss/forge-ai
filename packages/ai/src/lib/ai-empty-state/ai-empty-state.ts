@@ -37,9 +37,7 @@ export class AiEmptyStateComponent extends LitElement {
           </slot>
         </div>
       </div>
-      <div class="actions-container">
-        <slot name="actions"></slot>
-      </div>
+      <slot name="actions"></slot>
     </div>`;
   }
 
