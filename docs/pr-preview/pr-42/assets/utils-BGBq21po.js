@@ -1,0 +1,1 @@
+function a(t="id"){return`${t}-${Math.random().toString(36).substr(2,9)}`}function s(t,e,d){if(d)try{t.states.add(e)}catch{t.states.add(`--${e}`)}else try{t.states.delete(e)}catch{t.states.delete(`--${e}`)}}export{a as g,s as t};
