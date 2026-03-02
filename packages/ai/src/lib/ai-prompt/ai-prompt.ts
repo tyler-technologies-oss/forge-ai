@@ -250,6 +250,7 @@ export class AiPromptComponent extends LitElement {
   }
 
   readonly #actionsSlot = html`<slot name="actions" @slotchange=${this.#handleSlotChange}></slot>`;
+  readonly #actionsEndSlot = html`<slot name="actions-end" @slotchange=${this.#handleSlotChange}></slot>`;
 
   get #shouldShowStopButton(): boolean {
     return this.running && !this.value.trim();
@@ -259,7 +260,7 @@ export class AiPromptComponent extends LitElement {
     return html`
       <div class="actions">
         <div class="actions-start-container">${this.#actionsSlot}</div>
-        ${this.#sendButton}
+        <div class="actions-end-container">${this.#actionsEndSlot} ${this.#sendButton}</div>
       </div>
       ${when(this.slashCommands.length, () => html`<div class="vertical-divider"></div>`)}
     `;
@@ -267,7 +268,7 @@ export class AiPromptComponent extends LitElement {
 
   #handleSlotChange(evt: Event): void {
     const slotName = (evt.target as HTMLSlotElement).name;
-    if (slotName === 'actions') {
+    if (slotName === 'actions' || slotName === 'actions-end') {
       this.requestUpdate();
     }
   }

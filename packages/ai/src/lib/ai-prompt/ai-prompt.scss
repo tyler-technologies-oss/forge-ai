@@ -58,10 +58,11 @@
   overflow-x: auto;
 }
 
-.actions-start-container {
+.actions-start-container,
+.actions-end-container {
   display: flex;
   align-items: center;
-  gap: #{forge-spacing.variable(xxsmall)};
+  gap: #{forge-spacing.variable(xsmall)};
 }
 
 .send-button {
