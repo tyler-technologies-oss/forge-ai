@@ -1119,7 +1119,7 @@ export class AiChatbotComponent extends LitElement {
           this.fileUpload === 'on',
           () => html`
             <forge-ai-file-picker
-              slot="actions"
+              slot="actions-start"
               variant="icon-button"
               multiple
               ?disabled=${isUploading}

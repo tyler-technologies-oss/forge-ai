@@ -41,7 +41,7 @@ const createPrompt = () => {
 
   return html`
     <forge-ai-prompt slot="prompt">
-      <forge-ai-dropdown-menu variant="icon-button" selection-mode="none" slot="actions">
+      <forge-ai-dropdown-menu variant="icon-button" selection-mode="none" slot="actions-start">
         <span slot="trigger-content">
           <forge-icon name="add" external></forge-icon>
         </span>
@@ -58,7 +58,7 @@ const createPrompt = () => {
           <forge-icon name="sparkles" slot="start"></forge-icon>
         </forge-ai-dropdown-menu-item>
       </forge-ai-dropdown-menu>
-      <forge-ai-voice-input slot="actions" @forge-ai-voice-input-result=${handleVoiceInput}></forge-ai-voice-input>
+      <forge-ai-voice-input slot="actions-end" @forge-ai-voice-input-result=${handleVoiceInput}></forge-ai-voice-input>
     </forge-ai-prompt>
   `;
 };
