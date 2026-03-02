@@ -14,6 +14,10 @@ const meta = {
       control: 'boolean',
       description: 'Show or hide the suggestions'
     },
+    headingText: {
+      control: 'text',
+      description: 'Custom heading text for the heading slot (leave empty for default)'
+    },
     customMessage: {
       control: 'text',
       description: 'Custom message text (leave empty for default)'
@@ -31,6 +35,7 @@ const meta = {
   },
   args: {
     showSuggestions: true,
+    headingText: '',
     customMessage: '',
     useCustomIcon: false,
     iconType: 'star'
@@ -85,7 +90,8 @@ const meta = {
     return html`
       <forge-ai-empty-state>
         ${args.useCustomIcon ? getCustomIcon(args.iconType) : ''}
-        ${args.customMessage ? html`${args.customMessage}` : ''}
+        ${args.headingText ? html`<span slot="heading">${args.headingText}</span>` : ''}
+        ${args.customMessage ? html`<span slot="body">${args.customMessage}</span>` : ''}
         ${args.showSuggestions
           ? html`
               <forge-ai-suggestions slot="actions" variant="block" .suggestions=${suggestions}> </forge-ai-suggestions>

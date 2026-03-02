@@ -21,7 +21,7 @@
 }
 
 .heading {
-  @include forge-typography.style(heading1);
+  @include forge-typography.style(heading4);
 }
 
 .message {
