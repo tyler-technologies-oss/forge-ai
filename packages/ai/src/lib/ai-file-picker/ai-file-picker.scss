@@ -6,10 +6,9 @@
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/icon/forge-icon';
 
-// :host {
-//   display: inline-block;
-//   position: relative;
-// }
+:host {
+  display: block;
+}
 
 .ai-file-picker {
   display: inline-flex;
