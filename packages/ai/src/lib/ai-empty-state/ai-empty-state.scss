@@ -5,6 +5,7 @@
 
 :host {
   display: block;
+  --forge-ai-empty-state-max-width: 420px;
 }
 
 .empty-state-container {
@@ -13,9 +14,9 @@
   align-items: center;
   justify-content: center;
   gap: #{forge-spacing.variable(medium)};
-  max-width: 360px;
   margin: 0 auto;
   width: 100%;
+  max-width: var(--forge-ai-empty-state-max-width);
 }
 
 .heading-message-container {
