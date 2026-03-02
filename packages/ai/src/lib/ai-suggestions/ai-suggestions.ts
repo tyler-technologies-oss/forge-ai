@@ -134,25 +134,22 @@ export class AiSuggestionsComponent extends LitElement {
       const showTooltip = state?.isOverflowing ?? false;
 
       return html`
-        <ul class="forge-list">
-          <li class="forge-list-item custom-list-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
-              <path
-                d="M9 22a1 1 0 0 1-1-1v-3H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6.1l-3.7 3.71c-.2.19-.45.29-.7.29zm1-6v3.08L13.08 16H20V4H4v12zM6 7h12v2H6zm0 4h9v2H6z" />
-            </svg>
-            <button id="${id}" class="action-title" @click=${() => this._handleSuggestionClick(suggestion)}>
-              <span class="suggestion-text">${suggestion.text}</span>
-            </button>
-          </li>
-        </ul>
-
-        ${when(
-          showTooltip,
-          () =>
-            html`<forge-ai-tooltip class="suggestion-tooltip" for="${id}" role="presentation"
-              >${suggestion.text}</forge-ai-tooltip
-            >`
-        )}
+        <li class="forge-list-item custom-list-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+            <path
+              d="M9 22a1 1 0 0 1-1-1v-3H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6.1l-3.7 3.71c-.2.19-.45.29-.7.29zm1-6v3.08L13.08 16H20V4H4v12zM6 7h12v2H6zm0 4h9v2H6z" />
+          </svg>
+          <button id="${id}" class="forge-button action-title" @click=${() => this._handleSuggestionClick(suggestion)}>
+            <span class="suggestion-text">${suggestion.text}</span>
+          </button>
+          ${when(
+            showTooltip,
+            () =>
+              html`<forge-ai-tooltip class="suggestion-tooltip" for="${id}" role="presentation"
+                >${suggestion.text}</forge-ai-tooltip
+              >`
+          )}
+        </li>
       `;
     });
   }
@@ -181,7 +178,13 @@ export class AiSuggestionsComponent extends LitElement {
   }
 
   get #blockLayout(): TemplateResult {
-    return html` <div class="block-layout-container">${this.#suggestionButtons}</div> `;
+    return html`
+      <div class="block-layout-container">
+        <ul class="forge-list forge-list--wrap">
+          ${this.#suggestionButtons}
+        </ul>
+      </div>
+    `;
   }
 
   public override render(): TemplateResult {

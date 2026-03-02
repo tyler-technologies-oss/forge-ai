@@ -152,6 +152,10 @@ export const WithSuggestions: Story = {
 
     const suggestions = [
       { text: 'Help me write an email', value: 'email' },
+      {
+        text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+        value: 'lorem-ipsum'
+      },
       { text: 'Create a presentation', value: 'presentation' },
       { text: 'Write some code', value: 'code' },
       { text: 'Plan a meeting', value: 'meeting' },

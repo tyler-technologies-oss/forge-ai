@@ -28,21 +28,17 @@
     display: flex;
     justify-content: start;
     text-box-trim: both;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+    text-wrap: wrap;
 
-  &:hover,
-  &:focus-within {
-    .more-details-button {
-      display: block;
-      --forge-icon-button-size: 24px;
+    &:hover,
+    &:focus-within {
+      border-radius: #{forge-shape.variable(large)};
     }
   }
 }
 
 .block-layout-container {
+  max-width: 360px;
   display: flex;
   flex-direction: column;
 }
