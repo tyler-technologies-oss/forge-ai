@@ -249,7 +249,7 @@ export class AiPromptComponent extends LitElement {
     return true;
   }
 
-  readonly #actionsSlot = html`<slot name="actions" @slotchange=${this.#handleSlotChange}></slot>`;
+  readonly #actionsStartSlot = html`<slot name="actions-start" @slotchange=${this.#handleSlotChange}></slot>`;
   readonly #actionsEndSlot = html`<slot name="actions-end" @slotchange=${this.#handleSlotChange}></slot>`;
 
   get #shouldShowStopButton(): boolean {
@@ -259,7 +259,7 @@ export class AiPromptComponent extends LitElement {
   get #actions(): TemplateResult {
     return html`
       <div class="actions">
-        <div class="actions-start-container">${this.#actionsSlot}</div>
+        <div class="actions-start-container">${this.#actionsStartSlot}</div>
         <div class="actions-end-container">${this.#actionsEndSlot} ${this.#sendButton}</div>
       </div>
       ${when(this.slashCommands.length, () => html`<div class="vertical-divider"></div>`)}
@@ -268,7 +268,7 @@ export class AiPromptComponent extends LitElement {
 
   #handleSlotChange(evt: Event): void {
     const slotName = (evt.target as HTMLSlotElement).name;
-    if (slotName === 'actions' || slotName === 'actions-end') {
+    if (slotName === 'actions-start' || slotName === 'actions-end') {
       this.requestUpdate();
     }
   }
@@ -461,6 +461,18 @@ export class AiPromptComponent extends LitElement {
     this._slashMenuQuery = '';
   }
 
+  get #textArea(): TemplateResult {
+    return html` <textarea
+      id="chat-input"
+      rows="1"
+      .value=${this.value}
+      placeholder=${this.placeholder}
+      ?disabled=${this.inputDisabled}
+      @input=${this._handleInput}
+      @keydown=${this._handleKeyDown}
+      @paste=${this._handlePaste}></textarea>`;
+  }
+
   get #sendButton(): TemplateResult {
     return html`
       <button
@@ -533,25 +545,34 @@ export class AiPromptComponent extends LitElement {
 
   public override render(): TemplateResult {
     return html`
-      <div class="input-container">
-        <div class="forge-card">
-          <div class="forge-field">
-            ${when(this.variant === 'inline', () => html`${this.#actions}`)}
-            <textarea
-              id="chat-input"
-              rows="1"
-              .value=${this.value}
-              placeholder=${this.placeholder}
-              ?disabled=${this.inputDisabled}
-              @input=${this._handleInput}
-              @keydown=${this._handleKeyDown}
-              @paste=${this._handlePaste}></textarea>
-            ${when(this.debugMode, () => html` ${this.#debugButton} `)}
+      ${when(
+        this.variant === 'stacked',
+        () => html`
+          <div class="input-container">
+            <div class="forge-card">
+              <div class="forge-field">
+                ${this.#textArea} ${when(this.debugMode, () => html` ${this.#debugButton} `)}
+              </div>
+              ${this.#actions}
+            </div>
           </div>
-          ${when(this.variant === 'stacked', () => html`${this.#actions}`)}
-        </div>
-      </div>
-      ${this.#slashCommandMenu}
+          ${this.#slashCommandMenu}
+        `
+      )}
+      ${when(
+        this.variant === 'inline',
+        () => html`
+          <div class="input-container">
+            <div class="forge-card">
+              <div class="forge-field">
+                ${this.#actionsStartSlot} ${this.#textArea} ${when(this.debugMode, () => html` ${this.#debugButton} `)}
+                <div class="actions-end-container">${this.#actionsEndSlot} ${this.#sendButton}</div>
+              </div>
+            </div>
+          </div>
+          ${this.#slashCommandMenu}
+        `
+      )}
     `;
   }
 }

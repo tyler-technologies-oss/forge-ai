@@ -62,7 +62,7 @@
 .actions-end-container {
   display: flex;
   align-items: center;
-  gap: #{forge-spacing.variable(xsmall)};
+  gap: #{forge-spacing.variable(medium)};
 }
 
 .send-button {
@@ -79,7 +79,7 @@
   .forge-field {
     --forge-field-height: 52px;
     --forge-field-padding-inline: 0;
-    gap: #{forge-spacing.variable(xxsmall)};
+    gap: #{forge-spacing.variable(medium)};
   }
 
   .actions {

@@ -72,20 +72,20 @@ const meta = {
         @forge-ai-prompt-send=${onSend}
         @forge-ai-prompt-cancel=${onCancel}
         @forge-ai-prompt-attachment=${onAttachment}>
-        <forge-ai-voice-input slot="actions"></forge-ai-voice-input>
-        <forge-ai-file-picker slot="actions"></forge-ai-file-picker>
+        <forge-ai-file-picker slot="actions-start"></forge-ai-file-picker>
         ${args.showAdditionalAction
           ? html`
-              <forge-prompt-button slot="actions">
+              <forge-prompt-button slot="actions-start">
                 <forge-icon name="web_alt" slot="leading"></forge-icon>
                 Web search
               </forge-prompt-button>
-              <forge-prompt-button slot="actions">
+              <forge-prompt-button slot="actions-start">
                 GPT-4
                 <forge-icon name="chevron_down" slot="trailing"></forge-icon>
               </forge-prompt-button>
             `
           : ''}
+        <forge-ai-voice-input slot="actions-end"></forge-ai-voice-input>
       </forge-ai-prompt>
     `;
   }
