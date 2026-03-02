@@ -147,6 +147,7 @@ export class AiVoiceInputComponent extends LitElement {
 
   public override render(): TemplateResult {
     const classes = classMap({
+      'forge-icon-button--small': true,
       'forge-icon-button': true,
       'forge-theme--error': this._isRecording,
       recording: this._isRecording

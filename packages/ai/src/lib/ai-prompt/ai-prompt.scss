@@ -1,5 +1,6 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/dist/card/forge-card';
 @use '@tylertech/forge/dist/field/forge-field';
 @use '@tylertech/forge/dist/divider/forge-divider';
@@ -13,6 +14,7 @@
 .input-container {
   .forge-card {
     --forge-card-padding: 0;
+    --forge-card-shape: #{forge-shape.variable(large)};
   }
 
   .forge-field {
@@ -50,7 +52,7 @@
   justify-content: flex-start;
   align-items: center;
   padding: #{forge-spacing.variable(xxsmall)};
-  height: 52px;
+  gap: #{forge-spacing.variable(xxsmall)};
   overflow-x: auto;
 }
 
@@ -68,9 +70,15 @@
   }
 
   .actions {
+    display: flex;
+    align-items: center;
     overflow-x: visible;
     padding: #{forge-spacing.variable(xxsmall)};
-    --forge-icon-button-size: 32px;
+  }
+
+  ::slotted([slot='actions']) {
+    display: flex;
+    align-items: center;
   }
 
   .vertical-divider {

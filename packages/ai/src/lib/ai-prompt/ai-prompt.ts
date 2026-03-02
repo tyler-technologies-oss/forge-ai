@@ -264,7 +264,6 @@ export class AiPromptComponent extends LitElement {
     return when(
       hasActions,
       () => html`
-        <hr class="forge-divider" />
         <div class="actions">${this.#actionsSlot}</div>
         ${when(this.slashCommands.length, () => html`<div class="vertical-divider"></div>`)}
       `,

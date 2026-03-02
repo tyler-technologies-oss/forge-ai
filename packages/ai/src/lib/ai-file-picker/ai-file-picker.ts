@@ -266,6 +266,7 @@ export class AiFilePickerComponent extends LitElement {
 
   get #button(): TemplateResult {
     const buttonClasses = {
+      'forge-icon-button--small': true,
       'forge-button': this.variant === 'button',
       'forge-icon-button': this.variant === 'icon-button',
       'ai-file-picker--drag-over': this._isDragOver
