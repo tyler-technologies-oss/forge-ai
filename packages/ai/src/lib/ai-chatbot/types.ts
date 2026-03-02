@@ -144,6 +144,7 @@ export interface ChatMessage {
   eventStream?: StreamEvent[];
   feedback?: ResponseFeedback;
   children?: ResponseItem[];
+  clientOnly?: boolean;
 }
 
 export interface ToolCall<TArgs = Record<string, unknown>> {
@@ -156,6 +157,8 @@ export interface ToolCall<TArgs = Record<string, unknown>> {
   status: 'pending' | 'parsing' | 'executing' | 'complete' | 'error';
   type: ToolType;
   eventStream?: StreamEvent[];
+  startTimestamp?: number;
+  endTimestamp?: number;
 }
 
 export type ResponseItem =
@@ -239,4 +242,5 @@ export interface ThreadState {
   threadId?: string;
   messages: ChatMessage[];
   timestamp?: number;
+  selectedAgentId?: string;
 }

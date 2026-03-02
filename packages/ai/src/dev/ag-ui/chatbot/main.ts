@@ -210,26 +210,26 @@ const tools: Array<ToolDefinition<any>> = [showConfettiTool, displayRecipeTool, 
 let threadId = generateId();
 let adapter: AgUiAdapter;
 
-const THREAD_STATE_KEY = 'chatbot-thread-state';
+function getThreadStateKey(agentId: string): string {
+  return `chatbot-thread-state-${agentId}`;
+}
 
-/**
- * Saves current thread state to localStorage after each message.
- * Enables conversation persistence across page refreshes.
- */
-function saveThreadState(): void {
+function saveThreadState(agentId: string): void {
   if (!persistSwitch.checked) {
     return;
   }
+  const key = getThreadStateKey(agentId);
   const threadState = chatbot.getThreadState();
-  localStorage.setItem(THREAD_STATE_KEY, JSON.stringify(threadState));
+  localStorage.setItem(key, JSON.stringify(threadState));
   console.log('💾 Thread state saved:', threadState);
 }
 
-function getSavedThreadId(): string | null {
+function getSavedThreadId(agentId: string): string | null {
   if (!persistSwitch.checked) {
     return null;
   }
-  const savedState = localStorage.getItem(THREAD_STATE_KEY);
+  const key = getThreadStateKey(agentId);
+  const savedState = localStorage.getItem(key);
   if (savedState) {
     try {
       const threadState = JSON.parse(savedState);
@@ -241,11 +241,12 @@ function getSavedThreadId(): string | null {
   return null;
 }
 
-async function loadThreadState(): Promise<void> {
+async function loadThreadState(agentId: string): Promise<void> {
   if (!persistSwitch.checked) {
     return;
   }
-  const savedState = localStorage.getItem(THREAD_STATE_KEY);
+  const key = getThreadStateKey(agentId);
+  const savedState = localStorage.getItem(key);
   if (savedState) {
     try {
       const threadState = JSON.parse(savedState);
@@ -258,8 +259,9 @@ async function loadThreadState(): Promise<void> {
   }
 }
 
-function clearThreadState(): void {
-  localStorage.removeItem(THREAD_STATE_KEY);
+function clearThreadState(agentId: string): void {
+  const key = getThreadStateKey(agentId);
+  localStorage.removeItem(key);
   console.log('🗑️ Thread state cleared');
 }
 
@@ -371,18 +373,18 @@ async function initializeAdapter(baseUrl: string, agentId: string, restoreState 
   adapter?.disconnect();
 
   if (restoreState) {
-    const savedThreadId = getSavedThreadId();
+    const savedThreadId = getSavedThreadId(agentId);
     threadId = savedThreadId || generateId();
   } else {
     threadId = generateId();
-    clearThreadState();
+    clearThreadState(agentId);
   }
 
   adapter = createAdapter(baseUrl, agentId);
   chatbot.adapter = adapter;
 
   if (restoreState) {
-    await loadThreadState();
+    await loadThreadState(agentId);
   }
 
   initialBaseUrl = baseUrl;
@@ -426,7 +428,7 @@ persistSwitch.addEventListener('change', () => {
   window.history.replaceState({}, '', newUrl);
 
   if (!persistSwitch.checked) {
-    clearThreadState();
+    clearThreadState(agentIdInput.value.trim());
   }
 });
 
@@ -451,6 +453,12 @@ const agents = [
     id: 'agent-4a5a6c19-3009-4ab2-b7f8-ffee889eb71f',
     name: 'ERP Agent',
     description: 'An AI assistant that can help you with Tyler Technologies ERP software related questions and tasks.'
+  },
+  {
+    id: 'agent-bc5448e1-3503-47d4-81a0-5dda3f0cbbfe',
+    name: 'Case Researcher',
+    description:
+      'Specialized agent for searching and analyzing old CRM cases using Dynamics 365 Public Safety. Investigates incident history, communications, timelines, and related customer information.'
   }
 ];
 
@@ -474,31 +482,18 @@ chatbot.agentInfo = {
 
 chatbot.addEventListener('forge-ai-chatbot-message-sent', (e: CustomEvent) => {
   addEventToStream('USER_MESSAGE', e.detail.message);
-  saveThreadState();
 });
-
-chatbot.addEventListener('forge-ai-chatbot-clear', () => {
-  clearThreadState();
-});
-
-const agentThreadStates = new Map<string, ReturnType<typeof chatbot.getThreadState>>();
 
 chatbot.addEventListener('forge-ai-chatbot-message-received', (e: CustomEvent) => {
   addEventToStream('ASSISTANT_MESSAGE', e.detail.message);
-
-  const agentId = chatbot.selectedAgentId;
-  if (agentId) {
-    agentThreadStates.set(agentId, chatbot.getThreadState());
-  }
-  saveThreadState();
 });
 
 chatbot.addEventListener('forge-ai-chatbot-tool-call', async (e: CustomEvent<ForgeAiChatbotToolCallEventData>) => {
   console.log('🔧 Tool call:', e);
 });
 
-chatbot.addEventListener('forge-ai-chatbot-error', () => {
-  saveThreadState();
+chatbot.addEventListener('forge-ai-chatbot-thread-state-change', () => {
+  saveThreadState(agentIdInput.value.trim());
 });
 
 chatbot.addEventListener('forge-ai-chatbot-response-feedback', (e: CustomEvent) => {
@@ -509,22 +504,16 @@ chatbot.addEventListener('forge-ai-chatbot-agent-change', async (e: CustomEvent)
   const { agent, previousAgentId } = e.detail;
   console.log('🔄 Agent changed:', { agent, previousAgentId });
 
-  if (previousAgentId) {
-    agentThreadStates.set(previousAgentId, chatbot.getThreadState());
-    console.log('💾 Saved thread state for agent:', previousAgentId);
-  }
-
   const baseUrl = baseUrlInput.value.trim();
   const agentId = agent?.id ?? agentIdInput.value.trim();
-  threadId = generateId();
+
+  const savedThreadId = getSavedThreadId(agentId);
+  threadId = savedThreadId || generateId();
+
   adapter = createAdapter(baseUrl, agentId);
   chatbot.adapter = adapter;
 
-  if (agent) {
-    const savedState = agentThreadStates.get(agent.id);
-    if (savedState) {
-      await chatbot.setThreadState(savedState);
-      console.log('✅ Restored thread state for agent:', agent.id);
-    }
+  if (savedThreadId && persistSwitch.checked) {
+    await loadThreadState(agentId);
   }
 });
