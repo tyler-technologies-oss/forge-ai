@@ -37,6 +37,13 @@
   }
 }
 
+:host(:state(inline)) {
+  .custom-list-item {
+    flex: 0 0 auto; /* === don't grow, don't shrink, size to content */
+    width: fit-content; /* optional, just makes intent explicit */
+  }
+}
+
 .block-layout-container {
   max-width: 360px;
   display: flex;
@@ -49,11 +56,6 @@
   -webkit-overflow-scrolling: touch;
   width: 100%;
   height: 100%;
-}
-
-.suggestions-container {
-  min-width: 100%;
-  display: table;
 }
 
 .suggestions-inline {
