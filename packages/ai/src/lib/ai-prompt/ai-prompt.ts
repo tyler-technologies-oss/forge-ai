@@ -519,7 +519,7 @@ export class AiPromptComponent extends LitElement {
                 <button
                   id="debug-btn"
                   aria-label="Exit debug mode"
-                  class="forge-icon-button forge-icon-button--medium forge-icon-button--tonal ai-icon-button debug-button"
+                  class="forge-icon-button forge-icon-button--small forge-icon-button--tonal ai-icon-button debug-button"
                   @click=${this._handleDebugToggle}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path
@@ -532,7 +532,7 @@ export class AiPromptComponent extends LitElement {
             <button
               id="send-btn"
               aria-label=${this.#shouldShowStopButton ? 'Stop' : 'Send message'}
-              class="forge-icon-button forge-icon-button--medium ai-icon-button"
+              class="forge-icon-button forge-icon-button--small ai-icon-button"
               ?disabled=${this.sendDisabled || this.inputDisabled}
               @click=${this.#shouldShowStopButton ? this._handleStop : this._handleSend}>
               ${this.#shouldShowStopButton

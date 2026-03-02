@@ -37,12 +37,10 @@ const meta = {
     const onSuggestionSelect = action('forge-ai-suggestions-select');
 
     return html`
-      <div style="width: 420px;">
-        <forge-ai-suggestions
-          .suggestions=${suggestions}
-          variant=${args.variant}
-          @forge-ai-suggestions-select=${onSuggestionSelect}></forge-ai-suggestions>
-      </div>
+      <forge-ai-suggestions
+        .suggestions=${suggestions}
+        variant=${args.variant}
+        @forge-ai-suggestions-select=${onSuggestionSelect}></forge-ai-suggestions>
     `;
   }
 } satisfies Meta;

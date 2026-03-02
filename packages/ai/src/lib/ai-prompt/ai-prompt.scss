@@ -20,6 +20,7 @@
   .forge-field {
     --forge-theme-outline-low: transparent;
     --forge-field-height: auto;
+    padding-inline-start: #{forge-spacing.variable(medium)};
 
     min-height: 52px;
     align-items: center;
@@ -52,6 +53,7 @@
   justify-content: flex-start;
   align-items: center;
   padding: #{forge-spacing.variable(xxsmall)};
+  padding-inline-start: #{forge-spacing.variable(xsmall)};
   gap: #{forge-spacing.variable(xxsmall)};
   overflow-x: auto;
 }

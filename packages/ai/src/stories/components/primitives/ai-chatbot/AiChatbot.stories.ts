@@ -177,6 +177,8 @@ export const WithSuggestions: Story = {
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
           @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
           @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;

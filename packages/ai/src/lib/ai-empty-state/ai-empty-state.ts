@@ -25,17 +25,19 @@ export class AiEmptyStateComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   public override render(): TemplateResult {
-    return html` <div class="forge-page-state">
-      <div class="welcome-container">
-        <slot name="icon">${this.#defaultIcon}</slot>
+    return html` <div class="empty-state-container">
+      <slot name="icon">${this.#defaultIcon}</slot>
+      <div class="heading-message-container">
         <div class="heading">
           <slot name="heading"></slot>
         </div>
-        <div class="forge-page-state__message message">
+        <div class="message">
           <slot name="body">
             Welcome to AI Assistant! Start a conversation by asking a question or describing what you'd like help with.
           </slot>
         </div>
+      </div>
+      <div class="actions-container">
         <slot name="actions"></slot>
       </div>
     </div>`;

@@ -32,17 +32,12 @@
   min-width: 0;
 
   .title {
-    @include forge-typography.style(heading1);
+    @include forge-typography.style(heading3);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: normal;
-
-    font-size: clamp(
-      #{forge-typography.variable(heading1, font-size)},
-      2.5vw,
-      #{forge-typography.variable(heading3, font-size)}
-    );
+    padding-inline-start: #{forge-spacing.variable(medium)};
   }
 
   forge-ai-agent-selector {
