@@ -127,8 +127,7 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
     });
   }
 
-  public override updated(changedProperties: Map<PropertyKey, unknown>): void {
-    super.updated(changedProperties);
+  public override firstUpdated(): void {
     this.#setHeightFromContent();
   }
 
