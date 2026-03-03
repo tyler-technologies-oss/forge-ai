@@ -22,7 +22,7 @@
     --forge-field-height: auto;
     padding-inline-start: #{forge-spacing.variable(medium)};
 
-    min-height: 52px;
+    min-height: 40px;
     align-items: center;
 
     &:has(textarea) *:not(textarea) {
@@ -36,7 +36,7 @@
     max-height: 150px; // Limit to ~6 rows
     overflow-y: auto;
     outline: none;
-    padding: #{forge-spacing.variable(medium)} 0;
+    padding: #{forge-spacing.variable(small)} 0;
 
     @include forge-scrollbar.base;
   }
