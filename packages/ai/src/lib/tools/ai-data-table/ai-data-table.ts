@@ -6,7 +6,6 @@ import '../../ai-empty-state/ai-empty-state.ts';
 import '../ai-paginator/ai-paginator.ts';
 
 import styles from './ai-data-table.scss?inline';
-import { AiArtifactComponent } from '../../ai-artifact/ai-artifact.ts';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -120,7 +119,7 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
 
   #setHeightFromContent(): void {
     requestAnimationFrame(() => {
-      const artifact = this.shadowRoot?.querySelector('.artifact') as AiArtifactComponent;
+      const artifact = this.shadowRoot?.querySelector('.artifact') as HTMLElement | null;
       if (artifact) {
         const height = artifact.scrollHeight;
         this.style.height = `${height}px`;
