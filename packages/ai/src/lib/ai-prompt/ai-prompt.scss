@@ -82,7 +82,7 @@
 :host(:state(inline)) {
   .forge-field {
     --forge-field-height: 52px;
-    --forge-field-padding-inline: 0;
+    padding-inline: #{forge-spacing.variable(xxsmall)};
     gap: #{forge-spacing.variable(medium)};
   }
 
@@ -107,5 +107,9 @@
 
   .forge-divider {
     display: none;
+  }
+
+  .send-button {
+    margin-inline-end: #{forge-spacing.variable(xxsmall)};
   }
 }
