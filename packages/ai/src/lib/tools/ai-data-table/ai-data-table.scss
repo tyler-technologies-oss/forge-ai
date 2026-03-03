@@ -14,6 +14,8 @@
 
 .artifact {
   --forge-ai-artifact-content-padding: 0;
+  height: 100%;
+  margin-block-start: #{forge-spacing.variable(small)};
 }
 
 .title {

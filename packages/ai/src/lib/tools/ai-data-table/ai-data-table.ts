@@ -117,6 +117,20 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
     this._currentPage = 1;
   }
 
+  #setHeightFromContent(): void {
+    requestAnimationFrame(() => {
+      const artifact = this.shadowRoot?.querySelector('.artifact') as HTMLElement | null;
+      if (artifact) {
+        const height = artifact.scrollHeight;
+        this.style.height = `${height}px`;
+      }
+    });
+  }
+
+  public override firstUpdated(): void {
+    this.#setHeightFromContent();
+  }
+
   readonly #filterInput = html`
     <div class="actions" slot="actions">
       <label for="data-table-filter-input" class="sr-only">Filter table data</label>
