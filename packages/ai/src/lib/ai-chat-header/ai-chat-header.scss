@@ -27,7 +27,7 @@
 .start {
   display: flex;
   align-items: center;
-  gap: #{forge-spacing.variable(xsmall)};
+  gap: #{forge-spacing.variable(medium)};
   overflow: visible;
   min-width: 0;
 
@@ -37,7 +37,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: normal;
-    padding-inline-start: #{forge-spacing.variable(medium)};
   }
 
   forge-ai-agent-selector {

@@ -15,6 +15,7 @@
   --forge-list-item-height: 32px;
   --forge-list-item-padding: #{forge-spacing.variable(xxsmall)};
   --forge-list-item-shape: #{forge-shape.variable(large)};
+  --forge-icon-color: #{forge-theme.variable(text-medium)};
   display: flex;
   align-items: center;
   justify-content: start;
@@ -31,7 +32,8 @@
     text-wrap: wrap;
 
     &:hover,
-    &:focus-within {
+    &:focus-within,
+    &::after {
       border-radius: #{forge-shape.variable(large)};
     }
   }

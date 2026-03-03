@@ -32,6 +32,11 @@
     transform: scale(1.02);
   }
 
+  .custom-icon {
+    height: 18px;
+    width: 18px;
+  }
+
   ::slotted(svg) {
     fill: #{forge-theme.variable(text-medium)};
   }

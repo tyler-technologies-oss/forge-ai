@@ -478,7 +478,7 @@ export class AiPromptComponent extends LitElement {
       <button
         id="send-btn"
         aria-label=${this.#shouldShowStopButton ? 'Stop' : 'Send message'}
-        class="forge-icon-button forge-icon-button--small send-button"
+        class="forge-icon-button forge-icon-button--medium send-button"
         ?disabled=${this.sendDisabled || this.inputDisabled}
         @click=${this.#shouldShowStopButton ? this._handleStop : this._handleSend}>
         ${this.#shouldShowStopButton
