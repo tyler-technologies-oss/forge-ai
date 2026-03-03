@@ -83,7 +83,6 @@
   .forge-field {
     --forge-field-height: 52px;
     padding-inline: #{forge-spacing.variable(xxsmall)};
-    gap: #{forge-spacing.variable(medium)};
   }
 
   .actions {
