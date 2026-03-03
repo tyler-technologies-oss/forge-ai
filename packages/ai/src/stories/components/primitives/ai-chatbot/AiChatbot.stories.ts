@@ -6,7 +6,8 @@ import '$lib/ai-chatbot';
 import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
 import '$lib/ai-voice-input';
-import { type ToolDefinition, type Suggestion, type ChatMessage } from '$lib/ai-chatbot';
+import { type ToolDefinition, type Suggestion, type ChatMessage, type ToolCall } from '$lib/ai-chatbot';
+import { displayDataTableTool } from '$lib/tools';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { smallAgentList, largeAgentList } from '../../../utils/mock-agents';
 
@@ -973,6 +974,99 @@ export const WithFeedbackPersistence: Story = {
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
           @forge-ai-chatbot-response-feedback=${action('forge-ai-chatbot-response-feedback')}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithDataTableTool: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500,
+      tools: [displayDataTableTool]
+    });
+
+    const dataTableToolCall: ToolCall = {
+      id: 'tool-1',
+      messageId: 'assistant-1',
+      name: 'displayDataTable',
+      status: 'complete',
+      type: 'client',
+      args: {
+        title: 'Q4 2024 Sales Report',
+        headers: ['Region', 'Product', 'Units Sold', 'Revenue', 'Growth'],
+        rows: [
+          ['North', 'Widget Pro', 1250, '$125,000', '+15%'],
+          ['South', 'Widget Pro', 890, '$89,000', '+8%'],
+          ['East', 'Widget Basic', 2100, '$84,000', '+22%'],
+          ['West', 'Widget Basic', 1750, '$70,000', '+12%'],
+          ['North', 'Widget Enterprise', 45, '$225,000', '+35%'],
+          ['South', 'Widget Enterprise', 32, '$160,000', '+18%'],
+          ['East', 'Widget Pro', 980, '$98,000', '+10%'],
+          ['West', 'Widget Pro', 1100, '$110,000', '+14%'],
+          ['North', 'Widget Basic', 1800, '$72,000', '+20%'],
+          ['South', 'Widget Basic', 1450, '$58,000', '+11%'],
+          ['East', 'Widget Enterprise', 28, '$140,000', '+25%'],
+          ['West', 'Widget Enterprise', 38, '$190,000', '+30%'],
+          ['North', 'Gadget Plus', 650, '$97,500', '+18%'],
+          ['South', 'Gadget Plus', 520, '$78,000', '+9%'],
+          ['East', 'Gadget Plus', 780, '$117,000', '+24%'],
+          ['West', 'Gadget Plus', 690, '$103,500', '+16%'],
+          ['North', 'Gadget Basic', 2200, '$66,000', '+28%'],
+          ['South', 'Gadget Basic', 1950, '$58,500', '+19%'],
+          ['East', 'Gadget Basic', 2450, '$73,500', '+32%'],
+          ['West', 'Gadget Basic', 2100, '$63,000', '+21%']
+        ]
+      }
+    };
+
+    const initialMessages: ChatMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        content: 'Can you show me the Q4 sales data?',
+        timestamp: Date.now() - 60000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        content: "Here's the Q4 2024 sales report broken down by region and product:",
+        timestamp: Date.now() - 59000,
+        status: 'complete',
+        toolCalls: [dataTableToolCall],
+        children: [
+          {
+            type: 'text',
+            messageId: 'assistant-1',
+            content: "Here's the Q4 2024 sales report broken down by region and product:",
+            status: 'complete'
+          },
+          { type: 'toolCall', data: dataTableToolCall }
+        ]
+      }
+    ];
+
+    setTimeout(() => {
+      const chatbot = document.querySelector('forge-ai-chatbot') as any;
+      if (!chatbot) return;
+      chatbot.setThreadState({ messages: initialMessages });
+    }, 0);
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="Data Table Demo"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}>
         </forge-ai-chatbot>
       </div>
     `;
