@@ -21,7 +21,7 @@
   grid-template-columns: 1fr auto;
   align-items: center;
   min-height: 56px;
-  padding-inline: #{forge-spacing.variable(medium)} 0;
+  padding-inline: #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxsmall)};
 }
 
 .start {
