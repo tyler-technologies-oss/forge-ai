@@ -6,6 +6,7 @@ import '../../ai-empty-state/ai-empty-state.ts';
 import '../ai-paginator/ai-paginator.ts';
 
 import styles from './ai-data-table.scss?inline';
+import { AiArtifactComponent } from '../../ai-artifact/ai-artifact.ts';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -115,6 +116,21 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
   #handleFilterInput(event: InputEvent): void {
     this._filterValue = (event.target as HTMLInputElement).value;
     this._currentPage = 1;
+  }
+
+  #setHeightFromContent(): void {
+    requestAnimationFrame(() => {
+      const artifact = this.shadowRoot?.querySelector('.artifact') as AiArtifactComponent;
+      if (artifact) {
+        const height = artifact.scrollHeight;
+        this.style.height = `${height}px`;
+      }
+    });
+  }
+
+  public override updated(changedProperties: Map<PropertyKey, unknown>): void {
+    super.updated(changedProperties);
+    this.#setHeightFromContent();
   }
 
   readonly #filterInput = html`
