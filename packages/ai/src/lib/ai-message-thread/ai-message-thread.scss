@@ -45,7 +45,8 @@
 
 .scroll-to-bottom-button {
   --forge-fab-size: 40px;
-  --forge-fab-background: #{forge-theme.variable(surface)};
+  --forge-fab-background: #{forge-theme.variable(surface-bright)};
+  --forge-fab-color: #{forge-theme.variable(text-high)};
 
   position: absolute;
   bottom: #{forge-spacing.variable(xxsmall)};
