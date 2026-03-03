@@ -10,11 +10,14 @@ The AI Prompt component provides an input interface for users to interact with A
 
 <Canvas of={AiPromptStories.Demo} />
 
-## Prompt Button
+## Action Slots
 
-The `<forge-prompt-button>` component is a utility component designed specifically for use within the AI Prompt's `additional-action` slot. This component provides a consistent, accessible button interface for additional prompt actions such as file attachments, voice input, model selection, or other contextual features.
+The AI Prompt component provides two action slots for customizing the prompt interface:
 
-The prompt button supports leading and trailing icon slots and follows the Forge design system for consistent theming and interaction states. It's optimized for use within the prompt interface and maintains proper spacing and alignment with other prompt elements.
+- **`actions-start`**: Positioned at the start of the actions container. In **stacked** mode, this appears on the left side of the actions row below the input. In **inline** mode, this appears before the textarea input.
+- **`actions-end`**: Positioned at the end of the actions container, before the send button. Use this slot to add additional actions like file attachments, voice input, or model selection that should appear near the send button.
+
+These slots allow you to add custom action buttons, controls, or other interactive elements that enhance the prompt's functionality while maintaining consistent spacing and alignment with the built-in send button.
 
 ## API
 

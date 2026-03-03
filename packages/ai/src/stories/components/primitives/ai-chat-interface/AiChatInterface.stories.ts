@@ -82,7 +82,7 @@ export const WithMessages: Story = {
   }
 };
 
-export const WithSuggestions: Story = {
+export const WithInlineSuggestions: Story = {
   render: () => {
     const suggestions = [
       { text: 'Help me write an email', value: 'email' },

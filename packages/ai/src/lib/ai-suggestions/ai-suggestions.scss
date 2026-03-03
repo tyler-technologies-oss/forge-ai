@@ -1,12 +1,62 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
-@use '@tylertech/forge/dist/button/forge-button';
+@use '@tylertech/forge/dist/icon/forge-icon.css';
+@use '@tylertech/forge/dist/list/forge-list.css';
 
 :host {
   display: block;
   width: 100%;
   max-inline-size: var(--forge-ai-suggestions-inline-size, 768px);
+}
+
+.custom-list-item {
+  --forge-list-item-height: 32px;
+  --forge-list-item-padding: #{forge-spacing.variable(xxsmall)};
+  --forge-list-item-shape: #{forge-shape.variable(large)};
+  --forge-icon-color: #{forge-theme.variable(text-medium)};
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: #{forge-spacing.variable(medium)};
+  margin-inline: calc(#{forge-spacing.variable(xxsmall)} * -1) 0;
+  margin-block: 0;
+  width: 100%;
+
+  button {
+    @include forge-typography.style(body1);
+    display: flex;
+    justify-content: start;
+    text-box-trim: both;
+    text-wrap: wrap;
+
+    &:hover,
+    &:focus-within,
+    &::after {
+      border-radius: #{forge-shape.variable(large)};
+    }
+  }
+}
+
+:host(:state(inline)) {
+  .custom-list-item {
+    flex: 0 0 auto; /* === don't grow, don't shrink, size to content */
+    width: fit-content; /* optional, just makes intent explicit */
+  }
+}
+
+:host(:state(block)) {
+  .forge-list {
+    display: flex;
+    flex-direction: column;
+    gap: #{forge-spacing.variable(xxsmall)};
+  }
+}
+
+.block-layout-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .scroll-container {
@@ -17,11 +67,6 @@
   height: 100%;
 }
 
-.suggestions-container {
-  min-width: 100%;
-  display: table;
-}
-
 .suggestions-inline {
   display: flex;
   align-items: center;
@@ -29,39 +74,6 @@
   flex-wrap: nowrap;
   width: max-content;
   gap: #{forge-spacing.variable(small)};
-}
-
-.suggestions-block {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: #{forge-spacing.variable(small)};
-
-  > .container,
-  .container > button {
-    width: 100%;
-  }
-}
-
-.suggestion {
-  --forge-button-shape: #{forge-shape.variable(medium)};
-  --forge-button-tonal-background: var(
-    --forge-ai-chatbot-suggestion-background,
-    #{forge-theme.variable(tertiary-container)}
-  );
-  --forge-button-tonal-color: var(
-    --forge-ai-chatbot-suggestion-foreground,
-    #{forge-theme.variable(on-tertiary-container)}
-  );
-  --forge-button-height: 32px;
-
-  max-inline-size: var(--forge-ai-suggestion-max-width, 82.5%);
-
-  .suggestion-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
 }
 
 .suggestion-tooltip {

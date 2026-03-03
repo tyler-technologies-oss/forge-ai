@@ -152,14 +152,16 @@ export const WithSuggestions: Story = {
 
     const suggestions = [
       { text: 'Help me write an email', value: 'email' },
+      {
+        text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+        value: 'lorem-ipsum'
+      },
       { text: 'Create a presentation', value: 'presentation' },
-      { text: 'Write some code', value: 'code' },
-      { text: 'Plan a meeting', value: 'meeting' },
-      { text: 'Summarize a document', value: 'summarize' }
+      { text: 'Write some code', value: 'code' }
     ] as Suggestion[];
 
     return html`
-      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+      <div style="width: 100%; height: 800px; max-width: 800px; margin: 0 auto;">
         <forge-ai-chatbot
           .adapter=${adapter}
           .suggestions=${suggestions}
@@ -177,6 +179,8 @@ export const WithSuggestions: Story = {
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
           @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
           @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;

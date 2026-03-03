@@ -1,5 +1,6 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/dist/card/forge-card';
 @use '@tylertech/forge/dist/field/forge-field';
 @use '@tylertech/forge/dist/divider/forge-divider';
@@ -13,13 +14,15 @@
 .input-container {
   .forge-card {
     --forge-card-padding: 0;
+    --forge-card-shape: #{forge-shape.variable(large)};
   }
 
   .forge-field {
     --forge-theme-outline-low: transparent;
     --forge-field-height: auto;
+    padding-inline-start: #{forge-spacing.variable(medium)};
 
-    min-height: 52px;
+    min-height: 40px;
     align-items: center;
 
     &:has(textarea) *:not(textarea) {
@@ -33,7 +36,7 @@
     max-height: 150px; // Limit to ~6 rows
     overflow-y: auto;
     outline: none;
-    padding: #{forge-spacing.variable(medium)} 0;
+    padding: #{forge-spacing.variable(small)} 0;
 
     @include forge-scrollbar.base;
   }
@@ -47,11 +50,27 @@
 
 .actions {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   padding: #{forge-spacing.variable(xxsmall)};
-  height: 52px;
+  padding-inline-start: #{forge-spacing.variable(xsmall)};
+  gap: #{forge-spacing.variable(xxsmall)};
   overflow-x: auto;
+}
+
+.actions-start-container,
+.actions-end-container {
+  display: flex;
+  align-items: center;
+}
+
+.send-button {
+  margin-inline-end: #{forge-spacing.variable(xsmall)};
+
+  svg {
+    height: 18px;
+    width: 18px;
+  }
 }
 
 :host(:state(stacked)) {
@@ -63,14 +82,19 @@
 :host(:state(inline)) {
   .forge-field {
     --forge-field-height: 52px;
-    --forge-field-padding-inline: 0;
-    gap: #{forge-spacing.variable(xxsmall)};
+    padding-inline: #{forge-spacing.variable(xxsmall)};
   }
 
   .actions {
+    display: flex;
+    align-items: center;
     overflow-x: visible;
     padding: #{forge-spacing.variable(xxsmall)};
-    --forge-icon-button-size: 32px;
+  }
+
+  ::slotted([slot='actions']) {
+    display: flex;
+    align-items: center;
   }
 
   .vertical-divider {
@@ -82,5 +106,9 @@
 
   .forge-divider {
     display: none;
+  }
+
+  .send-button {
+    margin-inline-end: #{forge-spacing.variable(xxsmall)};
   }
 }

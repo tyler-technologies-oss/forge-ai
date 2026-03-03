@@ -1,42 +1,43 @@
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
-@use '@tylertech/forge/dist/page-state/forge-page-state';
 @use '@tylertech/forge/dist/button/forge-button';
 
 :host {
   display: block;
+  --_ai-empty-state-max-width: 420px;
 }
 
-.forge-page-state {
-  margin-block-start: 0;
-}
-
-.welcome-container {
+.empty-state-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: #{forge-spacing.variable(medium)};
+  margin: 0 auto;
   width: 100%;
+  max-width: var(--ai-empty-state-max-width, var(--_ai-empty-state-max-width));
+}
+
+.heading-message-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: #{forge-spacing.variable(xsmall)};
 }
 
 .heading {
-  @include forge-typography.style(heading1);
+  @include forge-typography.style(heading4);
 }
 
 .message {
-  @include forge-typography.style(body1);
+  @include forge-typography.style(body2);
+  text-align: center;
 }
 
 .graphic {
   height: 200px;
   width: 200px;
-}
-
-.suggestion-container {
-  display: flex;
-  flex-direction: column;
-  gap: #{forge-spacing.variable(small)};
 }
 
 ::slotted(:where(p, h1, h2, h3, h4, h5, h6)) {

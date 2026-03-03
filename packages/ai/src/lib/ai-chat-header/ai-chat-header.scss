@@ -21,28 +21,22 @@
   grid-template-columns: 1fr auto;
   align-items: center;
   min-height: 56px;
-  padding-inline: #{forge-spacing.variable(xsmall)};
+  padding-inline: #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxsmall)};
 }
 
 .start {
   display: flex;
   align-items: center;
-  gap: #{forge-spacing.variable(xsmall)};
+  gap: #{forge-spacing.variable(medium)};
   overflow: visible;
   min-width: 0;
 
   .title {
-    @include forge-typography.style(heading1);
+    @include forge-typography.style(heading3);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: normal;
-
-    font-size: clamp(
-      #{forge-typography.variable(heading1, font-size)},
-      2.5vw,
-      #{forge-typography.variable(heading3, font-size)}
-    );
   }
 
   forge-ai-agent-selector {

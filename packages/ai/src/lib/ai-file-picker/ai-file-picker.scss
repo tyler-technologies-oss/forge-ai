@@ -7,12 +7,13 @@
 @use '@tylertech/forge/dist/icon/forge-icon';
 
 :host {
-  display: inline-block;
-  position: relative;
+  display: block;
 }
 
 .ai-file-picker {
-  display: contents;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .forge-button,
@@ -29,6 +30,11 @@
     --forge-icon-button-color: #{forge-theme.variable(primary)};
 
     transform: scale(1.02);
+  }
+
+  .custom-icon {
+    height: 18px;
+    width: 18px;
   }
 
   ::slotted(svg) {

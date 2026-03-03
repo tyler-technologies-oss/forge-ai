@@ -1121,7 +1121,7 @@ export class AiChatbotComponent extends LitElement {
           this.fileUpload === 'on',
           () => html`
             <forge-ai-file-picker
-              slot="actions"
+              slot="actions-start"
               variant="icon-button"
               multiple
               ?disabled=${isUploading}
@@ -1134,7 +1134,7 @@ export class AiChatbotComponent extends LitElement {
         ${when(
           this.voiceInput === 'on',
           () => html`
-            <forge-ai-voice-input slot="actions" @forge-ai-voice-input-result=${this.#handleVoiceInputResult}>
+            <forge-ai-voice-input slot="actions-end" @forge-ai-voice-input-result=${this.#handleVoiceInputResult}>
             </forge-ai-voice-input>
           `
         )}
@@ -1160,12 +1160,13 @@ export class AiChatbotComponent extends LitElement {
         @forge-ai-message-thread-user-edit=${this.#handleUserEdit}>
         <slot name="empty-state-heading" slot="empty-state-heading"></slot>
         <slot name="empty-state-message" slot="empty-state-message"></slot>
-        <forge-ai-suggestions
-          slot="empty-state-actions"
-          variant="block"
-          .suggestions=${this.suggestions ?? []}
-          @forge-ai-suggestions-select=${this.#handleSuggestionSelect}>
-        </forge-ai-suggestions>
+        <div class="suggestions-container" slot="empty-state-actions">
+          <forge-ai-suggestions
+            variant="block"
+            .suggestions=${this.suggestions ?? []}
+            @forge-ai-suggestions-select=${this.#handleSuggestionSelect}>
+          </forge-ai-suggestions>
+        </div>
       </forge-ai-message-thread>
     `;
   }

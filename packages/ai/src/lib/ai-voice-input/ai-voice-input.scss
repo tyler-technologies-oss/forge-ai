@@ -29,6 +29,12 @@
   }
 }
 
+.forge-icon-button img,
+.forge-icon-button svg {
+  height: 18px;
+  width: 18px;
+}
+
 @keyframes pulse {
   0% {
     transform: scale(1);
