@@ -1,0 +1,6 @@
+import{x as a}from"./iframe-DFS-TZpC.js";import"./ai-suggestions-CU3VDrz1.js";const{action:n}=__STORYBOOK_MODULE_ACTIONS__,r="forge-ai-suggestions",i={title:"AI Components/Primitives/Suggestions",component:r,argTypes:{variant:{control:"select",options:["inline","block"],description:"Display variant for suggestions layout"}},args:{variant:"block"},render:t=>{const o=[{text:"Help me write an email",value:"email"},{text:"Create a presentation",value:"presentation"},{text:"Write some code",value:"code"},{text:"Plan a meeting",value:"meeting"},{text:"Summarize a document",value:"summarize"},{text:"Translate text",value:"translate"},{text:"Generate ideas",value:"brainstorm"},{text:"Review my work",value:"review"},{text:"Explain a concept",value:"explain"},{text:"Ask a question",value:"question"}],s=n("forge-ai-suggestions-select");return a`
+      <forge-ai-suggestions
+        .suggestions=${o}
+        variant=${t.variant}
+        @forge-ai-suggestions-select=${s}></forge-ai-suggestions>
+    `}},e={};e.parameters={...e.parameters,docs:{...e.parameters?.docs,source:{originalSource:"{}",...e.parameters?.docs?.source}}};const l=["Demo"],c=Object.freeze(Object.defineProperty({__proto__:null,Demo:e,__namedExportsOrder:l,default:i},Symbol.toStringTag,{value:"Module"}));export{c as A,e as D};
