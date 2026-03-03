@@ -1,11 +1,10 @@
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
-@use '@tylertech/forge/dist/page-state/forge-page-state';
 @use '@tylertech/forge/dist/button/forge-button';
 
 :host {
   display: block;
-  --forge-ai-empty-state-max-width: 420px;
+  --_forge-ai-empty-state-max-width: 420px;
 }
 
 .empty-state-container {
@@ -16,7 +15,7 @@
   gap: #{forge-spacing.variable(medium)};
   margin: 0 auto;
   width: 100%;
-  max-width: var(--forge-ai-empty-state-max-width);
+  max-width: var(--forge-ai-empty-state-max-width, var(--_forge-ai-empty-state-max-width));
 }
 
 .heading-message-container {

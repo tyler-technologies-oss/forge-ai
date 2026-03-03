@@ -249,8 +249,8 @@ export class AiPromptComponent extends LitElement {
     return true;
   }
 
-  readonly #actionsStartSlot = html`<slot name="actions-start" @slotchange=${this.#handleSlotChange}></slot>`;
-  readonly #actionsEndSlot = html`<slot name="actions-end" @slotchange=${this.#handleSlotChange}></slot>`;
+  readonly #actionsStartSlot = html`<slot name="actions-start"></slot>`;
+  readonly #actionsEndSlot = html`<slot name="actions-end"></slot>`;
 
   get #shouldShowStopButton(): boolean {
     return this.running && !this.value.trim();
@@ -264,13 +264,6 @@ export class AiPromptComponent extends LitElement {
       </div>
       ${when(this.slashCommands.length, () => html`<div class="vertical-divider"></div>`)}
     `;
-  }
-
-  #handleSlotChange(evt: Event): void {
-    const slotName = (evt.target as HTMLSlotElement).name;
-    if (slotName === 'actions-start' || slotName === 'actions-end') {
-      this.requestUpdate();
-    }
   }
 
   private _handleSend(): void {
