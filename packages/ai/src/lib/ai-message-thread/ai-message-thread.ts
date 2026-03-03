@@ -163,13 +163,14 @@ export class AiMessageThreadComponent extends LitElement {
   };
 
   get #scrollToBottomButton(): TemplateResult | typeof nothing {
-    if (this.#canAutoScroll || !this.messageItems.length) {
+    if (!this.messageItems.length) {
       return nothing;
     }
+    const hiddenClass = this.#canAutoScroll ? ' scroll-to-bottom-button--hidden' : '';
     return html`
       <button
         id="scroll-to-bottom-btn"
-        class="forge-fab scroll-to-bottom-button"
+        class=${`forge-fab scroll-to-bottom-button${hiddenClass}`}
         aria-label="Scroll to bottom"
         @click=${this.#handleScrollToBottomClick}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

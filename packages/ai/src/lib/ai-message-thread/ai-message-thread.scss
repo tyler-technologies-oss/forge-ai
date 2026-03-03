@@ -51,30 +51,30 @@
   position: absolute;
   bottom: #{forge-spacing.variable(xxsmall)};
   left: 50%;
-  transform: translateX(-50%) translateY(24px);
-  opacity: 0;
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  visibility: visible;
   z-index: 1;
-  animation-name: scroll-button-enter;
-  animation-duration: #{forge-animation.variable(duration-medium1)};
-  animation-timing-function: #{forge-animation.variable(easing-decelerate)};
-  animation-fill-mode: forwards;
+  transition:
+    opacity #{forge-animation.variable(duration-short2)} #{forge-animation.variable(easing-accelerate)},
+    transform #{forge-animation.variable(duration-short2)} #{forge-animation.variable(easing-accelerate)},
+    visibility 0s 0s;
+
+  &--hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(24px);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity #{forge-animation.variable(duration-short2)} #{forge-animation.variable(easing-accelerate)},
+      transform #{forge-animation.variable(duration-short2)} #{forge-animation.variable(easing-accelerate)},
+      visibility 0s #{forge-animation.variable(duration-short2)};
+  }
 
   svg {
     width: 24px;
     height: 24px;
     fill: currentColor;
-  }
-}
-
-@keyframes scroll-button-enter {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(24px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
   }
 }
 
