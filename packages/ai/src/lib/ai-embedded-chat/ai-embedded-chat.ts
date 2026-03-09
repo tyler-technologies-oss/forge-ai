@@ -95,7 +95,6 @@ export class AiEmbeddedChatComponent extends LitElement {
         file-upload=${this.fileUpload}
         placeholder=${this.placeholder}
         .suggestions=${this.suggestions}
-        show-expand-button
         ?show-minimize-button=${this.expanded}
         minimize-icon="default"
         ?expanded=${this.expanded}
