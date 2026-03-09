@@ -28,6 +28,7 @@
 
 .heading {
   @include forge-typography.style(heading4);
+  text-align: center;
 }
 
 .message {
