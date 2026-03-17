@@ -15,18 +15,33 @@
   .forge-card {
     --forge-card-padding: 0;
     --forge-card-shape: #{forge-shape.variable(large)};
+
+    position: relative;
+
+    &:hover {
+      --forge-card-outline-color: #{forge-theme.variable(outline-high)};
+    }
   }
 
   .forge-field {
     --forge-theme-outline-low: transparent;
     --forge-field-height: auto;
-    padding-inline-start: #{forge-spacing.variable(medium)};
 
+    position: static;
+    padding-inline-start: #{forge-spacing.variable(medium)};
     min-height: 40px;
     align-items: center;
 
+    &:hover {
+      outline: none;
+    }
+
     &:has(textarea) *:not(textarea) {
       margin-block-start: initial;
+    }
+
+    &::after {
+      border-radius: #{forge-shape.variable(large)};
     }
   }
 

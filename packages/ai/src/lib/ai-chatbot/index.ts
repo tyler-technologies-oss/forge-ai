@@ -1,3 +1,4 @@
+export { AiChatbotBase, type FeatureToggle } from './ai-chatbot-base.js';
 export { AiChatbotComponent, AiChatbotComponentTagName } from './ai-chatbot.js';
 export type {
   ForgeAiChatbotMessageEventData,
@@ -5,7 +6,8 @@ export type {
   ForgeAiChatbotErrorEventData,
   ForgeAiChatbotResponseFeedbackEventData,
   ForgeAiChatbotAgentChangeEventData,
-  FeatureToggle
+  ForgeAiChatbotFileSelectEventData,
+  ForgeAiChatbotFileRemoveEventData
 } from './ai-chatbot.js';
 export { AiChatbotToolCallComponent, AiChatbotToolCallComponentTagName } from './ai-chatbot-tool-call.js';
 export type { Suggestion } from '../ai-suggestions/index.js';
@@ -49,7 +51,6 @@ export type {
   FileUploadCallbacks,
   FileUploadHandler,
   FileRemoveCallbacks,
-  ForgeAiChatbotFileSelectEventData,
   ThreadState,
   FeedbackType,
   ResponseFeedback
@@ -58,6 +59,9 @@ export type {
 // AG-UI adapter
 export * from './ag-ui-adapter.js';
 export * from './http-agent-with-credentials.js';
+
+// Mastra stream adapter
+export * from './mastra-stream-adapter.js';
 
 // Event system
 export * from './event-emitter.js';

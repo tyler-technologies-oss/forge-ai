@@ -1,0 +1,30 @@
+@use '@tylertech/forge/dist/forge-core';
+@use '@tylertech/forge/dist/forge';
+
+:not(:defined) {
+  visibility: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+main {
+  height: 100%;
+  background-color: var(--forge-theme-surface-dim);
+}
+
+.drawer-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--forge-spacing-medium);
+  padding: var(--forge-spacing-medium);
+
+  > forge-button {
+    align-self: start;
+  }
+}
+
+forge-ai-chatbot-launcher {
+  --forge-ai-chatbot-launcher-align: start;
+}
