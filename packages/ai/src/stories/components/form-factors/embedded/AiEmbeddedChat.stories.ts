@@ -56,7 +56,6 @@ const meta = {
 
         <forge-ai-embedded-chat
           .adapter=${adapter}
-          ?expanded=${args.expanded}
           gradient-variant=${args.gradientVariant}
           file-upload=${args.fileUpload}
           placeholder=${args.placeholder}
