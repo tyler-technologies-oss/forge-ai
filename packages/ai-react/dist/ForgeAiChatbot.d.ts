@@ -37,9 +37,6 @@ export interface ForgeAiChatbotProps extends Pick<
   minimizeIcon?: ForgeAiChatbotElement["minimizeIcon"];
 
   /** undefined */
-  selectedAgentId?: ForgeAiChatbotElement["selectedAgentId"];
-
-  /** undefined */
   fileUpload?: ForgeAiChatbotElement["fileUpload"];
 
   /** undefined */
@@ -59,6 +56,9 @@ export interface ForgeAiChatbotProps extends Pick<
 
   /** undefined */
   debugCommand?: ForgeAiChatbotElement["debugCommand"];
+
+  /** undefined */
+  selectedAgentId?: ForgeAiChatbotElement["selectedAgentId"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -128,7 +128,7 @@ export interface ForgeAiChatbotProps extends Pick<
 }
 
 /**
- * A complete, self-contained AI chatbot component that implements the AG-UI protocol using an adapter pattern.
+ * A complete, self-contained AI chatbot component.
  * ---
  *
  *

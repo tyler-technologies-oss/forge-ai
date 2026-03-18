@@ -11,7 +11,6 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     enableReactions,
     debugMode,
     minimizeIcon,
-    selectedAgentId,
     fileUpload,
     voiceInput,
     placeholder,
@@ -19,6 +18,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     headingLevel,
     disclaimerText,
     debugCommand,
+    selectedAgentId,
     ...filteredProps
   } = props;
 
@@ -80,7 +80,6 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       },
       ...filteredProps,
       "minimize-icon": props.minimizeIcon || props["minimize-icon"],
-      "selected-agent-id": props.selectedAgentId || props["selected-agent-id"],
       "file-upload": props.fileUpload || props["file-upload"],
       "voice-input": props.voiceInput || props["voice-input"],
       placeholder: props.placeholder,
@@ -88,6 +87,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       "heading-level": props.headingLevel || props["heading-level"],
       "disclaimer-text": props.disclaimerText || props["disclaimer-text"],
       "debug-command": props.debugCommand || props["debug-command"],
+      "selected-agent-id": props.selectedAgentId || props["selected-agent-id"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
