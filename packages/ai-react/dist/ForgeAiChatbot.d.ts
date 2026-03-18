@@ -34,31 +34,31 @@ export interface ForgeAiChatbotProps extends Pick<
   debugMode?: boolean;
 
   /** undefined */
+  minimizeIcon?: ForgeAiChatbotElement["minimizeIcon"];
+
+  /** undefined */
+  selectedAgentId?: ForgeAiChatbotElement["selectedAgentId"];
+
+  /** undefined */
   fileUpload?: ForgeAiChatbotElement["fileUpload"];
 
   /** undefined */
   voiceInput?: ForgeAiChatbotElement["voiceInput"];
 
   /** undefined */
-  debugCommand?: ForgeAiChatbotElement["debugCommand"];
-
-  /** undefined */
   placeholder?: ForgeAiChatbotElement["placeholder"];
 
   /** undefined */
-  minimizeIcon?: ForgeAiChatbotElement["minimizeIcon"];
-
-  /** The title text to display in the header (default: 'AI Assistant') */
   titleText?: ForgeAiChatbotElement["titleText"];
 
-  /** Controls the heading level for the title content (default: 2) */
+  /** undefined */
   headingLevel?: ForgeAiChatbotElement["headingLevel"];
 
-  /** The disclaimer text to display below the prompt. Set to empty string, null, or undefined to hide. */
+  /** undefined */
   disclaimerText?: ForgeAiChatbotElement["disclaimerText"];
 
   /** undefined */
-  selectedAgentId?: ForgeAiChatbotElement["selectedAgentId"];
+  debugCommand?: ForgeAiChatbotElement["debugCommand"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -144,17 +144,6 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **forge-ai-chatbot-clear** - Fired when header clear option is selected (cancelable, prevents clearMessages() if default prevented)
  * - **forge-ai-chatbot-info** - Fired when header info option is selected
  * - **forge-ai-chatbot-response-feedback** - Fired when user provides feedback on a response (thumbs up/down)
- *
- * ### **Methods:**
- *  - **clearMessages(): _void_** - Clears all messages from the chat history.
- * - **getMessages(): __** - Gets the current message history.
- * - **setMessages(messages: _ChatMessage[]_): _void_** - Sets the message history. Useful for restoring conversation state.
- * - **getSelectedAgent(): __** - Gets the currently selected agent.
- * - **sendMessage(content: _string_, files: _File[]_): _Promise<void>_** - Programmatically sends a message as the user.
- * - **abort(): _void_** - Aborts the current streaming response.
- * - **scrollToBottom({ behavior }: _{ behavior?: ScrollBehavior }_): _Promise<void>_** - Scrolls the chat interface to the bottom.
- * - **getThreadState(): __** - Gets the complete serializable thread state including threadId and messages.
- * - **setThreadState(state: _ThreadState_): _Promise<void>_** - Restores thread state from a serialized ThreadState object.
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content

@@ -1,16 +1,13 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import "@tylertech/forge-ai/ai-chatbot";
-import { useEventListener } from "./react-utils.js";
+import "@tylertech/forge-ai/ai-chatbot-launcher";
+import { useEventListener, useProperties } from "./react-utils.js";
 
-export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
+export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
   const {
-    showExpandButton,
-    showMinimizeButton,
-    expanded,
     enableReactions,
     debugMode,
-    minimizeIcon,
+    descriptionText,
     selectedAgentId,
     fileUpload,
     voiceInput,
@@ -19,56 +16,64 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     headingLevel,
     disclaimerText,
     debugCommand,
+    agentInfo,
+    agents,
     ...filteredProps
   } = props;
 
   /** Event listeners - run once */
   useEventListener(
     ref,
-    "forge-ai-chatbot-connected",
-    props.onForgeAiChatbotConnected,
+    "forge-ai-chatbot-launcher-connected",
+    props.onForgeAiChatbotLauncherConnected,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-disconnected",
-    props.onForgeAiChatbotDisconnected,
+    "forge-ai-chatbot-launcher-message-sent",
+    props.onForgeAiChatbotLauncherMessageSent,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-message-sent",
-    props.onForgeAiChatbotMessageSent,
+    "forge-ai-chatbot-launcher-message-received",
+    props.onForgeAiChatbotLauncherMessageReceived,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-message-received",
-    props.onForgeAiChatbotMessageReceived,
+    "forge-ai-chatbot-launcher-tool-call",
+    props.onForgeAiChatbotLauncherToolCall,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-tool-call",
-    props.onForgeAiChatbotToolCall,
-  );
-  useEventListener(ref, "forge-ai-chatbot-error", props.onForgeAiChatbotError);
-  useEventListener(
-    ref,
-    "forge-ai-chatbot-expand",
-    props.onForgeAiChatbotExpand,
+    "forge-ai-chatbot-launcher-error",
+    props.onForgeAiChatbotLauncherError,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-minimize",
-    props.onForgeAiChatbotMinimize,
+    "forge-ai-chatbot-launcher-conversation-start",
+    props.onForgeAiChatbotLauncherConversationStart,
   );
-  useEventListener(ref, "forge-ai-chatbot-clear", props.onForgeAiChatbotClear);
-  useEventListener(ref, "forge-ai-chatbot-info", props.onForgeAiChatbotInfo);
   useEventListener(
     ref,
-    "forge-ai-chatbot-response-feedback",
-    props.onForgeAiChatbotResponseFeedback,
+    "forge-ai-chatbot-launcher-response-feedback",
+    props.onForgeAiChatbotLauncherResponseFeedback,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-info",
+    props.onForgeAiChatbotLauncherInfo,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-agent-change",
+    props.onForgeAiChatbotLauncherAgentChange,
   );
 
+  /** Properties - run whenever a property has changed */
+  useProperties(ref, "agentInfo", props.agentInfo);
+  useProperties(ref, "agents", props.agents);
+
   return React.createElement(
-    "forge-ai-chatbot",
+    "forge-ai-chatbot-launcher",
     {
       ref: (node) => {
         ref.current = node;
@@ -79,7 +84,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
-      "minimize-icon": props.minimizeIcon || props["minimize-icon"],
+      "description-text": props.descriptionText || props["description-text"],
       "selected-agent-id": props.selectedAgentId || props["selected-agent-id"],
       "file-upload": props.fileUpload || props["file-upload"],
       "voice-input": props.voiceInput || props["voice-input"],
@@ -93,9 +98,6 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      "show-expand-button": props.showExpandButton ? true : undefined,
-      "show-minimize-button": props.showMinimizeButton ? true : undefined,
-      expanded: props.expanded ? true : undefined,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,
       style: { ...props.style },
