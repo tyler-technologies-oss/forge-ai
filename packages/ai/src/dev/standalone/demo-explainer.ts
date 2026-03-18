@@ -1,8 +1,9 @@
-import { AgentRunner, AgUiAdapter, type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
+import { AgentRunner } from '../../lib/ai-chatbot';
+import { MastraStreamAdapter, type MastraStreamAdapterConfig } from '../shared/mastra-stream-adapter';
 
 type ShowToastFn = (message: string, theme?: 'error' | 'success' | 'warning' | 'info') => void;
 
-export function initExplainerDemo(config: AgUiAdapterConfig, showToast: ShowToastFn): void {
+export function initExplainerDemo(config: MastraStreamAdapterConfig, showToast: ShowToastFn): void {
   const explainButtons = document.querySelectorAll('[data-term]') as NodeListOf<HTMLElement>;
 
   explainButtons.forEach(button => {
@@ -35,7 +36,7 @@ export function initExplainerDemo(config: AgUiAdapterConfig, showToast: ShowToas
       const prompt = `Explain the term "${term}" in simple terms for someone who may not be familiar with it. Keep the explanation concise (2-3 sentences) and practical.`;
 
       try {
-        const adapter = new AgUiAdapter({ ...config });
+        const adapter = new MastraStreamAdapter({ ...config });
         const result = await AgentRunner.run({ adapter, prompt });
 
         textEl.textContent = result.finalMessage.content;

@@ -1,10 +1,5 @@
-import {
-  AgentRunner,
-  AgUiAdapter,
-  type ToolDefinition,
-  type AgUiAdapterConfig,
-  HandlerContext
-} from '../../../lib/ai-chatbot';
+import { AgentRunner, type ToolDefinition, type AgUiAdapterConfig, HandlerContext } from '../../lib/ai-chatbot';
+import { MastraStreamAdapter } from '../shared/mastra-stream-adapter';
 
 interface CompanyFormData {
   industry?: string;
@@ -84,7 +79,7 @@ export function initSmartCompleteDemo(
 Use the fillCompanyForm tool to populate the form with company information.`;
 
     try {
-      const adapter = new AgUiAdapter({ ...config });
+      const adapter = new MastraStreamAdapter({ ...config });
       await AgentRunner.run({ adapter, tools, prompt });
     } catch (error) {
       showToast(`Completion failed: ${(error as Error).message}`);

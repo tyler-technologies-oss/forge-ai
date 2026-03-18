@@ -1,7 +1,7 @@
-import { createToolRenderer, type ToolDefinition, type HandlerContext } from '../../../lib/ai-chatbot';
+import { createToolRenderer, type ToolDefinition, type HandlerContext } from '../../lib/ai-chatbot';
 import '../chatbot/recipe-card.js';
-import '../../../lib/tools/ai-data-table';
-import { displayDataTableTool } from '../../../lib/tools/ai-data-table';
+import '../../lib/tools/ai-data-table';
+import { displayDataTableTool } from '../../lib/tools/ai-data-table';
 
 interface ConfettiArgs {
   particleCount?: number;

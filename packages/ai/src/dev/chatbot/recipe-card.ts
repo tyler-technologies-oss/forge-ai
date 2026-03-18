@@ -1,6 +1,6 @@
 import { LitElement, html, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import type { IToolRenderer, ToolCall } from '../../../lib/ai-chatbot';
+import type { IToolRenderer, ToolCall } from '../../lib/ai-chatbot';
 import styles from './recipe-card.scss?inline';
 
 interface RecipeData {

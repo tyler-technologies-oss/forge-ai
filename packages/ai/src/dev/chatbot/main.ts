@@ -1,10 +1,5 @@
 import { tylIconForgeLogo, tylIconInfoOutline } from '@tylertech/tyler-icons';
-import {
-  AgUiAdapter,
-  generateId,
-  type AiChatbotComponent,
-  type ForgeAiChatbotToolCallEventData
-} from '../../../lib/ai-chatbot';
+import { generateId, type AiChatbotComponent, type ForgeAiChatbotToolCallEventData } from '../../lib/ai-chatbot';
 
 import {
   type ButtonComponent,
@@ -25,6 +20,7 @@ import {
 } from '@tylertech/forge';
 
 import { tools } from '../shared/tools.js';
+import { MastraStreamAdapter } from '../shared/mastra-stream-adapter';
 
 defineScaffoldComponent();
 defineAppBarComponent();
@@ -107,7 +103,7 @@ function addEventToStream(type: string, data: unknown): void {
 }
 
 let threadId = generateId();
-let adapter: AgUiAdapter;
+let adapter: MastraStreamAdapter;
 
 function getThreadStateKey(agentId: string): string {
   return `chatbot-thread-state-${agentId}`;
@@ -164,10 +160,10 @@ function clearThreadState(agentId: string): void {
   console.log('🗑️ Thread state cleared');
 }
 
-function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
-  const newAdapter = new AgUiAdapter(
+function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
+  const newAdapter = new MastraStreamAdapter(
     {
-      url: `${baseUrl}/api/agents/${agentId}/ag-ui`,
+      url: `${baseUrl}/api/agents/${agentId}/stream`,
       context: {
         pageUrl: window.location.href,
         userAgent: navigator.userAgent,

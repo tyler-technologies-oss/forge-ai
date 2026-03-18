@@ -1,7 +1,7 @@
 import { tylIconForgeLogo, tylIconMenu } from '@tylertech/tyler-icons';
-import '../../../lib/ai-chatbot-launcher';
-import { type AiChatbotLauncherComponent } from '../../../lib/ai-chatbot-launcher';
-import { generateId } from '../../../lib/ai-chatbot';
+import '../../lib/ai-chatbot-launcher';
+import { type AiChatbotLauncherComponent } from '../../lib/ai-chatbot-launcher';
+import { generateId } from '../../lib/ai-chatbot';
 import { MastraStreamAdapter } from '../shared/mastra-stream-adapter.js';
 
 import {

@@ -1,12 +1,12 @@
 import { IDatePickerComponent } from '@tylertech/forge';
 import {
   AgentRunner,
-  AgUiAdapter,
   type ToolDefinition,
   type AgUiAdapterConfig,
   renderMarkdown,
   HandlerContext
-} from '../../../lib/ai-chatbot';
+} from '../../lib/ai-chatbot';
+import { MastraStreamAdapter } from '../shared/mastra-stream-adapter';
 
 type ShowToastFn = (message: string, theme?: 'error' | 'success' | 'warning' | 'info') => void;
 
@@ -283,7 +283,7 @@ export function initMultiTurnDemo(config: AgUiAdapterConfig, tools: ToolDefiniti
     console.log('[Multi-Turn Demo] Starting agent with prompt:', prompt);
 
     try {
-      const adapter = new AgUiAdapter({ ...config });
+      const adapter = new MastraStreamAdapter({ ...config });
       const result = await AgentRunner.run({
         adapter,
         tools,
