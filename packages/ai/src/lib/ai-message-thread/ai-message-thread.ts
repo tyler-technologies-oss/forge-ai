@@ -68,6 +68,8 @@ const SCROLL_THRESHOLD = 100;
  * @slot empty-state-heading - Slot for custom empty state heading content
  * @slot empty-state-actions - Slot for custom empty state actions (e.g., suggestions)
  *
+ * @cssproperty --forge-ai-message-thread-content-max-width - Controls the max-width of the message content area while keeping the scroll container full width.
+ *
  * @event {CustomEvent<ForgeAiMessageThreadCopyEventData>} forge-ai-message-thread-copy - Fired when user clicks copy on a message
  * @event {CustomEvent<ForgeAiMessageThreadResendEventData>} forge-ai-message-thread-resend - Fired when user clicks resend on a message
  * @event {CustomEvent<ForgeAiMessageThreadThumbsEventData>} forge-ai-message-thread-thumbs-up - Fired when user gives thumbs up
@@ -382,7 +384,7 @@ export class AiMessageThreadComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="message-thread" @scroll=${this.autoScroll ? this.#handleScroll : undefined}>
-        ${this.#emptyState} ${this.#messages} ${this.#thinkingIndicator}
+        <div class="message-thread-content">${this.#emptyState} ${this.#messages} ${this.#thinkingIndicator}</div>
       </div>
       ${this.#scrollToBottomButton}
     `;

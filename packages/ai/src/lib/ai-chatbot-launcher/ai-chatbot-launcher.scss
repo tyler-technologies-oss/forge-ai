@@ -5,6 +5,8 @@
 @use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 
+$_max-content-width: 720px;
+
 :host {
   display: block;
   height: 100%;
@@ -14,8 +16,6 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-inline-size: 720px;
-  margin: 0 auto;
 }
 
 .welcome {
@@ -29,6 +29,10 @@
   padding: #{forge-spacing.variable(xxlarge)};
   gap: #{forge-spacing.variable(xxsmall)};
   animation: fade-in 300ms #{forge-animation.variable(easing-standard)};
+  max-inline-size: #{$_max-content-width};
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .welcome-header {
@@ -64,7 +68,7 @@
 
 .disclaimer {
   @include forge-typography.style(label1);
-  color: #{forge-theme.variable(text-low)};
+  color: #{forge-theme.variable(text-medium)};
   text-align: center;
 }
 
@@ -85,9 +89,14 @@
 
 .conversation forge-ai-chat-header {
   flex-shrink: 0;
+  max-inline-size: #{$_max-content-width};
+  margin-inline: auto;
+  width: 100%;
 }
 
 .conversation forge-ai-message-thread {
+  --forge-ai-message-thread-content-max-width: #{$_max-content-width};
+
   flex: 1;
   min-height: 0;
   animation: fade-in #{forge-animation.variable(duration-medium2)} #{forge-animation.variable(easing-decelerate)};
@@ -101,6 +110,10 @@
   padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xsmall)};
   animation: prompt-slide-down #{forge-animation.variable(duration-medium2)}
     #{forge-animation.variable(easing-decelerate)};
+  max-inline-size: #{$_max-content-width};
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .conversation forge-ai-prompt {
