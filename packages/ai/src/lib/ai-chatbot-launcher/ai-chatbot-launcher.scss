@@ -5,7 +5,7 @@
 @use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 
-$_max-content-width: 720px;
+$_max-content-width: 768px;
 
 :host {
   display: block;
