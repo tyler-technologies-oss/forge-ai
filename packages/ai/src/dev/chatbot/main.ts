@@ -1,13 +1,5 @@
 import { tylIconForgeLogo, tylIconInfoOutline } from '@tylertech/tyler-icons';
-import {
-  AgUiAdapter,
-  generateId,
-  createToolRenderer,
-  type AiChatbotComponent,
-  type ForgeAiChatbotToolCallEventData,
-  type ToolDefinition,
-  HandlerContext
-} from '../../../lib/ai-chatbot';
+import { generateId, type AiChatbotComponent, type ForgeAiChatbotToolCallEventData } from '../../lib/ai-chatbot';
 
 import {
   type ButtonComponent,
@@ -27,9 +19,8 @@ import {
   type SwitchComponent
 } from '@tylertech/forge';
 
-import './recipe-card.js';
-import '../../../lib/tools/ai-data-table';
-import { displayDataTableTool } from '../../../lib/tools/ai-data-table';
+import { tools } from '../shared/tools.js';
+import { MastraStreamAdapter } from '../shared/mastra-stream-adapter';
 
 defineScaffoldComponent();
 defineAppBarComponent();
@@ -111,104 +102,8 @@ function addEventToStream(type: string, data: unknown): void {
   eventStreamEl.scrollTo({ top: eventStreamEl.scrollHeight });
 }
 
-interface ConfettiArgs {
-  particleCount?: number;
-  spread?: number;
-}
-
-const showConfettiTool: ToolDefinition<ConfettiArgs> = {
-  name: 'showConfetti',
-  displayName: 'Show Confetti',
-  description:
-    'Shows a confetti animation. Only call this tool when the user either explicitly requests confetti or when a celebration is appropriate!',
-  parameters: {
-    type: 'object' as const,
-    properties: {
-      particleCount: { type: 'number', description: 'Number of particles (default: 100)' },
-      spread: { type: 'number', description: 'Spread angle in degrees (default: 70)' }
-    }
-  },
-  handler: async (context: HandlerContext<ConfettiArgs>) => {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    const confettiArgs = context.args;
-    (window as any).confetti({
-      particleCount: confettiArgs?.particleCount || 100,
-      spread: confettiArgs?.spread || 100
-    });
-
-    return `Confetti animation displayed with ${confettiArgs?.particleCount || 100} particles and ${confettiArgs?.spread || 100}° spread`;
-  }
-  // renderer: createToolRenderer({
-  //   render: toolCall => {
-  //     const container = document.createElement('div');
-  //     container.style.padding = '16px';
-  //     container.style.backgroundColor = 'var(--forge-theme-surface-container)';
-  //     container.style.borderRadius = '8px';
-  //     container.style.marginBlockStart = '8px';
-
-  //     const args = toolCall.args as ConfettiArgs;
-  //     const result = toolCall.result as { success: boolean; message: string };
-
-  //     container.innerHTML = `
-  //       <div style="display: flex; align-items: center; gap: 8px; margin-block-end: 8px;">
-  //         <span style="font-size: 24px;">🎉</span>
-  //         <strong>Confetti Animation</strong>
-  //       </div>
-  //       <div style="font-size: 14px; color: var(--forge-theme-on-surface-variant);">
-  //         <div>Particles: ${args?.particleCount || 100}</div>
-  //         <div>Spread: ${args?.spread || 100}°</div>
-  //         <div style="margin-block-start: 8px; color: var(--forge-theme-success);">${result?.message || 'Success!'}</div>
-  //       </div>
-  //     `;
-
-  //     return container;
-  //   }
-  // })
-};
-
-const displayRecipeTool: ToolDefinition = {
-  name: 'displayRecipe',
-  displayName: 'Display Recipe',
-  description:
-    'Display a recipe in a formatted card with ingredients and instructions. Use this tool when you want to present recipe information in a visually structured way.',
-  parameters: {
-    type: 'object' as const,
-    properties: {
-      title: { type: 'string', description: 'Recipe name' },
-      description: { type: 'string', description: 'Brief description of the dish' },
-      prepTime: { type: 'string', description: 'Preparation time (e.g., "15 minutes")' },
-      cookTime: { type: 'string', description: 'Cooking time (e.g., "30 minutes")' },
-      servings: { type: 'number', description: 'Number of servings' },
-      ingredients: {
-        type: 'array',
-        items: { type: 'string' },
-        description: 'List of ingredients with quantities'
-      },
-      instructions: {
-        type: 'array',
-        items: { type: 'string' },
-        description: 'Step-by-step cooking instructions'
-      }
-    },
-    required: ['title', 'prepTime', 'cookTime', 'servings', 'ingredients', 'instructions']
-  },
-  handler: async (context: HandlerContext) => {
-    const { title, ingredients, instructions } = context.args;
-    const ingredientsArray = ingredients as string[] | undefined;
-    const instructionsArray = instructions as string[] | undefined;
-
-    return `Recipe for "${title}" has been displayed with ${ingredientsArray?.length || 0} ingredients and ${instructionsArray?.length || 0} steps`;
-  },
-  renderer: createToolRenderer({
-    elementTag: 'recipe-card'
-  })
-};
-
-const tools: Array<ToolDefinition<any>> = [showConfettiTool, displayRecipeTool, displayDataTableTool];
-
 let threadId = generateId();
-let adapter: AgUiAdapter;
+let adapter: MastraStreamAdapter;
 
 function getThreadStateKey(agentId: string): string {
   return `chatbot-thread-state-${agentId}`;
@@ -265,10 +160,10 @@ function clearThreadState(agentId: string): void {
   console.log('🗑️ Thread state cleared');
 }
 
-function createAdapter(baseUrl: string, agentId: string): AgUiAdapter {
-  const newAdapter = new AgUiAdapter(
+function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
+  const newAdapter = new MastraStreamAdapter(
     {
-      url: `${baseUrl}/api/agents/${agentId}/ag-ui`,
+      url: `${baseUrl}/api/agents/${agentId}/stream`,
       context: {
         pageUrl: window.location.href,
         userAgent: navigator.userAgent,

@@ -16,13 +16,7 @@
 .message-thread {
   @include forge-scrollbar.base;
 
-  display: flex;
-  flex-direction: column;
-  gap: #{forge-spacing.variable(xlarge)};
-  padding-block-end: #{forge-spacing.variable(large)};
   overflow-y: auto;
-  padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxlarge)}
-    #{forge-spacing.variable(medium)};
 
   // Safari-specific: force scrollbar to always show
   @media not all and (min-resolution: 0.001dpcm) {
@@ -30,6 +24,18 @@
       overflow-y: scroll;
     }
   }
+}
+
+.message-thread-content {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(xlarge)};
+  padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxlarge)}
+    #{forge-spacing.variable(medium)};
+  max-inline-size: var(--forge-ai-message-thread-content-max-width, none);
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .thinking-indicator {

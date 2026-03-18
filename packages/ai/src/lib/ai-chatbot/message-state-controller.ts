@@ -340,7 +340,7 @@ export class MessageStateController implements ReactiveController {
       });
     }
 
-    if (message.status === 'complete') {
+    if (message.status === 'complete' || message.status === 'error') {
       this._config.onThreadSettled?.();
     }
   }

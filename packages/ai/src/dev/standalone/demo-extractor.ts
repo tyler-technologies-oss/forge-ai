@@ -1,10 +1,5 @@
-import {
-  AgentRunner,
-  AgUiAdapter,
-  type ToolDefinition,
-  type AgUiAdapterConfig,
-  HandlerContext
-} from '../../../lib/ai-chatbot';
+import { AgentRunner, type ToolDefinition, HandlerContext } from '../../lib/ai-chatbot';
+import { type MastraStreamAdapterConfig, MastraStreamAdapter } from '../shared/mastra-stream-adapter';
 
 interface ExtractedFormData {
   name?: string;
@@ -65,7 +60,11 @@ export function createExtractorTools(showToast: ShowToastFn): Array<ToolDefiniti
   return [fillContactFormTool];
 }
 
-export function initExtractorDemo(config: AgUiAdapterConfig, tools: ToolDefinition[], showToast: ShowToastFn): void {
+export function initExtractorDemo(
+  config: MastraStreamAdapterConfig,
+  tools: ToolDefinition[],
+  showToast: ShowToastFn
+): void {
   const extractorBtn = document.getElementById('extractorBtn') as HTMLButtonElement;
   const extractorProgress = document.getElementById('extractorProgress') as HTMLElement;
   const extractorInput = document.getElementById('extractorInput') as HTMLTextAreaElement;
@@ -107,7 +106,7 @@ ${text}
 Use the fillContactForm tool to populate the form with the extracted data.`;
 
     try {
-      const adapter = new AgUiAdapter({ ...config });
+      const adapter = new MastraStreamAdapter({ ...config });
       await AgentRunner.run({ adapter, tools, prompt });
     } catch (error) {
       showToast(`Extraction failed: ${(error as Error).message}`);

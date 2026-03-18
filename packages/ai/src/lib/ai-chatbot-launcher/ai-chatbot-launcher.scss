@@ -1,0 +1,180 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+
+$_max-content-width: 768px;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.launcher {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.welcome {
+  --_ai-chatbot-launcher-align: var(--forge-ai-chatbot-launcher-align, center);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: var(--_ai-chatbot-launcher-align);
+  flex: 1;
+  padding: #{forge-spacing.variable(xxlarge)};
+  gap: #{forge-spacing.variable(xxsmall)};
+  animation: fade-in 300ms #{forge-animation.variable(easing-standard)};
+  max-inline-size: #{$_max-content-width};
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.welcome-header {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xsmall)};
+}
+
+.icon {
+  --forge-ai-icon-size: 48px;
+
+  color: #{forge-theme.variable(tertiary)};
+}
+
+.title {
+  margin: 0;
+  @include forge-typography.style(heading6);
+  color: #{forge-theme.variable(text-high)};
+}
+
+.description {
+  @include forge-typography.style(body1);
+  color: #{forge-theme.variable(text-medium)};
+  text-align: center;
+  margin-block-end: #{forge-spacing.variable(medium)};
+}
+
+.prompt-container {
+  --forge-card-outline-width: 0;
+
+  inline-size: 100%;
+}
+
+.disclaimer {
+  @include forge-typography.style(label1);
+  color: #{forge-theme.variable(text-medium)};
+  text-align: center;
+}
+
+.welcome-suggestions {
+  inline-size: 100%;
+  margin-block-start: #{forge-spacing.variable(large)};
+
+  forge-ai-suggestions {
+    margin-inline: #{forge-spacing.variable(medium)};
+  }
+}
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.conversation forge-ai-chat-header {
+  flex-shrink: 0;
+  max-inline-size: #{$_max-content-width};
+  margin-inline: auto;
+  width: 100%;
+}
+
+.conversation forge-ai-message-thread {
+  --forge-ai-message-thread-content-max-width: #{$_max-content-width};
+
+  flex: 1;
+  min-height: 0;
+  animation: fade-in #{forge-animation.variable(duration-medium2)} #{forge-animation.variable(easing-decelerate)};
+}
+
+.conversation .prompt-area {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(xsmall)};
+  font-size: 0.875rem;
+  padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xsmall)};
+  animation: prompt-slide-down #{forge-animation.variable(duration-medium2)}
+    #{forge-animation.variable(easing-decelerate)};
+  max-inline-size: #{$_max-content-width};
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.conversation forge-ai-prompt {
+  max-inline-size: none;
+}
+
+.session-files {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(xsmall)};
+  min-width: 0;
+
+  .session-files-header {
+    @include forge-typography.style(label1, medium);
+    color: #{forge-theme.variable(text-medium)};
+  }
+
+  .session-files-list {
+    @include forge-scrollbar.base;
+
+    display: flex;
+    gap: #{forge-spacing.variable(small)};
+    overflow-x: auto;
+    padding-block-end: #{forge-spacing.variable(xsmall)};
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes prompt-slide-down {
+  from {
+    transform: translateY(-30vh);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+:host(:state(welcome)) {
+  .welcome {
+    display: flex;
+  }
+
+  .conversation {
+    display: none;
+  }
+}
+
+:host(:state(conversation)) {
+  .welcome {
+    display: none;
+  }
+
+  .conversation {
+    display: flex;
+  }
+}

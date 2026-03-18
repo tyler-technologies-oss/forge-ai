@@ -86,5 +86,8 @@ export interface ForgeAiMessageThreadProps extends Pick<
  * ### **Slots:**
  *  - **empty-state-heading** - Slot for custom empty state heading content
  * - **empty-state-actions** - Slot for custom empty state actions (e.g., suggestions)
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-message-thread-content-max-width** - Controls the max-width of the message content area while keeping the scroll container full width. _(default: undefined)_
  */
 export const ForgeAiMessageThread: React.ForwardRefExoticComponent<ForgeAiMessageThreadProps>;

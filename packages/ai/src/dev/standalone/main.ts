@@ -1,5 +1,4 @@
 import { tylIconForgeLogo, tylIconSparkles } from '@tylertech/tyler-icons';
-import { type AgUiAdapterConfig } from '../../../lib/ai-chatbot';
 import {
   defineAppBarComponent,
   defineButtonComponent,
@@ -17,12 +16,13 @@ import {
   defineToastComponent,
   IconRegistry
 } from '@tylertech/forge';
-import '../../../lib/ai-button';
+import '../../lib/ai-button';
 
 import { createExtractorTools, initExtractorDemo } from './demo-extractor';
 import { createSmartCompleteTools, initSmartCompleteDemo } from './demo-smart-complete';
 import { initExplainerDemo } from './demo-explainer';
 import { createMultiTurnTools, initMultiTurnDemo } from './demo-multi-turn';
+import { type MastraStreamAdapterConfig } from '../shared/mastra-stream-adapter';
 
 defineScaffoldComponent();
 defineAppBarComponent();
@@ -42,10 +42,10 @@ defineListItemComponent();
 IconRegistry.define([tylIconForgeLogo, tylIconSparkles]);
 
 const BASE_URL = 'http://localhost:3001/api/agents';
-const AGENT_ID = 'agent-9b3ff935-f32d-477b-ac45-ce2a3570b90c';
+const AGENT_ID = '2e17ea7f-3b3b-4de6-8225-5371cd18e9a9';
 
-const config: AgUiAdapterConfig = {
-  url: `${BASE_URL}/${AGENT_ID}/ag-ui`,
+const config: MastraStreamAdapterConfig = {
+  url: `${BASE_URL}/${AGENT_ID}/stream`,
   context: {
     purpose: 'ai-form-demos',
     timestamp: new Date().toISOString()

@@ -1,0 +1,46 @@
+import { Meta, Title, Canvas } from '@storybook/addon-docs/blocks';
+import CustomArgTypes from '../../../blocks/CustomArgTypes';
+import * as AiChatbotLauncherStories from './AiChatbotLauncher.stories';
+
+<Meta of={AiChatbotLauncherStories} />
+
+<Title />
+
+The AI Chatbot Launcher provides a page-embedded chat experience featuring a centered welcome/hero view that transitions into a full conversation interface when the user sends their first message. It combines a visually engaging landing state with full chatbot functionality.
+
+## Features
+
+- **Welcome view**: Centered hero layout with customizable icon, title, description, and suggestions
+- **Conversation view**: Full chat interface with header controls (clear, export, agent selection)
+- **Animated transitions**: Smooth state changes between welcome and conversation modes
+
+## When to Use
+
+Use the AI Chatbot Launcher when you want:
+
+- A dedicated landing page or section for AI chat
+- A visually appealing entry point before conversation begins
+- Multi-agent support with header-based agent switching
+- Built-in welcome-to-conversation state management
+
+For inline embedded experiences without a welcome view, consider `<forge-ai-chatbot>`. For floating/overlay patterns, use `<forge-ai-floating-chat>`.
+
+## Usage Patterns
+
+### Welcome Mode (Default)
+
+Initial state displays a centered hero with icon, title, description, and optional suggestions. The prompt input is prominent and wrapped in a gradient container.
+
+### Conversation Mode
+
+After sending the first message, transitions to a full chat interface with:
+
+- Header showing title, agent selector, and action buttons
+- Scrollable message thread
+- Bottom-anchored prompt area
+
+## Customization
+
+## API
+
+<CustomArgTypes />
