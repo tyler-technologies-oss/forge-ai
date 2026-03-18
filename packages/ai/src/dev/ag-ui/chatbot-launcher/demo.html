@@ -20,7 +20,7 @@
       <forge-drawer id="drawer" slot="body-left">
         <forge-scaffold>
           <forge-toolbar slot="header" no-divider>
-            <h2 slot="start" class="forge-typography--heading5">Configuration</h2>
+            <h2 slot="start" class="forge-typography--heading4">Configuration</h2>
           </forge-toolbar>
           <div slot="body" class="drawer-content">
             <forge-text-field>
@@ -41,8 +41,68 @@
           id="launcher"
           title-text="AI Assistant"
           file-upload="on"
-          enable-reactions
-        ></forge-ai-chatbot-launcher>
+          enable-reactions></forge-ai-chatbot-launcher>
+
+        <section id="landingContent" class="landing-content">
+          <div class="landing-grid">
+            <forge-card>
+              <forge-scaffold>
+                <forge-toolbar slot="header" no-divider>
+                  <h3 class="forge-typography--heading4" slot="start">Getting Started</h3>
+                </forge-toolbar>
+                <div slot="body" class="card-body">
+                  <p>
+                    Welcome to the AI Assistant. Ask me anything about your application or get help with common tasks.
+                  </p>
+                </div>
+              </forge-scaffold>
+            </forge-card>
+
+            <forge-card>
+              <forge-scaffold>
+                <forge-toolbar slot="header" no-divider>
+                  <h3 class="forge-typography--heading4" slot="start">Recent Activity</h3>
+                </forge-toolbar>
+                <div slot="body" class="card-body">
+                  <forge-list dense>
+                    <forge-list-item>Invoice #12345 processed</forge-list-item>
+                    <forge-list-item>Report generated successfully</forge-list-item>
+                    <forge-list-item>User permissions updated</forge-list-item>
+                  </forge-list>
+                </div>
+              </forge-scaffold>
+            </forge-card>
+
+            <forge-card>
+              <forge-scaffold>
+                <forge-toolbar slot="header" no-divider>
+                  <h3 class="forge-typography--heading4" slot="start">Quick Actions</h3>
+                </forge-toolbar>
+                <div slot="body" class="card-body">
+                  <div class="quick-actions">
+                    <forge-button variant="outlined">New Report</forge-button>
+                    <forge-button variant="outlined">View Dashboard</forge-button>
+                    <forge-button variant="outlined">Settings</forge-button>
+                  </div>
+                </div>
+              </forge-scaffold>
+            </forge-card>
+
+            <forge-card>
+              <forge-scaffold>
+                <forge-toolbar slot="header" no-divider>
+                  <h3 class="forge-typography--heading4" slot="start">Notifications</h3>
+                </forge-toolbar>
+                <div slot="body" class="card-body">
+                  <forge-list dense>
+                    <forge-list-item>System maintenance scheduled for Sunday</forge-list-item>
+                    <forge-list-item>New feature: AI-powered search</forge-list-item>
+                  </forge-list>
+                </div>
+              </forge-scaffold>
+            </forge-card>
+          </div>
+        </section>
       </main>
     </forge-scaffold>
 

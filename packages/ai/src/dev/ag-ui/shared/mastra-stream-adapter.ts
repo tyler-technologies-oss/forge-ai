@@ -1,5 +1,4 @@
-import { AgentAdapter } from './agent-adapter.js';
-import type { ChatMessage, ToolDefinition } from './types.js';
+import { AgentAdapter, type ChatMessage, type ToolDefinition } from '../../../lib/ai-chatbot';
 
 export interface MastraStreamAdapterConfig {
   url: string;

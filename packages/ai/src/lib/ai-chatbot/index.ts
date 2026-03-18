@@ -60,9 +60,6 @@ export type {
 export * from './ag-ui-adapter.js';
 export * from './http-agent-with-credentials.js';
 
-// Mastra stream adapter
-export * from './mastra-stream-adapter.js';
-
 // Event system
 export * from './event-emitter.js';
 

@@ -1,16 +1,20 @@
 import { tylIconForgeLogo, tylIconMenu } from '@tylertech/tyler-icons';
 import '../../../lib/ai-chatbot-launcher';
 import { type AiChatbotLauncherComponent } from '../../../lib/ai-chatbot-launcher';
-import { MastraStreamAdapter, generateId } from '../../../lib/ai-chatbot';
+import { generateId } from '../../../lib/ai-chatbot';
+import { MastraStreamAdapter } from '../shared/mastra-stream-adapter.js';
 
 import {
   type ButtonComponent,
   type DrawerComponent,
   defineAppBarComponent,
   defineButtonComponent,
+  defineCardComponent,
   defineDrawerComponent,
   defineIconButtonComponent,
   defineIconComponent,
+  defineListComponent,
+  defineListItemComponent,
   defineScaffoldComponent,
   defineTextFieldComponent,
   defineToolbarComponent,
@@ -27,6 +31,9 @@ defineIconComponent();
 defineTextFieldComponent();
 defineButtonComponent();
 defineToolbarComponent();
+defineCardComponent();
+defineListComponent();
+defineListItemComponent();
 
 IconRegistry.define([tylIconForgeLogo, tylIconMenu]);
 
@@ -36,6 +43,8 @@ const menuBtn = document.getElementById('menuBtn') as HTMLElement;
 const baseUrlInput = document.getElementById('baseUrl') as HTMLInputElement;
 const agentIdInput = document.getElementById('agentId') as HTMLInputElement;
 const reconnectBtn = document.getElementById('reconnectBtn') as ButtonComponent;
+const landingContent = document.getElementById('landingContent') as HTMLElement;
+const mainEl = launcher.closest('main') as HTMLElement;
 
 const urlParams = new URLSearchParams(window.location.search);
 const urlBaseUrl = urlParams.get('baseUrl');
@@ -153,7 +162,11 @@ launcher.addEventListener('forge-ai-chatbot-launcher-tool-call', logEvent);
 launcher.addEventListener('forge-ai-chatbot-launcher-error', logEvent);
 launcher.addEventListener('forge-ai-chatbot-launcher-file-select', logEvent);
 launcher.addEventListener('forge-ai-chatbot-launcher-response-feedback', logEvent);
-launcher.addEventListener('forge-ai-chatbot-launcher-conversation-start', logEvent);
+launcher.addEventListener('forge-ai-chatbot-launcher-conversation-start', evt => {
+  logEvent(evt);
+  landingContent.classList.add('content-hidden');
+  mainEl.classList.add('conversation-active');
+});
 launcher.addEventListener('forge-ai-chatbot-launcher-clear', logEvent);
 launcher.addEventListener('forge-ai-chatbot-launcher-thread-state-change', logEvent);
 launcher.addEventListener('forge-ai-chatbot-launcher-info', logEvent);

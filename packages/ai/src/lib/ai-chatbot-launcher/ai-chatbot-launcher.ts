@@ -169,11 +169,29 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
       return;
     }
 
+    const event = this._dispatchHostEvent({
+      type: 'forge-ai-chatbot-launcher-conversation-start',
+      cancelable: true
+    });
+
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    this.#commitConversationTransition();
+  }
+
+  #commitConversationTransition(): void {
+    if (this._viewState === 'conversation') {
+      return;
+    }
     this._viewState = 'conversation';
     this.#internals.states.delete('welcome');
     this.#internals.states.add('conversation');
+  }
 
-    this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-conversation-start' });
+  public startConversation(): void {
+    this.#commitConversationTransition();
   }
 
   #transitionToWelcome(): void {

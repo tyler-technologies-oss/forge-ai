@@ -45,7 +45,7 @@
 
 .title {
   margin: 0;
-  @include forge-typography.style(heading3);
+  @include forge-typography.style(heading6);
   color: #{forge-theme.variable(text-high)};
 }
 
