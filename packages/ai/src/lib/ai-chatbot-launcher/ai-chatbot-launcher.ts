@@ -2,14 +2,12 @@ import { html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
-import type { AgentInfo } from '../ai-agent-info';
-import type { AiChatHeaderComponent, ForgeAiChatHeaderAgentChangeEventData } from '../ai-chat-header';
+import type { AiChatHeaderComponent } from '../ai-chat-header';
 import type { AiMessageThreadComponent } from '../ai-message-thread';
 import type { AiPromptComponent, ForgeAiPromptSendEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData } from '../ai-suggestions';
 import { AiChatbotBase } from '../ai-chatbot/ai-chatbot-base.js';
 import type { Agent, ChatMessage, ThreadState } from '../ai-chatbot/types.js';
-import { generateId } from '../ai-chatbot/utils.js';
 
 import '../ai-attachment';
 import '../ai-chat-header';
@@ -138,15 +136,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   @property({ attribute: 'description-text' })
   public descriptionText?: string;
 
-  @property({ type: Object, attribute: false })
-  public agentInfo?: AgentInfo;
-
-  @property({ attribute: false })
-  public agents: Agent[] = [];
-
-  @property({ attribute: 'selected-agent-id' })
-  public selectedAgentId?: string;
-
   @state()
   private _viewState: LauncherViewState = 'welcome';
 
@@ -218,36 +207,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     this._handleInfo();
   }
 
-  #handleAgentChange(event: CustomEvent<ForgeAiChatHeaderAgentChangeEventData>): void {
-    const { agent, previousAgentId } = event.detail;
-
-    const changeEvt = this._dispatchHostEvent({
-      type: 'forge-ai-chatbot-launcher-agent-change',
-      detail: { agent, previousAgentId }
-    });
-
-    if (!changeEvt.defaultPrevented) {
-      this.selectedAgentId = agent?.id;
-      const adapter = this._coreController.adapter;
-      if (adapter) {
-        adapter.threadId = generateId();
-      }
-
-      if (this._hasMessages) {
-        const agentName = agent?.name ?? this.titleText;
-        const systemMessage: ChatMessage = {
-          id: generateId(),
-          role: 'system',
-          content: `Switched to ${agentName}`,
-          timestamp: Date.now(),
-          status: 'complete',
-          clientOnly: true
-        };
-        this._coreController.addMessage(systemMessage);
-      }
-    }
-  }
-
   protected override async _handleSend(evt: CustomEvent<ForgeAiPromptSendEventData>): Promise<void> {
     this.#transitionToConversation();
     await super._handleSend(evt);
@@ -279,23 +238,11 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     await super.sendMessage(content, files);
   }
 
-  public override getThreadState(): ThreadState {
-    return {
-      ...super.getThreadState(),
-      selectedAgentId: this.selectedAgentId
-    };
-  }
-
   public override async setThreadState(threadState: ThreadState): Promise<void> {
     await super.setThreadState(threadState);
-    this.selectedAgentId = threadState.selectedAgentId;
     if (threadState.messages.length > 0) {
       this.#transitionToConversation();
     }
-  }
-
-  public getSelectedAgent(): Agent | undefined {
-    return this.agents.find(a => a.id === this.selectedAgentId);
   }
 
   public get viewState(): LauncherViewState {
@@ -416,7 +363,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}
           @forge-ai-chat-header-export=${this._handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}
-          @forge-ai-chat-header-agent-change=${this.#handleAgentChange}>
+          @forge-ai-chat-header-agent-change=${this._handleAgentChange}>
           <slot name="icon" slot="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>

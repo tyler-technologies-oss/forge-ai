@@ -2,14 +2,11 @@ import { html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
-import type { AgentInfo } from '../ai-agent-info';
 import type { AiChatInterfaceComponent } from '../ai-chat-interface';
 import type { AiMessageThreadComponent } from '../ai-message-thread';
 import type { AiPromptComponent } from '../ai-prompt';
-import type { ForgeAiChatHeaderAgentChangeEventData } from '../ai-chat-header';
 import { AiChatbotBase } from './ai-chatbot-base.js';
-import type { Agent, ChatMessage, ThreadState } from './types.js';
-import { generateId } from './utils.js';
+import type { Agent, ChatMessage } from './types.js';
 
 import '../ai-attachment';
 import '../ai-chat-header';
@@ -94,12 +91,12 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
 /**
  * @tag forge-ai-chatbot
  *
- * @summary A complete, self-contained AI chatbot component that implements the AG-UI protocol using an adapter pattern.
+ * @summary A complete, self-contained AI chatbot component.
  *
  * @description
  * The AI Chatbot component provides a full-featured chat interface with support for streaming responses,
  * client-side tool execution, file attachments, markdown rendering, and programmatic control.
- * It uses an adapter pattern to abstract communication, allowing for AG-UI or custom protocol implementations.
+ * It uses an adapter pattern to abstract communication, allowing for any protocol implementation.
  *
  * @slot header - Slot for custom header content
  * @slot icon - Slot for custom header icon (default: forge-ai-icon)
@@ -145,15 +142,6 @@ export class AiChatbotComponent extends AiChatbotBase {
   @property({ attribute: 'minimize-icon' })
   public minimizeIcon: 'default' | 'panel' = 'default';
 
-  @property({ type: Object, attribute: false })
-  public agentInfo?: AgentInfo;
-
-  @property({ attribute: false })
-  public agents: Agent[] = [];
-
-  @property({ attribute: 'selected-agent-id' })
-  public selectedAgentId?: string;
-
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   protected override _messageThreadRef = createRef<AiMessageThreadComponent>();
   protected override _promptRef = createRef<AiPromptComponent>();
@@ -183,36 +171,6 @@ export class AiChatbotComponent extends AiChatbotBase {
     this._handleInfo();
   }
 
-  #handleAgentChange(event: CustomEvent<ForgeAiChatHeaderAgentChangeEventData>): void {
-    const { agent, previousAgentId } = event.detail;
-
-    const changeEvt = this._dispatchHostEvent({
-      type: 'forge-ai-chatbot-agent-change',
-      detail: { agent, previousAgentId }
-    });
-
-    if (!changeEvt.defaultPrevented) {
-      this.selectedAgentId = agent?.id;
-      const adapter = this._coreController.adapter;
-      if (adapter) {
-        adapter.threadId = generateId();
-      }
-
-      if (this._hasMessages) {
-        const agentName = agent?.name ?? this.titleText;
-        const systemMessage: ChatMessage = {
-          id: generateId(),
-          role: 'system',
-          content: `Switched to ${agentName}`,
-          timestamp: Date.now(),
-          status: 'complete',
-          clientOnly: true
-        };
-        this._coreController.addMessage(systemMessage);
-      }
-    }
-  }
-
   protected override _handleInfo(): void {
     const header = this.#headerRef.value;
     if (header?.showAgentInfo) {
@@ -221,25 +179,9 @@ export class AiChatbotComponent extends AiChatbotBase {
     super._handleInfo();
   }
 
-  public getSelectedAgent(): Agent | undefined {
-    return this.agents.find(a => a.id === this.selectedAgentId);
-  }
-
   public override async sendMessage(content: string, files?: File[]): Promise<void> {
     this._promptRef.value?.closeSlashMenu();
     await super.sendMessage(content, files);
-  }
-
-  public override getThreadState(): ThreadState {
-    return {
-      ...super.getThreadState(),
-      selectedAgentId: this.selectedAgentId
-    };
-  }
-
-  public override async setThreadState(threadState: ThreadState): Promise<void> {
-    await super.setThreadState(threadState);
-    this.selectedAgentId = threadState.selectedAgentId;
   }
 
   get #sessionFilesTemplate(): TemplateResult | typeof nothing {
@@ -349,7 +291,7 @@ export class AiChatbotComponent extends AiChatbotBase {
           @forge-ai-chat-header-clear=${this.#handleHeaderClear}
           @forge-ai-chat-header-export=${this._handleExport}
           @forge-ai-chat-header-info=${this.#handleHeaderInfo}
-          @forge-ai-chat-header-agent-change=${this.#handleAgentChange}>
+          @forge-ai-chat-header-agent-change=${this._handleAgentChange}>
           <slot name="icon" slot="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>

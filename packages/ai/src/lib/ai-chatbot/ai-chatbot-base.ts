@@ -1,6 +1,8 @@
 import { html, nothing, LitElement, type PropertyValues, type TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 import type { Ref } from 'lit/directives/ref.js';
+import type { AgentInfo } from '../ai-agent-info';
+import type { ForgeAiChatHeaderAgentChangeEventData } from '../ai-chat-header';
 import type { AiMessageThreadComponent } from '../ai-message-thread';
 import type { ForgeAiAttachmentRemoveEventData } from '../ai-attachment';
 import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData } from '../ai-file-picker';
@@ -10,6 +12,7 @@ import type { ForgeAiVoiceInputResultEvent } from '../ai-voice-input';
 import { AgentAdapter } from './agent-adapter.js';
 import { ChatbotCoreController } from '../core/chatbot-core-controller.js';
 import type {
+  Agent,
   ChatMessage,
   HeadingLevel,
   MessageItem,
@@ -61,6 +64,15 @@ export abstract class AiChatbotBase extends LitElement {
 
   @property({ attribute: 'debug-command' })
   public debugCommand: FeatureToggle = 'on';
+
+  @property({ type: Object, attribute: false })
+  public agentInfo?: AgentInfo;
+
+  @property({ attribute: false })
+  public agents: Agent[] = [];
+
+  @property({ attribute: 'selected-agent-id' })
+  public selectedAgentId?: string;
 
   protected _coreController!: ChatbotCoreController;
 
@@ -152,6 +164,36 @@ export abstract class AiChatbotBase extends LitElement {
 
   protected _handleInfo(): void {
     this._dispatchHostEvent({ type: `${this._eventPrefix}-info` });
+  }
+
+  protected _handleAgentChange(event: CustomEvent<ForgeAiChatHeaderAgentChangeEventData>): void {
+    const { agent, previousAgentId } = event.detail;
+
+    const changeEvt = this._dispatchHostEvent({
+      type: `${this._eventPrefix}-agent-change`,
+      detail: { agent, previousAgentId }
+    });
+
+    if (!changeEvt.defaultPrevented) {
+      this.selectedAgentId = agent?.id;
+      const adapter = this._coreController.adapter;
+      if (adapter) {
+        adapter.threadId = generateId();
+      }
+
+      if (this._hasMessages) {
+        const agentName = agent?.name ?? this.titleText;
+        const systemMessage: ChatMessage = {
+          id: generateId(),
+          role: 'system',
+          content: `Switched to ${agentName}`,
+          timestamp: Date.now(),
+          status: 'complete',
+          clientOnly: true
+        };
+        this._coreController.addMessage(systemMessage);
+      }
+    }
   }
 
   protected _handleDebugToggle(): void {
@@ -446,12 +488,18 @@ export abstract class AiChatbotBase extends LitElement {
     return {
       threadId: this._coreController.adapter?.threadId,
       messages: this.getMessages(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      selectedAgentId: this.selectedAgentId
     };
+  }
+
+  public getSelectedAgent(): Agent | undefined {
+    return this.agents.find(a => a.id === this.selectedAgentId);
   }
 
   public async setThreadState(threadState: ThreadState): Promise<void> {
     this.setMessages(threadState.messages);
+    this.selectedAgentId = threadState.selectedAgentId;
 
     if (threadState.threadId && this._coreController.adapter) {
       this._coreController.adapter.threadId = threadState.threadId;
