@@ -28,7 +28,6 @@ import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
 export type FeatureToggle = 'on' | 'off';
 
 export abstract class AiChatbotBase extends LitElement {
-  protected abstract get _eventPrefix(): string;
   protected abstract _messageThreadRef: Ref<AiMessageThreadComponent>;
   protected abstract _promptRef: Ref<AiPromptComponent>;
 
@@ -103,7 +102,7 @@ export abstract class AiChatbotBase extends LitElement {
       callbacks: {
         onRequestUpdate: () => this.requestUpdate(),
         onScrollToBottom: () => this.scrollToBottom(),
-        onDispatchEvent: (type, detail, cancelable) => this._dispatchPrefixedEvent(type, detail, cancelable)
+        onDispatchEvent: (type, detail, cancelable) => this._dispatchHostEvent({ type, detail, cancelable })
       }
     });
 
@@ -163,14 +162,14 @@ export abstract class AiChatbotBase extends LitElement {
   }
 
   protected _handleInfo(): void {
-    this._dispatchHostEvent({ type: `${this._eventPrefix}-info` });
+    this._dispatchHostEvent({ type: 'forge-ai-chatbot-info' });
   }
 
   protected _handleAgentChange(event: CustomEvent<ForgeAiChatHeaderAgentChangeEventData>): void {
     const { agent, previousAgentId } = event.detail;
 
     const changeEvt = this._dispatchHostEvent({
-      type: `${this._eventPrefix}-agent-change`,
+      type: 'forge-ai-chatbot-agent-change',
       detail: { agent, previousAgentId }
     });
 
@@ -369,7 +368,7 @@ export abstract class AiChatbotBase extends LitElement {
       reason: evt.detail.feedback
     });
     this._dispatchHostEvent({
-      type: `${this._eventPrefix}-response-feedback`,
+      type: 'forge-ai-chatbot-response-feedback',
       detail: {
         messageId: evt.detail.messageId,
         type,
@@ -392,7 +391,7 @@ export abstract class AiChatbotBase extends LitElement {
     const callbacks = this._coreController.createFileUploadCallbacks(fileId);
 
     this._dispatchHostEvent({
-      type: `${this._eventPrefix}-file-select`,
+      type: 'forge-ai-chatbot-file-select',
       detail: {
         fileId,
         file,
@@ -430,8 +429,15 @@ export abstract class AiChatbotBase extends LitElement {
     }
   }
 
-  public clearMessages(): void {
+  public clearMessages(): boolean {
+    const event = this._dispatchHostEvent({ type: 'forge-ai-chatbot-clear', cancelable: true });
+
+    if (event.defaultPrevented) {
+      return false;
+    }
+
     this._coreController.clearMessages();
+    return true;
   }
 
   public getMessages(): ChatMessage[] {
@@ -454,7 +460,7 @@ export abstract class AiChatbotBase extends LitElement {
         const fileId = this._coreController.processFileUpload(file, timestamp);
         const callbacks = this._coreController.createFileUploadCallbacks(fileId);
         this._dispatchHostEvent({
-          type: `${this._eventPrefix}-file-select`,
+          type: 'forge-ai-chatbot-file-select',
           detail: {
             fileId,
             file,
@@ -511,11 +517,6 @@ export abstract class AiChatbotBase extends LitElement {
     this._promptRef.value?.setHistory(userMessages);
 
     this.scrollToBottom({ behavior: 'instant' });
-  }
-
-  protected _dispatchPrefixedEvent(type: string, detail?: unknown, cancelable?: boolean): CustomEvent {
-    const prefixedType = type.replace('forge-ai-chatbot-', `${this._eventPrefix}-`);
-    return this._dispatchHostEvent({ type: prefixedType, detail, cancelable });
   }
 
   protected _dispatchHostEvent(config: { type: string; detail?: unknown; cancelable?: boolean }): CustomEvent {

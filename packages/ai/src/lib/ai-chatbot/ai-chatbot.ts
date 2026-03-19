@@ -126,10 +126,6 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
 export class AiChatbotComponent extends AiChatbotBase {
   public static override styles = unsafeCSS(styles);
 
-  protected override get _eventPrefix(): string {
-    return 'forge-ai-chatbot';
-  }
-
   @property({ type: Boolean, attribute: 'show-expand-button' })
   public showExpandButton = false;
 
@@ -146,14 +142,6 @@ export class AiChatbotComponent extends AiChatbotBase {
   protected override _messageThreadRef = createRef<AiMessageThreadComponent>();
   protected override _promptRef = createRef<AiPromptComponent>();
   #headerRef = createRef<AiChatHeaderComponent>();
-
-  public override clearMessages(): void {
-    const event = this._dispatchHostEvent({ type: 'forge-ai-chatbot-clear', cancelable: true });
-
-    if (!event.defaultPrevented) {
-      super.clearMessages();
-    }
-  }
 
   #handleHeaderExpand(): void {
     this._dispatchHostEvent({ type: 'forge-ai-chatbot-expand' });
