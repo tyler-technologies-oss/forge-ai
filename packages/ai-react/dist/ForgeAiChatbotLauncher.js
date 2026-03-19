@@ -24,29 +24,25 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
   /** Event listeners - run once */
   useEventListener(
     ref,
-    "forge-ai-chatbot-launcher-connected",
-    props.onForgeAiChatbotLauncherConnected,
+    "forge-ai-chatbot-connected",
+    props.onForgeAiChatbotConnected,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-launcher-message-sent",
-    props.onForgeAiChatbotLauncherMessageSent,
+    "forge-ai-chatbot-message-sent",
+    props.onForgeAiChatbotMessageSent,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-launcher-message-received",
-    props.onForgeAiChatbotLauncherMessageReceived,
+    "forge-ai-chatbot-message-received",
+    props.onForgeAiChatbotMessageReceived,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-launcher-tool-call",
-    props.onForgeAiChatbotLauncherToolCall,
+    "forge-ai-chatbot-tool-call",
+    props.onForgeAiChatbotToolCall,
   );
-  useEventListener(
-    ref,
-    "forge-ai-chatbot-launcher-error",
-    props.onForgeAiChatbotLauncherError,
-  );
+  useEventListener(ref, "forge-ai-chatbot-error", props.onForgeAiChatbotError);
   useEventListener(
     ref,
     "forge-ai-chatbot-launcher-conversation-start",
@@ -54,18 +50,14 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-launcher-response-feedback",
-    props.onForgeAiChatbotLauncherResponseFeedback,
+    "forge-ai-chatbot-response-feedback",
+    props.onForgeAiChatbotResponseFeedback,
   );
+  useEventListener(ref, "forge-ai-chatbot-info", props.onForgeAiChatbotInfo);
   useEventListener(
     ref,
-    "forge-ai-chatbot-launcher-info",
-    props.onForgeAiChatbotLauncherInfo,
-  );
-  useEventListener(
-    ref,
-    "forge-ai-chatbot-launcher-agent-change",
-    props.onForgeAiChatbotLauncherAgentChange,
+    "forge-ai-chatbot-agent-change",
+    props.onForgeAiChatbotAgentChange,
   );
 
   /** Properties - run whenever a property has changed */

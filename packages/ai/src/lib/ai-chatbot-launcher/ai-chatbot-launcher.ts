@@ -7,7 +7,7 @@ import type { AiMessageThreadComponent } from '../ai-message-thread';
 import type { AiPromptComponent, ForgeAiPromptSendEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData } from '../ai-suggestions';
 import { AiChatbotBase } from '../ai-chatbot/ai-chatbot-base.js';
-import type { Agent, ChatMessage, ThreadState } from '../ai-chatbot/types.js';
+import type { ChatMessage, ThreadState } from '../ai-chatbot/types.js';
 
 import '../ai-attachment';
 import '../ai-chat-header';
@@ -29,62 +29,8 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'forge-ai-chatbot-launcher-connected': CustomEvent<void>;
-    'forge-ai-chatbot-launcher-message-sent': CustomEvent<ForgeAiChatbotLauncherMessageEventData>;
-    'forge-ai-chatbot-launcher-message-received': CustomEvent<ForgeAiChatbotLauncherMessageEventData>;
-    'forge-ai-chatbot-launcher-tool-call': CustomEvent<ForgeAiChatbotLauncherToolCallEventData>;
-    'forge-ai-chatbot-launcher-error': CustomEvent<ForgeAiChatbotLauncherErrorEventData>;
-    'forge-ai-chatbot-launcher-file-select': CustomEvent<ForgeAiChatbotLauncherFileSelectEventData>;
-    'forge-ai-chatbot-launcher-response-feedback': CustomEvent<ForgeAiChatbotLauncherResponseFeedbackEventData>;
     'forge-ai-chatbot-launcher-conversation-start': CustomEvent<void>;
-    'forge-ai-chatbot-launcher-clear': CustomEvent<void>;
-    'forge-ai-chatbot-launcher-thread-state-change': CustomEvent<void>;
-    'forge-ai-chatbot-launcher-info': CustomEvent<void>;
-    'forge-ai-chatbot-launcher-agent-change': CustomEvent<ForgeAiChatbotLauncherAgentChangeEventData>;
-    'forge-ai-chatbot-launcher-disconnected': CustomEvent<void>;
-    'forge-ai-chatbot-launcher-file-remove': CustomEvent<ForgeAiChatbotLauncherFileRemoveEventData>;
   }
-}
-
-export interface ForgeAiChatbotLauncherMessageEventData {
-  message: ChatMessage;
-}
-
-export interface ForgeAiChatbotLauncherToolCallEventData {
-  toolCallId: string;
-  toolName: string;
-  arguments: Record<string, unknown>;
-}
-
-export interface ForgeAiChatbotLauncherErrorEventData {
-  error: string;
-}
-
-export interface ForgeAiChatbotLauncherFileSelectEventData {
-  fileId: string;
-  file: File;
-  filename: string;
-  size: number;
-  mimeType: string;
-  timestamp: number;
-  onProgress: (progress: number) => void;
-  onComplete: (result: { url?: string; error?: string }) => void;
-  onAbort: () => void;
-}
-
-export interface ForgeAiChatbotLauncherResponseFeedbackEventData {
-  messageId: string;
-  type: 'positive' | 'negative';
-  feedback?: string;
-}
-
-export interface ForgeAiChatbotLauncherAgentChangeEventData {
-  agent: Agent | undefined;
-  previousAgentId: string | undefined;
-}
-
-export interface ForgeAiChatbotLauncherFileRemoveEventData {
-  fileId: string;
 }
 
 export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-chatbot-launcher';
@@ -97,7 +43,7 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @description
  * The AI Chatbot Launcher provides a page-embedded chat experience with a centered welcome/hero view
  * that animates into a full conversation interface when the user sends their first message.
- * In conversation mode, a header is displayed with options for expand, minimize, clear, export, and agent selection.
+ * In conversation mode, a header is displayed with options for clear, export, and agent selection.
  *
  * @slot icon - Slot for custom icon (used in both welcome view and conversation header)
  * @slot heading - Slot for custom heading content
@@ -113,23 +59,19 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  *
  * @cssproperty --forge-ai-chatbot-launcher-icon-color - The fill color for the AI icon.
  *
- * @event {CustomEvent<void>} forge-ai-chatbot-launcher-connected - Fired when adapter connects
- * @event {CustomEvent<ForgeAiChatbotLauncherMessageEventData>} forge-ai-chatbot-launcher-message-sent - Fired when user sends a message
- * @event {CustomEvent<ForgeAiChatbotLauncherMessageEventData>} forge-ai-chatbot-launcher-message-received - Fired when assistant message is complete
- * @event {CustomEvent<ForgeAiChatbotLauncherToolCallEventData>} forge-ai-chatbot-launcher-tool-call - Fired when a tool needs to be executed
- * @event {CustomEvent<ForgeAiChatbotLauncherErrorEventData>} forge-ai-chatbot-launcher-error - Fired when an error occurs
+ * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
+ * @event {CustomEvent<ForgeAiChatbotMessageEventData>} forge-ai-chatbot-message-sent - Fired when user sends a message
+ * @event {CustomEvent<ForgeAiChatbotMessageEventData>} forge-ai-chatbot-message-received - Fired when assistant message is complete
+ * @event {CustomEvent<ForgeAiChatbotToolCallEventData>} forge-ai-chatbot-tool-call - Fired when a tool needs to be executed
+ * @event {CustomEvent<ForgeAiChatbotErrorEventData>} forge-ai-chatbot-error - Fired when an error occurs
  * @event {CustomEvent<void>} forge-ai-chatbot-launcher-conversation-start - Fired when transitioning from welcome to conversation view
- * @event {CustomEvent<ForgeAiChatbotLauncherResponseFeedbackEventData>} forge-ai-chatbot-launcher-response-feedback - Fired when user provides feedback on a response
- * @event {CustomEvent<void>} forge-ai-chatbot-launcher-info - Fired when header info option is selected
- * @event {CustomEvent<ForgeAiChatbotLauncherAgentChangeEventData>} forge-ai-chatbot-launcher-agent-change - Fired when agent selection changes
+ * @event {CustomEvent<ForgeAiChatbotResponseFeedbackEventData>} forge-ai-chatbot-response-feedback - Fired when user provides feedback on a response
+ * @event {CustomEvent<void>} forge-ai-chatbot-info - Fired when header info option is selected
+ * @event {CustomEvent<ForgeAiChatbotAgentChangeEventData>} forge-ai-chatbot-agent-change - Fired when agent selection changes
  */
 @customElement(AiChatbotLauncherComponentTagName)
 export class AiChatbotLauncherComponent extends AiChatbotBase {
   public static override styles = unsafeCSS(styles);
-
-  protected override get _eventPrefix(): string {
-    return 'forge-ai-chatbot-launcher';
-  }
 
   public override placeholder = 'How can I help you today?';
 
@@ -217,13 +159,12 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     await super._handleSuggestionSelect(evt);
   }
 
-  public override clearMessages(): void {
-    const event = this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-clear', cancelable: true });
-
-    if (!event.defaultPrevented) {
-      super.clearMessages();
+  public override clearMessages(): boolean {
+    if (super.clearMessages()) {
       this.#transitionToWelcome();
+      return true;
     }
+    return false;
   }
 
   public override setMessages(messages: ChatMessage[]): void {

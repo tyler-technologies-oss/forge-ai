@@ -79,28 +79,26 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   agents?: ForgeAiChatbotLauncherElement["agents"];
 
   /** Fired when adapter connects */
-  onForgeAiChatbotLauncherConnected?: (
-    event: CustomEvent<CustomEvent<void>>,
-  ) => void;
+  onForgeAiChatbotConnected?: (event: CustomEvent<CustomEvent<void>>) => void;
 
   /** Fired when user sends a message */
-  onForgeAiChatbotLauncherMessageSent?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotLauncherMessageEventData>>,
+  onForgeAiChatbotMessageSent?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotMessageEventData>>,
   ) => void;
 
   /** Fired when assistant message is complete */
-  onForgeAiChatbotLauncherMessageReceived?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotLauncherMessageEventData>>,
+  onForgeAiChatbotMessageReceived?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotMessageEventData>>,
   ) => void;
 
   /** Fired when a tool needs to be executed */
-  onForgeAiChatbotLauncherToolCall?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotLauncherToolCallEventData>>,
+  onForgeAiChatbotToolCall?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotToolCallEventData>>,
   ) => void;
 
   /** Fired when an error occurs */
-  onForgeAiChatbotLauncherError?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotLauncherErrorEventData>>,
+  onForgeAiChatbotError?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotErrorEventData>>,
   ) => void;
 
   /** Fired when transitioning from welcome to conversation view */
@@ -109,20 +107,16 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   ) => void;
 
   /** Fired when user provides feedback on a response */
-  onForgeAiChatbotLauncherResponseFeedback?: (
-    event: CustomEvent<
-      CustomEvent<ForgeAiChatbotLauncherResponseFeedbackEventData>
-    >,
+  onForgeAiChatbotResponseFeedback?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotResponseFeedbackEventData>>,
   ) => void;
 
   /** Fired when header info option is selected */
-  onForgeAiChatbotLauncherInfo?: (
-    event: CustomEvent<CustomEvent<void>>,
-  ) => void;
+  onForgeAiChatbotInfo?: (event: CustomEvent<CustomEvent<void>>) => void;
 
   /** Fired when agent selection changes */
-  onForgeAiChatbotLauncherAgentChange?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotLauncherAgentChangeEventData>>,
+  onForgeAiChatbotAgentChange?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotAgentChangeEventData>>,
   ) => void;
 }
 
@@ -132,15 +126,15 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
  *
  *
  * ### **Events:**
- *  - **forge-ai-chatbot-launcher-connected** - Fired when adapter connects
- * - **forge-ai-chatbot-launcher-message-sent** - Fired when user sends a message
- * - **forge-ai-chatbot-launcher-message-received** - Fired when assistant message is complete
- * - **forge-ai-chatbot-launcher-tool-call** - Fired when a tool needs to be executed
- * - **forge-ai-chatbot-launcher-error** - Fired when an error occurs
+ *  - **forge-ai-chatbot-connected** - Fired when adapter connects
+ * - **forge-ai-chatbot-message-sent** - Fired when user sends a message
+ * - **forge-ai-chatbot-message-received** - Fired when assistant message is complete
+ * - **forge-ai-chatbot-tool-call** - Fired when a tool needs to be executed
+ * - **forge-ai-chatbot-error** - Fired when an error occurs
  * - **forge-ai-chatbot-launcher-conversation-start** - Fired when transitioning from welcome to conversation view
- * - **forge-ai-chatbot-launcher-response-feedback** - Fired when user provides feedback on a response
- * - **forge-ai-chatbot-launcher-info** - Fired when header info option is selected
- * - **forge-ai-chatbot-launcher-agent-change** - Fired when agent selection changes
+ * - **forge-ai-chatbot-response-feedback** - Fired when user provides feedback on a response
+ * - **forge-ai-chatbot-info** - Fired when header info option is selected
+ * - **forge-ai-chatbot-agent-change** - Fired when agent selection changes
  *
  * ### **Slots:**
  *  - **icon** - Slot for custom icon (used in both welcome view and conversation header)
