@@ -2,6 +2,7 @@ import { tylIconForgeLogo, tylIconMenu } from '@tylertech/tyler-icons';
 import '../../lib/ai-chatbot-launcher';
 import { type AiChatbotLauncherComponent } from '../../lib/ai-chatbot-launcher';
 import { generateId } from '../../lib/ai-chatbot';
+import { registerFileUploadHandler } from '../shared/file-upload-handler.js';
 import { MastraStreamAdapter } from '../shared/mastra-stream-adapter.js';
 
 import {
@@ -66,7 +67,7 @@ let threadId = generateId();
 let adapter: MastraStreamAdapter;
 
 function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
-  return new MastraStreamAdapter(
+  const newAdapter = new MastraStreamAdapter(
     {
       url: `${baseUrl}/api/agents/${agentId}/stream`,
       context: {
@@ -84,6 +85,10 @@ function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
     },
     threadId
   );
+
+  registerFileUploadHandler(newAdapter, { baseUrl, agentId, threadId });
+
+  return newAdapter;
 }
 
 function initializeAdapter(baseUrl: string, agentId: string): void {

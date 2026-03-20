@@ -178,6 +178,13 @@ export class AiPromptComponent extends LitElement {
     this.#resetHistoryNavigation();
   }
 
+  /**
+   * Returns a copy of the current message history.
+   */
+  public getHistory(): string[] {
+    return [...this.#messageHistory];
+  }
+
   #resetHistoryNavigation(): void {
     this.#historyIndex = -1;
     this.#draftMessage = '';
