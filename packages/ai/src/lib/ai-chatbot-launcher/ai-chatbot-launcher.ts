@@ -95,10 +95,16 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     this.#internals.states.add('welcome');
   }
 
-  #transitionToConversation(): void {
+  get #promptHasFocus(): boolean {
+    return this._promptRef.value?.matches(':focus-within') ?? false;
+  }
+
+  async #transitionToConversation(): Promise<void> {
     if (this._viewState === 'conversation') {
       return;
     }
+
+    const promptHadFocus = this.#promptHasFocus;
 
     const event = this._dispatchHostEvent({
       type: 'forge-ai-chatbot-launcher-conversation-start',
@@ -109,20 +115,25 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
       return;
     }
 
-    this.#commitConversationTransition();
+    await this.#commitConversationTransition(promptHadFocus);
   }
 
-  #commitConversationTransition(): void {
+  async #commitConversationTransition(restoreFocus = false): Promise<void> {
     if (this._viewState === 'conversation') {
       return;
     }
     this._viewState = 'conversation';
     this.#internals.states.delete('welcome');
     this.#internals.states.add('conversation');
+
+    if (restoreFocus) {
+      await this.updateComplete;
+      this._promptRef.value?.focus();
+    }
   }
 
-  public startConversation(): void {
-    this.#commitConversationTransition();
+  public async startConversation(): Promise<void> {
+    await this.#commitConversationTransition(this.#promptHasFocus);
   }
 
   #transitionToWelcome(): void {
@@ -150,12 +161,12 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   }
 
   protected override async _handleSend(evt: CustomEvent<ForgeAiPromptSendEventData>): Promise<void> {
-    this.#transitionToConversation();
+    await this.#transitionToConversation();
     await super._handleSend(evt);
   }
 
   protected override async _handleSuggestionSelect(evt: CustomEvent<ForgeAiSuggestionsEventData>): Promise<void> {
-    this.#transitionToConversation();
+    await this.#transitionToConversation();
     await super._handleSuggestionSelect(evt);
   }
 
