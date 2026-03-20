@@ -19,20 +19,16 @@ $_max-content-width: 768px;
 }
 
 .welcome {
-  --_ai-chatbot-launcher-align: var(--forge-ai-chatbot-launcher-align, center);
-
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: var(--_ai-chatbot-launcher-align);
-  flex: 1;
-  padding: #{forge-spacing.variable(xxlarge)};
   gap: #{forge-spacing.variable(xxsmall)};
   animation: fade-in 300ms #{forge-animation.variable(easing-standard)};
   max-inline-size: #{$_max-content-width};
   margin-inline: auto;
   width: 100%;
   box-sizing: border-box;
+  padding-inline: #{forge-spacing.variable(xxlarge)};
 }
 
 .welcome-header {
@@ -66,6 +62,14 @@ $_max-content-width: 768px;
   inline-size: 100%;
 }
 
+.prompt-section {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(xsmall)};
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .disclaimer {
   @include forge-typography.style(label1);
   color: #{forge-theme.variable(text-medium)};
@@ -84,7 +88,8 @@ $_max-content-width: 768px;
 .conversation {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .conversation forge-ai-chat-header {
@@ -100,24 +105,6 @@ $_max-content-width: 768px;
   flex: 1;
   min-height: 0;
   animation: fade-in #{forge-animation.variable(duration-medium2)} #{forge-animation.variable(easing-decelerate)};
-}
-
-.conversation .prompt-area {
-  display: flex;
-  flex-direction: column;
-  gap: #{forge-spacing.variable(xsmall)};
-  font-size: 0.875rem;
-  padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xsmall)};
-  animation: prompt-slide-down #{forge-animation.variable(duration-medium2)}
-    #{forge-animation.variable(easing-decelerate)};
-  max-inline-size: #{$_max-content-width};
-  margin-inline: auto;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.conversation forge-ai-prompt {
-  max-inline-size: none;
 }
 
 .session-files {
@@ -141,11 +128,6 @@ $_max-content-width: 768px;
   }
 }
 
-.welcome .session-files {
-  inline-size: 100%;
-  margin-block-end: #{forge-spacing.variable(small)};
-}
-
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -165,12 +147,36 @@ $_max-content-width: 768px;
 }
 
 :host(:state(welcome)) {
+  --_ai-chatbot-launcher-align: var(--forge-ai-chatbot-launcher-align, center);
+
+  .launcher {
+    align-items: center;
+    justify-content: var(--_ai-chatbot-launcher-align);
+    padding: #{forge-spacing.variable(xxlarge)};
+    gap: #{forge-spacing.variable(xxsmall)};
+  }
+
   .welcome {
     display: flex;
   }
 
   .conversation {
     display: none;
+  }
+
+  .prompt-section {
+    max-inline-size: #{$_max-content-width};
+    width: 100%;
+  }
+
+  .session-files {
+    inline-size: 100%;
+    margin-block-end: #{forge-spacing.variable(small)};
+  }
+
+  .welcome-suggestions {
+    max-inline-size: #{$_max-content-width};
+    width: 100%;
   }
 }
 
@@ -181,5 +187,24 @@ $_max-content-width: 768px;
 
   .conversation {
     display: flex;
+  }
+
+  .prompt-section {
+    padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xsmall)};
+    max-inline-size: #{$_max-content-width};
+    margin-inline: auto;
+    animation: prompt-slide-down #{forge-animation.variable(duration-medium2)}
+      #{forge-animation.variable(easing-decelerate)};
+  }
+
+  .prompt-container {
+    --forge-card-outline-width: initial;
+
+    border: none;
+    background: transparent;
+  }
+
+  forge-ai-prompt {
+    max-inline-size: none;
   }
 }

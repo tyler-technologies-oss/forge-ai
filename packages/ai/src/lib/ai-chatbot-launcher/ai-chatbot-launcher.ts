@@ -269,7 +269,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     `;
   }
 
-  get #welcomeTemplate(): TemplateResult {
+  get #welcomeHeaderTemplate(): TemplateResult {
     return html`
       <div class="welcome">
         <div class="welcome-header">
@@ -279,28 +279,26 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           ${this.#headingElement}
         </div>
         <div class="description"><slot name="description">${this.descriptionText}</slot></div>
-        ${this.#sessionFilesTemplate}
-        <forge-ai-gradient-container class="prompt-container" variant="medium"
-          >${this.#promptTemplate}</forge-ai-gradient-container
-        >
-        ${when(this.disclaimerText, () => html`<div class="disclaimer">${this.disclaimerText}</div>`)}
-        ${when(
-          this.suggestions?.length,
-          () => html`
-            <div class="welcome-suggestions">
-              <forge-ai-suggestions
-                variant="block"
-                .suggestions=${this.suggestions ?? []}
-                @forge-ai-suggestions-select=${this._handleSuggestionSelect}>
-              </forge-ai-suggestions>
-            </div>
-          `
-        )}
       </div>
     `;
   }
 
-  get #conversationTemplate(): TemplateResult {
+  get #welcomeSuggestionsTemplate(): TemplateResult | typeof nothing {
+    if (!this.suggestions?.length) {
+      return nothing;
+    }
+    return html`
+      <div class="welcome-suggestions">
+        <forge-ai-suggestions
+          variant="block"
+          .suggestions=${this.suggestions ?? []}
+          @forge-ai-suggestions-select=${this._handleSuggestionSelect}>
+        </forge-ai-suggestions>
+      </div>
+    `;
+  }
+
+  get #conversationContentTemplate(): TemplateResult {
     return html`
       <div class="conversation">
         <forge-ai-chat-header
@@ -336,10 +334,18 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           @forge-ai-message-thread-user-resend=${this._handleUserResend}
           @forge-ai-message-thread-user-edit=${this._handleUserEdit}>
         </forge-ai-message-thread>
-        <div class="prompt-area">
-          ${this.#sessionFilesTemplate} ${this.#promptTemplate}
-          ${when(this.disclaimerText, () => html`<div class="disclaimer">${this.disclaimerText}</div>`)}
-        </div>
+      </div>
+    `;
+  }
+
+  get #promptSectionTemplate(): TemplateResult {
+    return html`
+      <div class="prompt-section">
+        ${this.#sessionFilesTemplate}
+        <forge-ai-gradient-container class="prompt-container" variant="medium">
+          ${this.#promptTemplate}
+        </forge-ai-gradient-container>
+        ${when(this.disclaimerText, () => html`<div class="disclaimer">${this.disclaimerText}</div>`)}
       </div>
     `;
   }
@@ -347,7 +353,8 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   public override render(): TemplateResult {
     return html`
       <div class="launcher" role="region" aria-label="AI chatbot launcher" aria-busy=${this._isStreaming}>
-        ${this._viewState === 'welcome' ? this.#welcomeTemplate : this.#conversationTemplate}
+        ${this._viewState === 'welcome' ? this.#welcomeHeaderTemplate : this.#conversationContentTemplate}
+        ${this.#promptSectionTemplate} ${this._viewState === 'welcome' ? this.#welcomeSuggestionsTemplate : nothing}
       </div>
     `;
   }
