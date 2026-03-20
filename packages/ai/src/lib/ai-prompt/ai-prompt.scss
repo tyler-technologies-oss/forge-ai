@@ -70,7 +70,7 @@
   padding: #{forge-spacing.variable(xxsmall)};
   padding-inline-start: #{forge-spacing.variable(xsmall)};
   gap: #{forge-spacing.variable(xxsmall)};
-  overflow-x: auto;
+  overflow: visible;
 }
 
 .actions-start-container,
