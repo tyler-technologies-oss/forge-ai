@@ -268,6 +268,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           ${this.#headingElement}
         </div>
         <div class="description"><slot name="description">${this.descriptionText}</slot></div>
+        ${this.#sessionFilesTemplate}
         <forge-ai-gradient-container class="prompt-container" variant="medium"
           >${this.#promptTemplate}</forge-ai-gradient-container
         >

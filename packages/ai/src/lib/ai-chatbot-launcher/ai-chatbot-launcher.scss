@@ -141,6 +141,11 @@ $_max-content-width: 768px;
   }
 }
 
+.welcome .session-files {
+  inline-size: 100%;
+  margin-block-end: #{forge-spacing.variable(small)};
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
