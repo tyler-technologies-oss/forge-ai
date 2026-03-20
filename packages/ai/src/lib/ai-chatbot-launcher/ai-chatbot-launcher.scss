@@ -124,7 +124,7 @@ $_max-content-width: 768px;
     display: flex;
     gap: #{forge-spacing.variable(small)};
     overflow-x: auto;
-    padding-block-end: #{forge-spacing.variable(xsmall)};
+    padding-block-end: #{forge-spacing.variable(xxsmall)};
   }
 }
 
@@ -171,7 +171,6 @@ $_max-content-width: 768px;
 
   .session-files {
     inline-size: 100%;
-    margin-block-end: #{forge-spacing.variable(small)};
   }
 
   .welcome-suggestions {
