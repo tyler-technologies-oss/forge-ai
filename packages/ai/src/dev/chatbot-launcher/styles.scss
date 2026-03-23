@@ -36,7 +36,11 @@ forge-ai-chatbot-launcher {
   --forge-ai-chatbot-launcher-align: start;
   flex: 0 0 auto;
   height: auto;
-  min-height: 400px;
+  
+
+  &:state(welcome) {
+    margin-block-start: var(--forge-spacing-xxlarge);
+  }
 
   &:state(conversation) {
     flex: 1 1 auto;
