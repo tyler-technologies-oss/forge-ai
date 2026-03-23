@@ -31,11 +31,12 @@ export class MarkdownStreamController implements ReactiveController {
   }
 
   public getCachedHtml(messageId: string, content: string): string {
-    const key = this.#getCacheKey(messageId, content);
+    const str = String(content ?? '');
+    const key = this.#getCacheKey(messageId, str);
     let html = this.#markdownCache.get(key);
 
     if (!html) {
-      html = renderMarkdown(content);
+      html = renderMarkdown(str);
       this.#markdownCache.set(key, html);
 
       if (this.#markdownCache.size > 100) {

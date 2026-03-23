@@ -16,6 +16,7 @@ $_max-content-width: 768px;
   display: flex;
   flex-direction: column;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .welcome {

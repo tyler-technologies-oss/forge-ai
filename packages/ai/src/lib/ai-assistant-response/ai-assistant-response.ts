@@ -89,7 +89,8 @@ export class AiAssistantResponseComponent extends LitElement {
   get #hasVisibleContent(): boolean {
     return this.response.children.some(child => {
       if (child.type === 'text') {
-        return child.content.trim().length > 0;
+        const content = typeof child.content === 'string' ? child.content : '';
+        return content.trim().length > 0;
       }
       if (this.debugMode) {
         return true;
@@ -113,10 +114,11 @@ export class AiAssistantResponseComponent extends LitElement {
   }
 
   #renderTextChunk(child: ResponseItem & { type: 'text' }): TemplateResult | typeof nothing {
-    if (!child.content.trim()) {
+    const content = typeof child.content === 'string' ? child.content : '';
+    if (!content.trim()) {
       return nothing;
     }
-    const renderedHtml = this.#markdownController.getCachedHtml(child.messageId, child.content);
+    const renderedHtml = this.#markdownController.getCachedHtml(child.messageId, content);
     return html`<div class="text-chunk">${unsafeHTML(renderedHtml)}</div>`;
   }
 
@@ -254,9 +256,13 @@ export class AiAssistantResponseComponent extends LitElement {
       return nothing;
     }
 
-    const hasTextContent = this.response.children.some(
-      child => child.type === 'text' && child.content.trim().length > 0
-    );
+    const hasTextContent = this.response.children.some(child => {
+      if (child.type !== 'text') {
+        return false;
+      }
+      const content = typeof child.content === 'string' ? child.content : '';
+      return content.trim().length > 0;
+    });
 
     if (!hasTextContent) {
       return nothing;

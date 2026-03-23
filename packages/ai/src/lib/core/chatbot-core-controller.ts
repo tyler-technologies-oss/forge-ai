@@ -358,7 +358,8 @@ export class ChatbotCoreController implements ReactiveController {
     timestamp?: number;
     attachments?: FileAttachment[];
   }): Promise<void> {
-    if (!config.content.trim() || !this.#adapter || this.isStreaming) {
+    const content = typeof config.content === 'string' ? config.content : '';
+    if (!content.trim() || !this.#adapter || this.isStreaming) {
       if (!this.#adapter) {
         console.warn('No adapter configured.');
       }
@@ -372,7 +373,7 @@ export class ChatbotCoreController implements ReactiveController {
     const userMessage: ChatMessage = {
       id: generateId(),
       role: 'user',
-      content: config.content,
+      content,
       timestamp: config.timestamp ?? Date.now(),
       status: 'pending'
     };

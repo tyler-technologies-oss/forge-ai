@@ -282,7 +282,13 @@ export class AiMessageThreadComponent extends LitElement {
 
     if (lastItem?.type === 'assistant') {
       const response = lastItem.data;
-      const hasTextContent = response.children.some(c => c.type === 'text' && c.content.trim().length > 0);
+      const hasTextContent = response.children.some(c => {
+        if (c.type !== 'text') {
+          return false;
+        }
+        const content = typeof c.content === 'string' ? c.content : '';
+        return content.trim().length > 0;
+      });
       if (hasTextContent) {
         return nothing;
       }
@@ -345,13 +351,14 @@ export class AiMessageThreadComponent extends LitElement {
       }
 
       const msg = item.data;
+      const content = typeof msg.content === 'string' ? msg.content : '';
       if (msg.role === 'user') {
-        const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
+        const renderedHtml = this.#markdownController.getCachedHtml(msg.id, content);
         return html`
           <forge-ai-user-message
             message-id=${msg.id}
             .timestamp=${msg.timestamp}
-            .content=${msg.content}
+            .content=${content}
             ?streaming=${this.showThinking}
             @forge-ai-user-message-copy=${(e: CustomEvent<{ messageId: string }>) =>
               this.#handleUserCopy(e.detail.messageId)}
@@ -363,9 +370,9 @@ export class AiMessageThreadComponent extends LitElement {
           </forge-ai-user-message>
         `;
       } else if (msg.role === 'system') {
-        return html`<div class="system-message">${msg.content}</div>`;
+        return html`<div class="system-message">${content}</div>`;
       } else if (msg.status === 'error') {
-        const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
+        const renderedHtml = this.#markdownController.getCachedHtml(msg.id, content);
         return html`
           <forge-ai-error-message>
             <span slot="title">Error</span>
@@ -373,8 +380,8 @@ export class AiMessageThreadComponent extends LitElement {
           </forge-ai-error-message>
         `;
       } else {
-        return when(msg.content?.trim().length, () => {
-          const renderedHtml = this.#markdownController.getCachedHtml(msg.id, msg.content);
+        return when(content.trim().length, () => {
+          const renderedHtml = this.#markdownController.getCachedHtml(msg.id, content);
           return html`<forge-ai-response-message>${unsafeHTML(renderedHtml)}</forge-ai-response-message>`;
         });
       }

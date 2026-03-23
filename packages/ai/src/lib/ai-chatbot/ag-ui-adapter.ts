@@ -439,7 +439,8 @@ export class AgUiAdapter extends AgentAdapter {
       .filter(msg => {
         // Filter out assistant messages with empty content and no tool calls
         if (msg.role === 'assistant') {
-          return msg.content.trim().length > 0 || (msg.toolCalls && msg.toolCalls.length > 0);
+          const content = typeof msg.content === 'string' ? msg.content : '';
+          return content.trim().length > 0 || (msg.toolCalls && msg.toolCalls.length > 0);
         }
         return true;
       })

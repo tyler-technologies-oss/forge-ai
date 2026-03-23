@@ -118,6 +118,7 @@ export interface ForgeAiPromptProps extends Pick<
  * Use this when sending messages externally (e.g., from suggestions).
  * - **setHistory(messages: _string[]_): _void_** - Replaces the entire message history with the provided messages.
  * Use this when restoring thread state from persistence.
+ * - **getHistory(): _string[]_** - Returns a copy of the current message history.
  * - **closeSlashMenu(): _void_** - Closes the slash command menu
  * - **focus(): _void_** - Focuses the textarea element
  *
