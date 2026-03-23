@@ -490,6 +490,8 @@ export abstract class AiChatbotBase extends LitElement {
     this._messageThreadRef.value?.scrollToBottom({ behavior });
   }
 
+  public abstract focus(): void;
+
   public getThreadState(): ThreadState {
     return {
       threadId: this._coreController.adapter?.threadId,

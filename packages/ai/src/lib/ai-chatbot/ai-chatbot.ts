@@ -172,6 +172,10 @@ export class AiChatbotComponent extends AiChatbotBase {
     await super.sendMessage(content, files);
   }
 
+  public override focus(): void {
+    this._promptRef.value?.focus();
+  }
+
   get #sessionFilesTemplate(): TemplateResult | typeof nothing {
     const content = this._sessionFilesTemplate;
     if (content === nothing) {

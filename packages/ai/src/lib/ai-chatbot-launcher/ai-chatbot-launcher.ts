@@ -1,5 +1,6 @@
 import { html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
 import type { AiChatHeaderComponent } from '../ai-chat-header';
@@ -81,6 +82,9 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   @state()
   private _viewState: LauncherViewState = 'welcome';
 
+  @state()
+  private _skipAnimation = false;
+
   protected override _messageThreadRef = createRef<AiMessageThreadComponent>();
   protected override _promptRef = createRef<AiPromptComponent>();
   #headerRef = createRef<AiChatHeaderComponent>();
@@ -131,6 +135,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     }
 
     this._viewState = 'welcome';
+    this._skipAnimation = false;
     this.#internals.states.delete('conversation');
     this.#internals.states.add('welcome');
   }
@@ -179,7 +184,10 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     await super.sendMessage(content, files);
   }
 
-  public override async setThreadState(threadState: ThreadState): Promise<void> {
+  public override async setThreadState(threadState: ThreadState, options?: { skipAnimation?: boolean }): Promise<void> {
+    if (options?.skipAnimation) {
+      this._skipAnimation = true;
+    }
     await super.setThreadState(threadState);
     if (threadState.messages.length > 0) {
       this.#transitionToConversation();
@@ -188,6 +196,10 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
   public get viewState(): LauncherViewState {
     return this._viewState;
+  }
+
+  public override focus(): void {
+    this._promptRef.value?.focus();
   }
 
   get #headingElement(): TemplateResult {
@@ -340,8 +352,12 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   }
 
   public override render(): TemplateResult {
+    const classes = {
+      launcher: true,
+      'skip-animation': this._skipAnimation
+    };
     return html`
-      <div class="launcher" role="region" aria-label="AI chatbot launcher" aria-busy=${this._isStreaming}>
+      <div class=${classMap(classes)} role="region" aria-label="AI chatbot launcher" aria-busy=${this._isStreaming}>
         ${this._viewState === 'welcome' ? this.#welcomeHeaderTemplate : this.#conversationContentTemplate}
         ${this.#promptSectionTemplate} ${this._viewState === 'welcome' ? this.#welcomeSuggestionsTemplate : nothing}
       </div>

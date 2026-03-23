@@ -207,3 +207,11 @@ $_max-content-width: 768px;
     max-inline-size: none;
   }
 }
+
+.launcher.skip-animation {
+  .welcome,
+  .conversation forge-ai-message-thread,
+  .prompt-section {
+    animation: none;
+  }
+}
