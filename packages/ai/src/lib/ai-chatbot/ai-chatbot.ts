@@ -29,6 +29,7 @@ declare global {
   interface HTMLElementEventMap {
     'forge-ai-chatbot-connected': CustomEvent<void>;
     'forge-ai-chatbot-disconnected': CustomEvent<void>;
+    'forge-ai-chatbot-run-started': CustomEvent<void>;
     'forge-ai-chatbot-message-sent': CustomEvent<ForgeAiChatbotMessageEventData>;
     'forge-ai-chatbot-message-received': CustomEvent<ForgeAiChatbotMessageEventData>;
     'forge-ai-chatbot-tool-call': CustomEvent<ForgeAiChatbotToolCallEventData>;
@@ -112,6 +113,7 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  *
  * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
  * @event {CustomEvent<void>} forge-ai-chatbot-disconnected - Fired when adapter disconnects
+ * @event {CustomEvent<void>} forge-ai-chatbot-run-started - Fired synchronously when a run starts, before the request is sent. Use this to set adapter context just-in-time.
  * @event {CustomEvent<ForgeAiChatbotMessageEventData>} forge-ai-chatbot-message-sent - Fired when user sends a message
  * @event {CustomEvent<ForgeAiChatbotMessageEventData>} forge-ai-chatbot-message-received - Fired when assistant message is complete
  * @event {CustomEvent<ForgeAiChatbotToolCallEventData>} forge-ai-chatbot-tool-call - Fired when a tool needs to be executed
