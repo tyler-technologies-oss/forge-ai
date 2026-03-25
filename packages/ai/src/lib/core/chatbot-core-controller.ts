@@ -133,6 +133,7 @@ export class ChatbotCoreController implements ReactiveController {
     this.#adapterSubscriptions?.unsubscribe();
     this.#adapterSubscriptions = new SubscriptionManager();
     this.#adapterSubscriptions.add(
+      this.#adapter.onRunStarted(this.#handleRunStarted.bind(this)),
       this.#adapter.onMessageStart(this.#handleMessageStart.bind(this)),
       this.#adapter.onMessageDelta(this.#handleMessageDelta.bind(this)),
       this.#adapter.onMessageEnd(this.#handleMessageEnd.bind(this)),
@@ -151,6 +152,10 @@ export class ChatbotCoreController implements ReactiveController {
     this.#messageStateController?.updateConfig({ tools: this.tools });
 
     this.#callbacks.onDispatchEvent('forge-ai-chatbot-connected');
+  }
+
+  #handleRunStarted(): void {
+    this.#callbacks.onDispatchEvent('forge-ai-chatbot-run-started');
   }
 
   #handleMessageStart(event: MessageStartEvent): void {
