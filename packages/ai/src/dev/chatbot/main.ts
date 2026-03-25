@@ -166,15 +166,19 @@ function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
     {
       url: `${baseUrl}/api/agents/${agentId}/stream`,
       context: {
-        pageUrl: window.location.href,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString(),
-        screenWidth: window.innerWidth,
-        screenHeight: window.innerHeight,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        language: navigator.language,
-        platform: navigator.platform,
-        colorScheme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        clientContext: {
+          pageUrl: window.location.href,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          viewport: {
+            width: window.innerWidth,
+            height: window.innerHeight
+          },
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          language: navigator.language,
+          platform: navigator.platform,
+          colorScheme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
       },
       tools
     },
@@ -185,10 +189,14 @@ function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
 
   newAdapter.onRunStarted(() => {
     newAdapter.setContext({
-      ...newAdapter.getContext(),
-      timestamp: new Date().toISOString(),
-      screenWidth: window.innerWidth,
-      screenHeight: window.innerHeight
+      clientContext: {
+        ...newAdapter.getContext()?.clientContext ?? {},
+        timestamp: new Date().toISOString(),
+        viewport: {
+          width: window.innerWidth,
+          height: window.innerHeight
+        }
+      }
     });
     addEventToStream('RUN_STARTED', { isRunning: true, context: newAdapter.getContext() });
   });
