@@ -89,6 +89,9 @@ export interface ForgeAiChatbotProps extends Pick<
     event: CustomEvent<CustomEvent<void>>,
   ) => void;
 
+  /** Fired synchronously when a run starts, before the request is sent. Use this to set adapter context just-in-time. */
+  onForgeAiChatbotRunStarted?: (event: CustomEvent<CustomEvent<void>>) => void;
+
   /** Fired when user sends a message */
   onForgeAiChatbotMessageSent?: (
     event: CustomEvent<CustomEvent<ForgeAiChatbotMessageEventData>>,
@@ -135,6 +138,7 @@ export interface ForgeAiChatbotProps extends Pick<
  * ### **Events:**
  *  - **forge-ai-chatbot-connected** - Fired when adapter connects
  * - **forge-ai-chatbot-disconnected** - Fired when adapter disconnects
+ * - **forge-ai-chatbot-run-started** - Fired synchronously when a run starts, before the request is sent. Use this to set adapter context just-in-time.
  * - **forge-ai-chatbot-message-sent** - Fired when user sends a message
  * - **forge-ai-chatbot-message-received** - Fired when assistant message is complete
  * - **forge-ai-chatbot-tool-call** - Fired when a tool needs to be executed

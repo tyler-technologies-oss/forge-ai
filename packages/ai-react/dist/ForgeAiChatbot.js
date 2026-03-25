@@ -35,6 +35,11 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
+    "forge-ai-chatbot-run-started",
+    props.onForgeAiChatbotRunStarted,
+  );
+  useEventListener(
+    ref,
     "forge-ai-chatbot-message-sent",
     props.onForgeAiChatbotMessageSent,
   );
