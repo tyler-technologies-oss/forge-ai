@@ -43,13 +43,18 @@
     border: 1px solid #{forge-theme.variable(outline)};
     border-radius: #{forge-shape.variable(medium)};
     margin-block: #{forge-spacing.variable(medium)} 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    margin: 0;
 
     code {
       display: block;
       padding: #{forge-spacing.variable(xsmall)} #{forge-spacing.variable(small)};
       color: #{forge-theme.variable(on-surface-container-minimum)};
       background: #{forge-theme.variable(surface-container-minimum)};
-      overflow-x: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      overflow-x: visible;
     }
   }
 
