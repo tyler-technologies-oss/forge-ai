@@ -1,4 +1,15 @@
-import { Catalog, type ComponentApi, CommonSchemas } from '@a2ui/web_core/v0_9';
+import { html, type TemplateResult } from 'lit';
+import { Catalog, type ComponentApi, CommonSchemas, type ComponentContext, type SurfaceModel } from '@a2ui/web_core/v0_9';
+
+import './components/index.js';
+
+/** Template factory function type for rendering A2UI components */
+export type TemplateFactory = (context: ComponentContext, surface: SurfaceModel<ComponentApi>) => TemplateResult;
+
+/** Extended ComponentApi with rendering template */
+export interface ForgeComponentApi extends ComponentApi {
+  template: TemplateFactory;
+}
 
 export const componentSchemas = {
   Text: {
@@ -137,22 +148,87 @@ export const componentSchemas = {
   }
 } as const;
 
-export const forgeComponents: ComponentApi[] = [
-  { name: 'Text', schema: CommonSchemas.DynamicString },
-  { name: 'Icon', schema: CommonSchemas.DynamicString },
-  { name: 'Stack', schema: CommonSchemas.ChildList },
-  { name: 'List', schema: CommonSchemas.ChildList },
-  { name: 'ListItem', schema: CommonSchemas.Action },
-  { name: 'Card', schema: CommonSchemas.ChildList },
-  { name: 'Button', schema: CommonSchemas.Action },
-  { name: 'IconButton', schema: CommonSchemas.Action },
-  { name: 'TextField', schema: CommonSchemas.DynamicString },
-  { name: 'CheckBox', schema: CommonSchemas.DynamicBoolean },
-  { name: 'Avatar', schema: CommonSchemas.DynamicString },
-  { name: 'Badge', schema: CommonSchemas.DynamicString },
-  { name: 'Divider', schema: CommonSchemas.DynamicString },
-  { name: 'InlineMessage', schema: CommonSchemas.DynamicString },
-  { name: 'Toolbar', schema: CommonSchemas.ChildList }
+export const forgeComponents: ForgeComponentApi[] = [
+  {
+    name: 'Text',
+    schema: CommonSchemas.DynamicString,
+    template: (ctx, surf) => html`<forge-a2ui-text .context=${ctx} .surface=${surf}></forge-a2ui-text>`
+  },
+  {
+    name: 'Icon',
+    schema: CommonSchemas.DynamicString,
+    template: (ctx, surf) => html`<forge-a2ui-icon .context=${ctx} .surface=${surf}></forge-a2ui-icon>`
+  },
+  {
+    name: 'Stack',
+    schema: CommonSchemas.ChildList,
+    template: (ctx, surf) => html`<forge-a2ui-stack .context=${ctx} .surface=${surf}></forge-a2ui-stack>`
+  },
+  {
+    name: 'List',
+    schema: CommonSchemas.ChildList,
+    template: (ctx, surf) => html`<forge-a2ui-list .context=${ctx} .surface=${surf}></forge-a2ui-list>`
+  },
+  {
+    name: 'ListItem',
+    schema: CommonSchemas.Action,
+    template: (ctx, surf) => html`<forge-a2ui-list-item .context=${ctx} .surface=${surf}></forge-a2ui-list-item>`
+  },
+  {
+    name: 'Card',
+    schema: CommonSchemas.ChildList,
+    template: (ctx, surf) => html`<forge-a2ui-card .context=${ctx} .surface=${surf}></forge-a2ui-card>`
+  },
+  {
+    name: 'Button',
+    schema: CommonSchemas.Action,
+    template: (ctx, surf) => html`<forge-a2ui-button .context=${ctx} .surface=${surf}></forge-a2ui-button>`
+  },
+  {
+    name: 'IconButton',
+    schema: CommonSchemas.Action,
+    template: (ctx, surf) => html`<forge-a2ui-icon-button .context=${ctx} .surface=${surf}></forge-a2ui-icon-button>`
+  },
+  {
+    name: 'TextField',
+    schema: CommonSchemas.DynamicString,
+    template: (ctx, surf) => html`<forge-a2ui-text-field .context=${ctx} .surface=${surf}></forge-a2ui-text-field>`
+  },
+  {
+    name: 'CheckBox',
+    schema: CommonSchemas.DynamicBoolean,
+    template: (ctx, surf) => html`<forge-a2ui-checkbox .context=${ctx} .surface=${surf}></forge-a2ui-checkbox>`
+  },
+  {
+    name: 'Avatar',
+    schema: CommonSchemas.DynamicString,
+    template: (ctx, surf) => html`<forge-a2ui-avatar .context=${ctx} .surface=${surf}></forge-a2ui-avatar>`
+  },
+  {
+    name: 'Badge',
+    schema: CommonSchemas.DynamicString,
+    template: (ctx, surf) => html`<forge-a2ui-badge .context=${ctx} .surface=${surf}></forge-a2ui-badge>`
+  },
+  {
+    name: 'Divider',
+    schema: CommonSchemas.DynamicString,
+    template: (ctx, surf) => html`<forge-a2ui-divider .context=${ctx} .surface=${surf}></forge-a2ui-divider>`
+  },
+  {
+    name: 'InlineMessage',
+    schema: CommonSchemas.DynamicString,
+    template: (ctx, surf) => html`<forge-a2ui-inline-message .context=${ctx} .surface=${surf}></forge-a2ui-inline-message>`
+  },
+  {
+    name: 'Toolbar',
+    schema: CommonSchemas.ChildList,
+    template: (ctx, surf) => html`<forge-a2ui-toolbar .context=${ctx} .surface=${surf}></forge-a2ui-toolbar>`
+  }
 ];
+
+/** Map for quick template lookup by component name */
+export const componentTemplates = new Map<string, TemplateFactory>(
+  forgeComponents.map(c => [c.name, c.template])
+);
 
 export const forgeCatalog = new Catalog('forge-ai-gen-ui-catalog', forgeComponents);
