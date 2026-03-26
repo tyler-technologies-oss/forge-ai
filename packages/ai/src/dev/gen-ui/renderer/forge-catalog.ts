@@ -145,6 +145,21 @@ export const componentSchemas = {
       inverted: { type: 'boolean', default: false },
       noDivider: { type: 'boolean', default: false }
     }
+  },
+  Table: {
+    component: 'Table',
+    properties: {
+      data: { type: 'array', items: 'object', required: true, description: 'Array of row data objects' },
+      columns: {
+        type: 'array',
+        items: 'object',
+        required: true,
+        description: 'Column definitions with header, property, sortable, align'
+      },
+      dense: { type: 'boolean', default: false },
+      select: { type: 'boolean', default: false },
+      rowClickAction: { type: 'object', properties: { type: 'string', payload: 'object' } }
+    }
   }
 } as const;
 
@@ -223,6 +238,11 @@ export const forgeComponents: ForgeComponentApi[] = [
     name: 'Toolbar',
     schema: CommonSchemas.ChildList,
     template: (ctx, surf) => html`<forge-a2ui-toolbar .context=${ctx} .surface=${surf}></forge-a2ui-toolbar>`
+  },
+  {
+    name: 'Table',
+    schema: CommonSchemas.DynamicString,
+    template: (ctx, surf) => html`<forge-a2ui-table .context=${ctx} .surface=${surf}></forge-a2ui-table>`
   }
 ];
 

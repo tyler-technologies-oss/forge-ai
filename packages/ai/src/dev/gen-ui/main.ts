@@ -229,11 +229,12 @@ chatbot.adapter = adapter;
 // and the component catalog (available Forge components it can render).
 chatbot.addEventListener('forge-ai-chatbot-run-started', () => {
   adapter.setContext({
-    ...adapter.getContext(),
-    uiState: JSON.stringify(uiState),
-    todos: JSON.stringify(todos),
-    catalogId: forgeCatalog.id,
-    componentCatalog: JSON.stringify(componentSchemas)
+    clientContext: {
+      uiState: JSON.stringify(uiState),
+      todos: JSON.stringify(todos),
+      catalogId: forgeCatalog.id,
+      componentCatalog: JSON.stringify(componentSchemas)
+    }
   });
 });
 

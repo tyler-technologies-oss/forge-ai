@@ -13,3 +13,4 @@ export * from './badge.js';
 export * from './divider.js';
 export * from './inline-message.js';
 export * from './toolbar.js';
+export * from './table.js';
