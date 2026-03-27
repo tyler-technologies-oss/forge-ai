@@ -3,6 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { toggleState } from '../utils';
 import '../ai-icon';
 import '../ai-gradient-container/ai-gradient-container';
+import { AiGradientContainerAttention } from '../ai-gradient-container';
 
 import styles from './ai-button.scss?inline';
 
@@ -27,6 +28,10 @@ export class AiButtonComponent extends LitElement {
   @property({ type: Boolean, reflect: true })
   public disabled = false;
 
+  /** Attention level for the gradient container */
+  @property({ type: String, attribute: 'attention' })
+  public attention: AiGradientContainerAttention = 'subtle';
+
   readonly #internals: ElementInternals;
 
   constructor() {
@@ -47,7 +52,7 @@ export class AiButtonComponent extends LitElement {
 
   public override render(): TemplateResult {
     return html`
-      <forge-ai-gradient-container variant=${this.disabled ? 'disabled' : 'high'}>
+      <forge-ai-gradient-container variant=${this.disabled ? 'disabled' : 'high'} attention=${this.attention}>
         <button class="forge-button forge-button--outlined ai-button" .disabled=${this.disabled} variant="outlined">
           <forge-ai-icon></forge-ai-icon>
           <slot></slot>
