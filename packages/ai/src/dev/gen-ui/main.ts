@@ -24,7 +24,7 @@ import {
 } from '@tylertech/forge';
 import { generateId, type AiChatbotComponent, type ToolDefinition, type HandlerContext } from '../../lib/ai-chatbot';
 import { MastraStreamAdapter } from '../shared/mastra-stream-adapter.js';
-import { loadAgentConfig } from './load-agent-config.js';
+import { loadAgentConfig } from '../shared/load-agent-config.js';
 import { ForgeA2uiSurface, componentSchemas, forgeCatalog } from './renderer/index.js';
 
 import '../../lib/ai-chatbot';

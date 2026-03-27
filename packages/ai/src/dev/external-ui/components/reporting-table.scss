@@ -1,0 +1,70 @@
+@use '@tylertech/forge/dist/table/forge-table';
+
+:host {
+  display: block;
+}
+
+forge-card {
+  position: relative;
+  --forge-card-padding: 0;
+  --forge-card-shape: 12px;
+}
+
+:host([loading]) {
+  forge-table {
+    pointer-events: none;
+  }
+
+  .loading-overlay {
+    opacity: 1;
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--forge-theme-primary) 12%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  transition: opacity 0.2s ease;
+  border-radius: var(--forge-card-shape, var(--forge-shape-medium));
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+forge-toolbar {
+  --forge-toolbar-padding: var(--forge-spacing-medium);
+  --forge-toolbar-background: transparent;
+}
+
+.description {
+  padding-inline: var(--forge-spacing-medium);
+  padding-block-end: var(--forge-spacing-medium);
+  margin-block-end: 0;
+  color: var(--forge-theme-text-medium);
+}
+
+forge-table {
+  --forge-table-dense-row-height: 40px;
+
+  tr:last-child {
+    td {
+      border-bottom: none;
+    }
+  }
+}
