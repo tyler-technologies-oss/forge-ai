@@ -45,7 +45,6 @@ export class ChatbotCoreController implements ReactiveController {
   #fileUploadManager!: FileUploadManager;
   #adapterSubscriptions?: SubscriptionManager;
   #adapter?: AgentAdapter;
-  #toolsMap?: Map<string, ToolDefinition>;
   #executingToolHandlers = 0;
 
   constructor(host: ReactiveControllerHost, config: ChatbotCoreControllerConfig) {
@@ -86,7 +85,6 @@ export class ChatbotCoreController implements ReactiveController {
 
   public set adapter(value: AgentAdapter | undefined) {
     this.#adapter = value;
-    this.#toolsMap = undefined;
     if (value) {
       this.#setupAdapter();
     }
@@ -109,10 +107,7 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   public get tools(): Map<string, ToolDefinition> {
-    if (!this.#toolsMap) {
-      this.#toolsMap = new Map(this.#adapter?.getTools().map(t => [t.name, t]) ?? []);
-    }
-    return this.#toolsMap;
+    return new Map(this.#adapter?.getTools().map(t => [t.name, t]) ?? []);
   }
 
   public get pendingAttachments(): FileAttachment[] {
@@ -148,7 +143,6 @@ export class ChatbotCoreController implements ReactiveController {
       this.#adapter.onStateChange(this.#handleStateChange.bind(this))
     );
 
-    this.#toolsMap = undefined;
     this.#messageStateController?.updateConfig({ tools: this.tools });
 
     this.#callbacks.onDispatchEvent('forge-ai-chatbot-connected');
