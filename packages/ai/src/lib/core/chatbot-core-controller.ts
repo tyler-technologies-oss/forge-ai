@@ -6,6 +6,9 @@ import {
   type MessageDeltaEvent,
   type MessageEndEvent,
   type MessageStartEvent,
+  type ThinkingDeltaAgentEvent,
+  type ThinkingEndAgentEvent,
+  type ThinkingStartAgentEvent,
   type ToolCallArgsEvent,
   type ToolCallEndEvent,
   type ToolCallEvent,
@@ -145,7 +148,10 @@ export class ChatbotCoreController implements ReactiveController {
       this.#adapter.onRunFinished(this.#handleRunFinished.bind(this)),
       this.#adapter.onRunAborted(this.#handleRunAborted.bind(this)),
       this.#adapter.onError(this.#handleError.bind(this)),
-      this.#adapter.onStateChange(this.#handleStateChange.bind(this))
+      this.#adapter.onStateChange(this.#handleStateChange.bind(this)),
+      this.#adapter.onThinkingStart(this.#handleThinkingStart.bind(this)),
+      this.#adapter.onThinkingDelta(this.#handleThinkingDelta.bind(this)),
+      this.#adapter.onThinkingEnd(this.#handleThinkingEnd.bind(this))
     );
 
     this.#toolsMap = undefined;
@@ -342,6 +348,19 @@ export class ChatbotCoreController implements ReactiveController {
 
   #handleStateChange(_state: AdapterState): void {
     this.#callbacks.onRequestUpdate();
+  }
+
+  #handleThinkingStart(event: ThinkingStartAgentEvent): void {
+    this.#messageStateController.addThinkingToResponse(event.id, event);
+  }
+
+  #handleThinkingDelta(event: ThinkingDeltaAgentEvent): void {
+    this.#messageStateController.appendThinkingStep(event.id, event.step, event);
+    this.#callbacks.onScrollToBottom();
+  }
+
+  #handleThinkingEnd(event: ThinkingEndAgentEvent): void {
+    this.#messageStateController.markThinkingComplete(event.id, event);
   }
 
   #handleToolCallResult(event: ToolResultEvent): void {

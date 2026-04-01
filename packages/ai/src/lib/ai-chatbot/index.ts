@@ -34,7 +34,10 @@ export {
   type StateSnapshotAgentEvent,
   type StateDeltaAgentEvent,
   type ActivitySnapshotAgentEvent,
-  type ActivityDeltaAgentEvent
+  type ActivityDeltaAgentEvent,
+  type ThinkingStartAgentEvent,
+  type ThinkingDeltaAgentEvent,
+  type ThinkingEndAgentEvent
 } from './agent-adapter.js';
 
 // Chatbot types
@@ -53,7 +56,9 @@ export type {
   FileRemoveCallbacks,
   ThreadState,
   FeedbackType,
-  ResponseFeedback
+  ResponseFeedback,
+  ThinkingStep,
+  ThinkingBlock
 } from './types.js';
 
 // AG-UI adapter

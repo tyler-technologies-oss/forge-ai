@@ -7,7 +7,9 @@ import type {
   StreamEvent,
   AssistantResponse,
   ResponseItem,
-  ResponseFeedback
+  ResponseFeedback,
+  ThinkingBlock,
+  ThinkingStep
 } from './types.js';
 import type {
   MessageStartEvent,
@@ -16,7 +18,10 @@ import type {
   ToolCallStartEvent,
   ToolCallArgsEvent,
   ToolCallEndEvent,
-  ToolResultEvent
+  ToolResultEvent,
+  ThinkingStartAgentEvent,
+  ThinkingDeltaAgentEvent,
+  ThinkingEndAgentEvent
 } from './agent-adapter.js';
 import { generateId } from './utils.js';
 
@@ -257,6 +262,88 @@ export class MessageStateController implements ReactiveController {
       this.#appendEventToResponse(streamEvent);
       this.#appendEventToToolCallInResponse(toolCallId, streamEvent);
     }
+  }
+
+  public addThinkingToResponse(id: string, event?: ThinkingStartAgentEvent): void {
+    const response = this._activeResponse ?? this.startResponse();
+
+    const thinkingBlock: ThinkingBlock = {
+      id,
+      steps: [],
+      status: 'streaming',
+      startTimestamp: Date.now()
+    };
+
+    response.children.push({ type: 'thinking', data: thinkingBlock });
+
+    if (event) {
+      this.#appendEventToResponse({
+        type: 'thinking-start',
+        timestamp: Date.now(),
+        data: { id: event.id },
+        rawEvent: event.rawEvent
+      });
+    }
+
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
+  }
+
+  public appendThinkingStep(id: string, step: ThinkingStep, event?: ThinkingDeltaAgentEvent): void {
+    if (!this._activeResponse) {
+      return;
+    }
+
+    for (const child of this._activeResponse.children) {
+      if (child.type === 'thinking' && child.data.id === id) {
+        child.data = {
+          ...child.data,
+          steps: [...child.data.steps, step]
+        };
+        break;
+      }
+    }
+
+    if (event) {
+      this.#appendEventToResponse({
+        type: 'thinking-delta',
+        timestamp: Date.now(),
+        data: { id: event.id, step: event.step },
+        rawEvent: event.rawEvent
+      });
+    }
+
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
+  }
+
+  public markThinkingComplete(id: string, event?: ThinkingEndAgentEvent): void {
+    if (!this._activeResponse) {
+      return;
+    }
+
+    for (const child of this._activeResponse.children) {
+      if (child.type === 'thinking' && child.data.id === id) {
+        child.data = {
+          ...child.data,
+          status: 'complete',
+          endTimestamp: Date.now()
+        };
+        break;
+      }
+    }
+
+    if (event) {
+      this.#appendEventToResponse({
+        type: 'thinking-end',
+        timestamp: Date.now(),
+        data: { id: event.id },
+        rawEvent: event.rawEvent
+      });
+    }
+
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
   }
 
   public tryFinalizeResponse(): void {

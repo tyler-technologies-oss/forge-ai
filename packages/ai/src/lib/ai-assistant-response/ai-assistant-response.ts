@@ -2,7 +2,15 @@ import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import type { AssistantResponse, StreamEvent, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
+import type {
+  AssistantResponse,
+  StreamEvent,
+  ThinkingBlock,
+  ThinkingStep,
+  ToolCall,
+  ToolDefinition,
+  ResponseItem
+} from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-response-message-toolbar';
 
@@ -12,6 +20,11 @@ import '../ai-tool-call-indicator';
 import '../ai-event-stream-viewer';
 import '../core/popover/popover.js';
 import '../core/tooltip/tooltip.js';
+import '../ai-reasoning-header';
+import '../ai-chain-of-thought/ai-chain-of-thought.js';
+import '../ai-chain-of-thought/thought-detail/thought-detail.js';
+import '../ai-chain-of-thought/thought-search-result/thought-search-result.js';
+import '../ai-chain-of-thought/thought-image/thought-image.js';
 
 import styles from './ai-assistant-response.scss?inline';
 
@@ -92,6 +105,9 @@ export class AiAssistantResponseComponent extends LitElement {
         const content = typeof child.content === 'string' ? child.content : '';
         return content.trim().length > 0;
       }
+      if (child.type === 'thinking') {
+        return true;
+      }
       if (this.debugMode) {
         return true;
       }
@@ -111,6 +127,64 @@ export class AiAssistantResponseComponent extends LitElement {
     } else {
       this.#internals.states.delete('empty');
     }
+  }
+
+  // todo review with Dan, do we want to show elapsed time for thinking steps? It could be interesting but also might add visual noise.
+  #formatThinkingElapsed(block: ThinkingBlock): string {
+    if (!block.startTimestamp) {
+      return '';
+    }
+    const endTime = block.endTimestamp ?? Date.now();
+    const ms = endTime - block.startTimestamp;
+    if (ms < 1000) {
+      return `${ms}ms`;
+    }
+    return `${Math.round(ms / 1000)}s`;
+  }
+
+  #renderThinkingStep(step: ThinkingStep, index: number): TemplateResult {
+    switch (step.type) {
+      case 'search-result':
+        return html`
+          <forge-ai-thought-search-result .step=${index + 1} .sources=${step.sources ?? []}>
+            <span slot="title">${step.title ?? ''}</span>
+            ${step.content ?? ''}
+          </forge-ai-thought-search-result>
+        `;
+      case 'image':
+        return html`
+          <forge-ai-thought-image .step=${index + 1}>
+            <span slot="title">${step.title ?? ''}</span>
+            ${step.imageUrl ? html`<img slot="image" src=${step.imageUrl} alt=${step.title ?? ''} />` : nothing}
+          </forge-ai-thought-image>
+        `;
+      default:
+        return html`
+          <forge-ai-thought-detail>
+            <span slot="title">${step.title ?? ''}</span>
+            ${step.content ?? ''}
+          </forge-ai-thought-detail>
+        `;
+    }
+  }
+
+  #renderThinking(block: ThinkingBlock): TemplateResult {
+    const isStreaming = block.status === 'streaming';
+
+    // Expanded while streaming so users can watch thought steps arrive in real-time.
+    // Collapses on thinking end to keep the thread clean once the response text appears.
+    const expanded = isStreaming;
+
+    return html`
+      <forge-ai-chain-of-thought .expanded=${expanded}>
+        <forge-ai-reasoning-header slot="heading" .expanded=${expanded} .reasoning=${isStreaming}>
+          <!-- gah do we want to this? TODO review with Dan if we want the thinking with time vs more of a title -->
+          <span slot="reasoning-title">Thinking...</span>
+          <span slot="title">Thought for ${this.#formatThinkingElapsed(block)}</span>
+        </forge-ai-reasoning-header>
+        ${block.steps.map((step, i) => this.#renderThinkingStep(step, i))}
+      </forge-ai-chain-of-thought>
+    `;
   }
 
   #renderTextChunk(child: ResponseItem & { type: 'text' }): TemplateResult | typeof nothing {
@@ -137,29 +211,38 @@ export class AiAssistantResponseComponent extends LitElement {
       ?debug-mode=${this.debugMode}></forge-ai-chatbot-tool-call>`;
   }
 
+  get #hasThinkingBlocks(): boolean {
+    return this.response.children.some(child => child.type === 'thinking');
+  }
+
   get #children(): (TemplateResult | typeof nothing)[] {
     const results: (TemplateResult | typeof nothing)[] = [];
     let agentToolBuffer: ToolCall[] = [];
+    const hasThinking = this.#hasThinkingBlocks;
 
     const flushAgentIndicator = (reason: 'content' | 'end'): void => {
       if (agentToolBuffer.length > 0) {
-        const executingCount = agentToolBuffer.filter(tc => tc.status !== 'complete' && tc.status !== 'error').length;
-        const isComplete = executingCount === 0 && (reason === 'content' || this.response.status === 'complete');
+        // chain of thought already indicates thinking so we don't need to repeat one here
+        // -- note this is a bit of a different thinking icon but I think it works, can review with Dan
+        if (!hasThinking) {
+          const executingCount = agentToolBuffer.filter(tc => tc.status !== 'complete' && tc.status !== 'error').length;
+          const isComplete = executingCount === 0 && (reason === 'content' || this.response.status === 'complete');
 
-        let elapsedMs: number | undefined;
-        if (isComplete) {
-          const startTime = Math.min(...agentToolBuffer.map(tc => tc.startTimestamp ?? 0).filter(t => t > 0));
-          const endTime = Math.max(...agentToolBuffer.map(tc => tc.endTimestamp ?? 0).filter(t => t > 0));
-          if (startTime > 0 && endTime > 0) {
-            elapsedMs = endTime - startTime;
+          let elapsedMs: number | undefined;
+          if (isComplete) {
+            const startTime = Math.min(...agentToolBuffer.map(tc => tc.startTimestamp ?? 0).filter(t => t > 0));
+            const endTime = Math.max(...agentToolBuffer.map(tc => tc.endTimestamp ?? 0).filter(t => t > 0));
+            if (startTime > 0 && endTime > 0) {
+              elapsedMs = endTime - startTime;
+            }
           }
-        }
 
-        results.push(
-          html`<forge-ai-tool-call-indicator
-            ?complete=${isComplete}
-            .elapsedMs=${elapsedMs}></forge-ai-tool-call-indicator>`
-        );
+          results.push(
+            html`<forge-ai-tool-call-indicator
+              ?complete=${isComplete}
+              .elapsedMs=${elapsedMs}></forge-ai-tool-call-indicator>`
+          );
+        }
         agentToolBuffer = [];
       }
     };
@@ -168,6 +251,9 @@ export class AiAssistantResponseComponent extends LitElement {
       if (child.type === 'text') {
         flushAgentIndicator('content');
         results.push(this.#renderTextChunk(child));
+      } else if (child.type === 'thinking') {
+        flushAgentIndicator('content');
+        results.push(this.#renderThinking(child.data));
       } else {
         const toolCall = child.data;
         const isAgentTool = toolCall.type === 'agent';

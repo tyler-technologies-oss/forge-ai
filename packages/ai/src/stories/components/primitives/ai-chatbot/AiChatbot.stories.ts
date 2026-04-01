@@ -6,10 +6,17 @@ import '$lib/ai-chatbot';
 import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
 import '$lib/ai-voice-input';
-import { type ToolDefinition, type Suggestion, type ChatMessage, type ToolCall } from '$lib/ai-chatbot';
+import {
+  type ToolDefinition,
+  type Suggestion,
+  type ChatMessage,
+  type ToolCall,
+  type ThinkingStep
+} from '$lib/ai-chatbot';
 import { displayDataTableTool } from '$lib/tools';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { smallAgentList, largeAgentList } from '../../../utils/mock-agents';
+import { generateId } from '$lib/ai-chatbot/utils.js';
 
 const component = 'forge-ai-chatbot';
 
@@ -1071,6 +1078,132 @@ export const WithDataTableTool: Story = {
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
           @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+class StreamOfThoughtAdapter extends MockAdapter {
+  #streamDelay = 50;
+  #initialDelay = 500;
+  #stepDelay = 1500;
+
+  constructor() {
+    super({ simulateStreaming: true, simulateTools: false });
+  }
+
+  override sendMessage(_messages: ChatMessage[]): void {
+    this._updateState({ isRunning: true });
+    this._emitRunStarted();
+
+    const messageId = generateId();
+    const thinkingId = generateId();
+
+    const steps: ThinkingStep[] = [
+      {
+        type: 'detail',
+        title: 'Understanding the question',
+        content: 'Breaking down the user request to identify key topics and required information.'
+      },
+      {
+        type: 'search-result',
+        title: 'Searching knowledge base',
+        content: 'Found 3 relevant articles about the topic.',
+        sources: [
+          { title: 'Getting Started Guide', href: 'https://example.com/guide' },
+          { title: 'API Reference', href: 'https://example.com/api' },
+          { title: 'Best Practices', href: 'https://example.com/best-practices' }
+        ]
+      },
+      {
+        type: 'detail',
+        title: 'Analyzing search results',
+        content: 'Cross-referencing findings to build a comprehensive answer with accurate details.'
+      },
+      {
+        type: 'detail',
+        title: 'Formulating response',
+        content: 'Combining research into a clear, structured answer tailored to the question.'
+      }
+    ];
+
+    setTimeout(() => {
+      this._emitThinkingStart(thinkingId);
+
+      steps.forEach((step, index) => {
+        setTimeout(
+          () => {
+            this._emitThinkingDelta(thinkingId, step);
+
+            if (index === steps.length - 1) {
+              setTimeout(() => {
+                this._emitThinkingEnd(thinkingId);
+
+                this._emitMessageStart(messageId);
+                this.#streamText(
+                  messageId,
+                  "Based on my research, here's what I found:\n\n" +
+                    'The topic you asked about has several important aspects. ' +
+                    'First, the documentation recommends starting with the basics and building up complexity gradually. ' +
+                    'Second, there are well-established best practices that can help you avoid common pitfalls.\n\n' +
+                    "I'd recommend checking out the Getting Started Guide for a hands-on introduction, " +
+                    'then referring to the API Reference for specific implementation details.',
+                  () => {
+                    this._emitMessageEnd(messageId);
+                    this._updateState({ isRunning: false });
+                    this._emitRunFinished();
+                  }
+                );
+              }, this.#stepDelay);
+            }
+          },
+          this.#stepDelay * (index + 1)
+        );
+      });
+    }, this.#initialDelay);
+  }
+
+  override sendToolResult(): void {}
+
+  #streamText(messageId: string, text: string, onComplete: () => void): void {
+    const words = text.split(' ');
+    let i = 0;
+    const stream = (): void => {
+      if (i < words.length) {
+        this._emitMessageDelta(messageId, (i === 0 ? '' : ' ') + words[i]);
+        i++;
+        setTimeout(stream, this.#streamDelay);
+      } else {
+        onComplete();
+      }
+    };
+    stream();
+  }
+}
+
+export const WithStreamOfThought: Story = {
+  render: (args: any) => {
+    const adapter = new StreamOfThoughtAdapter();
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Stream of Thought Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Send any message to see the AI's reasoning process rendered as a chain of thought. Thought steps appear
+            sequentially during streaming, then collapse into an expandable section.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="Stream of Thought"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}>
+          <span slot="empty-state-heading">Stream of Thought Demo</span>
+          <span slot="empty-state-message">Send a message to see the AI think through its response.</span>
         </forge-ai-chatbot>
       </div>
     `;

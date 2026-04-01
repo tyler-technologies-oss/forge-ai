@@ -118,6 +118,35 @@ export interface ToolResultEvent {
   message: ChatMessage;
 }
 
+export interface ThinkingStep {
+  type: 'detail' | 'search-result' | 'image';
+  title?: string;
+  content?: string;
+  sources?: Array<{ title: string; href: string }>;
+  imageUrl?: string;
+}
+
+export interface ThinkingBlock {
+  id: string;
+  steps: ThinkingStep[];
+  status: 'streaming' | 'complete';
+  startTimestamp?: number;
+  endTimestamp?: number;
+}
+
+export interface ThinkingStartEvent {
+  id: string;
+}
+
+export interface ThinkingDeltaEvent {
+  id: string;
+  step: ThinkingStep;
+}
+
+export interface ThinkingEndEvent {
+  id: string;
+}
+
 export type StreamEvent =
   | { type: 'message-start'; timestamp: number; data: MessageStartEvent; rawEvent?: unknown }
   | { type: 'message-delta'; timestamp: number; data: MessageDeltaEvent; rawEvent?: unknown }
@@ -125,7 +154,10 @@ export type StreamEvent =
   | { type: 'tool-call-start'; timestamp: number; data: ToolCallStartEvent; rawEvent?: unknown }
   | { type: 'tool-call-args'; timestamp: number; data: ToolCallArgsEvent; rawEvent?: unknown }
   | { type: 'tool-call-end'; timestamp: number; data: ToolCallEndEvent; rawEvent?: unknown }
-  | { type: 'tool-result'; timestamp: number; data: ToolResultEvent; rawEvent?: unknown };
+  | { type: 'tool-result'; timestamp: number; data: ToolResultEvent; rawEvent?: unknown }
+  | { type: 'thinking-start'; timestamp: number; data: ThinkingStartEvent; rawEvent?: unknown }
+  | { type: 'thinking-delta'; timestamp: number; data: ThinkingDeltaEvent; rawEvent?: unknown }
+  | { type: 'thinking-end'; timestamp: number; data: ThinkingEndEvent; rawEvent?: unknown };
 
 export interface ChatMessage {
   id: string;
@@ -157,7 +189,8 @@ export interface ToolCall<TArgs = Record<string, unknown>> {
 
 export type ResponseItem =
   | { type: 'text'; messageId: string; content: string; status: 'streaming' | 'complete' }
-  | { type: 'toolCall'; data: ToolCall };
+  | { type: 'toolCall'; data: ToolCall }
+  | { type: 'thinking'; data: ThinkingBlock };
 
 export type FeedbackType = 'positive' | 'negative';
 

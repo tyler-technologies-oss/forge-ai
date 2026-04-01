@@ -100,6 +100,10 @@ export class AiMessageThreadComponent extends LitElement {
   @query('.message-thread')
   private _messageThreadContainer!: HTMLElement;
 
+  readonly #thinkingIndicatorTemplate = html`<div class="thinking-indicator">
+    <forge-ai-thinking-indicator class="status-indicator" show-text></forge-ai-thinking-indicator>
+  </div>`;
+
   #markdownController!: MarkdownStreamController;
   #canAutoScroll = true;
   #resizeObserver?: ResizeObserver;
@@ -280,6 +284,15 @@ export class AiMessageThreadComponent extends LitElement {
 
     const lastItem = this.messageItems[this.messageItems.length - 1];
 
+    // Always show indicator while a thinking block is actively streaming
+    if (
+      lastItem?.type === 'assistant' &&
+      lastItem.data.children.some(c => c.type === 'thinking' && c.data.status === 'streaming')
+    ) {
+      return this.#thinkingIndicatorTemplate;
+    }
+
+    // Suppression checks — hide indicator when other content is already visible
     if (lastItem?.type === 'assistant') {
       const response = lastItem.data;
       const hasTextContent = response.children.some(c => {
@@ -318,9 +331,7 @@ export class AiMessageThreadComponent extends LitElement {
       return nothing;
     }
 
-    return html`<div class="thinking-indicator">
-      <forge-ai-thinking-indicator class="status-indicator" show-text></forge-ai-thinking-indicator>
-    </div>`;
+    return this.#thinkingIndicatorTemplate;
   }
 
   get #messages(): (TemplateResult | typeof nothing)[] {

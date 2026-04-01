@@ -1,4 +1,4 @@
-import type { ChatMessage, FileUploadCallbacks, ToolDefinition } from './types.js';
+import type { ChatMessage, FileUploadCallbacks, ThinkingStep, ToolDefinition } from './types.js';
 import { EventEmitter, type Subscription } from './event-emitter.js';
 
 export interface MessageStartEvent {
@@ -87,6 +87,22 @@ export interface RawAgentEvent {
   rawEvent?: unknown;
 }
 
+export interface ThinkingStartAgentEvent {
+  id: string;
+  rawEvent?: unknown;
+}
+
+export interface ThinkingDeltaAgentEvent {
+  id: string;
+  step: ThinkingStep;
+  rawEvent?: unknown;
+}
+
+export interface ThinkingEndAgentEvent {
+  id: string;
+  rawEvent?: unknown;
+}
+
 export interface RunStartedAgentEvent {
   threadId: string;
   runId: string;
@@ -153,7 +169,10 @@ export abstract class AgentAdapter {
     stateSnapshot: new EventEmitter<StateSnapshotAgentEvent>(),
     stateDelta: new EventEmitter<StateDeltaAgentEvent>(),
     activitySnapshot: new EventEmitter<ActivitySnapshotAgentEvent>(),
-    activityDelta: new EventEmitter<ActivityDeltaAgentEvent>()
+    activityDelta: new EventEmitter<ActivityDeltaAgentEvent>(),
+    thinkingStart: new EventEmitter<ThinkingStartAgentEvent>(),
+    thinkingDelta: new EventEmitter<ThinkingDeltaAgentEvent>(),
+    thinkingEnd: new EventEmitter<ThinkingEndAgentEvent>()
   };
 
   public abstract connect(): Promise<void>;
@@ -287,6 +306,18 @@ export abstract class AgentAdapter {
     return this._events.activityDelta.subscribe(callback);
   }
 
+  public onThinkingStart(callback: (event: ThinkingStartAgentEvent) => void): Subscription {
+    return this._events.thinkingStart.subscribe(callback);
+  }
+
+  public onThinkingDelta(callback: (event: ThinkingDeltaAgentEvent) => void): Subscription {
+    return this._events.thinkingDelta.subscribe(callback);
+  }
+
+  public onThinkingEnd(callback: (event: ThinkingEndAgentEvent) => void): Subscription {
+    return this._events.thinkingEnd.subscribe(callback);
+  }
+
   protected _emitRunStarted(): void {
     this._events.runStarted.emit();
   }
@@ -382,6 +413,18 @@ export abstract class AgentAdapter {
 
   protected _emitActivityDelta(delta: unknown, activityMessage?: unknown, rawEvent?: unknown): void {
     this._events.activityDelta.emit({ delta, activityMessage, rawEvent });
+  }
+
+  protected _emitThinkingStart(id: string, rawEvent?: unknown): void {
+    this._events.thinkingStart.emit({ id, rawEvent });
+  }
+
+  protected _emitThinkingDelta(id: string, step: ThinkingStep, rawEvent?: unknown): void {
+    this._events.thinkingDelta.emit({ id, step, rawEvent });
+  }
+
+  protected _emitThinkingEnd(id: string, rawEvent?: unknown): void {
+    this._events.thinkingEnd.emit({ id, rawEvent });
   }
 
   protected _updateState(updates: Partial<AdapterState>): void {

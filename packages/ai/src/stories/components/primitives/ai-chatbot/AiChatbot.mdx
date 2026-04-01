@@ -20,6 +20,7 @@ The AI Chatbot component provides a complete, self-contained chat interface that
 - **Client Context**: Inject application context into conversations
 - **Event-Driven**: Comprehensive event system for integration
 - **User Reactions**: Optional thumbs up/down feedback buttons
+- **Stream of Thought**: Real-time chain-of-thought reasoning visualization
 
 ## Basic Usage
 
@@ -122,12 +123,87 @@ const adapter = new CustomAdapter();
 
 ### Protected Methods for Subclasses
 
-- `emitMessageStart(messageId: string)`: Signal start of new message
-- `emitMessageDelta(messageId: string, delta: string)`: Stream content chunk
-- `emitMessageEnd(messageId: string)`: Signal message complete
-- `emitToolCall(event: ToolCallEvent)`: Request tool execution
-- `emitError(message: string)`: Signal error occurred
-- `updateState(updates: Partial<AdapterState>)`: Update connection/running state
+- `_emitMessageStart(messageId: string)`: Signal start of new message
+- `_emitMessageDelta(messageId: string, delta: string)`: Stream content chunk
+- `_emitMessageEnd(messageId: string)`: Signal message complete
+- `_emitToolCall(event: ToolCallEvent)`: Request tool execution
+- `_emitThinkingStart(id: string)`: Signal start of a thinking block
+- `_emitThinkingDelta(id: string, step: ThinkingStep)`: Add a discrete thought step
+- `_emitThinkingEnd(id: string)`: Signal thinking complete
+- `_emitError(message: string)`: Signal error occurred
+- `_updateState(updates: Partial<AdapterState>)`: Update connection/running state
+
+## Stream of Thought
+
+The chatbot supports rendering the AI's reasoning process as an expandable chain of thought. When your adapter emits thinking events, discrete thought steps appear in real-time during streaming, then collapse into a "Thought for Xs" section once complete.
+
+<Canvas of={AiChatbotStories.WithStreamOfThought} />
+
+### Thinking Step Types
+
+Each thinking step has a `type` that determines how it renders:
+
+| Type            | Description              | Properties                     |
+| --------------- | ------------------------ | ------------------------------ |
+| `detail`        | General reasoning step   | `title`, `content`             |
+| `search-result` | Search with source links | `title`, `content`, `sources`  |
+| `image`         | Image analysis step      | `title`, `content`, `imageUrl` |
+
+### Emitting Thinking Events
+
+In your custom adapter, use the thinking emit methods to stream thought steps:
+
+```typescript
+import { AgentAdapter, type ThinkingStep } from '@tylertech/forge-ai';
+
+class MyAdapter extends AgentAdapter {
+  public sendMessage(messages: ChatMessage[]): void {
+    this._updateState({ isRunning: true });
+    this._emitRunStarted();
+
+    const thinkingId = 'thinking-' + Date.now();
+
+    // Start a thinking block
+    this._emitThinkingStart(thinkingId);
+
+    // Add thought steps as the AI reasons
+    this._emitThinkingDelta(thinkingId, {
+      type: 'detail',
+      title: 'Analyzing the question',
+      content: 'Breaking down the request into sub-tasks...'
+    });
+
+    this._emitThinkingDelta(thinkingId, {
+      type: 'search-result',
+      title: 'Found relevant documentation',
+      content: 'Located 3 matching articles.',
+      sources: [
+        { title: 'API Reference', href: 'https://example.com/api' },
+        { title: 'Getting Started', href: 'https://example.com/guide' }
+      ]
+    });
+
+    // End the thinking block
+    this._emitThinkingEnd(thinkingId);
+
+    // Then stream the response text as normal
+    const messageId = 'msg-' + Date.now();
+    this._emitMessageStart(messageId);
+    this._emitMessageDelta(messageId, 'Based on my research...');
+    this._emitMessageEnd(messageId);
+
+    this._updateState({ isRunning: false });
+    this._emitRunFinished();
+  }
+}
+```
+
+### Behavior
+
+- During streaming, the chain of thought is **expanded** and shows "Thinking..." in the header
+- Once `_emitThinkingEnd` is called, it **collapses** and displays "Thought for Xs"
+- Users can click the header to expand/collapse the thought steps at any time
+- If no thinking events are emitted, the chatbot falls back to the default "Thinking..." indicator
 
 ## Keyboard Shortcuts
 
