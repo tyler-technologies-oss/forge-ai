@@ -1,9 +1,15 @@
-import { createSpecStreamCompiler, type Spec, type SpecStreamCompiler } from '@json-render/core';
+import {
+  createSpecStreamCompiler,
+  autoFixSpec,
+  validateSpec,
+  formatSpecIssues,
+  type Spec,
+  type SpecStreamCompiler
+} from '@json-render/core';
 import type { ToolDefinition } from '../../../../lib/ai-chatbot/index.js';
 import type { Registry } from '../registry.js';
 import { ForgeSpecRenderer } from '../renderer.js';
 import { createRenderUiTool } from './render-ui.js';
-import { createPatchUiTool } from './patch-ui.js';
 import type { SpecRendererState } from './types.js';
 
 export interface SpecRendererControllerConfig {
@@ -60,6 +66,32 @@ function normalizeJsonl(input: string): string {
   return objects.join('\n') + '\n';
 }
 
+export function processPatches(
+  specCompiler: SpecStreamCompiler<Spec>,
+  patches: string,
+  toolName: string,
+  reset = false
+): Spec {
+  if (reset) {
+    specCompiler.reset({ elements: {}, state: {} });
+  }
+
+  const normalized = normalizeJsonl(patches);
+  const { result } = specCompiler.push(normalized);
+
+  const { spec: fixedSpec, fixes } = autoFixSpec(result);
+  if (fixes.length) {
+    console.log(`[${toolName}] Auto-fixed:`, fixes);
+  }
+
+  const validation = validateSpec(fixedSpec);
+  if (!validation.valid) {
+    console.warn(`[${toolName}] Spec issues:`, formatSpecIssues(validation.issues));
+  }
+
+  return fixedSpec as Spec;
+}
+
 export class SpecRendererController {
   readonly tools: ToolDefinition[];
 
@@ -86,10 +118,10 @@ export class SpecRendererController {
       getState: this.getState.bind(this),
       setState: this.setState.bind(this),
       catalogDescription,
-      normalizeJsonl
+      processPatches
     };
 
-    this.tools = [createRenderUiTool(deps), createPatchUiTool(deps)];
+    this.tools = [createRenderUiTool(deps)];
   }
 
   attach(container: HTMLElement): void {

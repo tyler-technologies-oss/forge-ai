@@ -11,5 +11,10 @@ export interface ToolDependencies {
   getState: () => SpecRendererState;
   setState: (state: SpecRendererState) => void;
   catalogDescription: string;
-  normalizeJsonl: (input: string) => string;
+  processPatches: (
+    specCompiler: SpecStreamCompiler<Spec>,
+    patches: string,
+    toolName: string,
+    reset?: boolean
+  ) => Spec;
 }
