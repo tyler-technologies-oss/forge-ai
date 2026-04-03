@@ -75,6 +75,7 @@
   },
   "devDependencies": {
     "@a2ui/web_core": "^0.8.0",
+    "@json-render/core": "^0.16.0",
     "@custom-elements-manifest/analyzer": "catalog:",
     "@esm-bundle/chai": "catalog:",
     "@open-wc/testing": "catalog:",
@@ -123,6 +124,7 @@
     "typescript": "~5.9.3",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vite-tsconfig-paths": "catalog:"
+    "vite-tsconfig-paths": "catalog:",
+    "zod": "^4.0.0"
   }
 }
