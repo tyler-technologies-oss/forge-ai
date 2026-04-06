@@ -17,6 +17,11 @@ export interface SpecRendererControllerConfig {
   componentSchemas: Record<string, { description?: string }>;
 }
 
+/**
+ * Extracts complete JSON objects from potentially malformed JSONL input.
+ * Handles streaming chunks where JSON may be split across multiple lines
+ * or contain incomplete objects. Uses bracket matching to find valid JSON boundaries.
+ */
 function normalizeJsonl(input: string): string {
   const objects: string[] = [];
   let i = 0;
@@ -66,12 +71,22 @@ function normalizeJsonl(input: string): string {
   return objects.join('\n') + '\n';
 }
 
+export interface ProcessPatchesConfig {
+  toolName: string;
+  reset?: boolean;
+}
+
+/**
+ * Processes JSONL patch input through the spec compiler.
+ * Normalizes input, applies patches, auto-fixes structural issues, and validates the result.
+ */
 export function processPatches(
   specCompiler: SpecStreamCompiler<Spec>,
   patches: string,
-  toolName: string,
-  reset = false
+  config: ProcessPatchesConfig
 ): Spec {
+  const { toolName, reset = false } = config;
+
   if (reset) {
     specCompiler.reset({ elements: {}, state: {} });
   }
@@ -124,30 +139,31 @@ export class SpecRendererController {
     this.tools = [createRenderUiTool(deps)];
   }
 
-  attach(container: HTMLElement): void {
+  public attach(container: HTMLElement): void {
     this.#container = container;
   }
 
-  detach(): void {
+  public detach(): void {
     this.#renderer?.remove();
     this.#renderer = null;
     this.#container = null;
   }
 
-  reset(): void {
+  public reset(): void {
     this.#specCompiler.reset({ elements: {}, state: {} });
     this.#state = { spec: null, lastRenderedAt: null };
     this.#renderer?.remove();
     this.#renderer = null;
   }
 
-  getState(): SpecRendererState {
+  public getState(): SpecRendererState {
     return { ...this.#state };
   }
 
-  setState(state: SpecRendererState): void {
+  public setState(state: SpecRendererState): void {
     this.#state = { ...state };
     if (state.spec) {
+      this.#specCompiler.reset(state.spec);
       this.#renderSpec(state.spec);
     }
   }

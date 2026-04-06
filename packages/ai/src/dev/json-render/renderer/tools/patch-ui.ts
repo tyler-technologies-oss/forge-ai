@@ -1,9 +1,8 @@
-import type { ToolDefinition, HandlerContext } from '../../../../lib/ai-chatbot/index.js';
+import type { ToolDefinition } from '../../../../lib/ai-chatbot/index.js';
 import type { ToolDependencies } from './types.js';
+import { createToolHandler } from './utils.js';
 
 export function createPatchUiTool(deps: ToolDependencies): ToolDefinition {
-  const { specCompiler, renderSpec, setState, processPatches } = deps;
-
   return {
     name: 'patch_ui',
     description: `Modifies existing UI by applying JSON Patch operations. Use ONLY after render_ui has been called.
@@ -22,27 +21,6 @@ Do NOT use for initial UI creation - use render_ui instead.`,
       },
       required: ['patches']
     },
-    handler: async (context: HandlerContext) => {
-      const patches = context.args.patches as string;
-      console.log('[patch_ui] Received patches:', patches);
-
-      try {
-        const spec = processPatches(specCompiler, patches, 'patch_ui', false);
-
-        setState({ spec, lastRenderedAt: new Date().toISOString() });
-        renderSpec(spec);
-        console.log('[patch_ui] Applied patches:', spec);
-
-        return {
-          success: true,
-          currentElements: Object.keys(spec.elements || {}),
-          message: 'Patches applied. UI updated.'
-        };
-      } catch (e) {
-        const error = e instanceof Error ? e : new Error(String(e));
-        console.error('Spec stream error:', error);
-        return { success: false, error: error.message };
-      }
-    }
+    handler: createToolHandler(deps, { toolName: 'patch_ui', reset: false })
   };
 }

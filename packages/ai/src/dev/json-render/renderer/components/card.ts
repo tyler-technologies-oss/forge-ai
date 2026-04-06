@@ -7,11 +7,7 @@ interface CardProps {
 }
 
 export function Card(ctx: ComponentContext<CardProps>): TemplateResult | typeof nothing {
-  const { raised = true } = ctx.props;
+  const { raised = false } = ctx.props;
 
-  return html`
-    <forge-card ?raised=${raised}>
-      ${ctx.children ?? nothing}
-    </forge-card>
-  `;
+  return html`<forge-card ?raised=${raised}>${ctx.children}</forge-card>`;
 }

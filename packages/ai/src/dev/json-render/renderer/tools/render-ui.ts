@@ -1,9 +1,8 @@
-import type { ToolDefinition, HandlerContext } from '../../../../lib/ai-chatbot/index.js';
+import type { ToolDefinition } from '../../../../lib/ai-chatbot/index.js';
 import type { ToolDependencies } from './types.js';
+import { createToolHandler } from './utils.js';
 
 export function createRenderUiTool(deps: ToolDependencies): ToolDefinition {
-  const { specCompiler, renderSpec, setState, catalogDescription, processPatches } = deps;
-
   return {
     name: 'render_ui',
     description: `COMPLETELY REPLACES the UI with a new spec. Previous UI is discarded.
@@ -19,7 +18,7 @@ Example:
 {"op":"add","path":"/elements/text","value":{"type":"Text","props":{"text":"Hello"}}}
 
 Available components:
-${catalogDescription}
+${deps.catalogDescription}
 
 For data binding: { "$state": "/path" }
 For actions: "action": "actionName"`,
@@ -34,27 +33,6 @@ For actions: "action": "actionName"`,
       },
       required: ['patches']
     },
-    handler: async (context: HandlerContext) => {
-      const patches = context.args.patches as string;
-      console.log('[render_ui] Received patches:', patches);
-
-      try {
-        const spec = processPatches(specCompiler, patches, 'render_ui', true);
-
-        setState({ spec, lastRenderedAt: new Date().toISOString() });
-        renderSpec(spec);
-        console.log('[render_ui] Applied spec:', spec);
-
-        return {
-          success: true,
-          renderedElements: Object.keys(spec.elements || {}),
-          message: 'UI rendered successfully. Do not call render_ui again unless user requests changes.'
-        };
-      } catch (e) {
-        const error = e instanceof Error ? e : new Error(String(e));
-        console.error('Spec stream error:', error);
-        return { success: false, error: error.message };
-      }
-    }
+    handler: createToolHandler(deps, { toolName: 'render_ui', reset: true })
   };
 }

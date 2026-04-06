@@ -18,21 +18,21 @@ import { Toolbar } from './toolbar.js';
 import { Icon } from './icon.js';
 
 export const forgeComponents: Record<string, TemplateFactory> = {
-  Text: Text as TemplateFactory,
-  Button: Button as TemplateFactory,
-  IconButton: IconButton as TemplateFactory,
-  Stack: Stack as TemplateFactory,
-  Card: Card as TemplateFactory,
-  List: List as TemplateFactory,
-  ListItem: ListItem as TemplateFactory,
-  TextField: TextField as TemplateFactory,
-  CheckBox: CheckBox as TemplateFactory,
-  Badge: Badge as TemplateFactory,
-  Divider: Divider as TemplateFactory,
-  InlineMessage: InlineMessage as TemplateFactory,
-  Avatar: Avatar as TemplateFactory,
-  Toolbar: Toolbar as TemplateFactory,
-  Icon: Icon as TemplateFactory
+  Text,
+  Button,
+  IconButton,
+  Stack,
+  Card,
+  List,
+  ListItem,
+  TextField,
+  CheckBox,
+  Badge,
+  Divider,
+  InlineMessage,
+  Avatar,
+  Toolbar,
+  Icon
 };
 
 export const forgeRegistry = createRegistry(forgeComponents);

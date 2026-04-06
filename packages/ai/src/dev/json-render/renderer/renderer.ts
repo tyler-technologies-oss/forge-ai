@@ -45,9 +45,14 @@ export class ForgeSpecRenderer extends LitElement {
   protected override willUpdate(changedProperties: PropertyValues<this>): void {
     if (changedProperties.has('spec') && this.spec?.state) {
       this._state = { ...this.spec.state };
+      this.#stateManager = this.#createStateManager();
+    } else if (!this.#stateManager) {
+      this.#stateManager = this.#createStateManager();
     }
+  }
 
-    this.#stateManager = createStateManager(this._state, () => {
+  #createStateManager(): StateManager {
+    return createStateManager(this._state, () => {
       this._state = { ...this._state };
       this.requestUpdate();
     });

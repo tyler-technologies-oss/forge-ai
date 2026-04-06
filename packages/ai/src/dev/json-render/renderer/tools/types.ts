@@ -1,4 +1,5 @@
 import type { Spec, SpecStreamCompiler } from '@json-render/core';
+import type { ProcessPatchesConfig } from './controller.js';
 
 export interface SpecRendererState {
   spec: Spec | null;
@@ -14,7 +15,6 @@ export interface ToolDependencies {
   processPatches: (
     specCompiler: SpecStreamCompiler<Spec>,
     patches: string,
-    toolName: string,
-    reset?: boolean
+    config: ProcessPatchesConfig
   ) => Spec;
 }
