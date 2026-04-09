@@ -1,0 +1,46 @@
+{
+  "name": "@tylertech/forge-genui-core",
+  "version": "0.0.1",
+  "description": "Core utilities and types for Tyler Forge GenUI - framework-agnostic generative UI rendering.",
+  "license": "Apache-2.0",
+  "author": "Tyler Technologies, Inc.",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": {
+      "default": "./package.json"
+    }
+  },
+  "files": [
+    "./dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tyler-technologies-oss/forge-ai.git"
+  },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "vite build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@json-render/core": "^0.16.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@repo/prettier-config": "workspace:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "~5.9.3",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
+  }
+}

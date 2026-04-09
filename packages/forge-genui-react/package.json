@@ -1,0 +1,64 @@
+{
+  "name": "@tylertech/forge-genui-react",
+  "version": "0.0.1",
+  "description": "React renderer and components for Tyler Forge GenUI.",
+  "license": "Apache-2.0",
+  "author": "Tyler Technologies, Inc.",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": {
+      "default": "./package.json"
+    }
+  },
+  "files": [
+    "./dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tyler-technologies-oss/forge-ai.git"
+  },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "vite build",
+    "dev": "vite --config vite.dev.config.mts",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@tylertech/forge-genui-core": "workspace:^"
+  },
+  "peerDependencies": {
+    "@tylertech/forge": "^3.0.0",
+    "@tylertech/forge-react": "^3.0.0",
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@repo/prettier-config": "workspace:",
+    "@tylertech/forge": "catalog:",
+    "@tylertech/forge-ai": "workspace:^",
+    "@tylertech/forge-ai-react": "workspace:^",
+    "@tylertech/forge-react": "^3.3.0",
+    "@tylertech/tyler-icons": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "baseline-browser-mapping": "^2.10.16",
+    "eslint": "catalog:",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "rimraf": "catalog:",
+    "sass": "catalog:",
+    "typescript": "~5.9.3",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "zod": "^4.3.6"
+  }
+}

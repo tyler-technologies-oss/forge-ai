@@ -9,6 +9,11 @@
   box-sizing: border-box;
 }
 
+#root {
+  height: 100%;
+  width: 100%;
+}
+
 forge-drawer {
   --forge-drawer-width: 420px;
 }
@@ -25,7 +30,7 @@ forge-ai-chatbot {
   min-height: 100%;
   padding: var(--forge-spacing-medium);
 
-  forge-genui-renderer {
+  .forge-genui-renderer {
     width: 100%;
     position: relative;
   }
@@ -51,4 +56,43 @@ forge-ai-chatbot {
   }
 
   width: 100%;
+}
+
+.reporting-table {
+  forge-card {
+    position: relative;
+  }
+
+  .description {
+    padding-inline: var(--forge-spacing-medium);
+    margin-block-start: 0;
+    color: var(--forge-theme-text-medium);
+  }
+
+  .loading-overlay {
+    display: none;
+  }
+
+  &--loading {
+    forge-card {
+      pointer-events: none;
+    }
+
+    .loading-overlay {
+      display: block;
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+      animation: shimmer 1.5s infinite;
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }

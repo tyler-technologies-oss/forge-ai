@@ -76,6 +76,8 @@
   "devDependencies": {
     "@a2ui/web_core": "^0.8.0",
     "@json-render/core": "^0.16.0",
+    "@tylertech/forge-genui-core": "workspace:^",
+    "@tylertech/forge-genui-lit": "workspace:^",
     "@custom-elements-manifest/analyzer": "catalog:",
     "@esm-bundle/chai": "catalog:",
     "@open-wc/testing": "catalog:",

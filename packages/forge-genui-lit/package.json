@@ -1,0 +1,52 @@
+{
+  "name": "@tylertech/forge-genui-lit",
+  "version": "0.0.1",
+  "description": "Lit-based renderer and Forge components for Tyler Forge GenUI.",
+  "license": "Apache-2.0",
+  "author": "Tyler Technologies, Inc.",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": {
+      "default": "./package.json"
+    }
+  },
+  "files": [
+    "./dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tyler-technologies-oss/forge-ai.git"
+  },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "vite build",
+    "lint": "eslint . && lit-analyzer",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@tylertech/forge-genui-core": "workspace:^",
+    "lit": "catalog:"
+  },
+  "peerDependencies": {
+    "@tylertech/forge": "^3.0.0"
+  },
+  "devDependencies": {
+    "@repo/prettier-config": "workspace:",
+    "@tylertech/forge": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "lit-analyzer": "catalog:",
+    "rimraf": "catalog:",
+    "sass": "catalog:",
+    "typescript": "~5.9.3",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
+  }
+}

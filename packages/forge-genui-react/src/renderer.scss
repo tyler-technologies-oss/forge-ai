@@ -1,0 +1,35 @@
+.forge-genui-renderer {
+  display: block;
+  position: relative;
+}
+
+.forge-genui-renderer__loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--forge-theme-primary) 12%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: forge-genui-shimmer 1.5s ease-in-out infinite;
+  transition: opacity 0.2s ease;
+  border-radius: var(--forge-shape-medium);
+}
+
+.forge-genui-renderer--loading .forge-genui-renderer__loading-overlay {
+  opacity: 1;
+}
+
+@keyframes forge-genui-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
