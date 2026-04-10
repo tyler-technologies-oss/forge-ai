@@ -10,7 +10,11 @@ import {
   TransactionList,
   AlertBanner,
   StatRow,
-  DataTable
+  DataTable,
+  ComparisonCard,
+  RankingList,
+  CategoryBreakdown,
+  InsightCard
 } from './components';
 
 export const registry = createRegistry<ReactNode, ReactNode>({
@@ -22,6 +26,10 @@ export const registry = createRegistry<ReactNode, ReactNode>({
     TransactionList,
     AlertBanner,
     StatRow,
-    DataTable
+    DataTable,
+    ComparisonCard,
+    RankingList,
+    CategoryBreakdown,
+    InsightCard
   } satisfies Record<ComponentNames, ComponentFactory<ReactNode, ReactNode>>
 });

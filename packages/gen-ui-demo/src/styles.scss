@@ -303,3 +303,236 @@ forge-ai-chatbot {
     color: var(--forge-theme-text-medium);
   }
 }
+
+// Comparison card
+.genui-comparison-card {
+  padding: var(--forge-spacing-medium);
+
+  &__title {
+    display: block;
+    margin-block-end: var(--forge-spacing-medium);
+    color: var(--forge-theme-text-medium);
+  }
+
+  &__values {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--forge-spacing-medium);
+  }
+
+  &__side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+  }
+
+  &__label {
+    color: var(--forge-theme-text-medium);
+    margin-block-end: var(--forge-spacing-xxsmall);
+  }
+
+  &__arrow {
+    color: var(--forge-theme-text-dim);
+    --forge-icon-font-size: 20px;
+  }
+
+  &__change {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--forge-spacing-xxsmall);
+    margin-block-start: var(--forge-spacing-medium);
+    padding: var(--forge-spacing-small);
+    border-radius: var(--forge-shape-small);
+    background: var(--forge-theme-surface-container-low);
+    --forge-icon-font-size: 18px;
+
+    &--positive {
+      color: var(--forge-theme-success);
+      background: color-mix(in srgb, var(--forge-theme-success) 10%, transparent);
+    }
+
+    &--negative {
+      color: var(--forge-theme-danger);
+      background: color-mix(in srgb, var(--forge-theme-danger) 10%, transparent);
+    }
+  }
+}
+
+// Ranking list
+.genui-ranking-list {
+  &__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: ranking;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--forge-spacing-medium);
+    padding: var(--forge-spacing-small) var(--forge-spacing-medium);
+    border-block-end: 1px solid var(--forge-theme-outline-dim);
+
+    &:last-child {
+      border-block-end: none;
+    }
+  }
+
+  &__rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--forge-theme-surface-container-low);
+    font-weight: 600;
+    font-size: 14px;
+
+    &--gold {
+      background: #ffd700;
+      color: #000;
+    }
+
+    &--silver {
+      background: #c0c0c0;
+      color: #000;
+    }
+
+    &--bronze {
+      background: #cd7f32;
+      color: #fff;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__subtitle {
+    color: var(--forge-theme-text-medium);
+  }
+
+  &__value {
+    white-space: nowrap;
+  }
+}
+
+// Category breakdown
+.genui-category-breakdown {
+  &__bar {
+    display: flex;
+    height: 24px;
+    border-radius: var(--forge-shape-small);
+    overflow: hidden;
+    margin: var(--forge-spacing-medium);
+  }
+
+  &__segment {
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &__legend {
+    list-style: none;
+    margin: 0;
+    padding: var(--forge-spacing-small) var(--forge-spacing-medium);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--forge-spacing-small) var(--forge-spacing-large);
+  }
+
+  &__legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--forge-spacing-small);
+  }
+
+  &__legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  &__legend-label {
+    flex: 1;
+  }
+
+  &__legend-value {
+    color: var(--forge-theme-text-medium);
+  }
+}
+
+// Insight card
+.genui-insight-card {
+  &__content {
+    display: flex;
+    gap: var(--forge-spacing-medium);
+    padding: var(--forge-spacing-medium);
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--forge-theme-surface-container-low);
+    color: var(--forge-theme-primary);
+    flex-shrink: 0;
+    --forge-icon-font-size: 20px;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--forge-spacing-xxsmall);
+  }
+
+  &__title {
+    color: var(--forge-theme-text-medium);
+  }
+
+  &__insight {
+    margin: 0;
+  }
+
+  &--positive {
+    --forge-card-outline-color: var(--forge-theme-success);
+
+    .genui-insight-card__icon {
+      background: color-mix(in srgb, var(--forge-theme-success) 15%, transparent);
+      color: var(--forge-theme-success);
+    }
+  }
+
+  &--negative {
+    --forge-card-outline-color: var(--forge-theme-danger);
+
+    .genui-insight-card__icon {
+      background: color-mix(in srgb, var(--forge-theme-danger) 15%, transparent);
+      color: var(--forge-theme-danger);
+    }
+  }
+
+  &--warning {
+    --forge-card-outline-color: var(--forge-theme-warning);
+
+    .genui-insight-card__icon {
+      background: color-mix(in srgb, var(--forge-theme-warning) 15%, transparent);
+      color: var(--forge-theme-warning);
+    }
+  }
+}

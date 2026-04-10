@@ -6,3 +6,7 @@ export { TransactionList, TransactionListSchema } from './transaction-list';
 export { AlertBanner, AlertBannerSchema } from './alert-banner';
 export { StatRow, StatRowSchema } from './stat-row';
 export { DataTable, DataTableSchema } from './data-table';
+export { ComparisonCard, ComparisonCardSchema } from './comparison-card';
+export { RankingList, RankingListSchema } from './ranking-list';
+export { CategoryBreakdown, CategoryBreakdownSchema } from './category-breakdown';
+export { InsightCard, InsightCardSchema } from './insight-card';

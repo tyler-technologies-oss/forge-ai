@@ -8,7 +8,11 @@ import {
   TransactionListSchema,
   AlertBannerSchema,
   StatRowSchema,
-  DataTableSchema
+  DataTableSchema,
+  ComparisonCardSchema,
+  RankingListSchema,
+  CategoryBreakdownSchema,
+  InsightCardSchema
 } from './components';
 
 const componentDefs = {
@@ -44,6 +48,22 @@ const componentDefs = {
   DataTable: {
     description: 'Data table with pagination for detailed tabular views',
     props: DataTableSchema
+  },
+  ComparisonCard: {
+    description: 'Side-by-side comparison of two values with change indicator. Great for period-over-period comparisons.',
+    props: ComparisonCardSchema
+  },
+  RankingList: {
+    description: 'Ordered list with rank indicators. Use for top/bottom rankings like "Top Spenders" or "Largest Budgets".',
+    props: RankingListSchema
+  },
+  CategoryBreakdown: {
+    description: 'Horizontal stacked bar chart showing distribution across categories with legend.',
+    props: CategoryBreakdownSchema
+  },
+  InsightCard: {
+    description: 'Highlighted insight or analysis callout with icon and sentiment styling.',
+    props: InsightCardSchema
   }
 } satisfies Record<string, ComponentDefinition>;
 
