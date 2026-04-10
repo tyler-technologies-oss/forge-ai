@@ -1,0 +1,37 @@
+{
+  "name": "@repo/gen-ui-demo",
+  "version": "0.0.1",
+  "private": true,
+  "description": "GenUI demo application",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@json-render/core": "^0.16.0",
+    "@tylertech/forge": "catalog:",
+    "zod": "^4.0.0",
+    "@tylertech/forge-ai": "workspace:^",
+    "@tylertech/forge-ai-react": "workspace:^",
+    "@tylertech/forge-react": "^3.3.0",
+    "@tylertech/tyler-icons": "catalog:",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@repo/prettier-config": "workspace:",
+    "@types/node": "catalog:",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "sass": "catalog:",
+    "typescript": "~5.9.3",
+    "vite": "catalog:"
+  }
+}
