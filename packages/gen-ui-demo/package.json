@@ -14,13 +14,14 @@
   "dependencies": {
     "@json-render/core": "^0.16.0",
     "@tylertech/forge": "catalog:",
-    "zod": "^4.0.0",
     "@tylertech/forge-ai": "workspace:^",
     "@tylertech/forge-ai-react": "workspace:^",
     "@tylertech/forge-react": "^3.3.0",
     "@tylertech/tyler-icons": "catalog:",
+    "idb": "^8.0.3",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@repo/prettier-config": "workspace:",

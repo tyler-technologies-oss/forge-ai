@@ -25,14 +25,3 @@ export async function loadAgentConfig(baseUrl: string, agentId: string): Promise
   }
 }
 
-export function getSavedThreadId(storageKey: string): string | null {
-  const saved = localStorage.getItem(storageKey);
-  if (saved) {
-    try {
-      return JSON.parse(saved).threadId || null;
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}

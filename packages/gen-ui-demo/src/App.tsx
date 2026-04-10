@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 
 declare module 'react' {
   interface HTMLAttributes<T> {
-    inert?: boolean;
+    inert?: string;
   }
 }
 import type { FC } from 'react';
@@ -10,7 +10,8 @@ import { ForgeScaffold, ForgeAppBar, ForgeDrawer, ForgeIcon, ForgePageState, For
 import { ForgeAiChatbot, type ForgeAiChatbotElement } from '@tylertech/forge-ai-react';
 import { generateId } from '@tylertech/forge-ai';
 import { MastraStreamAdapter } from './mastra-stream-adapter';
-import { loadAgentConfig, getSavedThreadId, type AgentConfig } from './utils';
+import { loadAgentConfig, type AgentConfig } from './utils';
+import { saveThreadState, loadThreadState, clearThreadState, getThreadId } from './storage';
 import { useGenUI } from './lib';
 import { catalog } from './catalog';
 import { registry } from './registry';
@@ -64,46 +65,51 @@ const App: FC = () => {
   }, []);
 
   useEffect(() => {
-    const threadId = getSavedThreadId(STORAGE_KEY) || generateId();
-    const adapter = new MastraStreamAdapter(
-      { url: `${BASE_URL}/api/agents/${AGENT_ID}/stream`, tools },
-      threadId
-    );
+    let cancelled = false;
 
-    const stopLoading = (): void => setLoading(false);
-    adapter.onRunFinished(stopLoading);
-    adapter.onRunAborted(stopLoading);
-    adapter.onError(stopLoading);
+    async function init(): Promise<void> {
+      const savedThreadId = await getThreadId(STORAGE_KEY);
+      const threadId = savedThreadId || generateId();
 
-    adapterRef.current = adapter;
+      if (cancelled) return;
 
-    if (chatbotRef.current) {
-      chatbotRef.current.adapter = adapter;
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          const { uiSpec, ...threadState } = JSON.parse(saved);
-          chatbotRef.current.setThreadState(threadState);
-          if (uiSpec) {
-            setSpec(uiSpec);
+      const adapter = new MastraStreamAdapter(
+        { url: `${BASE_URL}/api/agents/${AGENT_ID}/stream`, tools },
+        threadId
+      );
+
+      const stopLoading = (): void => setLoading(false);
+      adapter.onRunFinished(stopLoading);
+      adapter.onRunAborted(stopLoading);
+      adapter.onError(stopLoading);
+
+      adapterRef.current = adapter;
+
+      if (chatbotRef.current) {
+        chatbotRef.current.adapter = adapter;
+        const saved = await loadThreadState(STORAGE_KEY);
+        if (saved && !cancelled) {
+          chatbotRef.current.setThreadState({
+            threadId: saved.threadId,
+            messages: saved.messages
+          });
+          if (saved.uiSpec) {
+            setSpec(saved.uiSpec as Parameters<typeof setSpec>[0]);
           }
-        } catch (e) {
-          console.warn('Failed to load saved thread state.', { error: e });
         }
       }
     }
+
+    init();
+    return () => { cancelled = true; };
   }, [tools, setSpec, setLoading]);
 
   const handleThreadStateChange = useCallback((): void => {
-    try {
-      const threadState = chatbotRef.current?.getThreadState();
-      if (threadState?.messages?.length) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...threadState, uiSpec: spec }));
-      } else {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    } catch (e) {
-      console.warn('Failed to save thread state.', { error: e });
+    const threadState = chatbotRef.current?.getThreadState();
+    if (threadState?.messages?.length) {
+      saveThreadState(STORAGE_KEY, threadState, spec);
+    } else {
+      clearThreadState(STORAGE_KEY);
     }
   }, [spec]);
 
@@ -119,7 +125,7 @@ const App: FC = () => {
   }, [spec, setLoading]);
 
   const handleClear = useCallback((): void => {
-    localStorage.removeItem(STORAGE_KEY);
+    clearThreadState(STORAGE_KEY);
     reset();
   }, [reset]);
 
@@ -151,7 +157,7 @@ const App: FC = () => {
 
       <main slot="body" id="content">
         {spec ? (
-          <div className={`genui-renderer ${loading ? 'loading' : ''}`} inert={loading || undefined}>
+          <div className={`genui-renderer ${loading ? 'loading' : ''}`} inert={loading ? '' : undefined}>
             <Renderer />
           </div>
         ) : (
