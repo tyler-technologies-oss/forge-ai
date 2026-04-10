@@ -35,6 +35,7 @@ export interface ActionDefinition {
 export interface ComponentSchema {
   component: string;
   description: string;
+  props?: unknown;
   slots?: string[];
 }
 

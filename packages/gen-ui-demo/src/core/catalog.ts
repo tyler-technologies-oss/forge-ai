@@ -33,6 +33,7 @@ export function createCatalog(config: CreateCatalogConfig): Catalog {
         result[name] = {
           component: name,
           description: def.description ?? '',
+          props: def.props,
           slots: def.slots
         };
       }
