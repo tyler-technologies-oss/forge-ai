@@ -12,7 +12,8 @@ import {
   ComparisonCardSchema,
   RankingListSchema,
   CategoryBreakdownSchema,
-  InsightCardSchema
+  InsightCardSchema,
+  ButtonSchema
 } from './components';
 
 const componentDefs = {
@@ -64,6 +65,10 @@ const componentDefs = {
   InsightCard: {
     description: 'Highlighted insight or analysis callout with icon and sentiment styling.',
     props: InsightCardSchema
+  },
+  Button: {
+    description: 'Interactive button that triggers an action when clicked.',
+    props: ButtonSchema
   }
 } satisfies Record<string, ComponentDefinition>;
 

@@ -15,6 +15,7 @@ import { saveThreadState, loadThreadState, clearThreadState, getThreadId } from 
 import { useGenUI } from './lib';
 import { catalog } from './catalog';
 import { registry } from './registry';
+import type { ActionEvent } from './core';
 
 export const BASE_URL = 'https://foundry.tylertechai.com';
 export const AGENT_ID = '28186a3b-1ee1-4c5c-bb79-ba5e836dcb37';
@@ -30,15 +31,45 @@ const FINANCIAL_DATA = {
   ],
   transactions: [
     { date: '2024-03-15', description: 'Cloud hosting (AWS)', amount: 12500, department: 'IT', category: 'Software' },
-    { date: '2024-03-14', description: 'Q1 Marketing campaign', amount: 45000, department: 'Marketing', category: 'Advertising' },
-    { date: '2024-03-13', description: 'Office supplies', amount: 2800, department: 'Facilities', category: 'Supplies' },
-    { date: '2024-03-12', description: 'Legal consulting', amount: 8500, department: 'Legal', category: 'Professional Services' },
+    {
+      date: '2024-03-14',
+      description: 'Q1 Marketing campaign',
+      amount: 45000,
+      department: 'Marketing',
+      category: 'Advertising'
+    },
+    {
+      date: '2024-03-13',
+      description: 'Office supplies',
+      amount: 2800,
+      department: 'Facilities',
+      category: 'Supplies'
+    },
+    {
+      date: '2024-03-12',
+      description: 'Legal consulting',
+      amount: 8500,
+      department: 'Legal',
+      category: 'Professional Services'
+    },
     { date: '2024-03-11', description: 'Software licenses', amount: 15000, department: 'IT', category: 'Software' },
     { date: '2024-03-10', description: 'Recruitment ads', amount: 3200, department: 'HR', category: 'Advertising' },
-    { date: '2024-03-08', description: 'Building maintenance', amount: 6500, department: 'Facilities', category: 'Maintenance' },
+    {
+      date: '2024-03-08',
+      description: 'Building maintenance',
+      amount: 6500,
+      department: 'Facilities',
+      category: 'Maintenance'
+    },
     { date: '2024-03-07', description: 'Trade show booth', amount: 22000, department: 'Marketing', category: 'Events' },
     { date: '2024-03-05', description: 'Employee training', amount: 4800, department: 'HR', category: 'Training' },
-    { date: '2024-03-03', description: 'Security audit', amount: 9500, department: 'IT', category: 'Professional Services' }
+    {
+      date: '2024-03-03',
+      description: 'Security audit',
+      amount: 9500,
+      department: 'IT',
+      category: 'Professional Services'
+    }
   ],
   summary: {
     totalBudget: 505000,
@@ -55,9 +86,14 @@ const App: FC = () => {
   const adapterRef = useRef<MastraStreamAdapter | null>(null);
   const [agentConfig, setAgentConfig] = useState<AgentConfig | null>(null);
 
+  const handleAction = useCallback((event: ActionEvent): void => {
+    console.log('[GenUI] Action:', event);
+  }, []);
+
   const { tools, Renderer, spec, setSpec, loading, setLoading, reset } = useGenUI({
     catalog,
-    registry
+    registry,
+    onAction: handleAction
   });
 
   useEffect(() => {
@@ -73,10 +109,7 @@ const App: FC = () => {
 
       if (cancelled) return;
 
-      const adapter = new MastraStreamAdapter(
-        { url: `${BASE_URL}/api/agents/${AGENT_ID}/stream`, tools },
-        threadId
-      );
+      const adapter = new MastraStreamAdapter({ url: `${BASE_URL}/api/agents/${AGENT_ID}/stream`, tools }, threadId);
 
       const stopLoading = (): void => setLoading(false);
       adapter.onRunFinished(stopLoading);
@@ -101,7 +134,9 @@ const App: FC = () => {
     }
 
     init();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [tools, setSpec, setLoading]);
 
   const handleThreadStateChange = useCallback((): void => {

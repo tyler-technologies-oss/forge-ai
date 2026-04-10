@@ -10,3 +10,4 @@ export { ComparisonCard, ComparisonCardSchema } from './comparison-card';
 export { RankingList, RankingListSchema } from './ranking-list';
 export { CategoryBreakdown, CategoryBreakdownSchema } from './category-breakdown';
 export { InsightCard, InsightCardSchema } from './insight-card';
+export { Button, ButtonSchema } from './button';

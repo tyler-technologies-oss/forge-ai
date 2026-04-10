@@ -12,16 +12,25 @@ interface MetricCardProps {
   trend?: 'up' | 'down' | 'neutral';
   trendValue?: string;
   variant?: 'default' | 'success' | 'warning' | 'danger';
+  action?: string;
 }
 
 export function MetricCard(ctx: ComponentContext<MetricCardProps>): ReactElement {
-  const { title = '', value = 0, subtitle, icon, trend, trendValue, variant = 'default' } = ctx.props;
+  const { title = '', value = 0, subtitle, icon, trend, trendValue, variant = 'default', action } = ctx.props;
 
   const trendIcon = trend === 'up' ? 'trending_up' : trend === 'down' ? 'trending_down' : undefined;
   const trendTheme = trend === 'up' ? 'success' : trend === 'down' ? 'danger' : 'tertiary';
 
+  const handleClick = (): void => {
+    if (action) {
+      ctx.emit(action, { title, value });
+    }
+  };
+
   return (
-    <ForgeCard className={`genui-metric-card genui-metric-card--${variant}`}>
+    <ForgeCard
+      className={`genui-metric-card genui-metric-card--${variant}${action ? ' genui-metric-card--clickable' : ''}`}
+      onClick={action ? handleClick : undefined}>
       <div className="genui-metric-card__content">
         {icon && (
           <div className="genui-metric-card__icon">
@@ -51,5 +60,6 @@ export const MetricCardSchema = z.object({
   icon: z.string().describe('Icon name (e.g., attach_money, account_balance)').optional(),
   trend: z.enum(['up', 'down', 'neutral']).describe('Trend direction').optional(),
   trendValue: z.string().describe('Trend change (e.g., +5%, -$2,000)').optional(),
-  variant: z.enum(['default', 'success', 'warning', 'danger']).describe('Visual variant').optional()
+  variant: z.enum(['default', 'success', 'warning', 'danger']).describe('Visual variant').optional(),
+  action: z.string().describe('Action to trigger on click').optional()
 });

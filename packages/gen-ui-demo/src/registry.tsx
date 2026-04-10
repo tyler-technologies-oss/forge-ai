@@ -14,7 +14,8 @@ import {
   ComparisonCard,
   RankingList,
   CategoryBreakdown,
-  InsightCard
+  InsightCard,
+  Button
 } from './components';
 
 export const registry = createRegistry<ReactNode, ReactNode[]>({
@@ -30,7 +31,8 @@ export const registry = createRegistry<ReactNode, ReactNode[]>({
     ComparisonCard,
     RankingList,
     CategoryBreakdown,
-    InsightCard
+    InsightCard,
+    Button
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } satisfies Record<ComponentNames, ComponentFactory<ReactNode, any, ReactNode[]>>
 });

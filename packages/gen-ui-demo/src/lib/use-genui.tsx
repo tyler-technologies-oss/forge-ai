@@ -13,7 +13,7 @@ import { GenUIRenderer } from './renderer';
 
 export interface UseGenUIConfig {
   catalog: Catalog;
-  registry: Registry<ReactNode, ReactNode>;
+  registry: Registry<ReactNode, ReactNode[]>;
   onAction?: (event: ActionEvent) => void;
 }
 
@@ -45,13 +45,7 @@ export function useGenUI(config: UseGenUIConfig): UseGenUIResult {
     [specCompiler, catalog]
   );
 
-  const handleAction = useCallback(
-    (event: ActionEvent): void => {
-      console.log('[GenUI] Action:', event);
-      onAction?.(event);
-    },
-    [onAction]
-  );
+  const handleAction = useCallback((event: ActionEvent): void => onAction?.(event), [onAction]);
 
   const Renderer: FC = useMemo(() => {
     return function GenUIRendererWrapper(): React.ReactElement | null {
