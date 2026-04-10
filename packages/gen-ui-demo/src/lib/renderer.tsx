@@ -12,7 +12,7 @@ import {
 
 export interface GenUIRendererProps {
   spec: GenUISpec;
-  registry: Registry<ReactNode, ReactNode>;
+  registry: Registry<ReactNode, ReactNode[]>;
   onAction?: (event: ActionEvent) => void;
 }
 
@@ -67,9 +67,9 @@ export function GenUIRenderer({ spec, registry, onAction }: GenUIRendererProps):
       const resolvedProps = element.props ? resolveElementProps(element.props, { stateModel }) : {};
       const children = element.children?.map(childId => renderElement(childId)) ?? [];
 
-      const context: ComponentContext<ReactNode[]> = {
+      const context: ComponentContext<Record<string, unknown>, ReactNode[]> = {
         props: resolvedProps,
-        children: children.length > 0 ? children : [],
+        children,
         emit,
         state: stateManager
       };

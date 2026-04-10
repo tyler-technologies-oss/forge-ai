@@ -16,8 +16,8 @@ const VARIANT_MAP: Record<string, { theme: string; defaultIcon: string }> = {
   success: { theme: 'success', defaultIcon: 'check_circle' }
 };
 
-export function AlertBanner(ctx: ComponentContext): ReactElement | null {
-  const { message, variant = 'info', icon } = ctx.props as AlertBannerProps;
+export function AlertBanner(ctx: ComponentContext<AlertBannerProps>): ReactElement | null {
+  const { message, variant = 'info', icon } = ctx.props;
 
   if (!message) {
     return null;
@@ -28,7 +28,7 @@ export function AlertBanner(ctx: ComponentContext): ReactElement | null {
 
   return (
     <ForgeBanner theme={config.theme as any} persistent className="genui-alert-banner">
-      <ForgeIcon slot="icon" name={displayIcon} />
+      <ForgeIcon slot="icon" name={displayIcon} external />
       <span>{message}</span>
     </ForgeBanner>
   );

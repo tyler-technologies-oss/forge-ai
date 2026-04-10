@@ -75,18 +75,18 @@ export interface ActionEvent {
 }
 
 // Registry
-export interface ComponentContext<TChildren = unknown> {
-  props: Record<string, unknown>;
+export interface ComponentContext<TProps = Record<string, unknown>, TChildren = unknown> {
+  props: TProps;
   children: TChildren;
   emit: (action: string, payload?: Record<string, unknown>) => void;
   state: StateManager;
 }
 
-export interface ComponentFactory<TResult, TChildren = unknown> {
-  (context: ComponentContext<TChildren>): TResult;
+export interface ComponentFactory<TResult, TProps = Record<string, unknown>, TChildren = unknown> {
+  (context: ComponentContext<TProps, TChildren>): TResult;
 }
 
 export interface Registry<TResult, TChildren = unknown> {
-  get(config: { type: string }): ComponentFactory<TResult, TChildren> | undefined;
+  get(config: { type: string }): ComponentFactory<TResult, Record<string, unknown>, TChildren> | undefined;
   has(config: { type: string }): boolean;
 }

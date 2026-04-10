@@ -17,8 +17,8 @@ interface TransactionListProps {
   limit?: number;
 }
 
-export function TransactionList(ctx: ComponentContext): ReactElement {
-  const { title, transactions = [], limit = 5 } = ctx.props as TransactionListProps;
+export function TransactionList(ctx: ComponentContext<TransactionListProps>): ReactElement {
+  const { title, transactions = [], limit = 5 } = ctx.props;
   const displayedTransactions = transactions.slice(0, limit);
 
   return (

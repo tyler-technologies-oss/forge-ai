@@ -11,8 +11,8 @@ interface BudgetCardProps {
   showRemaining?: boolean;
 }
 
-export function BudgetCard(ctx: ComponentContext): ReactElement {
-  const { title = '', budgeted = 0, spent = 0, showRemaining = true } = ctx.props as BudgetCardProps;
+export function BudgetCard(ctx: ComponentContext<BudgetCardProps>): ReactElement {
+  const { title = '', budgeted = 0, spent = 0, showRemaining = true } = ctx.props;
 
   const percentage = budgeted > 0 ? Math.min((spent / budgeted) * 100, 100) : 0;
   const remaining = budgeted - spent;

@@ -14,8 +14,8 @@ interface StatRowProps {
   stats?: Stat[];
 }
 
-export function StatRow(ctx: ComponentContext): ReactElement | null {
-  const { stats = [] } = ctx.props as StatRowProps;
+export function StatRow(ctx: ComponentContext<StatRowProps>): ReactElement | null {
+  const { stats = [] } = ctx.props;
 
   if (stats.length === 0) {
     return null;

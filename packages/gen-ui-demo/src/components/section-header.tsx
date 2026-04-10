@@ -7,8 +7,8 @@ interface SectionHeaderProps {
   description?: string;
 }
 
-export function SectionHeader(ctx: ComponentContext): ReactElement | null {
-  const { title, description } = ctx.props as SectionHeaderProps;
+export function SectionHeader(ctx: ComponentContext<SectionHeaderProps>): ReactElement | null {
+  const { title, description } = ctx.props;
 
   if (!title) {
     return null;

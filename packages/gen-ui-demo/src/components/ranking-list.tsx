@@ -17,8 +17,8 @@ interface RankingListProps {
   limit?: number;
 }
 
-export function RankingList(ctx: ComponentContext): ReactElement {
-  const { title, items = [], variant = 'top', limit = 5 } = ctx.props as RankingListProps;
+export function RankingList(ctx: ComponentContext<RankingListProps>): ReactElement {
+  const { title, items = [], variant = 'top', limit = 5 } = ctx.props;
   const displayedItems = items.slice(0, limit);
 
   const getMedalClass = (index: number): string => {

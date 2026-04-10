@@ -17,8 +17,8 @@ const VARIANT_CONFIG: Record<string, { icon: string; className: string }> = {
   warning: { icon: 'priority_high', className: 'genui-insight-card--warning' }
 };
 
-export function InsightCard(ctx: ComponentContext): ReactElement | null {
-  const { title, insight, icon, variant = 'neutral' } = ctx.props as InsightCardProps;
+export function InsightCard(ctx: ComponentContext<InsightCardProps>): ReactElement | null {
+  const { title, insight, icon, variant = 'neutral' } = ctx.props;
 
   if (!insight) {
     return null;

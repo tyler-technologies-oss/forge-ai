@@ -13,9 +13,8 @@ interface DataTableProps {
   pageSize?: number;
 }
 
-export function DataTable(ctx: ComponentContext): ReactElement {
-  const props = ctx.props as DataTableProps;
-  const { title = '', description = '', data = [], columns = [], pageSize = 10 } = props;
+export function DataTable(ctx: ComponentContext<DataTableProps>): ReactElement {
+  const { title = '', description = '', data = [], columns = [], pageSize = 10 } = ctx.props;
 
   const [pageIndex, setPageIndex] = useState(0);
   const tableRef = useRef<HTMLElement>(null);

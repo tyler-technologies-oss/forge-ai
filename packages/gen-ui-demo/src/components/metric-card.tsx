@@ -14,8 +14,8 @@ interface MetricCardProps {
   variant?: 'default' | 'success' | 'warning' | 'danger';
 }
 
-export function MetricCard(ctx: ComponentContext): ReactElement {
-  const { title = '', value = 0, subtitle, icon, trend, trendValue, variant = 'default' } = ctx.props as MetricCardProps;
+export function MetricCard(ctx: ComponentContext<MetricCardProps>): ReactElement {
+  const { title = '', value = 0, subtitle, icon, trend, trendValue, variant = 'default' } = ctx.props;
 
   const trendIcon = trend === 'up' ? 'trending_up' : trend === 'down' ? 'trending_down' : undefined;
   const trendTheme = trend === 'up' ? 'success' : trend === 'down' ? 'danger' : 'tertiary';

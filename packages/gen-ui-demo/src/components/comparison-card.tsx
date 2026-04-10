@@ -12,14 +12,14 @@ interface ComparisonCardProps {
   rightValue?: number;
 }
 
-export function ComparisonCard(ctx: ComponentContext): ReactElement {
+export function ComparisonCard(ctx: ComponentContext<ComparisonCardProps>): ReactElement {
   const {
     title = '',
     leftLabel = '',
     leftValue = 0,
     rightLabel = '',
     rightValue = 0
-  } = ctx.props as ComparisonCardProps;
+  } = ctx.props;
 
   const diff = rightValue - leftValue;
   const percentChange = leftValue !== 0 ? ((diff / leftValue) * 100) : 0;

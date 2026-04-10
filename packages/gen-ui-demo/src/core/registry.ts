@@ -1,7 +1,8 @@
 import type { Registry, ComponentFactory } from './types';
 
 export interface CreateRegistryConfig<TResult, TChildren = unknown> {
-  components: Record<string, ComponentFactory<TResult, TChildren>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  components: Record<string, ComponentFactory<TResult, any, TChildren>>;
 }
 
 export function createRegistry<TResult, TChildren = unknown>(

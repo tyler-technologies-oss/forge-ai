@@ -17,7 +17,7 @@ import {
   InsightCard
 } from './components';
 
-export const registry = createRegistry<ReactNode, ReactNode>({
+export const registry = createRegistry<ReactNode, ReactNode[]>({
   components: {
     Grid,
     SectionHeader,
@@ -31,5 +31,6 @@ export const registry = createRegistry<ReactNode, ReactNode>({
     RankingList,
     CategoryBreakdown,
     InsightCard
-  } satisfies Record<ComponentNames, ComponentFactory<ReactNode, ReactNode>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } satisfies Record<ComponentNames, ComponentFactory<ReactNode, any, ReactNode[]>>
 });

@@ -25,8 +25,8 @@ const DEFAULT_COLORS = [
   'var(--forge-theme-info-secondary)',
 ];
 
-export function CategoryBreakdown(ctx: ComponentContext): ReactElement {
-  const { title, categories = [], showLegend = true } = ctx.props as CategoryBreakdownProps;
+export function CategoryBreakdown(ctx: ComponentContext<CategoryBreakdownProps>): ReactElement {
+  const { title, categories = [], showLegend = true } = ctx.props;
 
   const total = categories.reduce((sum, cat) => sum + cat.value, 0);
 

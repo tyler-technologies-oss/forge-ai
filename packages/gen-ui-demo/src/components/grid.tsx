@@ -7,8 +7,8 @@ interface GridProps {
   gap?: 'sm' | 'md' | 'lg';
 }
 
-export function Grid(ctx: ComponentContext<ReactNode>): ReactElement {
-  const { columns = 2, gap = 'md' } = ctx.props as GridProps;
+export function Grid(ctx: ComponentContext<GridProps, ReactNode[]>): ReactElement {
+  const { columns = 2, gap = 'md' } = ctx.props;
 
   return (
     <div className={`genui-grid genui-grid--cols-${columns} genui-grid--gap-${gap}`}>
