@@ -1,6 +1,6 @@
 import { defineCatalog } from '@json-render/core';
 import { defaultSchema } from './schema';
-import type { Catalog, PromptConfig, ValidateConfig, GenUISpec, ActionDefinition, ComponentDefinition, ComponentSchema } from './types';
+import type { Catalog, PromptConfig, ValidateConfig, GenUISpec, ActionDefinition, ComponentDefinition, ComponentSchema, ActionSchema } from './types';
 
 export interface CreateCatalogConfig {
   components: Record<string, ComponentDefinition>;
@@ -35,6 +35,17 @@ export function createCatalog(config: CreateCatalogConfig): Catalog {
           description: def.description ?? '',
           props: def.props,
           slots: def.slots
+        };
+      }
+      return result;
+    },
+    actions: () => {
+      const result: Record<string, ActionSchema> = {};
+      for (const [name, def] of Object.entries(actions)) {
+        result[name] = {
+          action: name,
+          description: def.description ?? '',
+          params: def.params
         };
       }
       return result;

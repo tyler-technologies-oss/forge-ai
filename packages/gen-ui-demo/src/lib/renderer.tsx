@@ -1,13 +1,16 @@
 import { useState, useCallback, useMemo, useEffect, Fragment } from 'react';
 import type { ReactElement, ReactNode } from 'react';
-import { evaluateVisibility, resolveElementProps } from '@json-render/core';
 import {
   createStateManager,
+  resolveProps,
+  resolveBindingPaths,
+  isVisible,
   type GenUISpec,
   type StateManager,
   type ActionEvent,
   type Registry,
-  type ComponentContext
+  type ComponentContext,
+  type ActionHandler
 } from '../core';
 
 export interface GenUIRendererProps {
@@ -31,15 +34,21 @@ export function GenUIRenderer({ spec, registry, onAction }: GenUIRendererProps):
     });
   }, [stateModel]);
 
-  const emit = useCallback(
-    (action: string, payload?: Record<string, unknown>): void => {
-      onAction?.({
-        action,
-        payload,
-        state: { ...stateModel }
-      });
+  const createEmit = useCallback(
+    (elementOn: Record<string, ActionHandler> | undefined) => {
+      return (eventName: string, eventPayload?: Record<string, unknown>): void => {
+        const handler = elementOn?.[eventName];
+        if (handler) {
+          const actionHandler = registry.getAction(handler.action);
+          const params = { ...handler.params, ...eventPayload };
+          if (actionHandler) {
+            actionHandler(params, setStateModel, stateModel);
+          }
+          onAction?.({ action: handler.action, payload: params, state: { ...stateModel } });
+        }
+      };
     },
-    [onAction, stateModel]
+    [registry, onAction, stateModel]
   );
 
   const renderElement = useCallback(
@@ -54,7 +63,7 @@ export function GenUIRenderer({ spec, registry, onAction }: GenUIRendererProps):
         return null;
       }
 
-      if (element.visible !== undefined && !evaluateVisibility(element.visible as Parameters<typeof evaluateVisibility>[0], { stateModel })) {
+      if (element.visible !== undefined && !isVisible(element.visible, { stateModel })) {
         return null;
       }
 
@@ -64,19 +73,21 @@ export function GenUIRenderer({ spec, registry, onAction }: GenUIRendererProps):
         return null;
       }
 
-      const resolvedProps = element.props ? resolveElementProps(element.props, { stateModel }) : {};
+      const resolvedProps = element.props ? resolveProps(element.props, { stateModel }) : {};
+      const bindings = (element.props ? resolveBindingPaths(element.props, { stateModel }) : {}) ?? {};
       const children = element.children?.map(childId => renderElement(childId)) ?? [];
 
       const context: ComponentContext<Record<string, unknown>, ReactNode[]> = {
         props: resolvedProps,
         children,
-        emit,
-        state: stateManager
+        emit: createEmit(element.on),
+        state: stateManager,
+        bindings
       };
 
       return <Fragment key={elementId}>{factory(context)}</Fragment>;
     },
-    [spec.elements, stateModel, registry, emit, stateManager]
+    [spec.elements, stateModel, registry, createEmit, stateManager]
   );
 
   if (!spec.root) {

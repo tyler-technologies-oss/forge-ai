@@ -6,6 +6,7 @@ export type {
   ComponentDefinition,
   ActionDefinition,
   ComponentSchema,
+  ActionSchema,
   Catalog,
   PromptConfig,
   ValidateConfig,
@@ -14,7 +15,8 @@ export type {
   ActionEvent,
   ComponentFactory,
   ComponentContext,
-  Registry
+  Registry,
+  RegistryActionHandler
 } from './types';
 
 // Schema
@@ -39,3 +41,6 @@ export {
   type CreateRenderToolConfig,
   type ProcessPatchesConfig
 } from './tools';
+
+// Rendering
+export { resolveProps, resolveBindingPaths, isVisible, type RenderContext } from './rendering';

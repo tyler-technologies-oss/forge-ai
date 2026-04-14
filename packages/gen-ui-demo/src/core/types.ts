@@ -39,11 +39,18 @@ export interface ComponentSchema {
   slots?: string[];
 }
 
+export interface ActionSchema {
+  action: string;
+  description: string;
+  params?: unknown;
+}
+
 export interface Catalog {
   prompt(config?: PromptConfig): string;
   validate(config: ValidateConfig): ValidationResult;
   jsonSchema(): unknown;
   components(): Record<string, ComponentSchema>;
+  actions(): Record<string, ActionSchema>;
 }
 
 export interface PromptConfig {
@@ -80,13 +87,21 @@ export interface ComponentContext<TProps = Record<string, unknown>, TChildren = 
   children: TChildren;
   emit: (action: string, payload?: Record<string, unknown>) => void;
   state: StateManager;
+  bindings: Record<string, string>;
 }
 
 export interface ComponentFactory<TResult, TProps = Record<string, unknown>, TChildren = unknown> {
   (context: ComponentContext<TProps, TChildren>): TResult;
 }
 
+export type RegistryActionHandler = (
+  params: Record<string, unknown>,
+  setState: (fn: (prev: Record<string, unknown>) => Record<string, unknown>) => void,
+  state: Record<string, unknown>
+) => void | Promise<void>;
+
 export interface Registry<TResult, TChildren = unknown> {
   get(config: { type: string }): ComponentFactory<TResult, Record<string, unknown>, TChildren> | undefined;
   has(config: { type: string }): boolean;
+  getAction(name: string): RegistryActionHandler | undefined;
 }

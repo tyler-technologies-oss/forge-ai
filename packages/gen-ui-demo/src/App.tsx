@@ -154,6 +154,7 @@ const App: FC = () => {
       clientContext: {
         uiState: JSON.stringify(spec),
         componentCatalog: JSON.stringify(catalog.components()),
+        actionCatalog: JSON.stringify(catalog.actions()),
         financialData: JSON.stringify(FINANCIAL_DATA)
       }
     });

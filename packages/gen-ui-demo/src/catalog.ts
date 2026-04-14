@@ -1,4 +1,5 @@
-import type { ComponentDefinition } from './core';
+import { z } from 'zod';
+import type { ActionDefinition, ComponentDefinition } from './core';
 import { createCatalog } from './core';
 import {
   GridSchema,
@@ -13,10 +14,12 @@ import {
   RankingListSchema,
   CategoryBreakdownSchema,
   InsightCardSchema,
-  ButtonSchema
+  ButtonSchema,
+  TextFieldSchema,
+  CardSchema
 } from './components';
 
-const componentDefs = {
+const components = {
   Grid: {
     description: 'Layout container with configurable columns for arranging child components',
     props: GridSchema,
@@ -51,11 +54,13 @@ const componentDefs = {
     props: DataTableSchema
   },
   ComparisonCard: {
-    description: 'Side-by-side comparison of two values with change indicator. Great for period-over-period comparisons.',
+    description:
+      'Side-by-side comparison of two values with change indicator. Great for period-over-period comparisons.',
     props: ComparisonCardSchema
   },
   RankingList: {
-    description: 'Ordered list with rank indicators. Use for top/bottom rankings like "Top Spenders" or "Largest Budgets".',
+    description:
+      'Ordered list with rank indicators. Use for top/bottom rankings like "Top Spenders" or "Largest Budgets".',
     props: RankingListSchema
   },
   CategoryBreakdown: {
@@ -69,8 +74,40 @@ const componentDefs = {
   Button: {
     description: 'Interactive button that triggers an action when clicked.',
     props: ButtonSchema
+  },
+  TextField: {
+    description: 'Text input field with two-way data binding support.',
+    props: TextFieldSchema
+  },
+  Card: {
+    description: 'Container card for grouping related content.',
+    props: CardSchema,
+    slots: ['default']
   }
 } satisfies Record<string, ComponentDefinition>;
 
-export const catalog = createCatalog({ components: componentDefs });
-export type ComponentNames = keyof typeof componentDefs;
+const actions = {
+  view_details: {
+    params: z.object({ id: z.string(), type: z.string() }),
+    description: 'View details of a specific item'
+  },
+  approve_item: {
+    params: z.object({ id: z.string() }),
+    description: 'Approve a pending item'
+  },
+  reject_item: {
+    params: z.object({ id: z.string(), reason: z.string().optional() }),
+    description: 'Reject a pending item with optional reason'
+  },
+  export_data: {
+    params: z.object({ format: z.enum(['csv', 'pdf', 'json']) }),
+    description: 'Export data in specified format'
+  },
+  refresh_data: {
+    description: 'Refresh the current data view'
+  }
+} satisfies Record<string, ActionDefinition>;
+
+export const catalog = createCatalog({ components, actions });
+export type ComponentNames = keyof typeof components;
+export type ActionNames = keyof typeof actions;

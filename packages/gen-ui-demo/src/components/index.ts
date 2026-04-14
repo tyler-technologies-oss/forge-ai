@@ -11,3 +11,5 @@ export { RankingList, RankingListSchema } from './ranking-list';
 export { CategoryBreakdown, CategoryBreakdownSchema } from './category-breakdown';
 export { InsightCard, InsightCardSchema } from './insight-card';
 export { Button, ButtonSchema } from './button';
+export { TextField, TextFieldSchema } from './text-field';
+export { Card, CardSchema } from './card';
