@@ -15,7 +15,7 @@ on:
     # The branches below must be a subset of the branches above
     branches: [ '**' ]
   schedule:
-    - cron: '30 6 9 * *'
+    - cron: '21 21 26 * *'
   workflow_dispatch:
 
 jobs:
