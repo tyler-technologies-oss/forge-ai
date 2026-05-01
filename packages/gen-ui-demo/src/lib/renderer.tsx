@@ -1,36 +1,59 @@
-import { useState, useCallback, useMemo, useEffect, useRef, Fragment } from 'react';
+/**
+ * Spec Renderer
+ *
+ * The main entry point for rendering a JSON UI spec. This component acts as
+ * the orchestrator - it manages state, handles watch effects, and delegates
+ * element rendering to the memoized ElementRenderer component.
+ *
+ * Architecture:
+ * - SpecRenderer: Orchestrator (state, watches, validation, emit factory)
+ * - ElementRenderer: Memoized recursive renderer (one per element)
+ * - ElementErrorBoundary: Error containment (wraps each element)
+ * - useValidation: Validation state management (extracted hook)
+ *
+ * @example
+ * <SpecRenderer
+ *   spec={aiGeneratedSpec}
+ *   state={appState}
+ *   registry={componentRegistry}
+ *   onAction={handleAction}
+ *   functions={{ formatCurrency, formatDate }}
+ *   errorFallback={(error, type) => <ErrorCard error={error} />}
+ * />
+ */
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type { ReactElement, ReactNode } from 'react';
-import { getByPath, runValidation, builtInValidationFunctions, type ValidationConfig as JRValidationConfig } from '@json-render/core';
+import { getByPath } from '@json-render/core';
 import {
   createStateManager,
   resolveProps,
-  resolveBindingPaths,
-  isVisible,
-  createRepeatContext,
   type Spec,
-  type FieldValidationState,
   type StateManager,
   type ActionEvent,
   type Registry,
-  type ComponentContext,
   type ActionHandler,
   type RenderContext,
   type ComputedFunction
 } from '../core';
+import { useValidation } from './use-validation';
+import { ElementRenderer } from './element-renderer';
+import type { ErrorFallback } from './element-error-boundary';
 
 export interface SpecRendererProps {
-  /** The specification for the UI to render */
+  /** The UI spec to render */
   spec: Spec;
-  /** The initial state for the UI */
+  /** External state to merge with spec's default state */
   state?: Record<string, unknown>;
-  /** Callback invoked when the state changes */
+  /** Callback when internal state changes */
   onStateChange?: (state: Record<string, unknown>) => void;
-  /** The registry of available components for the catalog */
+  /** Component registry mapping types to factory functions */
   registry: Registry<ReactNode, ReactNode[]>;
-  /** Callback invoked when an action is triggered */
+  /** Callback when actions are triggered (for logging/external handling) */
   onAction?: (event: ActionEvent) => void;
   /** Named functions for $computed expressions */
   functions?: Record<string, ComputedFunction>;
+  /** Fallback UI to show when a component throws during render */
+  errorFallback?: ErrorFallback;
 }
 
 export function SpecRenderer({
@@ -39,13 +62,16 @@ export function SpecRenderer({
   onStateChange,
   registry,
   onAction,
-  functions
+  functions,
+  errorFallback
 }: SpecRendererProps): ReactElement {
+  // Initialize state from spec defaults and external state
   const [stateModel, setStateModel] = useState<Record<string, unknown>>(() => ({
     ...(spec.state ?? {}),
     ...(externalState ?? {})
   }));
 
+  // Sync external state changes into internal state
   useEffect(() => {
     setStateModel(prev => ({
       ...(spec.state ?? {}),
@@ -54,13 +80,17 @@ export function SpecRenderer({
     }));
   }, [spec.state, externalState]);
 
+  // Notify parent of state changes
   useEffect(() => {
     onStateChange?.(stateModel);
   }, [stateModel, onStateChange]);
 
+  // Track previous state for watch comparisons
   const prevStateRef = useRef<Record<string, unknown> | null>(null);
 
+  // Watch effect: fire actions when watched state paths change
   useEffect(() => {
+    // Skip on first render - only fire on actual changes
     if (!spec.elements || !prevStateRef.current) {
       prevStateRef.current = structuredClone(stateModel);
       return;
@@ -69,6 +99,7 @@ export function SpecRenderer({
     const prevState = prevStateRef.current;
     const renderCtx: RenderContext = { stateModel, functions };
 
+    // Check each element's watch config for changed paths
     for (const element of Object.values(spec.elements)) {
       if (!element.watch) {
         continue;
@@ -78,10 +109,12 @@ export function SpecRenderer({
         const prevValue = getByPath(prevState, watchPath);
         const newValue = getByPath(stateModel, watchPath);
 
+        // Only fire if value actually changed
         if (prevValue === newValue) {
           continue;
         }
 
+        // Execute all handlers for this path
         const handlerArray = Array.isArray(handlers) ? handlers : [handlers];
         for (const handler of handlerArray) {
           const actionHandler = registry.getAction(handler.action);
@@ -94,54 +127,22 @@ export function SpecRenderer({
       }
     }
 
+    // Store current state for next comparison
     prevStateRef.current = JSON.parse(JSON.stringify(stateModel));
   }, [stateModel, spec.elements, registry, onAction, functions]);
 
+  // Create state manager for components to read/write state
   const stateManager: StateManager = useMemo(() => {
     return createStateManager(stateModel, () => {
       setStateModel(prev => ({ ...prev }));
     });
   }, [stateModel]);
 
-  const [validationState, setValidationState] = useState<Record<string, FieldValidationState>>({});
+  // Validation state management (extracted to separate hook)
+  const { validationState, markTouched } = useValidation(spec, stateModel);
 
-  const markTouched = useCallback((elementId: string) => {
-    setValidationState(prev => ({
-      ...prev,
-      [elementId]: { ...(prev[elementId] ?? { valid: true, errors: [] }), touched: true }
-    }));
-  }, []);
-
-  useEffect(() => {
-    if (!spec.elements) return;
-
-    const newValidationState: Record<string, FieldValidationState> = {};
-    for (const [elementId, element] of Object.entries(spec.elements)) {
-      if (!element.validation?.checks?.length) continue;
-
-      const bindPath = Object.values(element.props ?? {}).find(
-        (v): v is { $bindState: string } => typeof v === 'object' && v !== null && '$bindState' in v
-      )?.$bindState;
-
-      if (!bindPath) continue;
-
-      const value = getByPath(stateModel, bindPath);
-      const result = runValidation(element.validation as JRValidationConfig, {
-        value,
-        stateModel,
-        customFunctions: builtInValidationFunctions
-      });
-
-      newValidationState[elementId] = {
-        valid: result.valid,
-        errors: result.errors,
-        touched: validationState[elementId]?.touched ?? false
-      };
-    }
-
-    setValidationState(prev => ({ ...prev, ...newValidationState }));
-  }, [stateModel, spec.elements]);
-
+  // Factory for creating emit functions bound to element event handlers.
+  // Each element gets its own emit function that resolves its `on` handlers.
   const createEmit = useCallback(
     (elementOn: Record<string, ActionHandler> | undefined, ctx: RenderContext) => {
       return (eventName: string, eventPayload?: Record<string, unknown>): void => {
@@ -160,69 +161,32 @@ export function SpecRenderer({
     [registry, onAction, stateModel]
   );
 
-  const renderElement = useCallback(
-    (elementId: string, ctx?: RenderContext): ReactNode => {
-      if (!spec.elements) {
-        return null;
-      }
-
-      const element = spec.elements[elementId];
-      if (!element) {
-        console.warn(`Element not found: ${elementId}`);
-        return null;
-      }
-
-      const renderCtx: RenderContext = ctx ?? { stateModel, functions };
-
-      if (element.visible !== undefined && !isVisible(element.visible, renderCtx)) {
-        return null;
-      }
-
-      const factory = registry.get({ type: element.type });
-      if (!factory) {
-        console.warn(`Unknown component type: ${element.type}`);
-        return null;
-      }
-
-      const resolvedProps = element.props ? resolveProps(element.props, renderCtx) : {};
-      const bindings = (element.props ? resolveBindingPaths(element.props, renderCtx) : {}) ?? {};
-
-      let children: ReactNode[];
-      if (element.repeat && element.children?.length) {
-        const array = getByPath(stateModel, element.repeat.statePath) as unknown[] | undefined;
-        if (Array.isArray(array)) {
-          children = array.flatMap((item, index) => {
-            const repeatCtx = createRepeatContext(renderCtx, element.repeat!.statePath, index);
-            const key = element.repeat!.key ? (item as Record<string, unknown>)[element.repeat!.key] : index;
-            return element.children!.map(childId => (
-              <Fragment key={`${childId}-${key}`}>{renderElement(childId, repeatCtx)}</Fragment>
-            ));
-          });
-        } else {
-          children = [];
-        }
-      } else {
-        children = element.children?.map(childId => renderElement(childId, renderCtx)) ?? [];
-      }
-
-      const context: ComponentContext<Record<string, unknown>, ReactNode[]> = {
-        props: resolvedProps,
-        children,
-        emit: createEmit(element.on, renderCtx),
-        state: stateManager,
-        bindings,
-        validation: validationState[elementId],
-        onBlur: element.validation ? () => markTouched(elementId) : undefined
-      };
-
-      return <Fragment key={elementId}>{factory(context)}</Fragment>;
-    },
-    [spec.elements, stateModel, registry, createEmit, stateManager, functions, validationState, markTouched]
-  );
-
-  if (!spec.root) {
+  // Handle missing/empty spec
+  if (!spec.root || !spec.elements) {
     return <div className="genui-renderer" />;
   }
 
-  return <div className="genui-renderer">{renderElement(spec.root)}</div>;
+  const rootElement = spec.elements[spec.root];
+  if (!rootElement) {
+    return <div className="genui-renderer" />;
+  }
+
+  const renderContext: RenderContext = { stateModel, functions };
+
+  return (
+    <div className="genui-renderer">
+      <ElementRenderer
+        elementId={spec.root}
+        element={rootElement}
+        elements={spec.elements}
+        renderContext={renderContext}
+        registry={registry}
+        stateManager={stateManager}
+        createEmit={createEmit}
+        validationState={validationState}
+        markTouched={markTouched}
+        errorFallback={errorFallback}
+      />
+    </div>
+  );
 }
