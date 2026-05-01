@@ -27,9 +27,6 @@ forge-ai-chatbot {
   flex-direction: column;
   min-height: 100%;
   padding: var(--forge-spacing-medium);
-}
-
-.genui-renderer {
   position: relative;
   overflow-x: clip;
 
@@ -534,5 +531,43 @@ forge-ai-chatbot {
       background: color-mix(in srgb, var(--forge-theme-warning) 15%, transparent);
       color: var(--forge-theme-warning);
     }
+  }
+}
+
+// Renderer demo page
+.renderer-demo {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--forge-spacing-large);
+  padding: var(--forge-spacing-large);
+  height: 100%;
+
+  &__controls {
+    padding: var(--forge-spacing-medium);
+
+    h3 {
+      margin: 0 0 var(--forge-spacing-small);
+    }
+
+    p {
+      margin: 0 0 var(--forge-spacing-medium);
+      color: var(--forge-theme-text-medium);
+    }
+  }
+
+  &__state {
+    margin-block-start: var(--forge-spacing-medium);
+    padding: var(--forge-spacing-small);
+    background: var(--forge-theme-surface-container-low);
+    border-radius: var(--forge-shape-small);
+    font-size: 12px;
+    overflow: auto;
+    max-height: 400px;
+  }
+
+  &__output {
+    padding: var(--forge-spacing-medium);
+    background: var(--forge-theme-surface-container-minimum);
+    border-radius: var(--forge-shape-medium);
   }
 }

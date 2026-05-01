@@ -1,6 +1,6 @@
 import React, { forwardRef, useRef, useEffect } from "react";
 import "@tylertech/forge-ai/ai-chatbot";
-import { useEventListener } from "./react-utils.js";
+import { useEventListener, useProperties } from "./react-utils.js";
 
 export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
@@ -19,6 +19,9 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     disclaimerText,
     debugCommand,
     selectedAgentId,
+    agentInfo,
+    agents,
+    suggestions,
     ...filteredProps
   } = props;
 
@@ -71,6 +74,21 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     "forge-ai-chatbot-response-feedback",
     props.onForgeAiChatbotResponseFeedback,
   );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-agent-change",
+    props.onForgeAiChatbotAgentChange,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-thread-state-change",
+    props.onForgeAiChatbotThreadStateChange,
+  );
+
+  /** Properties - run whenever a property has changed */
+  useProperties(ref, "agentInfo", props.agentInfo);
+  useProperties(ref, "agents", props.agents);
+  useProperties(ref, "suggestions", props.suggestions);
 
   return React.createElement(
     "forge-ai-chatbot",

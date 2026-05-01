@@ -613,6 +613,9 @@ importers:
       '@tylertech/tyler-icons':
         specifier: 'catalog:'
         version: 2.1.0
+      best-effort-json-parser:
+        specifier: ^1.4.0
+        version: 1.4.0
       idb:
         specifier: ^8.0.3
         version: 8.0.3
@@ -2671,6 +2674,9 @@ packages:
   basic-ftp@5.0.5:
     resolution: {integrity: sha512-4Bcg1P8xhUuqcii/S0Z9wiHIrQVPMermM1any+MX5GeGD7faD3/msQUDGLol9wOcz4/jbg/WJnGqoJF6LiBdtg==}
     engines: {node: '>=10.0.0'}
+
+  best-effort-json-parser@1.4.0:
+    resolution: {integrity: sha512-gYmXQicIXaaspBdCLqok3t0JXYdi3Cr9oIgYh2+9rEWiNhLvi/89cguCWXZJWp0FgBR6YoEE9YkbZEfqKdqs+Q==}
 
   better-opn@3.0.2:
     resolution: {integrity: sha512-aVNobHnJqLiUelTaHat9DZ1qM2w0C0Eym4LPI/3JxOnSokGVdsl1T1kN7TFvsEAD8G47A6VKQ0TVHqbBnYMJlQ==}
@@ -8012,6 +8018,8 @@ snapshots:
   baseline-browser-mapping@2.10.16: {}
 
   basic-ftp@5.0.5: {}
+
+  best-effort-json-parser@1.4.0: {}
 
   better-opn@3.0.2:
     dependencies:

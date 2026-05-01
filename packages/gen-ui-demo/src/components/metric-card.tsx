@@ -6,7 +6,7 @@ import { formatCurrency } from './utils';
 
 interface MetricCardProps {
   title?: string;
-  value?: number;
+  value?: number | string;
   subtitle?: string;
   icon?: string;
   trend?: 'up' | 'down' | 'neutral';
@@ -16,6 +16,7 @@ interface MetricCardProps {
 
 export function MetricCard(ctx: ComponentContext<MetricCardProps>): ReactElement {
   const { title = '', value = 0, subtitle, icon, trend, trendValue, variant = 'default' } = ctx.props;
+  const displayValue = typeof value === 'string' ? value : typeof value === 'number' ? formatCurrency(value) : String(value);
 
   const trendIcon = trend === 'up' ? 'trending_up' : trend === 'down' ? 'trending_down' : undefined;
   const trendTheme = trend === 'up' ? 'success' : trend === 'down' ? 'danger' : 'tertiary';
@@ -32,7 +33,7 @@ export function MetricCard(ctx: ComponentContext<MetricCardProps>): ReactElement
         )}
         <div className="genui-metric-card__body">
           <span className="genui-metric-card__title forge-typography--label2">{title}</span>
-          <span className="genui-metric-card__value forge-typography--heading4">{formatCurrency(value)}</span>
+          <span className="genui-metric-card__value forge-typography--heading4">{displayValue}</span>
           {subtitle && <span className="genui-metric-card__subtitle forge-typography--caption">{subtitle}</span>}
         </div>
         {trend && trendValue && (
@@ -48,7 +49,7 @@ export function MetricCard(ctx: ComponentContext<MetricCardProps>): ReactElement
 
 export const MetricCardSchema = z.object({
   title: z.string().describe('Metric label'),
-  value: z.number().describe('Numeric value (formatted as currency)'),
+  value: z.union([z.number(), z.string()]).describe('Numeric value (auto-formatted as currency) or pre-formatted string'),
   subtitle: z.string().describe('Secondary info').optional(),
   icon: z.string().describe('Icon name (e.g., attach_money, account_balance)').optional(),
   trend: z.enum(['up', 'down', 'neutral']).describe('Trend direction').optional(),

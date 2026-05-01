@@ -105,6 +105,14 @@ const actions = {
   },
   refresh_data: {
     description: 'Refresh the current data view'
+  },
+  log_search: {
+    params: z.object({ query: z.string() }),
+    description: 'Log the current search query to console'
+  },
+  on_filter_change: {
+    params: z.object({ value: z.string(), path: z.string() }),
+    description: 'Called when a watched filter value changes'
   }
 } satisfies Record<string, ActionDefinition>;
 

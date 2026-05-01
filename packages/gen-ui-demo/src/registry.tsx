@@ -44,6 +44,8 @@ export const registry = createRegistry<ReactNode, ReactNode[]>({
     approve_item: params => console.log('[Action] approve_item:', params),
     reject_item: params => console.log('[Action] reject_item:', params),
     export_data: params => console.log('[Action] export_data:', params),
-    refresh_data: () => console.log('[Action] refresh_data')
+    refresh_data: () => console.log('[Action] refresh_data'),
+    log_search: params => console.log('[Action] log_search - Query:', params.query),
+    on_filter_change: params => console.log('[Watch] Filter changed:', params.path, '→', params.value)
   } as Record<ActionNames, RegistryActionHandler>
 });

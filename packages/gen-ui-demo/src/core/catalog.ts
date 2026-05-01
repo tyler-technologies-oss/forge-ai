@@ -1,6 +1,15 @@
 import { defineCatalog } from '@json-render/core';
 import { defaultSchema } from './schema';
-import type { Catalog, PromptConfig, ValidateConfig, GenUISpec, ActionDefinition, ComponentDefinition, ComponentSchema, ActionSchema } from './types';
+import type {
+  Catalog,
+  PromptConfig,
+  ValidateConfig,
+  Spec,
+  ActionDefinition,
+  ComponentDefinition,
+  ComponentSchema,
+  ActionSchema
+} from './types';
 
 export interface CreateCatalogConfig {
   components: Record<string, ComponentDefinition>;
@@ -22,7 +31,7 @@ export function createCatalog(config: CreateCatalogConfig): Catalog {
       const result = catalog.validate(opts.spec);
       return {
         success: result.success,
-        data: result.success ? (result.data as GenUISpec) : undefined,
+        data: result.success ? (result.data as Spec) : undefined,
         error: result.success ? undefined : String(result.error)
       };
     },

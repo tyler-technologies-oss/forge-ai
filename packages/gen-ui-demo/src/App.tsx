@@ -191,9 +191,9 @@ const App: FC = () => {
         </ForgeAiChatbot>
       </ForgeDrawer>
 
-      <main slot="body" id="content">
+      <main slot="body" id="content" className={loading ? 'loading' : ''}>
         {spec ? (
-          <div className={`genui-renderer ${loading ? 'loading' : ''}`} inert={loading ? '' : undefined}>
+          <div className="genui-renderer" inert={loading ? '' : undefined}>
             <Renderer />
           </div>
         ) : (

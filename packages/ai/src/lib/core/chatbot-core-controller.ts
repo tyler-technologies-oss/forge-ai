@@ -199,6 +199,12 @@ export class ChatbotCoreController implements ReactiveController {
     };
 
     this.#messageStateController.addToolCallToResponse(toolCall, event);
+
+    const toolDef = this.tools.get(event.name);
+    toolDef?.onStart?.({
+      toolCallId: event.id,
+      toolName: event.name
+    });
   }
 
   #handleToolCallArgs(event: ToolCallArgsEvent): void {
@@ -209,6 +215,14 @@ export class ChatbotCoreController implements ReactiveController {
     const rawEvent = { eventType: 'tool-call-args', event } as const;
     this.#messageStateController.updateToolCallInResponse(event.id, updates, rawEvent);
     this.#callbacks.onScrollToBottom();
+
+    const toolDef = this.tools.get(event.name);
+    toolDef?.onDelta?.({
+      argsBuffer: event.argsBuffer,
+      partialArgs: event.partialArgs ?? {},
+      toolCallId: event.id,
+      toolName: event.name
+    });
   }
 
   #handleToolCallEnd(event: ToolCallEndEvent): void {
@@ -219,6 +233,13 @@ export class ChatbotCoreController implements ReactiveController {
     };
     const rawEvent = { eventType: 'tool-call-end', event } as const;
     this.#messageStateController.updateToolCallInResponse(event.id, updates, rawEvent);
+
+    const toolDef = this.tools.get(event.name);
+    toolDef?.onEnd?.({
+      args: event.args,
+      toolCallId: event.id,
+      toolName: event.name
+    });
   }
 
   #createToolResponse(toolName: string, handlerReturn?: unknown): unknown {

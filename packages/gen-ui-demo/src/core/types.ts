@@ -1,18 +1,36 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
 // Spec (flat element tree)
-export interface GenUISpec {
+export interface Spec {
   root: string;
-  elements: Record<string, GenUIElement>;
+  elements: Record<string, SpecElement>;
   state?: Record<string, unknown>;
 }
 
-export interface GenUIElement {
+export interface SpecElement {
   type: string;
   props?: Record<string, unknown>;
   children?: string[];
   visible?: unknown;
   on?: Record<string, ActionHandler>;
+  watch?: Record<string, ActionHandler | ActionHandler[]>;
+  repeat?: {
+    statePath: string;
+    key?: string;
+  };
+  validation?: ValidationConfig;
+}
+
+export interface ValidationConfig {
+  checks?: ValidationCheck[];
+  validateOn?: 'change' | 'blur' | 'submit';
+  enabled?: unknown;
+}
+
+export interface ValidationCheck {
+  type: string;
+  args?: Record<string, unknown>;
+  message: string;
 }
 
 export interface ActionHandler {
@@ -63,7 +81,7 @@ export interface ValidateConfig {
 
 export interface ValidationResult {
   success: boolean;
-  data?: GenUISpec;
+  data?: Spec;
   error?: string;
 }
 
@@ -81,6 +99,13 @@ export interface ActionEvent {
   state: Record<string, unknown>;
 }
 
+// Validation State
+export interface FieldValidationState {
+  valid: boolean;
+  errors: string[];
+  touched: boolean;
+}
+
 // Registry
 export interface ComponentContext<TProps = Record<string, unknown>, TChildren = unknown> {
   props: TProps;
@@ -88,6 +113,8 @@ export interface ComponentContext<TProps = Record<string, unknown>, TChildren = 
   emit: (action: string, payload?: Record<string, unknown>) => void;
   state: StateManager;
   bindings: Record<string, string>;
+  validation?: FieldValidationState;
+  onBlur?: () => void;
 }
 
 export interface ComponentFactory<TResult, TProps = Record<string, unknown>, TChildren = unknown> {

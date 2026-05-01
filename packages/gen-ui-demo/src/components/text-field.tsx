@@ -15,16 +15,21 @@ export function TextField(ctx: ComponentContext<TextFieldProps>): ReactElement {
   const { label, placeholder, required } = ctx.props;
   const [value, setValue] = useBoundProp(ctx.props.value ?? '', ctx.bindings.value, ctx.state);
 
+  const showError = ctx.validation && !ctx.validation.valid && ctx.validation.touched;
+  const errorMessage = showError ? ctx.validation?.errors[0] : undefined;
+
   return (
-    <ForgeTextField>
+    <ForgeTextField invalid={showError}>
       <input
         type="text"
         value={value}
         placeholder={placeholder}
         required={required}
         onChange={e => setValue(e.target.value)}
+        onBlur={() => ctx.onBlur?.()}
       />
       <label>{label}</label>
+      {errorMessage && <span slot="helper-text">{errorMessage}</span>}
     </ForgeTextField>
   );
 }

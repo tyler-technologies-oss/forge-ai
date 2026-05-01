@@ -3,11 +3,12 @@ import {
   autoFixSpec,
   validateSpec,
   formatSpecIssues,
-  type Spec,
+  type Spec as JsonRenderSpec,
   type SpecStreamCompiler
 } from '@json-render/core';
-import type { ToolDefinition } from '@tylertech/forge-ai';
-import type { GenUISpec, Catalog } from './types';
+import type { ToolDefinition, ToolDeltaContext, ToolEndContext } from '@tylertech/forge-ai';
+import { parse as parsePartialJson } from 'best-effort-json-parser';
+import type { Spec, Catalog } from './types';
 
 export type { ToolDefinition };
 
@@ -60,8 +61,8 @@ export function normalizeJsonl(input: string): string {
   return objects.join('\n') + '\n';
 }
 
-export function createCompiler(): SpecStreamCompiler<Spec> {
-  return createSpecStreamCompiler<Spec>({ elements: {}, state: {} });
+export function createCompiler(): SpecStreamCompiler<JsonRenderSpec> {
+  return createSpecStreamCompiler<JsonRenderSpec>({ elements: {}, state: {} });
 }
 
 export interface ProcessPatchesConfig {
@@ -69,10 +70,10 @@ export interface ProcessPatchesConfig {
 }
 
 export function processPatches(
-  specCompiler: SpecStreamCompiler<Spec>,
+  specCompiler: SpecStreamCompiler<JsonRenderSpec>,
   patches: string,
   config: ProcessPatchesConfig = {}
-): GenUISpec {
+): Spec {
   const { reset = false } = config;
 
   if (reset) {
@@ -92,20 +93,22 @@ export function processPatches(
     console.warn('[processPatches] Spec issues:', formatSpecIssues(validation.issues));
   }
 
-  return fixedSpec as GenUISpec;
+  return fixedSpec as Spec;
 }
 
 export interface CreateRenderToolConfig {
-  specCompiler: SpecStreamCompiler<Spec>;
+  specCompiler: SpecStreamCompiler<JsonRenderSpec>;
   catalog: Catalog;
-  onRender: (spec: GenUISpec) => void;
+  onRender: (spec: Spec) => void;
 }
 
 export function createRenderTool(config: CreateRenderToolConfig): ToolDefinition {
   const { specCompiler, onRender } = config;
+  let lastProcessedLength = 0;
 
   return {
     name: 'render_ui',
+    renderOnStart: true,
     description: `COMPLETELY REPLACES the UI with a new spec. Previous UI is discarded.
 
 When user asks for new UI (form, table, dashboard, etc.), use this tool.
@@ -131,18 +134,41 @@ For actions: "action": "actionName"`,
       },
       required: ['patches']
     },
+    onStart: () => {
+      lastProcessedLength = 0;
+      specCompiler.reset({ elements: {}, state: {} });
+      onRender({ elements: {}, state: {} } as Spec);
+    },
+    onDelta: (ctx: ToolDeltaContext) => {
+      try {
+        const partial = parsePartialJson(ctx.argsBuffer);
+        const patches = partial?.patches;
+        if (typeof patches !== 'string' || patches.length <= lastProcessedLength) {
+          return;
+        }
+
+        const spec = processPatches(specCompiler, patches, { reset: false });
+        if (Object.keys(spec.elements || {}).length > 0) {
+          onRender(spec);
+          lastProcessedLength = patches.length;
+        }
+      } catch {
+        // Ignore parse errors during streaming
+      }
+    },
+    onEnd: (ctx: ToolEndContext) => {
+      const patches = ctx.args.patches as string;
+      const spec = processPatches(specCompiler, patches, { reset: true });
+      onRender(spec);
+    },
     handler: async ctx => {
       const patches = ctx.args.patches as string;
       console.log('[render_ui] Received patches:', patches);
 
       try {
-        const spec = processPatches(specCompiler, patches, { reset: true });
-        onRender(spec);
-        console.log('[render_ui] Applied:', JSON.stringify(spec, null, 2));
-
         return {
           success: true,
-          elements: Object.keys(spec.elements || {})
+          elements: Object.keys(specCompiler.getResult().elements || {})
         };
       } catch (e) {
         const error = e instanceof Error ? e : new Error(String(e));

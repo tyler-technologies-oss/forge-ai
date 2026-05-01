@@ -1,10 +1,33 @@
-import { evaluateVisibility, resolveElementProps, resolveBindings } from '@json-render/core';
+import { evaluateVisibility, resolveElementProps, resolveBindings, getByPath } from '@json-render/core';
+
+export type ComputedFunction = (args: Record<string, unknown>) => unknown;
 
 /**
  * Context provided to rendering utilities containing the current state.
  */
 export interface RenderContext {
   stateModel: Record<string, unknown>;
+  repeatItem?: unknown;
+  repeatIndex?: number;
+  repeatBasePath?: string;
+  functions?: Record<string, ComputedFunction>;
+}
+
+/**
+ * Creates a render context for a repeat iteration.
+ */
+export function createRepeatContext(
+  baseCtx: RenderContext,
+  statePath: string,
+  index: number
+): RenderContext {
+  const array = getByPath(baseCtx.stateModel, statePath) as unknown[];
+  return {
+    ...baseCtx,
+    repeatItem: array?.[index],
+    repeatIndex: index,
+    repeatBasePath: `${statePath}/${index}`
+  };
 }
 
 /**
@@ -13,6 +36,8 @@ export interface RenderContext {
  * Handles expressions like:
  * - `{ "$state": "/path" }` → reads value from state
  * - `{ "$bindState": "/path" }` → reads value from state (for two-way binding)
+ * - `{ "$item": "field" }` → reads field from current repeat item
+ * - `{ "$index": true }` → returns current repeat index
  * - `{ "$cond": ..., "$then": ..., "$else": ... }` → conditional values
  * - `{ "$template": "Hello ${/name}" }` → string interpolation
  */

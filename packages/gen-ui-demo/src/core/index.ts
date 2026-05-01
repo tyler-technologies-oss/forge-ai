@@ -1,7 +1,7 @@
 // Types
 export type {
-  GenUISpec,
-  GenUIElement,
+  Spec,
+  SpecElement,
   ActionHandler,
   ComponentDefinition,
   ActionDefinition,
@@ -11,6 +11,9 @@ export type {
   PromptConfig,
   ValidateConfig,
   ValidationResult,
+  ValidationConfig,
+  ValidationCheck,
+  FieldValidationState,
   StateManager,
   ActionEvent,
   ComponentFactory,
@@ -43,4 +46,14 @@ export {
 } from './tools';
 
 // Rendering
-export { resolveProps, resolveBindingPaths, isVisible, type RenderContext } from './rendering';
+export {
+  resolveProps,
+  resolveBindingPaths,
+  isVisible,
+  createRepeatContext,
+  type RenderContext,
+  type ComputedFunction
+} from './rendering';
+
+// Validation (re-export from @json-render/core)
+export { runValidation, builtInValidationFunctions, check } from '@json-render/core';
