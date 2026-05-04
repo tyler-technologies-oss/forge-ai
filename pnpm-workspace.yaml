@@ -28,6 +28,7 @@ catalog:
   eslint-config-prettier: 10.1.8
   eslint-plugin-prettier: 5.5.5
   glob: 13.0.6
+  idb: 8.0.3
   lit: 3.3.2
   lit-analyzer: 2.0.3
   plop: 4.0.5

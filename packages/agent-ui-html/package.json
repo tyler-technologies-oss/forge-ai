@@ -1,0 +1,59 @@
+{
+  "name": "@tylertech/agent-ui-html",
+  "version": "0.0.1",
+  "description": "Lit-based web component renderer for Tyler Agent UI - renders specs as HTML/web components.",
+  "license": "Apache-2.0",
+  "author": "Tyler Technologies, Inc.",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "customElements": "custom-elements.json",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": {
+      "default": "./package.json"
+    }
+  },
+  "files": [
+    "./dist",
+    "./custom-elements.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tyler-technologies-oss/forge-ai.git"
+  },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "vite build",
+    "dev": "vite --config vite.demo.config.mts",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@tylertech/agent-ui": "workspace:^",
+    "lit": "catalog:"
+  },
+  "peerDependencies": {
+    "@tylertech/forge": "^4.0.0",
+    "@tylertech/forge-ai": "workspace:^"
+  },
+  "devDependencies": {
+    "@repo/prettier-config": "workspace:",
+    "@types/node": "catalog:",
+    "@tylertech/forge": "catalog:",
+    "@tylertech/forge-ai": "workspace:^",
+    "@tylertech/tyler-icons": "catalog:",
+    "eslint": "catalog:",
+    "idb": "catalog:",
+    "rimraf": "catalog:",
+    "sass": "catalog:",
+    "typescript": "~5.9.3",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "zod": "^4.0.0"
+  }
+}
