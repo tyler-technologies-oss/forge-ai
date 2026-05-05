@@ -1,5 +1,5 @@
-import type { ComponentFactory, RegistryActionHandler } from '@tylertech/agent-ui';
-import { createRegistry } from '@tylertech/agent-ui';
+import type { ComponentFactory, RegistryActionHandler } from '@tylertech/agent-ui-core';
+import { createRegistry } from '@tylertech/agent-ui-core';
 import type { ActionNames, ComponentNames } from './catalog.js';
 import type { LitResult } from './types.js';
 import {

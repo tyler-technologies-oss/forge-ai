@@ -12,7 +12,7 @@ import {
   type RenderContext,
   type ComputedFunction,
   type Registry
-} from '@tylertech/agent-ui';
+} from '@tylertech/agent-ui-core';
 import { renderElement } from './element-renderer.js';
 import { ValidationController } from './validation.js';
 

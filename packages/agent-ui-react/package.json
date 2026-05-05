@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@json-render/react": "^0.18.0",
-    "@tylertech/agent-ui": "workspace:^"
+    "@tylertech/agent-ui-core": "workspace:^"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

@@ -1,6 +1,6 @@
 import { useState, type FC } from 'react';
 import { ForgeScaffold, ForgeAppBar, ForgeIcon, ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import type { ComputedFunction } from '@tylertech/agent-ui';
+import type { ComputedFunction } from '@tylertech/agent-ui-core';
 import { Renderer, type Spec } from '../lib/index.js';
 import { registry, handlers } from './registry.js';
 

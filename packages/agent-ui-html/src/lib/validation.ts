@@ -4,7 +4,7 @@ import {
   runValidation,
   builtInValidationFunctions,
   type FieldValidationState
-} from '@tylertech/agent-ui';
+} from '@tylertech/agent-ui-core';
 
 interface ValidationConfig {
   checks: Array<{

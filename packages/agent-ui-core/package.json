@@ -1,5 +1,5 @@
 {
-  "name": "@tylertech/agent-ui",
+  "name": "@tylertech/agent-ui-core",
   "version": "0.0.1",
   "description": "Core utilities and types for Tyler Agent UI - framework-agnostic generative UI rendering.",
   "license": "Apache-2.0",

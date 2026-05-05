@@ -54,5 +54,8 @@ export {
   type RenderContext
 } from './rendering.js';
 
+// Element Renderer
+export { renderElement, type RenderElementConfig } from './element-renderer.js';
+
 // Validation & utilities (re-export from @json-render/core)
 export { runValidation, builtInValidationFunctions, check, getByPath, setByPath } from '@json-render/core';

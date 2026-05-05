@@ -23,7 +23,7 @@ export default defineConfig({
         'lit',
         'lit/decorators.js',
         'lit/directives/if-defined.js',
-        '@tylertech/agent-ui',
+        '@tylertech/agent-ui-core',
         '@tylertech/forge',
         '@tylertech/forge-ai'
       ],

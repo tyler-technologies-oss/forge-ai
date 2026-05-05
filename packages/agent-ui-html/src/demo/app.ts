@@ -3,7 +3,7 @@ import { customElement, state, query } from 'lit/decorators.js';
 import type { TemplateResult } from 'lit';
 import type { AiChatbotComponent } from '@tylertech/forge-ai';
 import { generateId } from '@tylertech/forge-ai';
-import type { ActionEvent, Spec } from '@tylertech/agent-ui';
+import type { ActionEvent, Spec } from '@tylertech/agent-ui-core';
 import { MastraStreamAdapter } from './MastraStreamAdapter.js';
 import { loadAgentConfig, type AgentConfig } from './utils.js';
 import { saveThreadState, loadThreadState, clearThreadState, getThreadId } from './storage.js';

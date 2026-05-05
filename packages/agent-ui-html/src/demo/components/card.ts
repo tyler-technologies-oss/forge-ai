@@ -1,6 +1,6 @@
 import { html, type TemplateResult } from 'lit';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { ComponentContext } from '@tylertech/agent-ui-core';
 import type { LitResult } from '../types.js';
 
 interface CardProps {

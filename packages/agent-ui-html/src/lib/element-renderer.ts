@@ -1,18 +1,14 @@
 import { html, nothing } from 'lit';
 import {
-  getByPath,
-  resolveProps,
-  resolveBindingPaths,
-  isVisible,
-  createRepeatContext,
+  renderElement as renderElementCore,
+  type RenderElementConfig as CoreRenderElementConfig,
   type SpecElement,
   type StateManager,
   type Registry,
-  type ComponentContext,
   type ActionHandler,
   type RenderContext,
   type FieldValidationState
-} from '@tylertech/agent-ui';
+} from '@tylertech/agent-ui-core';
 import type { LitResult, ErrorFallback } from './spec-renderer.js';
 
 export interface RenderElementConfig {
@@ -32,100 +28,12 @@ export interface RenderElementConfig {
 }
 
 export function renderElement(config: RenderElementConfig): LitResult {
-  const {
-    elementId,
-    element,
-    elements,
-    renderContext,
-    registry,
-    stateManager,
-    createEmit,
-    validationState,
-    markTouched,
-    errorFallback
-  } = config;
-
-  if (element.visible !== undefined && !isVisible(element.visible, renderContext)) {
-    return nothing;
-  }
-
-  const factory = registry.get({ type: element.type });
-  if (!factory) {
-    console.warn(`Unknown component type: ${element.type}`);
-    return nothing;
-  }
-
-  const resolvedProps = element.props ? resolveProps(element.props, renderContext) : {};
-  const bindings = (element.props ? resolveBindingPaths(element.props, renderContext) : {}) ?? {};
-
-  let children: LitResult[];
-
-  if (element.repeat && element.children?.length) {
-    const array = getByPath(renderContext.stateModel, element.repeat.statePath) as unknown[] | undefined;
-    if (Array.isArray(array)) {
-      children = array.flatMap((_, index) => {
-        const repeatCtx = createRepeatContext(renderContext, element.repeat!.statePath, index);
-        return element.children!.map(childId => {
-          const childElement = elements[childId];
-          if (!childElement) {
-            return nothing;
-          }
-          return renderElement({
-            elementId: childId,
-            element: childElement,
-            elements,
-            renderContext: repeatCtx,
-            registry,
-            stateManager,
-            createEmit,
-            validationState,
-            markTouched,
-            errorFallback
-          });
-        });
-      });
-    } else {
-      children = [];
-    }
-  } else {
-    children =
-      element.children?.map(childId => {
-        const childElement = elements[childId];
-        if (!childElement) {
-          return nothing;
-        }
-        return renderElement({
-          elementId: childId,
-          element: childElement,
-          elements,
-          renderContext,
-          registry,
-          stateManager,
-          createEmit,
-          validationState,
-          markTouched,
-          errorFallback
-        });
-      }) ?? [];
-  }
-
-  const context: ComponentContext<Record<string, unknown>, LitResult[]> = {
-    props: resolvedProps,
-    children,
-    emit: createEmit(element.on, renderContext),
-    state: stateManager,
-    bindings,
-    validation: validationState[elementId],
-    onBlur: () => markTouched(elementId)
+  const coreConfig: CoreRenderElementConfig<LitResult, LitResult[]> = {
+    ...config,
+    nothingValue: nothing,
+    createErrorResult: (_error: Error, elementType: string) =>
+      html`<div class="render-error">Error rendering ${elementType}</div>`
   };
 
-  try {
-    return factory(context);
-  } catch (error) {
-    console.error(`Error rendering ${element.type}:`, error);
-    if (errorFallback) {
-      return errorFallback(error as Error, element.type);
-    }
-    return html`<div class="render-error">Error rendering ${element.type}</div>`;
-  }
+  return renderElementCore(coreConfig);
 }

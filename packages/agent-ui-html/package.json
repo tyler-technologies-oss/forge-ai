@@ -34,7 +34,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@tylertech/agent-ui": "workspace:^",
+    "@tylertech/agent-ui-core": "workspace:^",
     "lit": "catalog:"
   },
   "peerDependencies": {

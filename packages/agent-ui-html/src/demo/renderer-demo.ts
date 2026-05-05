@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import type { TemplateResult } from 'lit';
-import type { Spec, ComputedFunction } from '@tylertech/agent-ui';
+import type { Spec, ComputedFunction } from '@tylertech/agent-ui-core';
 import '../lib/spec-renderer.js';
 import { registry } from './registry.js';
 

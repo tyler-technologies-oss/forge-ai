@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useRef } from 'react';
 import type { FC } from 'react';
 import { setByPath, type Spec } from '@json-render/core';
 import type { ComponentRegistry } from '@json-render/react';
-import { createCompiler, createRenderTool, type ToolDefinition, type Catalog } from '@tylertech/agent-ui';
+import { createCompiler, createRenderTool, type ToolDefinition, type Catalog } from '@tylertech/agent-ui-core';
 import { Renderer } from './renderer.js';
 
 export interface UseAgentUIConfig {

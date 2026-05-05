@@ -1,7 +1,7 @@
 import { html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { ComponentContext } from '@tylertech/agent-ui-core';
 
 interface AlertBannerProps {
   message?: string;

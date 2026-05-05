@@ -6,7 +6,7 @@ import {
   type ActionEvent,
   type ToolDefinition,
   type Catalog
-} from '@tylertech/agent-ui';
+} from '@tylertech/agent-ui-core';
 
 export interface AgentUIManagerConfig {
   catalog: Catalog;

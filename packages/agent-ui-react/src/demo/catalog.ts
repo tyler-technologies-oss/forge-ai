@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type { ActionDefinition, ComponentDefinition } from '@tylertech/agent-ui';
-import { createCatalog } from '@tylertech/agent-ui';
+import type { ActionDefinition, ComponentDefinition } from '@tylertech/agent-ui-core';
+import { createCatalog } from '@tylertech/agent-ui-core';
 import {
   GridSchema,
   SectionHeaderSchema,
