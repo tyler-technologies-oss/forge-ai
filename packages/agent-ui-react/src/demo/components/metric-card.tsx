@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { ForgeCard, ForgeIcon, ForgeBadge } from '@tylertech/forge-react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 import { formatCurrency } from './utils.js';
 
 interface MetricCardProps {
@@ -14,8 +14,8 @@ interface MetricCardProps {
   variant?: 'default' | 'success' | 'warning' | 'danger';
 }
 
-export function MetricCard(ctx: ComponentContext<MetricCardProps>): ReactElement {
-  const { title = '', value = 0, subtitle, icon, trend, trendValue, variant = 'default' } = ctx.props;
+export function MetricCard({ props, emit }: BaseComponentProps<MetricCardProps>): ReactElement {
+  const { title = '', value = 0, subtitle, icon, trend, trendValue, variant = 'default' } = props;
   const displayValue =
     typeof value === 'string' ? value : typeof value === 'number' ? formatCurrency(value) : String(value);
 
@@ -23,22 +23,20 @@ export function MetricCard(ctx: ComponentContext<MetricCardProps>): ReactElement
   const trendTheme = trend === 'up' ? 'success' : trend === 'down' ? 'danger' : 'tertiary';
 
   return (
-    <ForgeCard
-      className={`genui-metric-card genui-metric-card--${variant}`}
-      onClick={() => ctx.emit('click', { title, value })}>
-      <div className="genui-metric-card__content">
+    <ForgeCard className={`agentui-metric-card agentui-metric-card--${variant}`} onClick={() => emit('click')}>
+      <div className="agentui-metric-card__content">
         {icon && (
-          <div className="genui-metric-card__icon">
+          <div className="agentui-metric-card__icon">
             <ForgeIcon name={icon} />
           </div>
         )}
-        <div className="genui-metric-card__body">
-          <span className="genui-metric-card__title forge-typography--label2">{title}</span>
-          <span className="genui-metric-card__value forge-typography--heading4">{displayValue}</span>
-          {subtitle && <span className="genui-metric-card__subtitle forge-typography--caption">{subtitle}</span>}
+        <div className="agentui-metric-card__body">
+          <span className="agentui-metric-card__title forge-typography--label2">{title}</span>
+          <span className="agentui-metric-card__value forge-typography--heading4">{displayValue}</span>
+          {subtitle && <span className="agentui-metric-card__subtitle forge-typography--caption">{subtitle}</span>}
         </div>
         {trend && trendValue && (
-          <ForgeBadge theme={trendTheme} className="genui-metric-card__trend">
+          <ForgeBadge theme={trendTheme} className="agentui-metric-card__trend">
             {trendIcon && <ForgeIcon name={trendIcon} />}
             <span>{trendValue}</span>
           </ForgeBadge>

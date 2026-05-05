@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { ForgeButton } from '@tylertech/forge-react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 
 interface ButtonProps {
   label?: string;
@@ -9,11 +9,11 @@ interface ButtonProps {
   disabled?: boolean;
 }
 
-export function Button(ctx: ComponentContext<ButtonProps>): ReactElement {
-  const { label = '', variant = 'raised', disabled = false } = ctx.props;
+export function Button({ props, emit }: BaseComponentProps<ButtonProps>): ReactElement {
+  const { label = '', variant = 'raised', disabled = false } = props;
 
   return (
-    <ForgeButton variant={variant} disabled={disabled} onClick={() => ctx.emit('click')}>
+    <ForgeButton variant={variant} disabled={disabled} onClick={() => emit('click')}>
       {label}
     </ForgeButton>
   );

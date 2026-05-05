@@ -3,12 +3,12 @@ import {
   autoFixSpec,
   validateSpec,
   formatSpecIssues,
-  type Spec as JsonRenderSpec,
+  type Spec,
   type SpecStreamCompiler
 } from '@json-render/core';
 import type { ToolDefinition, ToolDeltaContext, ToolEndContext } from '@tylertech/forge-ai';
 import { parse as parsePartialJson } from 'best-effort-json-parser';
-import type { Spec, Catalog } from './types.js';
+import type { Catalog } from './types.js';
 
 export type { ToolDefinition };
 
@@ -61,8 +61,8 @@ export function normalizeJsonl(input: string): string {
   return objects.join('\n') + '\n';
 }
 
-export function createCompiler(): SpecStreamCompiler<JsonRenderSpec> {
-  return createSpecStreamCompiler<JsonRenderSpec>({ elements: {}, state: {} });
+export function createCompiler(): SpecStreamCompiler<Spec> {
+  return createSpecStreamCompiler<Spec>({ elements: {}, state: {} });
 }
 
 export interface ProcessPatchesConfig {
@@ -70,7 +70,7 @@ export interface ProcessPatchesConfig {
 }
 
 export function processPatches(
-  specCompiler: SpecStreamCompiler<JsonRenderSpec>,
+  specCompiler: SpecStreamCompiler<Spec>,
   patches: string,
   config: ProcessPatchesConfig = {}
 ): Spec {
@@ -93,11 +93,11 @@ export function processPatches(
     console.warn('[processPatches] Spec issues:', formatSpecIssues(validation.issues));
   }
 
-  return fixedSpec as Spec;
+  return fixedSpec;
 }
 
 export interface CreateRenderToolConfig {
-  specCompiler: SpecStreamCompiler<JsonRenderSpec>;
+  specCompiler: SpecStreamCompiler<Spec>;
   catalog: Catalog;
   onRender: (spec: Spec) => void;
 }
@@ -137,7 +137,7 @@ For actions: "action": "actionName"`,
     onStart: () => {
       lastProcessedLength = 0;
       specCompiler.reset({ elements: {}, state: {} });
-      onRender({ elements: {}, state: {} } as Spec);
+      onRender({ root: '', elements: {}, state: {} });
     },
     onDelta: (ctx: ToolDeltaContext) => {
       try {

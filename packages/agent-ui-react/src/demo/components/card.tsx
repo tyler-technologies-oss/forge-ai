@@ -1,18 +1,16 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import { ForgeCard } from '@tylertech/forge-react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 
 interface CardProps {
   padded?: boolean;
 }
 
-export function Card(ctx: ComponentContext<CardProps, ReactNode[]>): ReactElement {
-  const { padded = true } = ctx.props;
+export function Card({ props, children }: BaseComponentProps<CardProps>): ReactElement {
+  const { padded = true } = props;
 
-  return (
-    <ForgeCard className={`genui-card ${padded ? 'genui-card--padded' : ''}`}>{ctx.children}</ForgeCard>
-  );
+  return <ForgeCard className={`agentui-card ${padded ? 'agentui-card--padded' : ''}`}>{children}</ForgeCard>;
 }
 
 export const CardSchema = z.object({

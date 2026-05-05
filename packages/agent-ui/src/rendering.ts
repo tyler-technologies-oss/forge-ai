@@ -1,6 +1,4 @@
-import { evaluateVisibility, resolveElementProps, resolveBindings, getByPath } from '@json-render/core';
-
-export type ComputedFunction = (args: Record<string, unknown>) => unknown;
+import { evaluateVisibility, resolveElementProps, resolveBindings, getByPath, type ComputedFunction } from '@json-render/core';
 
 export interface RenderContext {
   stateModel: Record<string, unknown>;

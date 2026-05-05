@@ -65,9 +65,7 @@ const DEMO_SPEC: Spec = {
       type: 'TextField',
       props: {
         label: 'Name (required, min 2 chars)',
-        value: { $bindState: '/form/name' }
-      },
-      validation: {
+        value: { $bindState: '/form/name' },
         validateOn: 'blur',
         checks: [
           { type: 'required', message: 'Name is required' },
@@ -79,9 +77,7 @@ const DEMO_SPEC: Spec = {
       type: 'TextField',
       props: {
         label: 'Email (required, valid email)',
-        value: { $bindState: '/form/email' }
-      },
-      validation: {
+        value: { $bindState: '/form/email' },
         validateOn: 'blur',
         checks: [
           { type: 'required', message: 'Email is required' },

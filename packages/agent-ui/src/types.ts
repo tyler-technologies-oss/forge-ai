@@ -1,10 +1,12 @@
 import type { ZodObject, ZodRawShape } from 'zod';
 
-// Spec (flat element tree)
-export interface Spec {
-  root: string;
-  elements: Record<string, SpecElement>;
-  state?: Record<string, unknown>;
+// Re-export types from @json-render/core
+export type { Spec, UIElement, ActionBinding, ComputedFunction, Catalog } from '@json-render/core';
+
+// Spec element types (used by renderers)
+export interface ActionHandler {
+  action: string;
+  params?: Record<string, unknown>;
 }
 
 export interface SpecElement {
@@ -18,24 +20,6 @@ export interface SpecElement {
     statePath: string;
     key?: string;
   };
-  validation?: ValidationConfig;
-}
-
-export interface ValidationConfig {
-  checks?: ValidationCheck[];
-  validateOn?: 'change' | 'blur' | 'submit';
-  enabled?: unknown;
-}
-
-export interface ValidationCheck {
-  type: string;
-  args?: Record<string, unknown>;
-  message: string;
-}
-
-export interface ActionHandler {
-  action: string;
-  params?: Record<string, unknown>;
 }
 
 // Catalog
@@ -63,34 +47,6 @@ export interface ActionSchema {
   params?: unknown;
 }
 
-export interface Catalog {
-  prompt(config?: PromptConfig): string;
-  validate(config: ValidateConfig): ValidationResult;
-  jsonSchema(): unknown;
-  components(): Record<string, ComponentSchema>;
-  actions(): Record<string, ActionSchema>;
-}
-
-export interface PromptConfig {
-  mode?: 'standalone' | 'inline' | 'generate' | 'chat';
-}
-
-export interface ValidateConfig {
-  spec: unknown;
-}
-
-export interface ValidationResult {
-  success: boolean;
-  data?: Spec;
-  error?: string;
-}
-
-// State Management
-export interface StateManager {
-  get<T = unknown>(path: string): T | undefined;
-  set(path: string, value: unknown): void;
-  resolve<T = unknown>(value: unknown): T;
-}
 
 // Action Event
 export interface ActionEvent {
@@ -104,6 +60,13 @@ export interface FieldValidationState {
   valid: boolean;
   errors: string[];
   touched: boolean;
+}
+
+// State Management
+export interface StateManager {
+  get<T = unknown>(path: string): T | undefined;
+  set(path: string, value: unknown): void;
+  resolve<T = unknown>(value: unknown): T;
 }
 
 // Registry

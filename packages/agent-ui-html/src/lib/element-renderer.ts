@@ -6,12 +6,12 @@ import {
   isVisible,
   createRepeatContext,
   type SpecElement,
-  type FieldValidationState,
   type StateManager,
   type Registry,
   type ComponentContext,
   type ActionHandler,
-  type RenderContext
+  type RenderContext,
+  type FieldValidationState
 } from '@tylertech/agent-ui';
 import type { LitResult, ErrorFallback } from './spec-renderer.js';
 
@@ -116,7 +116,7 @@ export function renderElement(config: RenderElementConfig): LitResult {
     state: stateManager,
     bindings,
     validation: validationState[elementId],
-    onBlur: element.validation ? () => markTouched(elementId) : undefined
+    onBlur: () => markTouched(elementId)
   };
 
   try {

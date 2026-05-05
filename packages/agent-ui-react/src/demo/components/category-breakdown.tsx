@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { ForgeCard, ForgeToolbar } from '@tylertech/forge-react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 import { formatCurrency } from './utils.js';
 
 interface Category {
@@ -25,8 +25,8 @@ const DEFAULT_COLORS = [
   'var(--forge-theme-info-secondary)'
 ];
 
-export function CategoryBreakdown(ctx: ComponentContext<CategoryBreakdownProps>): ReactElement {
-  const { title, categories = [], showLegend = true } = ctx.props;
+export function CategoryBreakdown({ props }: BaseComponentProps<CategoryBreakdownProps>): ReactElement {
+  const { title, categories = [], showLegend = true } = props;
 
   const total = categories.reduce((sum, cat) => sum + cat.value, 0);
 
@@ -35,7 +35,7 @@ export function CategoryBreakdown(ctx: ComponentContext<CategoryBreakdownProps>)
   };
 
   return (
-    <ForgeCard className="genui-category-breakdown">
+    <ForgeCard className="agentui-category-breakdown">
       {title && (
         <ForgeToolbar>
           <h3 className="forge-typography--heading6" slot="start">
@@ -46,13 +46,13 @@ export function CategoryBreakdown(ctx: ComponentContext<CategoryBreakdownProps>)
           </span>
         </ForgeToolbar>
       )}
-      <div className="genui-category-breakdown__bar">
+      <div className="agentui-category-breakdown__bar">
         {categories.map((cat, idx) => {
           const percentage = total > 0 ? (cat.value / total) * 100 : 0;
           return (
             <div
               key={idx}
-              className="genui-category-breakdown__segment"
+              className="agentui-category-breakdown__segment"
               style={{
                 width: `${percentage}%`,
                 backgroundColor: getColor(idx, cat.color)
@@ -63,17 +63,17 @@ export function CategoryBreakdown(ctx: ComponentContext<CategoryBreakdownProps>)
         })}
       </div>
       {showLegend && (
-        <ul className="genui-category-breakdown__legend">
+        <ul className="agentui-category-breakdown__legend">
           {categories.map((cat, idx) => {
             const percentage = total > 0 ? (cat.value / total) * 100 : 0;
             return (
-              <li key={idx} className="genui-category-breakdown__legend-item">
+              <li key={idx} className="agentui-category-breakdown__legend-item">
                 <span
-                  className="genui-category-breakdown__legend-color"
+                  className="agentui-category-breakdown__legend-color"
                   style={{ backgroundColor: getColor(idx, cat.color) }}
                 />
-                <span className="genui-category-breakdown__legend-label forge-typography--body2">{cat.name}</span>
-                <span className="genui-category-breakdown__legend-value forge-typography--caption">
+                <span className="agentui-category-breakdown__legend-label forge-typography--body2">{cat.name}</span>
+                <span className="agentui-category-breakdown__legend-value forge-typography--caption">
                   {formatCurrency(cat.value)} ({percentage.toFixed(0)}%)
                 </span>
               </li>

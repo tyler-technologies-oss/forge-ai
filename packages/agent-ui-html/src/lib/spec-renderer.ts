@@ -5,6 +5,7 @@ import {
   createStateManager,
   resolveProps,
   type Spec,
+  type SpecElement,
   type StateManager,
   type ActionEvent,
   type ActionHandler,
@@ -57,10 +58,14 @@ export class SpecRendererElement extends LitElement {
       return html`<div class="spec-renderer"></div>`;
     }
 
-    const rootElement = this.spec.elements[this.spec.root];
+    const elements = this.spec.elements as Record<string, SpecElement>;
+    const rootElement = elements[this.spec.root];
     if (!rootElement) {
       return html`<div class="spec-renderer"></div>`;
     }
+
+    this.#registerValidations(elements);
+    this.#validationController.validateAll(this._stateModel);
 
     const renderContext: RenderContext = { stateModel: this._stateModel, functions: this.functions };
     const stateManager = this.#createStateManager();
@@ -70,7 +75,7 @@ export class SpecRendererElement extends LitElement {
         ${renderElement({
           elementId: this.spec.root,
           element: rootElement,
-          elements: this.spec.elements,
+          elements,
           renderContext,
           registry: this.registry,
           stateManager,
@@ -90,15 +95,40 @@ export class SpecRendererElement extends LitElement {
       ...this.externalState
     };
     this._stateModel = newState;
-    this.#validationController.updateSpec(this.spec, this._stateModel);
+    this.#validationController.clear();
   }
 
   #createStateManager(): StateManager {
     return createStateManager(this._stateModel, () => {
       this._stateModel = { ...this._stateModel };
-      this.#validationController.updateSpec(this.spec, this._stateModel);
+      this.#validationController.validateAll(this._stateModel);
       this.dispatchEvent(new CustomEvent('spec-renderer-state-change', { detail: { state: this._stateModel } }));
     });
+  }
+
+  #registerValidations(elements: Record<string, SpecElement>): void {
+    for (const [elementId, element] of Object.entries(elements)) {
+      const props = element.props as Record<string, unknown> | undefined;
+      const checks = props?.checks;
+      const validateOn = props?.validateOn;
+
+      if (!checks || !Array.isArray(checks) || checks.length === 0) {
+        continue;
+      }
+
+      const bindPath = Object.values(props ?? {}).find(
+        (v): v is { $bindState: string } => typeof v === 'object' && v !== null && '$bindState' in v
+      )?.$bindState;
+
+      if (!bindPath) {
+        continue;
+      }
+
+      this.#validationController.registerField(elementId, bindPath, {
+        checks: checks as Array<{ type: string; args?: Record<string, unknown>; message: string }>,
+        validateOn: validateOn as 'change' | 'blur' | 'submit' | undefined
+      });
+    }
   }
 
   #createEmit(elementOn: Record<string, ActionHandler> | undefined, ctx: RenderContext) {
@@ -123,8 +153,9 @@ export class SpecRendererElement extends LitElement {
     }
 
     const renderCtx: RenderContext = { stateModel: this._stateModel, functions: this.functions };
+    const elements = this.spec.elements as Record<string, SpecElement>;
 
-    for (const element of Object.values(this.spec.elements)) {
+    for (const element of Object.values(elements)) {
       if (!element.watch) {
         continue;
       }

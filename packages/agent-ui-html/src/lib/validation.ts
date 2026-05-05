@@ -3,14 +3,28 @@ import {
   getByPath,
   runValidation,
   builtInValidationFunctions,
-  type Spec,
   type FieldValidationState
 } from '@tylertech/agent-ui';
+
+interface ValidationConfig {
+  checks: Array<{
+    type: string;
+    args?: Record<string, unknown>;
+    message: string;
+  }>;
+  validateOn?: 'change' | 'blur' | 'submit';
+}
+
+interface ElementValidationInfo {
+  bindPath: string;
+  config: ValidationConfig;
+}
 
 export class ValidationController implements ReactiveController {
   #host: ReactiveControllerHost;
   #touched = new Set<string>();
   #validationState: Record<string, FieldValidationState> = {};
+  #elementValidations: Map<string, ElementValidationInfo> = new Map();
 
   public constructor(host: ReactiveControllerHost) {
     this.#host = host;
@@ -34,28 +48,16 @@ export class ValidationController implements ReactiveController {
     }
   }
 
-  public updateSpec(spec: Spec | null, stateModel: Record<string, unknown>): void {
-    if (!spec?.elements) {
-      return;
-    }
+  public registerField(elementId: string, bindPath: string, config: ValidationConfig): void {
+    this.#elementValidations.set(elementId, { bindPath, config });
+  }
 
+  public validateAll(stateModel: Record<string, unknown>): void {
     const newValidationState: Record<string, FieldValidationState> = {};
 
-    for (const [elementId, element] of Object.entries(spec.elements)) {
-      if (!element.validation?.checks?.length) {
-        continue;
-      }
-
-      const bindPath = Object.values(element.props ?? {}).find(
-        (v): v is { $bindState: string } => typeof v === 'object' && v !== null && '$bindState' in v
-      )?.$bindState;
-
-      if (!bindPath) {
-        continue;
-      }
-
-      const value = getByPath(stateModel, bindPath);
-      const result = runValidation(element.validation as Parameters<typeof runValidation>[0], {
+    for (const [elementId, info] of this.#elementValidations.entries()) {
+      const value = getByPath(stateModel, info.bindPath);
+      const result = runValidation(info.config, {
         value,
         stateModel,
         customFunctions: builtInValidationFunctions
@@ -68,6 +70,12 @@ export class ValidationController implements ReactiveController {
       };
     }
 
-    this.#validationState = { ...this.#validationState, ...newValidationState };
+    this.#validationState = newValidationState;
+  }
+
+  public clear(): void {
+    this.#touched.clear();
+    this.#validationState = {};
+    this.#elementValidations.clear();
   }
 }

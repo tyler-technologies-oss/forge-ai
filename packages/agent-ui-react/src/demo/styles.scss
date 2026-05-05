@@ -70,7 +70,7 @@ forge-ai-chatbot {
 }
 
 // Grid component
-.genui-grid {
+.agentui-grid {
   display: grid;
   width: 100%;
 
@@ -99,7 +99,7 @@ forge-ai-chatbot {
 }
 
 // Section header
-.genui-section-header {
+.agentui-section-header {
   margin-block-end: var(--forge-spacing-medium);
 
   h2 {
@@ -113,7 +113,7 @@ forge-ai-chatbot {
 }
 
 // Metric card
-.genui-metric-card {
+.agentui-metric-card {
   &__content {
     display: flex;
     align-items: flex-start;
@@ -172,7 +172,7 @@ forge-ai-chatbot {
 }
 
 // Budget card
-.genui-budget-card {
+.agentui-budget-card {
   padding: var(--forge-spacing-medium);
 
   &__header {
@@ -218,7 +218,7 @@ forge-ai-chatbot {
 }
 
 // Transaction list
-.genui-transaction-list {
+.agentui-transaction-list {
   &__items {
     list-style: none;
     margin: 0;
@@ -259,12 +259,12 @@ forge-ai-chatbot {
 }
 
 // Alert banner
-.genui-alert-banner {
+.agentui-alert-banner {
   margin-block-end: var(--forge-spacing-medium);
 }
 
 // Stat row
-.genui-stat-row {
+.agentui-stat-row {
   display: flex;
   gap: var(--forge-spacing-large);
   padding: var(--forge-spacing-medium);
@@ -293,7 +293,7 @@ forge-ai-chatbot {
 }
 
 // Data table
-.genui-data-table {
+.agentui-data-table {
   &__description {
     padding-inline: var(--forge-spacing-medium);
     margin-block: 0 var(--forge-spacing-small);
@@ -302,7 +302,7 @@ forge-ai-chatbot {
 }
 
 // Comparison card
-.genui-comparison-card {
+.agentui-comparison-card {
   padding: var(--forge-spacing-medium);
 
   &__title {
@@ -359,7 +359,7 @@ forge-ai-chatbot {
 }
 
 // Ranking list
-.genui-ranking-list {
+.agentui-ranking-list {
   &__items {
     list-style: none;
     margin: 0;
@@ -423,7 +423,7 @@ forge-ai-chatbot {
 }
 
 // Category breakdown
-.genui-category-breakdown {
+.agentui-category-breakdown {
   &__bar {
     display: flex;
     height: 24px;
@@ -472,7 +472,7 @@ forge-ai-chatbot {
 }
 
 // Insight card
-.genui-insight-card {
+.agentui-insight-card {
   &__content {
     display: flex;
     gap: var(--forge-spacing-medium);
@@ -509,7 +509,7 @@ forge-ai-chatbot {
   &--positive {
     --forge-card-outline-color: var(--forge-theme-success);
 
-    .genui-insight-card__icon {
+    .agentui-insight-card__icon {
       background: color-mix(in srgb, var(--forge-theme-success) 15%, transparent);
       color: var(--forge-theme-success);
     }
@@ -518,7 +518,7 @@ forge-ai-chatbot {
   &--negative {
     --forge-card-outline-color: var(--forge-theme-danger);
 
-    .genui-insight-card__icon {
+    .agentui-insight-card__icon {
       background: color-mix(in srgb, var(--forge-theme-danger) 15%, transparent);
       color: var(--forge-theme-danger);
     }
@@ -527,7 +527,7 @@ forge-ai-chatbot {
   &--warning {
     --forge-card-outline-color: var(--forge-theme-warning);
 
-    .genui-insight-card__icon {
+    .agentui-insight-card__icon {
       background: color-mix(in srgb, var(--forge-theme-warning) 15%, transparent);
       color: var(--forge-theme-warning);
     }

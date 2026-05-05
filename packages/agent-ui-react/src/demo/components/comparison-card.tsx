@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { ForgeCard, ForgeIcon } from '@tylertech/forge-react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 import { formatCurrency } from './utils.js';
 
 interface ComparisonCardProps {
@@ -12,8 +12,8 @@ interface ComparisonCardProps {
   rightValue?: number;
 }
 
-export function ComparisonCard(ctx: ComponentContext<ComparisonCardProps>): ReactElement {
-  const { title = '', leftLabel = '', leftValue = 0, rightLabel = '', rightValue = 0 } = ctx.props;
+export function ComparisonCard({ props }: BaseComponentProps<ComparisonCardProps>): ReactElement {
+  const { title = '', leftLabel = '', leftValue = 0, rightLabel = '', rightValue = 0 } = props;
 
   const diff = rightValue - leftValue;
   const percentChange = leftValue !== 0 ? (diff / leftValue) * 100 : 0;
@@ -21,23 +21,23 @@ export function ComparisonCard(ctx: ComponentContext<ComparisonCardProps>): Reac
   const isNegative = diff < 0;
 
   return (
-    <ForgeCard className="genui-comparison-card">
-      {title && <h3 className="genui-comparison-card__title forge-typography--label1">{title}</h3>}
-      <div className="genui-comparison-card__values">
-        <div className="genui-comparison-card__side">
-          <span className="genui-comparison-card__label forge-typography--caption">{leftLabel}</span>
-          <span className="genui-comparison-card__value forge-typography--heading5">{formatCurrency(leftValue)}</span>
+    <ForgeCard className="agentui-comparison-card">
+      {title && <h3 className="agentui-comparison-card__title forge-typography--label1">{title}</h3>}
+      <div className="agentui-comparison-card__values">
+        <div className="agentui-comparison-card__side">
+          <span className="agentui-comparison-card__label forge-typography--caption">{leftLabel}</span>
+          <span className="agentui-comparison-card__value forge-typography--heading5">{formatCurrency(leftValue)}</span>
         </div>
-        <div className="genui-comparison-card__arrow">
+        <div className="agentui-comparison-card__arrow">
           <ForgeIcon name="arrow_forward" />
         </div>
-        <div className="genui-comparison-card__side">
-          <span className="genui-comparison-card__label forge-typography--caption">{rightLabel}</span>
-          <span className="genui-comparison-card__value forge-typography--heading5">{formatCurrency(rightValue)}</span>
+        <div className="agentui-comparison-card__side">
+          <span className="agentui-comparison-card__label forge-typography--caption">{rightLabel}</span>
+          <span className="agentui-comparison-card__value forge-typography--heading5">{formatCurrency(rightValue)}</span>
         </div>
       </div>
       <div
-        className={`genui-comparison-card__change ${isPositive ? 'genui-comparison-card__change--positive' : ''} ${isNegative ? 'genui-comparison-card__change--negative' : ''}`}>
+        className={`agentui-comparison-card__change ${isPositive ? 'agentui-comparison-card__change--positive' : ''} ${isNegative ? 'agentui-comparison-card__change--negative' : ''}`}>
         {isPositive && <ForgeIcon name="trending_up" />}
         {isNegative && <ForgeIcon name="trending_down" />}
         <span>

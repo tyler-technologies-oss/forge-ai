@@ -1,16 +1,16 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 
 interface GridProps {
   columns?: 1 | 2 | 3 | 4;
   gap?: 'sm' | 'md' | 'lg';
 }
 
-export function Grid(ctx: ComponentContext<GridProps, ReactNode[]>): ReactElement {
-  const { columns = 2, gap = 'md' } = ctx.props;
+export function Grid({ props, children }: BaseComponentProps<GridProps>): ReactElement {
+  const { columns = 2, gap = 'md' } = props;
 
-  return <div className={`genui-grid genui-grid--cols-${columns} genui-grid--gap-${gap}`}>{ctx.children}</div>;
+  return <div className={`agentui-grid agentui-grid--cols-${columns} agentui-grid--gap-${gap}`}>{children}</div>;
 }
 
 export const GridSchema = z.object({

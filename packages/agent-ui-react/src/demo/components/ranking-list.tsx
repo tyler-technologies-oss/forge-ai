@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { ForgeCard, ForgeToolbar } from '@tylertech/forge-react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 import { formatCurrency } from './utils.js';
 
 interface RankingItem {
@@ -17,21 +17,21 @@ interface RankingListProps {
   limit?: number;
 }
 
-export function RankingList(ctx: ComponentContext<RankingListProps>): ReactElement {
-  const { title, items = [], variant = 'top', limit = 5 } = ctx.props;
+export function RankingList({ props }: BaseComponentProps<RankingListProps>): ReactElement {
+  const { title, items = [], variant = 'top', limit = 5 } = props;
   const displayedItems = items.slice(0, limit);
 
   const getMedalClass = (index: number): string => {
     if (variant === 'top') {
-      if (index === 0) return 'genui-ranking-list__rank--gold';
-      if (index === 1) return 'genui-ranking-list__rank--silver';
-      if (index === 2) return 'genui-ranking-list__rank--bronze';
+      if (index === 0) return 'agentui-ranking-list__rank--gold';
+      if (index === 1) return 'agentui-ranking-list__rank--silver';
+      if (index === 2) return 'agentui-ranking-list__rank--bronze';
     }
     return '';
   };
 
   return (
-    <ForgeCard className="genui-ranking-list">
+    <ForgeCard className="agentui-ranking-list">
       {title && (
         <ForgeToolbar>
           <h3 className="forge-typography--heading6" slot="start">
@@ -39,17 +39,17 @@ export function RankingList(ctx: ComponentContext<RankingListProps>): ReactEleme
           </h3>
         </ForgeToolbar>
       )}
-      <ol className="genui-ranking-list__items">
+      <ol className="agentui-ranking-list__items">
         {displayedItems.map((item, idx) => (
-          <li key={idx} className="genui-ranking-list__item">
-            <span className={`genui-ranking-list__rank ${getMedalClass(idx)}`}>{idx + 1}</span>
-            <div className="genui-ranking-list__info">
-              <span className="genui-ranking-list__label forge-typography--body2">{item.label}</span>
+          <li key={idx} className="agentui-ranking-list__item">
+            <span className={`agentui-ranking-list__rank ${getMedalClass(idx)}`}>{idx + 1}</span>
+            <div className="agentui-ranking-list__info">
+              <span className="agentui-ranking-list__label forge-typography--body2">{item.label}</span>
               {item.subtitle && (
-                <span className="genui-ranking-list__subtitle forge-typography--caption">{item.subtitle}</span>
+                <span className="agentui-ranking-list__subtitle forge-typography--caption">{item.subtitle}</span>
               )}
             </div>
-            <span className="genui-ranking-list__value forge-typography--label2">{formatCurrency(item.value)}</span>
+            <span className="agentui-ranking-list__value forge-typography--label2">{formatCurrency(item.value)}</span>
           </li>
         ))}
       </ol>

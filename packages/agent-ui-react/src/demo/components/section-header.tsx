@@ -1,21 +1,21 @@
 import type { ReactElement } from 'react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 
 interface SectionHeaderProps {
   title?: string;
   description?: string;
 }
 
-export function SectionHeader(ctx: ComponentContext<SectionHeaderProps>): ReactElement | null {
-  const { title, description } = ctx.props;
+export function SectionHeader({ props }: BaseComponentProps<SectionHeaderProps>): ReactElement | null {
+  const { title, description } = props;
 
   if (!title) {
     return null;
   }
 
   return (
-    <header className="genui-section-header">
+    <header className="agentui-section-header">
       <h2 className="forge-typography--heading5">{title}</h2>
       {description && <p className="forge-typography--body2">{description}</p>}
     </header>

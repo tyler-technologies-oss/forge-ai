@@ -1,8 +1,8 @@
 import { useState, type FC } from 'react';
 import { ForgeScaffold, ForgeAppBar, ForgeIcon, ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import type { Spec, ComputedFunction } from '@tylertech/agent-ui';
-import { SpecRenderer } from '../lib/renderer.js';
-import { registry } from './registry.js';
+import type { ComputedFunction } from '@tylertech/agent-ui';
+import { Renderer, type Spec } from '../lib/index.js';
+import { registry, handlers } from './registry.js';
 
 const COMPUTED_FUNCTIONS: Record<string, ComputedFunction> = {
   formatCurrency: ({ value }) => {
@@ -16,7 +16,7 @@ const COMPUTED_FUNCTIONS: Record<string, ComputedFunction> = {
   }
 };
 
-const DEMO_SPEC: Spec = {
+const DEMO_SPEC = {
   root: 'main',
   elements: {
     main: {
@@ -64,9 +64,7 @@ const DEMO_SPEC: Spec = {
       type: 'TextField',
       props: {
         label: 'Name (required, min 2 chars)',
-        value: { $bindState: '/form/name' }
-      },
-      validation: {
+        value: { $bindState: '/form/name' },
         validateOn: 'blur',
         checks: [
           { type: 'required', message: 'Name is required' },
@@ -78,9 +76,7 @@ const DEMO_SPEC: Spec = {
       type: 'TextField',
       props: {
         label: 'Email (required, valid email)',
-        value: { $bindState: '/form/email' }
-      },
-      validation: {
+        value: { $bindState: '/form/email' },
         validateOn: 'blur',
         checks: [
           { type: 'required', message: 'Email is required' },
@@ -390,7 +386,13 @@ export const RendererDemo: FC = () => {
         </ForgeCard>
 
         <div className="renderer-demo__output">
-          <SpecRenderer spec={DEMO_SPEC} state={state} registry={registry} functions={COMPUTED_FUNCTIONS} />
+          <Renderer
+            spec={DEMO_SPEC}
+            initialState={state}
+            registry={registry}
+            handlers={handlers}
+            functions={COMPUTED_FUNCTIONS}
+          />
         </div>
       </main>
     </ForgeScaffold>

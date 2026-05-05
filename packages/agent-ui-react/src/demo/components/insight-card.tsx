@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { ForgeCard, ForgeIcon } from '@tylertech/forge-react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 
 interface InsightCardProps {
   title?: string;
@@ -12,13 +12,13 @@ interface InsightCardProps {
 
 const VARIANT_CONFIG: Record<string, { icon: string; className: string }> = {
   neutral: { icon: 'lightbulb', className: '' },
-  positive: { icon: 'thumb_up', className: 'genui-insight-card--positive' },
-  negative: { icon: 'thumb_down', className: 'genui-insight-card--negative' },
-  warning: { icon: 'priority_high', className: 'genui-insight-card--warning' }
+  positive: { icon: 'thumb_up', className: 'agentui-insight-card--positive' },
+  negative: { icon: 'thumb_down', className: 'agentui-insight-card--negative' },
+  warning: { icon: 'priority_high', className: 'agentui-insight-card--warning' }
 };
 
-export function InsightCard(ctx: ComponentContext<InsightCardProps>): ReactElement | null {
-  const { title, insight, icon, sentiment = 'neutral' } = ctx.props;
+export function InsightCard({ props, emit }: BaseComponentProps<InsightCardProps>): ReactElement | null {
+  const { title, insight, icon, sentiment = 'neutral' } = props;
 
   if (!insight) {
     return null;
@@ -28,16 +28,14 @@ export function InsightCard(ctx: ComponentContext<InsightCardProps>): ReactEleme
   const displayIcon = icon || config.icon;
 
   return (
-    <ForgeCard
-      className={`genui-insight-card ${config.className}`}
-      onClick={() => ctx.emit('click', { title, sentiment })}>
-      <div className="genui-insight-card__content">
-        <div className="genui-insight-card__icon">
+    <ForgeCard className={`agentui-insight-card ${config.className}`} onClick={() => emit('click')}>
+      <div className="agentui-insight-card__content">
+        <div className="agentui-insight-card__icon">
           <ForgeIcon name={displayIcon} />
         </div>
-        <div className="genui-insight-card__body">
-          {title && <span className="genui-insight-card__title forge-typography--label1">{title}</span>}
-          <p className="genui-insight-card__insight forge-typography--body2">{insight}</p>
+        <div className="agentui-insight-card__body">
+          {title && <span className="agentui-insight-card__title forge-typography--label1">{title}</span>}
+          <p className="agentui-insight-card__insight forge-typography--body2">{insight}</p>
         </div>
       </div>
     </ForgeCard>

@@ -32,6 +32,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@json-render/react": "^0.18.0",
     "@tylertech/agent-ui": "workspace:^"
   },
   "peerDependencies": {

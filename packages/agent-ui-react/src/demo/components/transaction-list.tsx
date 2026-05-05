@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { ForgeCard, ForgeBadge, ForgeToolbar } from '@tylertech/forge-react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 import { formatCurrency, formatDate } from './utils.js';
 
 interface Transaction {
@@ -17,12 +17,12 @@ interface TransactionListProps {
   limit?: number;
 }
 
-export function TransactionList(ctx: ComponentContext<TransactionListProps>): ReactElement {
-  const { title, transactions = [], limit = 5 } = ctx.props;
+export function TransactionList({ props }: BaseComponentProps<TransactionListProps>): ReactElement {
+  const { title, transactions = [], limit = 5 } = props;
   const displayedTransactions = transactions.slice(0, limit);
 
   return (
-    <ForgeCard className="genui-transaction-list">
+    <ForgeCard className="agentui-transaction-list">
       {title && (
         <ForgeToolbar>
           <h3 className="forge-typography--heading6" slot="start">
@@ -30,15 +30,15 @@ export function TransactionList(ctx: ComponentContext<TransactionListProps>): Re
           </h3>
         </ForgeToolbar>
       )}
-      <ul className="genui-transaction-list__items">
+      <ul className="agentui-transaction-list__items">
         {displayedTransactions.map((tx, idx) => (
-          <li key={idx} className="genui-transaction-list__item">
-            <div className="genui-transaction-list__info">
-              <span className="genui-transaction-list__description forge-typography--body2">{tx.description}</span>
-              <span className="genui-transaction-list__date forge-typography--caption">{formatDate(tx.date)}</span>
+          <li key={idx} className="agentui-transaction-list__item">
+            <div className="agentui-transaction-list__info">
+              <span className="agentui-transaction-list__description forge-typography--body2">{tx.description}</span>
+              <span className="agentui-transaction-list__date forge-typography--caption">{formatDate(tx.date)}</span>
             </div>
-            <div className="genui-transaction-list__right">
-              <span className="genui-transaction-list__amount forge-typography--label2">
+            <div className="agentui-transaction-list__right">
+              <span className="agentui-transaction-list__amount forge-typography--label2">
                 {formatCurrency(tx.amount)}
               </span>
               {tx.category && <ForgeBadge theme="tertiary">{tx.category}</ForgeBadge>}

@@ -12,10 +12,9 @@ import { generateId } from '@tylertech/forge-ai';
 import { MastraStreamAdapter } from './MastraStreamAdapter.js';
 import { loadAgentConfig, type AgentConfig } from './utils.js';
 import { saveThreadState, loadThreadState, clearThreadState, getThreadId } from './storage.js';
-import { useGenUI } from '../lib/index.js';
+import { useAgentUI } from '../lib/index.js';
 import { catalog } from './catalog.js';
 import { registry } from './registry.js';
-import type { ActionEvent } from '@tylertech/agent-ui';
 
 export const BASE_URL = 'https://foundry.tylertechai.com';
 export const AGENT_ID = '28186a3b-1ee1-4c5c-bb79-ba5e836dcb37';
@@ -86,11 +85,11 @@ const App: FC = () => {
   const adapterRef = useRef<MastraStreamAdapter | null>(null);
   const [agentConfig, setAgentConfig] = useState<AgentConfig | null>(null);
 
-  const handleAction = useCallback((event: ActionEvent): void => {
-    console.log('[AgentUI] Action:', event);
+  const handleAction = useCallback((actionName: string, params?: Record<string, unknown>): void => {
+    console.log('[AgentUI] Action:', actionName, params);
   }, []);
 
-  const { tools, Renderer, spec, setSpec, loading, setLoading, reset } = useGenUI({
+  const { tools, Renderer, spec, setSpec, isStreaming, setIsStreaming, reset } = useAgentUI({
     catalog,
     registry,
     onAction: handleAction
@@ -111,7 +110,7 @@ const App: FC = () => {
 
       const adapter = new MastraStreamAdapter({ url: `${BASE_URL}/api/agents/${AGENT_ID}/stream`, tools }, threadId);
 
-      const stopLoading = (): void => setLoading(false);
+      const stopLoading = (): void => setIsStreaming(false);
       adapter.onRunFinished(stopLoading);
       adapter.onRunAborted(stopLoading);
       adapter.onError(stopLoading);
@@ -137,7 +136,7 @@ const App: FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [tools, setSpec, setLoading]);
+  }, [tools, setSpec, setIsStreaming]);
 
   const handleThreadStateChange = useCallback((): void => {
     const threadState = chatbotRef.current?.getThreadState();
@@ -149,7 +148,7 @@ const App: FC = () => {
   }, [spec]);
 
   const handleRunStarted = useCallback((): void => {
-    setLoading(true);
+    setIsStreaming(true);
     adapterRef.current?.setContext({
       clientContext: {
         uiState: JSON.stringify(spec),
@@ -158,7 +157,7 @@ const App: FC = () => {
         financialData: JSON.stringify(FINANCIAL_DATA)
       }
     });
-  }, [spec, setLoading]);
+  }, [spec, setIsStreaming]);
 
   const handleClear = useCallback((): void => {
     clearThreadState(STORAGE_KEY);
@@ -191,9 +190,9 @@ const App: FC = () => {
         </ForgeAiChatbot>
       </ForgeDrawer>
 
-      <main slot="body" id="content" className={loading ? 'loading' : ''}>
+      <main slot="body" id="content" className={isStreaming ? 'loading' : ''}>
         {spec ? (
-          <div className="spec-renderer-container" inert={loading ? '' : undefined}>
+          <div className="spec-renderer-container" inert={isStreaming ? '' : undefined}>
             <Renderer />
           </div>
         ) : (

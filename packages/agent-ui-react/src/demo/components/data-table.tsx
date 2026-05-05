@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import { ForgeCard, ForgeToolbar, ForgePaginator } from '@tylertech/forge-react';
 import type { IColumnConfiguration, IPaginatorChangeEventData } from '@tylertech/forge';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 
 interface DataTableProps {
   title?: string;
@@ -13,8 +13,8 @@ interface DataTableProps {
   pageSize?: number;
 }
 
-export function DataTable(ctx: ComponentContext<DataTableProps>): ReactElement {
-  const { title = '', description = '', data = [], columns = [], pageSize = 10 } = ctx.props;
+export function DataTable({ props }: BaseComponentProps<DataTableProps>): ReactElement {
+  const { title = '', description = '', data = [], columns = [], pageSize = 10 } = props;
 
   const [pageIndex, setPageIndex] = useState(0);
   const tableRef = useRef<HTMLElement>(null);
@@ -38,7 +38,7 @@ export function DataTable(ctx: ComponentContext<DataTableProps>): ReactElement {
   };
 
   return (
-    <div className="genui-data-table">
+    <div className="agentui-data-table">
       <ForgeCard>
         {title && (
           <ForgeToolbar>
@@ -47,7 +47,7 @@ export function DataTable(ctx: ComponentContext<DataTableProps>): ReactElement {
             </h2>
           </ForgeToolbar>
         )}
-        {description && <p className="genui-data-table__description forge-typography--body2">{description}</p>}
+        {description && <p className="agentui-data-table__description forge-typography--body2">{description}</p>}
         <forge-table ref={tableRef}></forge-table>
         {showPaginator && (
           <ForgeToolbar noDivider>

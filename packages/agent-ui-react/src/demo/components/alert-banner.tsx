@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { ForgeBanner, ForgeIcon } from '@tylertech/forge-react';
 import { z } from 'zod';
-import type { ComponentContext } from '@tylertech/agent-ui';
+import type { BaseComponentProps } from '@tylertech/agent-ui-react';
 
 interface AlertBannerProps {
   message?: string;
@@ -16,8 +16,8 @@ const VARIANT_MAP: Record<string, { theme: string; defaultIcon: string }> = {
   success: { theme: 'success', defaultIcon: 'check_circle' }
 };
 
-export function AlertBanner(ctx: ComponentContext<AlertBannerProps>): ReactElement | null {
-  const { message, variant = 'info', icon } = ctx.props;
+export function AlertBanner({ props, emit }: BaseComponentProps<AlertBannerProps>): ReactElement | null {
+  const { message, variant = 'info', icon } = props;
 
   if (!message) {
     return null;
@@ -27,11 +27,7 @@ export function AlertBanner(ctx: ComponentContext<AlertBannerProps>): ReactEleme
   const displayIcon = icon || config.defaultIcon;
 
   return (
-    <ForgeBanner
-      theme={config.theme as any}
-      persistent
-      className="genui-alert-banner"
-      onClick={() => ctx.emit('click', { variant })}>
+    <ForgeBanner theme={config.theme as any} persistent className="agentui-alert-banner" onClick={() => emit('click')}>
       <ForgeIcon slot="icon" name={displayIcon} external />
       <span>{message}</span>
     </ForgeBanner>

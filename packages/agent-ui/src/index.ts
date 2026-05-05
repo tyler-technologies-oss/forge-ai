@@ -1,21 +1,21 @@
-// Types
+// Types (re-exported from @json-render/core)
+export type { Spec, UIElement, ActionBinding, ComputedFunction, Catalog } from './types.js';
+
+// Types (unique to this package)
 export type {
-  Spec,
-  SpecElement,
   ActionHandler,
+  SpecElement,
   ComponentDefinition,
   ActionDefinition,
   ComponentSchema,
   ActionSchema,
-  Catalog,
-  PromptConfig,
-  ValidateConfig,
-  ValidationResult,
-  ValidationConfig,
-  ValidationCheck,
   FieldValidationState,
+  ActionEvent
+} from './types.js';
+
+// State & Registry types
+export type {
   StateManager,
-  ActionEvent,
   ComponentFactory,
   ComponentContext,
   Registry,
@@ -26,7 +26,7 @@ export type {
 export { defaultSchema, type DefaultSchema } from './schema.js';
 
 // Catalog
-export { createCatalog, type CreateCatalogConfig } from './catalog.js';
+export { createCatalog, type CreateCatalogConfig, type AgentCatalog } from './catalog.js';
 
 // Registry
 export { createRegistry, type CreateRegistryConfig } from './registry.js';
@@ -51,8 +51,7 @@ export {
   resolveBindingPaths,
   isVisible,
   createRepeatContext,
-  type RenderContext,
-  type ComputedFunction
+  type RenderContext
 } from './rendering.js';
 
 // Validation & utilities (re-export from @json-render/core)
