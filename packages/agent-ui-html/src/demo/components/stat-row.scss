@@ -1,0 +1,31 @@
+:host {
+  display: block;
+}
+
+.stat-row {
+  display: flex;
+  gap: var(--forge-spacing-large);
+  padding: var(--forge-spacing-medium);
+  background: var(--forge-theme-surface-container-low);
+  border-radius: var(--forge-shape-medium);
+}
+
+.stat-row__item {
+  display: flex;
+  align-items: center;
+  gap: var(--forge-spacing-small);
+}
+
+.stat-row__icon {
+  color: var(--forge-theme-primary);
+  --forge-icon-font-size: 24px;
+}
+
+.stat-row__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-row__label {
+  color: var(--forge-theme-text-medium);
+}

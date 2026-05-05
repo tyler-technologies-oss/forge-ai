@@ -1,0 +1,13 @@
+:host {
+  display: block;
+  margin-block-end: var(--forge-spacing-medium);
+}
+
+h2 {
+  margin: 0;
+}
+
+p {
+  margin: var(--forge-spacing-xsmall) 0 0;
+  color: var(--forge-theme-text-medium);
+}

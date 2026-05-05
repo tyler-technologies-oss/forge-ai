@@ -1,8 +1,10 @@
-import { html, nothing } from 'lit';
-import type { TemplateResult } from 'lit';
+import { LitElement, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { z } from 'zod';
 import type { ComponentContext } from '@tylertech/agent-ui-core';
 import { formatCurrency } from './utils.js';
+
+import styles from './category-breakdown.scss?inline';
 
 interface Category {
   name: string;
@@ -25,57 +27,75 @@ const DEFAULT_COLORS = [
   'var(--forge-theme-info-secondary)'
 ];
 
-export function CategoryBreakdown(ctx: ComponentContext<CategoryBreakdownProps>): TemplateResult {
-  const { title, categories = [], showLegend = true } = ctx.props;
+@customElement('agentui-category-breakdown')
+export class AgentUICategoryBreakdownComponent extends LitElement {
+  public static override styles = unsafeCSS(styles);
 
-  const total = categories.reduce((sum, cat) => sum + cat.value, 0);
+  @property({ type: String }) public titleText: string = '';
+  @property({ type: Array }) public categories: Category[] = [];
+  @property({ type: Boolean }) public showLegend = true;
 
-  const getColor = (index: number, customColor?: string): string => {
+  get #total(): number {
+    return this.categories.reduce((sum, cat) => sum + cat.value, 0);
+  }
+
+  #getColor(index: number, customColor?: string): string {
     return customColor || DEFAULT_COLORS[index % DEFAULT_COLORS.length];
-  };
+  }
+
+  protected override render(): TemplateResult {
+    return html`
+      <forge-card>
+        ${this.titleText
+          ? html`
+              <forge-toolbar>
+                <h3 class="forge-typography--heading6" slot="start">${this.titleText}</h3>
+                <span class="forge-typography--label2" slot="end">${formatCurrency(this.#total)}</span>
+              </forge-toolbar>
+            `
+          : nothing}
+        <div class="category-breakdown__bar">
+          ${this.categories.map((cat, idx) => {
+            const percentage = this.#total > 0 ? (cat.value / this.#total) * 100 : 0;
+            return html`
+              <div
+                class="category-breakdown__segment"
+                style="width: ${percentage}%; background-color: ${this.#getColor(idx, cat.color)}"
+                title="${cat.name}: ${formatCurrency(cat.value)} (${percentage.toFixed(1)}%)"></div>
+            `;
+          })}
+        </div>
+        ${this.showLegend
+          ? html`
+              <ul class="category-breakdown__legend">
+                ${this.categories.map((cat, idx) => {
+                  const percentage = this.#total > 0 ? (cat.value / this.#total) * 100 : 0;
+                  return html`
+                    <li class="category-breakdown__legend-item">
+                      <span
+                        class="category-breakdown__legend-color"
+                        style="background-color: ${this.#getColor(idx, cat.color)}"></span>
+                      <span class="category-breakdown__legend-label forge-typography--body2">${cat.name}</span>
+                      <span class="category-breakdown__legend-value forge-typography--caption">
+                        ${formatCurrency(cat.value)} (${percentage.toFixed(0)}%)
+                      </span>
+                    </li>
+                  `;
+                })}
+              </ul>
+            `
+          : nothing}
+      </forge-card>
+    `;
+  }
+}
+
+export function CategoryBreakdown(ctx: ComponentContext<CategoryBreakdownProps>): TemplateResult {
+  const { title = '', categories = [], showLegend = true } = ctx.props;
 
   return html`
-    <forge-card class="agentui-category-breakdown">
-      ${title
-        ? html`
-            <forge-toolbar>
-              <h3 class="forge-typography--heading6" slot="start">${title}</h3>
-              <span class="forge-typography--label2" slot="end">${formatCurrency(total)}</span>
-            </forge-toolbar>
-          `
-        : nothing}
-      <div class="agentui-category-breakdown__bar">
-        ${categories.map((cat, idx) => {
-          const percentage = total > 0 ? (cat.value / total) * 100 : 0;
-          return html`
-            <div
-              class="agentui-category-breakdown__segment"
-              style="width: ${percentage}%; background-color: ${getColor(idx, cat.color)}"
-              title="${cat.name}: ${formatCurrency(cat.value)} (${percentage.toFixed(1)}%)"></div>
-          `;
-        })}
-      </div>
-      ${showLegend
-        ? html`
-            <ul class="agentui-category-breakdown__legend">
-              ${categories.map((cat, idx) => {
-                const percentage = total > 0 ? (cat.value / total) * 100 : 0;
-                return html`
-                  <li class="agentui-category-breakdown__legend-item">
-                    <span
-                      class="agentui-category-breakdown__legend-color"
-                      style="background-color: ${getColor(idx, cat.color)}"></span>
-                    <span class="agentui-category-breakdown__legend-label forge-typography--body2">${cat.name}</span>
-                    <span class="agentui-category-breakdown__legend-value forge-typography--caption">
-                      ${formatCurrency(cat.value)} (${percentage.toFixed(0)}%)
-                    </span>
-                  </li>
-                `;
-              })}
-            </ul>
-          `
-        : nothing}
-    </forge-card>
+    <agentui-category-breakdown .titleText=${title} .categories=${categories} .showLegend=${showLegend}>
+    </agentui-category-breakdown>
   `;
 }
 
@@ -92,3 +112,9 @@ export const CategoryBreakdownSchema = z.object({
     .describe('Categories to display'),
   showLegend: z.boolean().describe('Show legend below bar (default true)').optional()
 });
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'agentui-category-breakdown': AgentUICategoryBreakdownComponent;
+  }
+}

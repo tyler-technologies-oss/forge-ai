@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+.data-table__description {
+  padding-inline: var(--forge-spacing-medium);
+  margin-block: 0 var(--forge-spacing-small);
+  color: var(--forge-theme-text-medium);
+}

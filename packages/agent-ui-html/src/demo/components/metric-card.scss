@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+
+forge-card {
+  height: 100%;
+  cursor: pointer;
+}
+
+.metric-card__content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--forge-spacing-medium);
+  padding: var(--forge-spacing-medium);
+}
+
+.metric-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--forge-shape-medium);
+  background: var(--forge-theme-surface-container-low);
+  color: var(--forge-theme-primary);
+  --forge-icon-font-size: 24px;
+}
+
+.metric-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.metric-card__title {
+  color: var(--forge-theme-text-medium);
+}
+
+.metric-card__value {
+  margin-block-start: var(--forge-spacing-xxsmall);
+}
+
+.metric-card__subtitle {
+  margin-block-start: var(--forge-spacing-xxsmall);
+  color: var(--forge-theme-text-medium);
+}
+
+.metric-card__trend {
+  display: flex;
+  align-items: center;
+  gap: var(--forge-spacing-xxsmall);
+  --forge-icon-font-size: 16px;
+}
+
+:host([variant='success']) forge-card {
+  --forge-card-outline-color: var(--forge-theme-success);
+}
+
+:host([variant='warning']) forge-card {
+  --forge-card-outline-color: var(--forge-theme-warning);
+}
+
+:host([variant='danger']) forge-card {
+  --forge-card-outline-color: var(--forge-theme-danger);
+}

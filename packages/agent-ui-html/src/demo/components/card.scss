@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+:host([padded]) forge-card {
+  padding: var(--forge-spacing-medium);
+}

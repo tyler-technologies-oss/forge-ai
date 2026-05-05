@@ -1,0 +1,45 @@
+:host {
+  display: block;
+}
+
+forge-card {
+  height: 100%;
+}
+
+.transaction-list__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.transaction-list__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--forge-spacing-small) var(--forge-spacing-medium);
+  border-block-end: 1px solid var(--forge-theme-outline-dim);
+
+  &:last-child {
+    border-block-end: none;
+  }
+}
+
+.transaction-list__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--forge-spacing-xxsmall);
+}
+
+.transaction-list__date {
+  color: var(--forge-theme-text-medium);
+}
+
+.transaction-list__right {
+  display: flex;
+  align-items: center;
+  gap: var(--forge-spacing-small);
+}
+
+.transaction-list__amount {
+  white-space: nowrap;
+}

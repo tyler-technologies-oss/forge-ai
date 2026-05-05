@@ -1,8 +1,10 @@
-import { html, nothing } from 'lit';
-import type { TemplateResult } from 'lit';
+import { LitElement, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { z } from 'zod';
 import type { ComponentContext } from '@tylertech/agent-ui-core';
 import { formatCurrency } from './utils.js';
+
+import styles from './stat-row.scss?inline';
 
 interface Stat {
   label: string;
@@ -14,6 +16,35 @@ interface StatRowProps {
   stats?: Stat[];
 }
 
+@customElement('agentui-stat-row')
+export class AgentUIStatRowComponent extends LitElement {
+  public static override styles = unsafeCSS(styles);
+
+  @property({ type: Array }) public stats: Stat[] = [];
+
+  protected override render(): TemplateResult | typeof nothing {
+    if (this.stats.length === 0) {
+      return nothing;
+    }
+
+    return html`
+      <div class="stat-row">
+        ${this.stats.map(
+          stat => html`
+            <div class="stat-row__item">
+              ${stat.icon ? html`<forge-icon name=${stat.icon} class="stat-row__icon"></forge-icon>` : nothing}
+              <div class="stat-row__content">
+                <span class="stat-row__value forge-typography--heading6">${formatCurrency(stat.value)}</span>
+                <span class="stat-row__label forge-typography--caption">${stat.label}</span>
+              </div>
+            </div>
+          `
+        )}
+      </div>
+    `;
+  }
+}
+
 export function StatRow(ctx: ComponentContext<StatRowProps>): TemplateResult | typeof nothing {
   const { stats = [] } = ctx.props;
 
@@ -21,21 +52,7 @@ export function StatRow(ctx: ComponentContext<StatRowProps>): TemplateResult | t
     return nothing;
   }
 
-  return html`
-    <div class="agentui-stat-row">
-      ${stats.map(
-        stat => html`
-          <div class="agentui-stat-row__item">
-            ${stat.icon ? html`<forge-icon name=${stat.icon} class="agentui-stat-row__icon"></forge-icon>` : nothing}
-            <div class="agentui-stat-row__content">
-              <span class="agentui-stat-row__value forge-typography--heading6">${formatCurrency(stat.value)}</span>
-              <span class="agentui-stat-row__label forge-typography--caption">${stat.label}</span>
-            </div>
-          </div>
-        `
-      )}
-    </div>
-  `;
+  return html`<agentui-stat-row .stats=${stats}></agentui-stat-row>`;
 }
 
 export const StatRowSchema = z.object({
@@ -49,3 +66,9 @@ export const StatRowSchema = z.object({
     )
     .describe('Array of stats to display')
 });
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'agentui-stat-row': AgentUIStatRowComponent;
+  }
+}

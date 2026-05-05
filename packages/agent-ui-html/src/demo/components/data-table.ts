@@ -1,8 +1,10 @@
-import { html, nothing } from 'lit';
-import type { TemplateResult } from 'lit';
+import { LitElement, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
+import { customElement, property, query } from 'lit/decorators.js';
 import { z } from 'zod';
 import type { ComponentContext } from '@tylertech/agent-ui-core';
 import type { IColumnConfiguration, IPaginatorChangeEventData } from '@tylertech/forge';
+
+import styles from './data-table.scss?inline';
 
 interface DataTableProps {
   title?: string;
@@ -12,62 +14,91 @@ interface DataTableProps {
   pageSize?: number;
 }
 
-let tableIdCounter = 0;
+@customElement('agentui-data-table')
+export class AgentUIDataTableComponent extends LitElement {
+  public static override styles = unsafeCSS(styles);
 
-export function DataTable(ctx: ComponentContext<DataTableProps>): TemplateResult {
-  const { title = '', description = '', data = [], columns = [], pageSize = 10 } = ctx.props;
-  const tableId = `data-table-${tableIdCounter++}`;
+  @property({ type: String }) public titleText: string = '';
+  @property({ type: String }) public description?: string;
+  @property({ type: Array }) public data: Record<string, unknown>[] = [];
+  @property({ type: Array }) public columns: IColumnConfiguration[] = [];
+  @property({ type: Number }) public pageSize = 10;
 
-  const showPaginator = data.length > pageSize;
+  @query('forge-table') private _table?: HTMLElement & { data: unknown[]; columnConfigurations: unknown[] };
 
-  const initTable = (el: Element | undefined): void => {
-    if (!el) return;
-    const table = el.querySelector('forge-table') as HTMLElement & { data: unknown[]; columnConfigurations: unknown[] };
-    if (table) {
-      table.data = showPaginator ? data.slice(0, pageSize) : data;
-      table.columnConfigurations = columns;
+  #currentPageIndex = 0;
+
+  protected override firstUpdated(): void {
+    this.#updateTableData();
+  }
+
+  protected override updated(changedProps: Map<string, unknown>): void {
+    if (changedProps.has('data') || changedProps.has('columns') || changedProps.has('pageSize')) {
+      this.#currentPageIndex = 0;
+      this.#updateTableData();
     }
-  };
+  }
 
-  const handlePageChange = (e: CustomEvent<IPaginatorChangeEventData>): void => {
-    const pageIndex = e.detail.pageIndex;
-    const container = document.getElementById(tableId);
-    if (container) {
-      const table = container.querySelector('forge-table') as HTMLElement & { data: unknown[] };
-      if (table) {
-        table.data = data.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
-      }
+  #updateTableData(): void {
+    if (!this._table) {
+      return;
     }
-  };
 
-  return html`
-    <div id=${tableId} class="agentui-data-table" ${initTable as any}>
+    const showPaginator = this.data.length > this.pageSize;
+    this._table.data = showPaginator ? this.data.slice(0, this.pageSize) : this.data;
+    this._table.columnConfigurations = this.columns;
+  }
+
+  #handlePageChange(e: CustomEvent<IPaginatorChangeEventData>): void {
+    this.#currentPageIndex = e.detail.pageIndex;
+    if (!this._table) {
+      return;
+    }
+
+    this._table.data = this.data.slice(this.#currentPageIndex * this.pageSize, (this.#currentPageIndex + 1) * this.pageSize);
+  }
+
+  get #showPaginator(): boolean {
+    return this.data.length > this.pageSize;
+  }
+
+  protected override render(): TemplateResult {
+    return html`
       <forge-card>
-        ${title
+        ${this.titleText
           ? html`
               <forge-toolbar>
-                <h2 class="forge-typography--heading5" slot="start">${title}</h2>
+                <h2 class="forge-typography--heading5" slot="start">${this.titleText}</h2>
               </forge-toolbar>
             `
           : nothing}
-        ${description ? html`<p class="agentui-data-table__description forge-typography--body2">${description}</p>` : nothing}
+        ${this.description ? html`<p class="data-table__description forge-typography--body2">${this.description}</p>` : nothing}
         <forge-table></forge-table>
-        ${showPaginator
+        ${this.#showPaginator
           ? html`
               <forge-toolbar no-divider>
                 <forge-paginator
                   slot="end"
                   page-index="0"
-                  .pageSize=${pageSize}
-                  .total=${data.length}
-                  .pageSizeOptions=${[pageSize]}
-                  @forge-paginator-change=${handlePageChange}>
+                  .pageSize=${this.pageSize}
+                  .total=${this.data.length}
+                  .pageSizeOptions=${[this.pageSize]}
+                  @forge-paginator-change=${this.#handlePageChange}>
                 </forge-paginator>
               </forge-toolbar>
             `
           : nothing}
       </forge-card>
-    </div>
+    `;
+  }
+}
+
+export function DataTable(ctx: ComponentContext<DataTableProps>): TemplateResult {
+  const { title = '', description = '', data = [], columns = [], pageSize = 10 } = ctx.props;
+
+  return html`
+    <agentui-data-table .titleText=${title} .description=${description} .data=${data} .columns=${columns} .pageSize=${pageSize}>
+    </agentui-data-table>
   `;
 }
 
@@ -89,3 +120,9 @@ export const DataTableSchema = z.object({
     .optional(),
   pageSize: z.number().describe('Rows per page (default 10)').optional()
 });
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'agentui-data-table': AgentUIDataTableComponent;
+  }
+}

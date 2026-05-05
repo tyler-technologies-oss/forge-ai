@@ -1,0 +1,67 @@
+:host {
+  display: block;
+}
+
+forge-card {
+  cursor: pointer;
+}
+
+.insight-card__content {
+  display: flex;
+  gap: var(--forge-spacing-medium);
+  padding: var(--forge-spacing-medium);
+}
+
+.insight-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--forge-theme-surface-container-low);
+  color: var(--forge-theme-primary);
+  flex-shrink: 0;
+  --forge-icon-font-size: 20px;
+}
+
+.insight-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--forge-spacing-xxsmall);
+}
+
+.insight-card__title {
+  color: var(--forge-theme-text-medium);
+}
+
+.insight-card__insight {
+  margin: 0;
+}
+
+:host([sentiment='positive']) forge-card {
+  --forge-card-outline-color: var(--forge-theme-success);
+}
+
+:host([sentiment='positive']) .insight-card__icon {
+  background: color-mix(in srgb, var(--forge-theme-success) 15%, transparent);
+  color: var(--forge-theme-success);
+}
+
+:host([sentiment='negative']) forge-card {
+  --forge-card-outline-color: var(--forge-theme-danger);
+}
+
+:host([sentiment='negative']) .insight-card__icon {
+  background: color-mix(in srgb, var(--forge-theme-danger) 15%, transparent);
+  color: var(--forge-theme-danger);
+}
+
+:host([sentiment='warning']) forge-card {
+  --forge-card-outline-color: var(--forge-theme-warning);
+}
+
+:host([sentiment='warning']) .insight-card__icon {
+  background: color-mix(in srgb, var(--forge-theme-warning) 15%, transparent);
+  color: var(--forge-theme-warning);
+}

@@ -1,0 +1,53 @@
+:host {
+  display: block;
+}
+
+forge-card {
+  height: 100%;
+  cursor: pointer;
+}
+
+.budget-card {
+  padding: var(--forge-spacing-medium);
+}
+
+.budget-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-block-end: var(--forge-spacing-small);
+}
+
+.budget-card__title {
+  font-weight: 500;
+}
+
+.budget-card__amount {
+  color: var(--forge-theme-text-medium);
+}
+
+forge-linear-progress {
+  margin-block: var(--forge-spacing-small);
+}
+
+.budget-card__footer {
+  display: flex;
+  justify-content: space-between;
+  margin-block-start: var(--forge-spacing-small);
+}
+
+.budget-card__remaining {
+  color: var(--forge-theme-text-medium);
+
+  &--over {
+    color: var(--forge-theme-danger);
+  }
+}
+
+.budget-card__percentage {
+  color: var(--forge-theme-text-medium);
+}
+
+:host([over]) forge-card {
+  --forge-card-outline-color: var(--forge-theme-danger);
+}

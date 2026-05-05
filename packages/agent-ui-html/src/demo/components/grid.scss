@@ -1,0 +1,32 @@
+:host {
+  display: grid;
+  width: 100%;
+}
+
+:host([columns='1']) {
+  grid-template-columns: 1fr;
+}
+
+:host([columns='2']) {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+:host([columns='3']) {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+:host([columns='4']) {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+:host([gap='sm']) {
+  gap: var(--forge-spacing-small);
+}
+
+:host([gap='md']) {
+  gap: var(--forge-spacing-medium);
+}
+
+:host([gap='lg']) {
+  gap: var(--forge-spacing-large);
+}

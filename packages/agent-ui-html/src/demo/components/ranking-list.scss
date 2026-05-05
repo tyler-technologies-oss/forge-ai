@@ -1,0 +1,68 @@
+:host {
+  display: block;
+}
+
+forge-card {
+  height: 100%;
+}
+
+.ranking-list__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: ranking;
+}
+
+.ranking-list__item {
+  display: flex;
+  align-items: center;
+  gap: var(--forge-spacing-medium);
+  padding: var(--forge-spacing-small) var(--forge-spacing-medium);
+  border-block-end: 1px solid var(--forge-theme-outline-dim);
+
+  &:last-child {
+    border-block-end: none;
+  }
+}
+
+.ranking-list__rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--forge-theme-surface-container-low);
+  font-weight: 600;
+  font-size: 14px;
+
+  &--gold {
+    background: #ffd700;
+    color: #000;
+  }
+
+  &--silver {
+    background: #c0c0c0;
+    color: #000;
+  }
+
+  &--bronze {
+    background: #cd7f32;
+    color: #fff;
+  }
+}
+
+.ranking-list__info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.ranking-list__subtitle {
+  color: var(--forge-theme-text-medium);
+}
+
+.ranking-list__value {
+  white-space: nowrap;
+}
