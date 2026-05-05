@@ -67,6 +67,7 @@ export function createCompiler(): SpecStreamCompiler<Spec> {
 
 export interface ProcessPatchesConfig {
   reset?: boolean;
+  validate?: boolean;
 }
 
 export function processPatches(
@@ -74,7 +75,7 @@ export function processPatches(
   patches: string,
   config: ProcessPatchesConfig = {}
 ): Spec {
-  const { reset = false } = config;
+  const { reset = false, validate = false } = config;
 
   if (reset) {
     specCompiler.reset({ elements: {}, state: {} });
@@ -88,9 +89,11 @@ export function processPatches(
     console.log('[processPatches] Auto-fixed:', fixes);
   }
 
-  const validation = validateSpec(fixedSpec);
-  if (!validation.valid) {
-    console.warn('[processPatches] Spec issues:', formatSpecIssues(validation.issues));
+  if (validate) {
+    const validation = validateSpec(fixedSpec);
+    if (!validation.valid) {
+      console.warn('[processPatches] Spec issues:', formatSpecIssues(validation.issues));
+    }
   }
 
   return fixedSpec;
@@ -158,7 +161,7 @@ For actions: "action": "actionName"`,
     },
     onEnd: (ctx: ToolEndContext) => {
       const patches = ctx.args.patches as string;
-      const spec = processPatches(specCompiler, patches, { reset: true });
+      const spec = processPatches(specCompiler, patches, { reset: true, validate: true });
       onRender(spec);
     },
     handler: async ctx => {
