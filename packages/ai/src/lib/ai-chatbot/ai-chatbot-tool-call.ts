@@ -50,6 +50,17 @@ export class AiChatbotToolCallComponent extends LitElement {
   #customRendererRef = createRef<HTMLDivElement>();
   #renderedElement?: HTMLElement | DocumentFragment;
 
+  get #shouldRenderCustom(): boolean {
+    const status = this.toolCall?.status;
+    if (status === 'complete') {
+      return true;
+    }
+    if (this.toolDefinition?.renderOnStart && (status === 'parsing' || status === 'executing')) {
+      return true;
+    }
+    return false;
+  }
+
   #handleButtonClick(_evt: Event): void {
     this._popoverOpen = !this._popoverOpen;
   }
@@ -113,7 +124,7 @@ export class AiChatbotToolCallComponent extends LitElement {
 
   get #customRenderer(): TemplateResult | typeof nothing {
     const renderer = this.toolDefinition?.renderer;
-    if (!renderer || this.toolCall.status !== 'complete') {
+    if (!renderer || !this.#shouldRenderCustom) {
       return nothing;
     }
 
@@ -135,7 +146,7 @@ export class AiChatbotToolCallComponent extends LitElement {
       const renderer = this.toolDefinition?.renderer;
       const container = this.#customRendererRef.value;
 
-      if (container && this.toolCall.status === 'complete') {
+      if (container && this.#shouldRenderCustom) {
         if (this.#renderedElement && container.contains(this.#renderedElement as Node)) {
           container.removeChild(this.#renderedElement as Node);
         }
