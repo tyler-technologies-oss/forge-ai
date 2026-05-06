@@ -81,6 +81,15 @@ export interface ForgeAiChatbotProps extends Pick<
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
+  /** Agent metadata for info dialog */
+  agentInfo?: ForgeAiChatbotElement["agentInfo"];
+
+  /** List of available agents for selector */
+  agents?: ForgeAiChatbotElement["agents"];
+
+  /** Suggestions to display in the empty state */
+  suggestions?: ForgeAiChatbotElement["suggestions"];
+
   /** Fired when adapter connects */
   onForgeAiChatbotConnected?: (event: CustomEvent<CustomEvent<void>>) => void;
 
@@ -128,6 +137,16 @@ export interface ForgeAiChatbotProps extends Pick<
   onForgeAiChatbotResponseFeedback?: (
     event: CustomEvent<CustomEvent<ForgeAiChatbotResponseFeedbackEventData>>,
   ) => void;
+
+  /** Fired when user changes agent from the header */
+  onForgeAiChatbotAgentChange?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotAgentChangeEventData>>,
+  ) => void;
+
+  /** Fired when there is a change to the thread state (messages, files, selected agent, etc). Use this to capture the latest thread state for persistence. */
+  onForgeAiChatbotThreadStateChange?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
 }
 
 /**
@@ -148,6 +167,8 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **forge-ai-chatbot-clear** - Fired when header clear option is selected (cancelable, prevents clearMessages() if default prevented)
  * - **forge-ai-chatbot-info** - Fired when header info option is selected
  * - **forge-ai-chatbot-response-feedback** - Fired when user provides feedback on a response (thumbs up/down)
+ * - **forge-ai-chatbot-agent-change** - Fired when user changes agent from the header
+ * - **forge-ai-chatbot-thread-state-change** - Fired when there is a change to the thread state (messages, files, selected agent, etc). Use this to capture the latest thread state for persistence.
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content

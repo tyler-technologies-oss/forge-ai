@@ -106,6 +106,9 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  * @property {string | null | undefined} disclaimerText - The disclaimer text to display below the prompt. Set to empty string, null, or undefined to hide.
+ * @property {AgentInfo} agentInfo - Agent metadata for info dialog
+ * @property {Agent[]} agents - List of available agents for selector
+ * @property {Suggestion[]} suggestions - Suggestions to display in the empty state
  *
  * @cssproperty --forge-ai-chatbot-icon-color - The fill color for the AI icon. Defaults to `tertiary`.
  * @cssproperty --forge-ai-chatbot-suggestion-background - The background color for suggestion buttons. Defaults to `tertiary-container`.
@@ -123,6 +126,8 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @event {CustomEvent<void>} forge-ai-chatbot-clear - Fired when header clear option is selected (cancelable, prevents clearMessages() if default prevented)
  * @event {CustomEvent<void>} forge-ai-chatbot-info - Fired when header info option is selected
  * @event {CustomEvent<ForgeAiChatbotResponseFeedbackEventData>} forge-ai-chatbot-response-feedback - Fired when user provides feedback on a response (thumbs up/down)
+ * @event {CustomEvent<ForgeAiChatbotAgentChangeEventData>} forge-ai-chatbot-agent-change - Fired when user changes agent from the header
+ * @event {CustomEvent<void>} forge-ai-chatbot-thread-state-change - Fired when there is a change to the thread state (messages, files, selected agent, etc). Use this to capture the latest thread state for persistence.
  */
 @customElement(AiChatbotComponentTagName)
 export class AiChatbotComponent extends AiChatbotBase {

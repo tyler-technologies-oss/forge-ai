@@ -52,6 +52,35 @@ export interface HandlerContext<TArgs = Record<string, unknown>> {
   signal?: AbortSignal;
 }
 
+/**
+ * Context provided to onStart callback when tool call begins.
+ */
+export interface ToolStartContext {
+  toolCallId: string;
+  toolName: string;
+}
+
+/**
+ * Context provided to onDelta callback during streaming.
+ * @template TArgs - Type of the tool call arguments
+ */
+export interface ToolDeltaContext<TArgs = Record<string, unknown>> {
+  argsBuffer: string;
+  partialArgs: Partial<TArgs>;
+  toolCallId: string;
+  toolName: string;
+}
+
+/**
+ * Context provided to onEnd callback when args are complete.
+ * @template TArgs - Type of the tool call arguments
+ */
+export interface ToolEndContext<TArgs = Record<string, unknown>> {
+  args: TArgs;
+  toolCallId: string;
+  toolName: string;
+}
+
 export type ToolType = 'client' | 'agent';
 
 /**
@@ -69,6 +98,14 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
   };
   /** Optional renderer for displaying tool call results within the chat UI. */
   renderer?: ToolRenderer;
+  /** If true, renderer shows immediately on tool call start (default: false). */
+  renderOnStart?: boolean;
+  /** Called when tool call starts (before args stream). */
+  onStart?: (context: ToolStartContext) => void;
+  /** Called during streaming with partial args. */
+  onDelta?: (context: ToolDeltaContext<THandlerArgs>) => void;
+  /** Called when args are complete (before handler execution). */
+  onEnd?: (context: ToolEndContext<THandlerArgs>) => void;
   /**
    * Optional handler function invoked when tool is called.
    * Can return a string, object, or void. Strings and objects are used directly as tool results.
