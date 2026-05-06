@@ -1,9 +1,9 @@
 import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+import DOMPurify, { type Config } from 'dompurify';
 import remend from 'remend';
 import { v4 as uuidv4 } from 'uuid';
 
-const DOMPURIFY_CONFIG: DOMPurify.Config = {
+const DOMPURIFY_CONFIG: Config = {
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
   FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
   ADD_ATTR: ['target', 'rel']

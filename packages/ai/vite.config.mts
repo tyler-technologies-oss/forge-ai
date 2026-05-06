@@ -9,7 +9,7 @@ import ViteFullReload from 'vite-plugin-full-reload';
 function resolveTsconfigPaths(): Record<string, string> {
   const tsconfigContents = readFileSync('./tsconfig.json', 'utf-8').replace(/\/\/.*$/gm, '');
   const tsconfig = JSON.parse(tsconfigContents);
-  const aliases = {};
+  const aliases: Record<string, string> = {};
   const paths = Object.entries(tsconfig.compilerOptions.paths) as [string, string[]][];
   for (const [key, value] of paths) {
     aliases[key] = resolve(__dirname, value[0]);
@@ -34,6 +34,13 @@ export default defineConfig({
       }
     }
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        loadPaths: ['node_modules']
+      }
+    }
+  },
   resolve: {
     alias: resolveTsconfigPaths()
   },
@@ -49,7 +56,8 @@ export default defineConfig({
       exclude: ['node_modules/**', '**/*.test.ts', 'src/stories/**', 'src/dev/**'],
       compilerOptions: {
         rootDir: './src/lib'
-      }
+      },
+      staticImport: true
     })
   ]
 });
