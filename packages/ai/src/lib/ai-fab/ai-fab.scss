@@ -8,8 +8,7 @@
 }
 
 forge-ai-gradient-container {
-  --forge-gradient-container-radius: 100%;
-  border-radius: 50%;
+  border-radius: 100%;
 }
 
 .ai-fab {
@@ -28,7 +27,7 @@ forge-ai-gradient-container {
 
 :host(:state(extended)) {
   forge-ai-gradient-container {
-    --forge-gradient-container-radius: #{forge-spacing.variable(xxxlarge)};
+    border-radius: #{forge-spacing.variable(xxxlarge)};
   }
 
   --forge-fab-shape: #{forge-spacing.variable(xxxlarge)};

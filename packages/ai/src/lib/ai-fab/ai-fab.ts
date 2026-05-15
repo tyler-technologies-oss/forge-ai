@@ -18,6 +18,7 @@ export const AiFabComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-fab'
  * @tag forge-ai-fab
  *
  * @slot - Default slot for button content
+ * @slot icon - Slot for the icon
  */
 @customElement(AiFabComponentTagName)
 export class AiFabComponent extends LitElement {
@@ -57,7 +58,9 @@ export class AiFabComponent extends LitElement {
           aria-label="Floating Action Button Demo"
           class="forge-fab ai-fab ${this.extended ? 'forge-fab--extended' : ''}"
           .disabled=${this.disabled}>
-          <forge-ai-icon></forge-ai-icon>
+          <slot name="icon">
+            <forge-ai-icon></forge-ai-icon>
+          </slot>
           ${this.extended ? html`<slot></slot>` : ''}
         </button>
       </forge-ai-gradient-container>
