@@ -18,6 +18,7 @@ forge-ai-gradient-container {
   background: transparent;
   position: relative;
   z-index: 1;
+  padding: #{forge-spacing.variable(small)};
 
   forge-ai-icon {
     color: #{forge-theme.variable(primary)};

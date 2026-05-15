@@ -56,7 +56,7 @@ export class AiFabComponent extends LitElement {
       <forge-ai-gradient-container variant=${this.disabled ? 'disabled' : 'high'}>
         <button
           aria-label="Floating Action Button Demo"
-          class="forge-fab ai-fab ${this.extended ? 'forge-fab--extended' : ''}"
+          class="forge-fab ai-fab ${this.extended ? 'forge-fab--small forge-fab--extended' : ''}"
           .disabled=${this.disabled}>
           <slot name="icon">
             <forge-ai-icon></forge-ai-icon>
