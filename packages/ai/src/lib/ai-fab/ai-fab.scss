@@ -5,17 +5,20 @@
 
 :host {
   display: inline-block;
+
+  --_ai-fab-background: var(--forge-ai-fab-background, transparent);
+  --_ai-fab-outline-color: var(--forge-ai-fab-outline-color, transparent);
 }
 
 forge-ai-gradient-container {
   border-radius: 100%;
+  border-color: var(--_ai-fab-outline-color);
 }
 
 .ai-fab {
   --forge-fab-border-width: 0;
-  --forge-fab-background: #{forge-theme.variable(primary)};
 
-  background: transparent;
+  background: var(--_ai-fab-background);
   position: relative;
   z-index: 1;
   padding: #{forge-spacing.variable(small)};
@@ -27,12 +30,14 @@ forge-ai-gradient-container {
 }
 
 :host(:state(extended)) {
+  --_ai-fab-text-color: var(--forge-ai-fab-text-color, #{forge-theme.variable(primary)});
+
   forge-ai-gradient-container {
     border-radius: #{forge-spacing.variable(xxxlarge)};
   }
 
   --forge-fab-shape: #{forge-spacing.variable(xxxlarge)};
-  --forge-fab-color: var(--forge-theme-primary);
+  --forge-fab-color: var(--_ai-fab-text-color);
 }
 
 :host(:state(disabled)) {

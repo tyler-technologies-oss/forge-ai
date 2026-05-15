@@ -17,6 +17,10 @@ export const AiFabComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-fab'
 /**
  * @tag forge-ai-fab
  *
+ * @cssproperty --forge-fab-background - The background color. Defaults to the gradient container background color.
+ * @cssproperty --forge-fab-text-color - The color of the text. Only applies when in the extended state.
+ * @cssproperty --forge-fab-outline-color - The color of the outline. Defaults to the gradient container high state.
+ *
  * @slot - Default slot for button content
  * @slot icon - Slot for the icon
  */
