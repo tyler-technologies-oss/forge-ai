@@ -2,11 +2,14 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 
 :host {
   display: block;
   width: 100%;
   height: 100%;
+
+  --_ai-chatbot-icon-shape: var(--forge-ai-chatbot-icon-shape, #{forge-shape.variable(round)});
 }
 
 forge-ai-chat-interface {
@@ -52,4 +55,11 @@ forge-ai-chat-interface {
 .suggestions-container {
   width: 100%;
   align-self: start;
+}
+
+.empty-state-icon,
+::slotted([slot='empty-state-icon']) {
+  height: 200px;
+  width: 200px;
+  border-radius: var(--_ai-chatbot-icon-shape);
 }
