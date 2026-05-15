@@ -49,3 +49,20 @@ export const Disabled: Story = {
     disabled: true
   }
 };
+
+export const Branded: Story = {
+  parameters: {
+    controls: { disable: true }
+  },
+  render: () => {
+    const fabLogo =
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect width='24' height='24' fill='%234A90E2'/%3E%3Ctext x='12' y='16' font-family='Arial, sans-serif' font-size='12' font-weight='bold' fill='white' text-anchor='middle'%3EAC%3C/text%3E%3C/svg%3E";
+
+    return html`
+      <forge-ai-fab .extended=${true} @click=${clickAction}>
+        <img slot="icon" src="${fabLogo}" alt="Acme Corp" style="width: 24px; height: 24px; border-radius: 50%;" />
+        Acme Support
+      </forge-ai-fab>
+    `;
+  }
+};
