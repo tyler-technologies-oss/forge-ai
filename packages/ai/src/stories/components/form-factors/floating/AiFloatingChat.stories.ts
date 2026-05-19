@@ -4,6 +4,7 @@ import { action } from 'storybook/actions';
 
 import '$lib/ai-floating-chat';
 import '$lib/ai-fab';
+import '$lib/ai-disclaimer';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
 const component = 'forge-ai-floating-chat';
@@ -121,3 +122,100 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {};
+
+export const WithDisclaimer: Story = {
+  args: {
+    open: true
+  },
+  render: function (args) {
+    const handleAgree = (e: Event) => {
+      action('forge-ai-disclaimer-agree')(e);
+      const chatEl = (e.target as HTMLElement)?.closest('forge-ai-floating-chat');
+      const disclaimer = chatEl?.querySelector('forge-ai-disclaimer');
+
+      if (disclaimer && chatEl) {
+        disclaimer.remove();
+
+        const chatbot = document.createElement('forge-ai-chatbot') as any;
+        chatbot.setAttribute('show-minimize-button', '');
+
+        chatEl.appendChild(chatbot);
+      }
+    };
+
+    const handleDisagree = (e: Event) => {
+      action('forge-ai-disclaimer-disagree')(e);
+      const chatEl = (e.target as HTMLElement)?.closest('forge-ai-floating-chat');
+      chatEl?.close();
+    };
+
+    const handleExpand = (e: Event) => {
+      action('forge-ai-floating-chat-expand')(e);
+      const chatbot = (e.target as HTMLElement).querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        chatbot.expanded = true;
+      }
+    };
+
+    const handleCollapse = (e: Event) => {
+      action('forge-ai-floating-chat-collapse')(e);
+      const chatbot = (e.target as HTMLElement).querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        chatbot.expanded = false;
+      }
+    };
+
+    return html`
+      <div style="min-height: 300px;">
+        <div>
+          <h2>AI Floating Chat with Disclaimer</h2>
+          <p>
+            This example shows a disclaimer in the default slot. Click "Agree" to show the chatbot, or "Disagree" to
+            close the dialog.
+          </p>
+        </div>
+        <forge-ai-floating-chat
+          ?open=${args.open}
+          ?expanded=${args.expanded}
+          @forge-ai-floating-chat-open=${action('forge-ai-floating-chat-open')}
+          @forge-ai-floating-chat-close=${action('forge-ai-floating-chat-close')}
+          @forge-ai-floating-chat-expand=${handleExpand}
+          @forge-ai-floating-chat-collapse=${handleCollapse}>
+          <forge-ai-disclaimer
+            @forge-ai-disclaimer-agree=${handleAgree}
+            @forge-ai-disclaimer-disagree=${handleDisagree}>
+            <svg
+              slot="icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              style="color: var(--mdc-theme-primary, #6200ee);">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            <h2>Welcome to AI Assistant</h2>
+            <p>
+              By using this AI assistant, you agree to our terms of service. This assistant is provided as-is without
+              warranties of any kind.
+            </p>
+            <p>
+              Your interactions may be used to improve the service. Please do not share sensitive or personal
+              information.
+            </p>
+            <p>
+              The AI assistant may produce inaccurate or inappropriate content. Always verify important information from
+              reliable sources.
+            </p>
+          </forge-ai-disclaimer>
+        </forge-ai-floating-chat>
+        <forge-ai-fab
+          style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;"
+          @click=${() => {
+            const chatEl = document.querySelector('forge-ai-floating-chat');
+            chatEl?.show();
+          }}>
+        </forge-ai-fab>
+      </div>
+    `;
+  }
+};

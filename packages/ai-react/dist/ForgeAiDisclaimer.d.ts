@@ -1,9 +1,9 @@
 import React from "react";
-import { ForgeAiFab as ForgeAiFabElement } from "@tylertech/forge-ai/ai-fab";
+import { ForgeAiDisclaimer as ForgeAiDisclaimerElement } from "@tylertech/forge-ai/ai-disclaimer";
 
-export type { ForgeAiFabElement };
+export type { ForgeAiDisclaimerElement };
 
-export interface ForgeAiFabProps extends Pick<
+export interface ForgeAiDisclaimerProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -18,12 +18,6 @@ export interface ForgeAiFabProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
-  /** Whether the button is disabled */
-  disabled?: boolean;
-
-  /** Whether the button is extended */
-  extended?: boolean;
-
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -44,20 +38,27 @@ export interface ForgeAiFabProps extends Pick<
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
+
+  /** Fired when Agree button is clicked */
+  onForgeAiDisclaimerAgree?: (event: CustomEvent<CustomEvent<void>>) => void;
+
+  /** Fired when Disagree button is clicked */
+  onForgeAiDisclaimerDisagree?: (event: CustomEvent<CustomEvent<void>>) => void;
 }
 
 /**
- *
+ * Disclaimer overlay requiring user acknowledgment
  * ---
  *
  *
- * ### **Slots:**
- *  - _default_ - Default slot for button content
- * - **icon** - Slot for the icon
+ * ### **Events:**
+ *  - **forge-ai-disclaimer-agree** - Fired when Agree button is clicked
+ * - **forge-ai-disclaimer-disagree** - Fired when Disagree button is clicked
  *
- * ### **CSS Properties:**
- *  - **--forge-fab-background** - The background color. Defaults to the gradient container background color. _(default: undefined)_
- * - **--forge-fab-text-color** - The color of the text. Only applies when in the extended state. _(default: undefined)_
- * - **--forge-fab-outline-color** - The color of the outline. Defaults to the gradient container high state. _(default: undefined)_
+ * ### **Slots:**
+ *  - **icon** - Optional icon at top
+ * - _default_ - Default slot for scrollable disclaimer content
+ * - **disagree-button-text** - Text for Disagree button (default: "Disagree")
+ * - **agree-button-text** - Text for Agree button (default: "Agree")
  */
-export const ForgeAiFab: React.ForwardRefExoticComponent<ForgeAiFabProps>;
+export const ForgeAiDisclaimer: React.ForwardRefExoticComponent<ForgeAiDisclaimerProps>;
