@@ -84,7 +84,9 @@ export interface ForgeAiMessageThreadProps extends Pick<
  * - **forge-ai-message-thread-thumbs-down** - Fired when user gives thumbs down
  *
  * ### **Slots:**
- *  - **empty-state-heading** - Slot for custom empty state heading content
+ *  - **empty-state-icon** - Slot for custom empty state icon
+ * - **empty-state-heading** - Slot for custom empty state heading content
+ * - **empty-state-message** - Slot for custom empty state message content
  * - **empty-state-actions** - Slot for custom empty state actions (e.g., suggestions)
  *
  * ### **CSS Properties:**

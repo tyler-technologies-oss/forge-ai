@@ -47,7 +47,7 @@ export interface ForgeAiEmptyStateProps extends Pick<
  *
  * ### **Slots:**
  *  - _default_ - The welcome message content (overrides the default message).
- * - **icon** - The custom icon/graphic to display.
+ * - **icon** - The icon/graphic to display.
  * - **heading** - The custom heading/title to display.
  * - **body** - The custom body message content.
  * - **actions** - The actions or suggestions to display below the message.
