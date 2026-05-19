@@ -38,6 +38,7 @@ const meta = {
 
     return html`
       <forge-ai-empty-state>
+        <img slot="icon" src="./chatbot-logo.png" alt="AI Icon" />
         ${args.headingText ? html`<span slot="heading">${args.headingText}</span>` : ''}
         ${args.customMessage ? html`<span slot="body">${args.customMessage}</span>` : ''}
         ${args.showSuggestions
