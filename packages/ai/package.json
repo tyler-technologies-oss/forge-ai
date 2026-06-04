@@ -83,6 +83,7 @@
     "@storybook/addon-links": "catalog:",
     "@storybook/addon-themes": "catalog:",
     "@storybook/web-components-vite": "catalog:",
+    "@tylertech-eslint/eslint-plugin": "catalog:",
     "@tylertech/forge": "catalog:",
     "@tylertech/stylelint-rules": "catalog:",
     "@tylertech/tyler-icons": "catalog:",

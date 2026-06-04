@@ -47,8 +47,9 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * In conversation mode, a header is displayed with options for clear, export, and agent selection.
  *
  * @slot icon - Slot for custom icon (used in both welcome view and conversation header)
- * @slot heading - Slot for custom heading content
- * @slot description - Slot for custom description/welcome message below the title
+ * @slot heading - Slot for custom heading content (welcome view only)
+ * @slot description - Slot for custom description/welcome message below the title (welcome view only)
+ * @slot header-actions - Slot for custom header action buttons in conversation mode (rendered before built-in header actions)
  *
  * @property {string} titleText - The title text to display in the welcome view and header (default: 'AI Assistant')
  * @property {string} descriptionText - The description text displayed below the title in the welcome view.
@@ -319,6 +320,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           <slot name="icon" slot="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>
+          <slot name="header-actions" slot="header-actions"></slot>
         </forge-ai-chat-header>
         <forge-ai-message-thread
           ${ref(this._messageThreadRef)}
