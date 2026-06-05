@@ -353,17 +353,19 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
     }
   }
 
-  private async _onFocusOut(_event: FocusEvent): Promise<void> {
+  private _onFocusOut(event: FocusEvent): void {
     if (!this.open) {
       return;
     }
 
-    // Use a small timeout to allow focus to settle before checking
-    window.setTimeout(() => {
-      if (!this.matches(':focus-within')) {
-        this.open = false;
-      }
-    });
+    // Check if focus is moving to an element inside this component
+    const relatedTarget = event.relatedTarget as Element | null;
+    if (relatedTarget && this.contains(relatedTarget)) {
+      return;
+    }
+
+    // Focus moved outside, close the dropdown
+    this.open = false;
   }
 
   private _onDefaultSlotChange(): void {
