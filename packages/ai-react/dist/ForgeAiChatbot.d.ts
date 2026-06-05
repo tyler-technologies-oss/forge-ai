@@ -173,6 +173,7 @@ export interface ForgeAiChatbotProps extends Pick<
  * ### **Slots:**
  *  - **header** - Slot for custom header content
  * - **icon** - Slot for custom header icon (default: forge-ai-icon)
+ * - **header-actions** - Slot for custom header action buttons (rendered before built-in header actions)
  * - **empty-state-icon** - Slot for custom empty state icon
  * - **empty-state** - Slot for custom empty state content (overrides default suggestions)
  *
