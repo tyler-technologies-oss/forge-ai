@@ -10,6 +10,8 @@ import { type ToolDefinition, type Suggestion, type ChatMessage, type ToolCall }
 import { displayDataTableTool } from '$lib/tools';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { smallAgentList, largeAgentList } from '../../../utils/mock-agents';
+import { defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
+import { tylIconHistory, tylIconSettings } from '@tylertech/tyler-icons';
 
 const component = 'forge-ai-chatbot';
 
@@ -978,6 +980,44 @@ export const WithFeedbackPersistence: Story = {
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
           @forge-ai-chatbot-response-feedback=${action('forge-ai-chatbot-response-feedback')}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithHeaderActions: Story = {
+  args: {
+    showMinimizeButton: true,
+    showExpandButton: true
+  },
+  render: (args: any) => {
+    defineIconButtonComponent();
+    defineIconComponent();
+    IconRegistry.define([tylIconHistory, tylIconSettings]);
+
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="Chatbot with Custom Actions"
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}>
+          <forge-icon-button slot="header-actions" aria-label="History">
+            <forge-icon name="history"></forge-icon>
+          </forge-icon-button>
+          <forge-icon-button slot="header-actions" aria-label="Settings">
+            <forge-icon name="settings"></forge-icon>
+          </forge-icon-button>
         </forge-ai-chatbot>
       </div>
     `;

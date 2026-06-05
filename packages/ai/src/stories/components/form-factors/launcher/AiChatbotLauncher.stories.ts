@@ -6,6 +6,8 @@ import '$lib/ai-chatbot-launcher';
 import type { Suggestion } from '$lib/ai-suggestions';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { standaloneStoryParams } from '../../../utils';
+import { defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
+import { tylIconHistory, tylIconSettings } from '@tylertech/tyler-icons';
 
 const component = 'forge-ai-chatbot-launcher';
 
@@ -196,6 +198,43 @@ export const WithCustomHeader: Story = {
           </svg>
           <span slot="heading">Reporting Assistant</span>
           <span slot="description">I'm your Forge AI assistant. What would you like to do?</span>
+        </forge-ai-chatbot-launcher>
+      </div>
+    `;
+  }
+};
+
+export const WithHeaderActions: Story = {
+  render: (args: any) => {
+    defineIconButtonComponent();
+    defineIconComponent();
+    IconRegistry.define([tylIconHistory, tylIconSettings]);
+
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    return html`
+      <div
+        style="width: 100%; height: 600px; max-width: 900px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+        <forge-ai-chatbot-launcher
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          .disclaimerText=${args.disclaimerText}
+          @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
+          <forge-icon-button slot="header-actions" aria-label="History">
+            <forge-icon name="history"></forge-icon>
+          </forge-icon-button>
+          <forge-icon-button slot="header-actions" aria-label="Settings">
+            <forge-icon name="settings"></forge-icon>
+          </forge-icon-button>
         </forge-ai-chatbot-launcher>
       </div>
     `;
