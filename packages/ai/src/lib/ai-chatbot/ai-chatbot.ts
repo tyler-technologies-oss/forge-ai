@@ -101,6 +101,7 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  *
  * @slot header - Slot for custom header content
  * @slot icon - Slot for custom header icon (default: forge-ai-icon)
+ * @slot header-actions - Slot for custom header action buttons (rendered before built-in header actions)
  * @slot empty-state - Slot for custom empty state content (overrides default suggestions)
  *
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
@@ -294,6 +295,7 @@ export class AiChatbotComponent extends AiChatbotBase {
           <slot name="icon" slot="icon">
             <forge-ai-icon></forge-ai-icon>
           </slot>
+          <slot name="header-actions" slot="header-actions"></slot>
         </forge-ai-chat-header>
         ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
         ${when(this.disclaimerText, () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`)}
