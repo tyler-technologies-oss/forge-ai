@@ -10,6 +10,23 @@ The AI Chat Header provides a consistent header interface for AI chat applicatio
 
 <Canvas of={AiChatHeaderStories.Demo} />
 
+## Header Actions Slot
+
+The `header-actions` slot allows you to add custom action buttons to the header, positioned before the built-in header actions (clear, export, info, minimize, expand). This is useful for adding application-specific controls like history navigation, settings, or other contextual actions.
+
+<Canvas of={AiChatHeaderStories.WithHeaderActions} />
+
+```html
+<forge-ai-chat-header>
+  <forge-icon-button slot="header-actions" aria-label="History">
+    <forge-icon name="history"></forge-icon>
+  </forge-icon-button>
+  <forge-icon-button slot="header-actions" aria-label="Settings">
+    <forge-icon name="settings"></forge-icon>
+  </forge-icon-button>
+</forge-ai-chat-header>
+```
+
 ## API
 
 <CustomArgTypes />

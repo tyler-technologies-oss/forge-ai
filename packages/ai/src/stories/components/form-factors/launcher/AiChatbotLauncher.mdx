@@ -41,6 +41,21 @@ After sending the first message, transitions to a full chat interface with:
 
 ## Customization
 
+### Header Actions Slot
+
+The `header-actions` slot allows you to add custom action buttons to the conversation header, positioned before the built-in header actions. These buttons appear in the conversation view after transitioning from the welcome screen.
+
+```html
+<forge-ai-chatbot-launcher .adapter="${adapter}">
+  <forge-icon-button slot="header-actions" aria-label="History">
+    <forge-icon name="history"></forge-icon>
+  </forge-icon-button>
+  <forge-icon-button slot="header-actions" aria-label="Settings">
+    <forge-icon name="settings"></forge-icon>
+  </forge-icon-button>
+</forge-ai-chatbot-launcher>
+```
+
 ## API
 
 <CustomArgTypes />

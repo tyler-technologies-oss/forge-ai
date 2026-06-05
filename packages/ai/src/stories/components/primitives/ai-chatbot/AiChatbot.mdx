@@ -129,6 +129,21 @@ const adapter = new CustomAdapter();
 - `emitError(message: string)`: Signal error occurred
 - `updateState(updates: Partial<AdapterState>)`: Update connection/running state
 
+## Header Actions Slot
+
+The `header-actions` slot allows you to add custom action buttons to the chat header, positioned before the built-in header actions. This is useful for adding application-specific controls like history navigation, settings, or other contextual actions.
+
+```html
+<forge-ai-chatbot .adapter="${adapter}">
+  <forge-icon-button slot="header-actions" aria-label="History">
+    <forge-icon name="history"></forge-icon>
+  </forge-icon-button>
+  <forge-icon-button slot="header-actions" aria-label="Settings">
+    <forge-icon name="settings"></forge-icon>
+  </forge-icon-button>
+</forge-ai-chatbot>
+```
+
 ## Keyboard Shortcuts
 
 - **Escape**: Abort the current streaming response
