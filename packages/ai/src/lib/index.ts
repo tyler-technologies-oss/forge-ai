@@ -14,6 +14,7 @@ export * from './ai-chatbot';
 export * from './ai-chatbot-launcher';
 export * from './ai-confirmation-prompt';
 export * from './ai-dialog';
+export * from './ai-disclaimer';
 export * from './ai-dropdown-menu';
 export * from './ai-embedded-chat';
 export * from './ai-empty-state';

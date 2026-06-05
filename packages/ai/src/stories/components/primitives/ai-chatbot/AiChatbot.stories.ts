@@ -1119,3 +1119,75 @@ export const WithDataTableTool: Story = {
     `;
   }
 };
+
+export const Branded: Story = {
+  parameters: {
+    controls: { include: ['iconShape'] }
+  },
+  argTypes: {
+    iconShape: {
+      control: 'select',
+      options: ['0px (square)', '8px (rounded)', '50% (circular)'],
+      description: 'Shape of header and empty state icons (--forge-ai-chatbot-icon-shape)'
+    }
+  },
+  args: {
+    iconShape: '50% (circular)'
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const suggestions = [
+      { text: 'Tell me about your products', value: 'products' },
+      { text: 'How can I get support?', value: 'support' },
+      { text: 'View pricing information', value: 'pricing' }
+    ] as Suggestion[];
+
+    const iconShapeValue = args.iconShape?.split(' ')[0] || '50%';
+    const chatbotLogo =
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Crect width='36' height='36' fill='%234A90E2'/%3E%3Ctext x='18' y='24' font-family='Arial, sans-serif' font-size='16' font-weight='bold' fill='white' text-anchor='middle'%3EAC%3C/text%3E%3C/svg%3E";
+
+    return html`
+      <style>
+        .branded-chatbot {
+          --forge-ai-chatbot-icon-shape: ${iconShapeValue};
+        }
+      </style>
+      <div style="width: 100%; height: 700px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          class="branded-chatbot"
+          .adapter=${adapter}
+          .suggestions=${suggestions}
+          placeholder="Ask Acme Corp anything..."
+          title-text="Acme Support Assistant">
+          <img
+            slot="icon"
+            src="${chatbotLogo}"
+            alt="Acme Corp Logo"
+            style="width: 36px; height: 36px; display: block;" />
+
+          <img
+            slot="empty-state-icon"
+            src="${chatbotLogo}"
+            alt="Acme Corp"
+            style="width: 200px; height: 200px; display: block;" />
+
+          <span slot="empty-state-heading">
+            <strong>Welcome to Acme Corp Support</strong>
+          </span>
+
+          <span slot="empty-state-message">
+            Get instant answers to your questions about our <b>products and services</b>. <br /><br />
+            Need personalized help?
+            <a href="#contact" style="color: #4A90E2; text-decoration: underline;">Contact our support team</a>
+          </span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};

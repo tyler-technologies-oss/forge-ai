@@ -17,7 +17,12 @@ export const AiFabComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-fab'
 /**
  * @tag forge-ai-fab
  *
+ * @cssproperty --forge-fab-background - The background color. Defaults to the gradient container background color.
+ * @cssproperty --forge-fab-text-color - The color of the text. Only applies when in the extended state.
+ * @cssproperty --forge-fab-outline-color - The color of the outline. Defaults to the gradient container high state.
+ *
  * @slot - Default slot for button content
+ * @slot icon - Slot for the icon
  */
 @customElement(AiFabComponentTagName)
 export class AiFabComponent extends LitElement {
@@ -55,9 +60,11 @@ export class AiFabComponent extends LitElement {
       <forge-ai-gradient-container variant=${this.disabled ? 'disabled' : 'high'}>
         <button
           aria-label="Floating Action Button Demo"
-          class="forge-fab ai-fab ${this.extended ? 'forge-fab--extended' : ''}"
+          class="forge-fab ai-fab ${this.extended ? 'forge-fab--small forge-fab--extended' : ''}"
           .disabled=${this.disabled}>
-          <forge-ai-icon></forge-ai-icon>
+          <slot name="icon">
+            <forge-ai-icon></forge-ai-icon>
+          </slot>
           ${this.extended ? html`<slot></slot>` : ''}
         </button>
       </forge-ai-gradient-container>
