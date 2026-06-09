@@ -92,7 +92,7 @@
 
 .search-field {
   position: relative;
-  margin-block: #{forge-spacing.variable(xxsmall)};
+  margin-block: #{forge-spacing.variable(small)} #{forge-spacing.variable(xxsmall)};
 
   input::placeholder {
     font-size: 0.875rem;
