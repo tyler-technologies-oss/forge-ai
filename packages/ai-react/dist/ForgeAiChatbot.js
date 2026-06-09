@@ -8,6 +8,8 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     showExpandButton,
     showMinimizeButton,
     expanded,
+    showConversationsButton,
+    conversationsOpen,
     enableReactions,
     debugMode,
     minimizeIcon,
@@ -84,6 +86,36 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     "forge-ai-chatbot-thread-state-change",
     props.onForgeAiChatbotThreadStateChange,
   );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-conversations-open",
+    props.onForgeAiChatbotConversationsOpen,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-conversations-close",
+    props.onForgeAiChatbotConversationsClose,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-conversation-select",
+    props.onForgeAiChatbotConversationSelect,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-new-chat",
+    props.onForgeAiChatbotNewChat,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-conversation-search",
+    props.onForgeAiChatbotConversationSearch,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-conversation-load-more",
+    props.onForgeAiChatbotConversationLoadMore,
+  );
 
   /** Properties - run whenever a property has changed */
   useProperties(ref, "agentInfo", props.agentInfo);
@@ -119,6 +151,10 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       "show-expand-button": props.showExpandButton ? true : undefined,
       "show-minimize-button": props.showMinimizeButton ? true : undefined,
       expanded: props.expanded ? true : undefined,
+      "show-conversations-button": props.showConversationsButton
+        ? true
+        : undefined,
+      "conversations-open": props.conversationsOpen ? true : undefined,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,
       style: { ...props.style },

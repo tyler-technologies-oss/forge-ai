@@ -27,6 +27,12 @@ export interface ForgeAiChatbotProps extends Pick<
   /** undefined */
   expanded?: boolean;
 
+  /** Controls conversations button visibility (default: false) */
+  showConversationsButton?: boolean;
+
+  /** undefined */
+  conversationsOpen?: boolean;
+
   /** undefined */
   enableReactions?: boolean;
 
@@ -147,6 +153,36 @@ export interface ForgeAiChatbotProps extends Pick<
   onForgeAiChatbotThreadStateChange?: (
     event: CustomEvent<CustomEvent<void>>,
   ) => void;
+
+  /** Fired when conversations panel opens */
+  onForgeAiChatbotConversationsOpen?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
+  /** Fired when conversations panel closes */
+  onForgeAiChatbotConversationsClose?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
+  /** Fired when user selects a conversation thread */
+  onForgeAiChatbotConversationSelect?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationSelectEventData>>,
+  ) => void;
+
+  /** Fired when user clicks new chat button (cancelable) */
+  onForgeAiChatbotNewChat?: (event: CustomEvent<CustomEvent<void>>) => void;
+
+  /** Fired when search query changes in conversations panel (debounced, cancelable) */
+  onForgeAiChatbotConversationSearch?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationSearchEventData>>,
+  ) => void;
+
+  /** Fired when scrolling near bottom in search view */
+  onForgeAiChatbotConversationLoadMore?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>
+    >,
+  ) => void;
 }
 
 /**
@@ -169,6 +205,12 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **forge-ai-chatbot-response-feedback** - Fired when user provides feedback on a response (thumbs up/down)
  * - **forge-ai-chatbot-agent-change** - Fired when user changes agent from the header
  * - **forge-ai-chatbot-thread-state-change** - Fired when there is a change to the thread state (messages, files, selected agent, etc). Use this to capture the latest thread state for persistence.
+ * - **forge-ai-chatbot-conversations-open** - Fired when conversations panel opens
+ * - **forge-ai-chatbot-conversations-close** - Fired when conversations panel closes
+ * - **forge-ai-chatbot-conversation-select** - Fired when user selects a conversation thread
+ * - **forge-ai-chatbot-new-chat** - Fired when user clicks new chat button (cancelable)
+ * - **forge-ai-chatbot-conversation-search** - Fired when search query changes in conversations panel (debounced, cancelable)
+ * - **forge-ai-chatbot-conversation-load-more** - Fired when scrolling near bottom in search view
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content

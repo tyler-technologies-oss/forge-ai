@@ -9,6 +9,7 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
     showMinimizeButton,
     expanded,
     disableAgentSelector,
+    showConversationsButton,
     minimizeIcon,
     options,
     exportOption,
@@ -36,6 +37,11 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
     ref,
     "forge-ai-chat-header-agent-change",
     props.onForgeAiChatHeaderAgentChange,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chat-header-conversations-toggle",
+    props.onForgeAiChatHeaderConversationsToggle,
   );
   useEventListener(
     ref,
@@ -80,6 +86,9 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
       "show-minimize-button": props.showMinimizeButton ? true : undefined,
       expanded: props.expanded ? true : undefined,
       "disable-agent-selector": props.disableAgentSelector ? true : undefined,
+      "show-conversations-button": props.showConversationsButton
+        ? true
+        : undefined,
       style: { ...props.style },
     },
     props.children,
