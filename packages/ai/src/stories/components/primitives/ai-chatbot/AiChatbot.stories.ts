@@ -59,6 +59,10 @@ const meta = {
       options: ['default', 'panel'],
       description: 'Minimize icon variant'
     },
+    showConversationsButton: {
+      control: 'boolean',
+      description: 'Show conversations button in header'
+    },
     enableReactions: {
       control: 'boolean',
       description: 'Enable thumbs up/down reaction buttons'
@@ -78,6 +82,7 @@ const meta = {
     showMinimizeButton: false,
     expanded: false,
     minimizeIcon: 'default',
+    showConversationsButton: false,
     enableReactions: false,
     disclaimerText: 'AI can make mistakes. Always verify responses.'
   },
@@ -114,6 +119,7 @@ const meta = {
           debug-command=${args.debugCommand}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
+          ?show-conversations-button=${args.showConversationsButton}
           ?expanded=${args.expanded}
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
@@ -1111,6 +1117,109 @@ export const WithDataTableTool: Story = {
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
           @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithConversationHistory: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const threads = [
+      {
+        id: 'thread-1',
+        title: 'TypeScript best practices',
+        time: '2:30 PM',
+        date: new Date(Date.now() - 2 * 60 * 60 * 1000)
+      },
+      {
+        id: 'thread-2',
+        title: 'Web component architecture',
+        time: '11:45 AM',
+        date: new Date(Date.now() - 5 * 60 * 60 * 1000)
+      },
+      {
+        id: 'thread-3',
+        title: 'How to use localStorage?',
+        time: 'Yesterday',
+        date: new Date(Date.now() - 24 * 60 * 60 * 1000)
+      },
+      {
+        id: 'thread-4',
+        title: 'Lit reactive controllers explained',
+        time: 'Yesterday',
+        date: new Date(Date.now() - 36 * 60 * 60 * 1000)
+      },
+      {
+        id: 'thread-5',
+        title: 'CSS Grid vs Flexbox comparison',
+        time: '2 days ago',
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+      }
+    ];
+
+    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onNewChat = action('forge-ai-chatbot-new-chat');
+    const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
+    const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .recentThreads=${threads}
+          ?show-conversations-button=${true}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with History"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-new-chat=${onNewChat}
+          @forge-ai-chatbot-conversations-open=${onConversationsOpen}
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithEmptyConversationHistory: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onNewChat = action('forge-ai-chatbot-new-chat');
+    const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
+    const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .recentThreads=${[]}
+          ?show-conversations-button=${true}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with Empty History"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-new-chat=${onNewChat}
+          @forge-ai-chatbot-conversations-open=${onConversationsOpen}
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}>
         </forge-ai-chatbot>
       </div>
     `;

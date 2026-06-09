@@ -275,3 +275,20 @@ export interface ThreadState {
   timestamp?: number;
   selectedAgentId?: string;
 }
+
+export interface ForgeAiChatbotConversationSelectEventData {
+  id: string;
+  title: string;
+}
+
+export interface ForgeAiChatbotConversationSearchEventData {
+  query: string;
+  setResults: (results: Thread[]) => void;
+}
+
+export interface ForgeAiChatbotConversationLoadMoreEventData {
+  query: string;
+  appendResults: (results: Thread[]) => void;
+}
+
+export type { Thread } from '../ai-threads';

@@ -1,16 +1,29 @@
 import { html, nothing, unsafeCSS, type TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
 import type { AiChatInterfaceComponent } from '../ai-chat-interface';
 import type { AiMessageThreadComponent } from '../ai-message-thread';
 import type { AiPromptComponent } from '../ai-prompt';
+import type {
+  AiConversationsPanelComponent,
+  ForgeAiConversationsPanelSearchEventData,
+  ForgeAiConversationsPanelLoadMoreEventData
+} from '../ai-conversations-panel';
 import { AiChatbotBase } from './ai-chatbot-base.js';
-import type { Agent, ChatMessage } from './types.js';
+import type {
+  Agent,
+  ChatMessage,
+  ForgeAiChatbotConversationSelectEventData,
+  ForgeAiChatbotConversationSearchEventData,
+  ForgeAiChatbotConversationLoadMoreEventData,
+  Thread
+} from './types.js';
 
 import '../ai-attachment';
 import '../ai-chat-header';
 import '../ai-chat-interface';
+import '../ai-conversations-panel';
 import '../ai-file-picker';
 import '../ai-message-thread';
 import '../ai-prompt';
@@ -43,6 +56,12 @@ declare global {
     'forge-ai-chatbot-response-feedback': CustomEvent<ForgeAiChatbotResponseFeedbackEventData>;
     'forge-ai-chatbot-agent-change': CustomEvent<ForgeAiChatbotAgentChangeEventData>;
     'forge-ai-chatbot-thread-state-change': CustomEvent<void>;
+    'forge-ai-chatbot-conversations-open': CustomEvent<void>;
+    'forge-ai-chatbot-conversations-close': CustomEvent<void>;
+    'forge-ai-chatbot-conversation-select': CustomEvent<ForgeAiChatbotConversationSelectEventData>;
+    'forge-ai-chatbot-new-chat': CustomEvent<void>;
+    'forge-ai-chatbot-conversation-search': CustomEvent<ForgeAiChatbotConversationSearchEventData>;
+    'forge-ai-chatbot-conversation-load-more': CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>;
   }
 }
 
@@ -108,6 +127,7 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  * @property {string | null | undefined} disclaimerText - The disclaimer text to display below the prompt. Set to empty string, null, or undefined to hide.
+ * @property {boolean} showConversationsButton - Controls conversations button visibility (default: false)
  * @property {AgentInfo} agentInfo - Agent metadata for info dialog
  * @property {Agent[]} agents - List of available agents for selector
  * @property {Suggestion[]} suggestions - Suggestions to display in the empty state
@@ -130,6 +150,12 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @event {CustomEvent<ForgeAiChatbotResponseFeedbackEventData>} forge-ai-chatbot-response-feedback - Fired when user provides feedback on a response (thumbs up/down)
  * @event {CustomEvent<ForgeAiChatbotAgentChangeEventData>} forge-ai-chatbot-agent-change - Fired when user changes agent from the header
  * @event {CustomEvent<void>} forge-ai-chatbot-thread-state-change - Fired when there is a change to the thread state (messages, files, selected agent, etc). Use this to capture the latest thread state for persistence.
+ * @event {CustomEvent<void>} forge-ai-chatbot-conversations-open - Fired when conversations panel opens
+ * @event {CustomEvent<void>} forge-ai-chatbot-conversations-close - Fired when conversations panel closes
+ * @event {CustomEvent<ForgeAiChatbotConversationSelectEventData>} forge-ai-chatbot-conversation-select - Fired when user selects a conversation thread
+ * @event {CustomEvent<void>} forge-ai-chatbot-new-chat - Fired when user clicks new chat button (cancelable)
+ * @event {CustomEvent<ForgeAiChatbotConversationSearchEventData>} forge-ai-chatbot-conversation-search - Fired when search query changes in conversations panel (debounced, cancelable)
+ * @event {CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>} forge-ai-chatbot-conversation-load-more - Fired when scrolling near bottom in search view
  */
 @customElement(AiChatbotComponentTagName)
 export class AiChatbotComponent extends AiChatbotBase {
@@ -147,10 +173,25 @@ export class AiChatbotComponent extends AiChatbotBase {
   @property({ attribute: 'minimize-icon' })
   public minimizeIcon: 'default' | 'panel' = 'default';
 
+  @property({ type: Boolean, attribute: 'show-conversations-button' })
+  public showConversationsButton = false;
+
+  @property({ type: Array, attribute: false })
+  public recentThreads: Thread[] = [];
+
+  @property({ type: Boolean, attribute: 'conversations-open', reflect: true })
+  public conversationsOpen = false;
+
+  @state()
+  private _selectedThreadId: string | null = null;
+
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   protected override _messageThreadRef = createRef<AiMessageThreadComponent>();
   protected override _promptRef = createRef<AiPromptComponent>();
   #headerRef = createRef<AiChatHeaderComponent>();
+  #conversationsPanelRef = createRef<AiConversationsPanelComponent>();
+  #conversationsDialogRef = createRef<HTMLDialogElement>();
+  #boundEscapeHandler = this.#handleEscapeKey.bind(this);
 
   #handleHeaderExpand(): void {
     this._dispatchHostEvent({ type: 'forge-ai-chatbot-expand' });
@@ -184,6 +225,110 @@ export class AiChatbotComponent extends AiChatbotBase {
   public override focus(): void {
     this._promptRef.value?.focus();
   }
+
+  public showConversations(): void {
+    const dialog = this.#conversationsDialogRef.value;
+    if (dialog && !dialog.open) {
+      dialog.show();
+      this.conversationsOpen = true;
+      window.addEventListener('keydown', this.#boundEscapeHandler, { capture: true });
+      this._dispatchHostEvent({ type: 'forge-ai-chatbot-conversations-open' });
+    }
+  }
+
+  public hideConversations(): void {
+    const dialog = this.#conversationsDialogRef.value;
+    if (dialog && dialog.open) {
+      window.removeEventListener('keydown', this.#boundEscapeHandler, { capture: true });
+      dialog.close();
+      setTimeout(() => {
+        this.#conversationsPanelRef.value?.resetToMainView();
+      }, 150);
+    }
+  }
+
+  #handleConversationsDialogClose(): void {
+    window.removeEventListener('keydown', this.#boundEscapeHandler, { capture: true });
+    this.conversationsOpen = false;
+    this._dispatchHostEvent({ type: 'forge-ai-chatbot-conversations-close' });
+  }
+
+  #handleEscapeKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.conversationsOpen) {
+      event.stopPropagation();
+      event.preventDefault();
+      this.hideConversations();
+    }
+  }
+
+  #handleBackdropClick(): void {
+    this.hideConversations();
+  }
+
+  public toggleConversations(): void {
+    if (this.conversationsOpen) {
+      this.hideConversations();
+    } else {
+      this.showConversations();
+    }
+  }
+
+  #handleConversationsToggle(): void {
+    this.toggleConversations();
+  }
+
+  #handleThreadSelect(evt: CustomEvent): void {
+    const { id, title } = evt.detail;
+    this._selectedThreadId = id;
+    this._dispatchHostEvent({
+      type: 'forge-ai-chatbot-conversation-select',
+      detail: { id, title }
+    });
+    this.hideConversations();
+  }
+
+  #handleNewChat(event: Event): void {
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    const hostEvent = this._dispatchHostEvent({ type: 'forge-ai-chatbot-new-chat', cancelable: true });
+
+    if (!hostEvent.defaultPrevented) {
+      this._coreController.clearMessages();
+      this._selectedThreadId = null;
+    }
+
+    this.hideConversations();
+  }
+
+  #handlePanelClose(): void {
+    this.hideConversations();
+  }
+
+  #handleConversationSearch = (e: CustomEvent<ForgeAiConversationsPanelSearchEventData>): void => {
+    const event = new CustomEvent<ForgeAiChatbotConversationSearchEventData>('forge-ai-chatbot-conversation-search', {
+      detail: e.detail,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    });
+    if (!this.dispatchEvent(event)) {
+      e.preventDefault();
+    }
+  };
+
+  #handleConversationLoadMore = (e: CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>): void => {
+    const event = new CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>(
+      'forge-ai-chatbot-conversation-load-more',
+      {
+        detail: e.detail,
+        bubbles: true,
+        composed: true
+      }
+    );
+    this.dispatchEvent(event);
+  };
 
   get #sessionFilesTemplate(): TemplateResult | typeof nothing {
     const content = this._sessionFilesTemplate;
@@ -267,41 +412,73 @@ export class AiChatbotComponent extends AiChatbotBase {
 
   public override render(): TemplateResult {
     return html`
-      <forge-ai-chat-interface
-        ${ref(this.#chatInterfaceRef)}
-        role="region"
-        aria-label="AI chatbot"
-        aria-live="polite"
-        aria-busy=${this._isStreaming}>
-        <forge-ai-chat-header
-          ${ref(this.#headerRef)}
-          slot="header"
-          ?show-expand-button=${this.showExpandButton}
-          ?show-minimize-button=${this.showMinimizeButton}
-          ?expanded=${this.expanded}
-          ?disable-agent-selector=${this._isStreaming}
-          export-option=${this._hasMessages ? 'enabled' : 'off'}
-          clear-option=${this._hasMessages ? 'enabled' : 'off'}
-          .minimizeIcon=${this.minimizeIcon}
-          .agentInfo=${this.agentInfo}
-          .headingLevel=${this.headingLevel}
-          .titleText=${this.titleText}
-          .agents=${this.agents}
-          .selectedAgentId=${this.selectedAgentId}
-          @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
-          @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
-          @forge-ai-chat-header-clear=${this.#handleHeaderClear}
-          @forge-ai-chat-header-export=${this._handleExport}
-          @forge-ai-chat-header-info=${this.#handleHeaderInfo}
-          @forge-ai-chat-header-agent-change=${this._handleAgentChange}>
-          <slot name="icon" slot="icon">
-            <forge-ai-icon></forge-ai-icon>
-          </slot>
-          <slot name="header-actions" slot="header-actions"></slot>
-        </forge-ai-chat-header>
-        ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
-        ${when(this.disclaimerText, () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`)}
-      </forge-ai-chat-interface>
+      <div class="chatbot-container">
+        <forge-ai-chat-interface
+          ${ref(this.#chatInterfaceRef)}
+          role="region"
+          aria-label="AI chatbot"
+          aria-live="polite"
+          aria-busy=${this._isStreaming}>
+          <forge-ai-chat-header
+            ${ref(this.#headerRef)}
+            slot="header"
+            ?show-expand-button=${this.showExpandButton}
+            ?show-minimize-button=${this.showMinimizeButton}
+            ?show-conversations-button=${this.showConversationsButton}
+            ?expanded=${this.expanded}
+            ?disable-agent-selector=${this._isStreaming}
+            export-option=${this._hasMessages ? 'enabled' : 'off'}
+            clear-option=${this._hasMessages ? 'enabled' : 'off'}
+            .minimizeIcon=${this.minimizeIcon}
+            .agentInfo=${this.agentInfo}
+            .headingLevel=${this.headingLevel}
+            .titleText=${this.titleText}
+            .agents=${this.agents}
+            .selectedAgentId=${this.selectedAgentId}
+            @forge-ai-chat-header-expand=${this.#handleHeaderExpand}
+            @forge-ai-chat-header-minimize=${this.#handleHeaderMinimize}
+            @forge-ai-chat-header-clear=${this.#handleHeaderClear}
+            @forge-ai-chat-header-export=${this._handleExport}
+            @forge-ai-chat-header-info=${this.#handleHeaderInfo}
+            @forge-ai-chat-header-agent-change=${this._handleAgentChange}
+            @forge-ai-chat-header-conversations-toggle=${this.#handleConversationsToggle}>
+            <slot name="icon" slot="icon">
+              <forge-ai-icon></forge-ai-icon>
+            </slot>
+            <slot name="header-actions" slot="header-actions"></slot>
+          </forge-ai-chat-header>
+          ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
+          ${when(
+            this.disclaimerText,
+            () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`
+          )}
+        </forge-ai-chat-interface>
+        ${when(
+          this.showConversationsButton,
+          () => html`
+            ${when(
+              this.conversationsOpen,
+              () => html` <div class="conversations-backdrop" @click=${this.#handleBackdropClick}></div> `
+            )}
+            <dialog
+              ${ref(this.#conversationsDialogRef)}
+              class="conversations-dialog forge-dialog forge-dialog--modal forge-dialog--left-sheet"
+              @close=${this.#handleConversationsDialogClose}>
+              <forge-ai-conversations-panel
+                ${ref(this.#conversationsPanelRef)}
+                .recentThreads=${this.recentThreads}
+                .selectedThreadId=${this._selectedThreadId}
+                ?show-back-button=${true}
+                @forge-ai-conversations-panel-select=${this.#handleThreadSelect}
+                @forge-ai-conversations-panel-new-chat=${this.#handleNewChat}
+                @forge-ai-conversations-panel-close=${this.#handlePanelClose}
+                @forge-ai-conversations-panel-search=${this.#handleConversationSearch}
+                @forge-ai-conversations-panel-load-more=${this.#handleConversationLoadMore}>
+              </forge-ai-conversations-panel>
+            </dialog>
+          `
+        )}
+      </div>
     `;
   }
 
@@ -562,3 +739,9 @@ export class AiChatbotComponent extends AiChatbotBase {
 }
 
 export type { FeatureToggle } from './ai-chatbot-base.js';
+export type {
+  Thread,
+  ForgeAiChatbotConversationSelectEventData,
+  ForgeAiChatbotConversationSearchEventData,
+  ForgeAiChatbotConversationLoadMoreEventData
+} from './types.js';
