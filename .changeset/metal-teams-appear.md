@@ -1,6 +1,6 @@
 ---
-'@tylertech/forge-ai-react': patch
-'@tylertech/forge-ai': patch
+'@tylertech/forge-ai-react': minor
+'@tylertech/forge-ai': minor
 ---
 
 feat(chatbot): add support for conversations
