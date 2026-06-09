@@ -341,7 +341,7 @@ export class AiConversationsPanelComponent extends LitElement {
           type="text"
           id="search-input-search"
           autocomplete="off"
-          placeholder="Search conversations..."
+          placeholder="Search chats..."
           .value=${this._searchQuery}
           @input=${this.#handleSearchInput} />
         ${when(
