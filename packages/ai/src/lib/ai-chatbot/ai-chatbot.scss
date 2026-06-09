@@ -82,7 +82,7 @@ forge-ai-chat-interface {
 
 .conversations-dialog {
   display: grid;
-  width: 90%;
+  width: min(90%, 360px);
   padding: 0;
   border: 0;
   position: absolute;
