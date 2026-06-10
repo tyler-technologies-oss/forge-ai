@@ -491,7 +491,7 @@ export class AiConversationsPanelComponent extends LitElement {
         size-strategy="fixed"
         @forge-ai-modal-close=${this.#handleDeleteModalClose}>
         <div class="delete-confirmation" role="alertdialog" aria-labelledby="delete-confirm-title">
-          <h2 id="delete-confirm-title" class="delete-confirmation__title">Delete conversation</h2>
+          <h2 id="delete-confirm-title" class="delete-confirmation__title">Delete chat</h2>
           <div class="delete-confirmation__text">
             Are you sure you want to delete "${this._confirmingDeleteThread.title}"? This action cannot be undone.
           </div>
