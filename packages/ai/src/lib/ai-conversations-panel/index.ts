@@ -2,5 +2,7 @@ export { AiConversationsPanelComponent, AiConversationsPanelComponentTagName } f
 export type {
   ForgeAiConversationsPanelSelectEventData,
   ForgeAiConversationsPanelSearchEventData,
-  ForgeAiConversationsPanelLoadMoreEventData
+  ForgeAiConversationsPanelLoadMoreEventData,
+  ForgeAiConversationsPanelRenameEventData,
+  ForgeAiConversationsPanelDeleteEventData
 } from './ai-conversations-panel.js';

@@ -6,7 +6,9 @@ import '$lib/ai-conversations-panel';
 import type { Thread } from '$lib/ai-threads';
 import type {
   ForgeAiConversationsPanelSearchEventData,
-  ForgeAiConversationsPanelLoadMoreEventData
+  ForgeAiConversationsPanelLoadMoreEventData,
+  ForgeAiConversationsPanelRenameEventData,
+  ForgeAiConversationsPanelDeleteEventData
 } from '$lib/ai-conversations-panel';
 
 const component = 'forge-ai-conversations-panel';
@@ -118,7 +120,9 @@ const meta = {
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
-          @forge-ai-conversations-panel-search=${action('forge-ai-conversations-panel-search')}>
+          @forge-ai-conversations-panel-search=${action('forge-ai-conversations-panel-search')}
+          @forge-ai-conversations-panel-rename=${action('forge-ai-conversations-panel-rename')}
+          @forge-ai-conversations-panel-delete=${action('forge-ai-conversations-panel-delete')}>
         </forge-ai-conversations-panel>
       </div>
     `;
@@ -158,7 +162,9 @@ export const WithLocalSearch: Story = {
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
           @forge-ai-conversations-panel-search=${(e: CustomEvent<ForgeAiConversationsPanelSearchEventData>) => {
             action('forge-ai-conversations-panel-search')(e);
-          }}>
+          }}
+          @forge-ai-conversations-panel-rename=${action('forge-ai-conversations-panel-rename')}
+          @forge-ai-conversations-panel-delete=${action('forge-ai-conversations-panel-delete')}>
         </forge-ai-conversations-panel>
       </div>
       <div style="margin-top: 16px;">
@@ -226,7 +232,9 @@ export const WithAsyncSearch: Story = {
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
-          @forge-ai-conversations-panel-search=${handleSearch}>
+          @forge-ai-conversations-panel-search=${handleSearch}
+          @forge-ai-conversations-panel-rename=${action('forge-ai-conversations-panel-rename')}
+          @forge-ai-conversations-panel-delete=${action('forge-ai-conversations-panel-delete')}>
         </forge-ai-conversations-panel>
       </div>
       <div style="margin-top: 16px; max-width: 400px;">
@@ -286,7 +294,9 @@ export const WithNoRecentThreads: Story = {
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
-          @forge-ai-conversations-panel-search=${handleSearch}>
+          @forge-ai-conversations-panel-search=${handleSearch}
+          @forge-ai-conversations-panel-rename=${action('forge-ai-conversations-panel-rename')}
+          @forge-ai-conversations-panel-delete=${action('forge-ai-conversations-panel-delete')}>
         </forge-ai-conversations-panel>
       </div>
       <div style="margin-top: 16px; max-width: 400px;">
@@ -346,7 +356,9 @@ export const WithInfiniteScroll: Story = {
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
           @forge-ai-conversations-panel-search=${handleSearch}
-          @forge-ai-conversations-panel-load-more=${handleLoadMore}>
+          @forge-ai-conversations-panel-load-more=${handleLoadMore}
+          @forge-ai-conversations-panel-rename=${action('forge-ai-conversations-panel-rename')}
+          @forge-ai-conversations-panel-delete=${action('forge-ai-conversations-panel-delete')}>
         </forge-ai-conversations-panel>
       </div>
       <div style="margin-top: 16px; max-width: 400px;">

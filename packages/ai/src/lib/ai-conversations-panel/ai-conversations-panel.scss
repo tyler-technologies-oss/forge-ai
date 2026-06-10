@@ -71,23 +71,25 @@
 
   overflow-y: auto;
   min-height: 0;
+
+  forge-ai-dropdown-menu {
+    display: flex;
+  }
 }
 
 .forge-list--navlist {
   .forge-list-item {
     font-weight: normal;
     margin-inline: 0;
+
+    &--selected {
+      font-weight: bold;
+    }
   }
 
   .forge-icon {
     color: #{forge-theme.variable(text-medium)};
   }
-}
-
-.forge-list-item--selected {
-  font-weight: bold;
-  background-color: #{forge-theme.variable(tertiary-container-minimum)};
-  color: #{forge-theme.variable(on-tertiary-container-minimum)};
 }
 
 .search-field {
@@ -123,4 +125,55 @@
   align-items: center;
   padding-block: #{forge-spacing.variable(medium)};
   margin-block-start: #{forge-spacing.variable(xxsmall)};
+}
+
+.forge-list-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
+
+  button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .conversation-item-actions {
+    display: none;
+    align-items: center;
+    gap: #{forge-spacing.variable(xxsmall)};
+  }
+
+  &:hover,
+  &:focus-within,
+  &.forge-list-item--menu-open {
+    .conversation-item-actions {
+      display: flex;
+    }
+  }
+}
+
+.edit-thread-field {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
+
+  .forge-field {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    --forge-field-height: 24px;
+  }
+
+  input {
+    width: 100%;
+  }
+
+  .edit-thread-actions {
+    display: flex;
+    align-items: center;
+    gap: #{forge-spacing.variable(xxsmall)};
+  }
 }

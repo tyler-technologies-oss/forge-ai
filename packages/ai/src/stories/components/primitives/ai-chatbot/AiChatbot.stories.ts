@@ -1169,6 +1169,8 @@ export const WithConversationHistory: Story = {
     const onNewChat = action('forge-ai-chatbot-new-chat');
     const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
     const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
+    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
@@ -1184,7 +1186,9 @@ export const WithConversationHistory: Story = {
           @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
           @forge-ai-chatbot-new-chat=${onNewChat}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
-          @forge-ai-chatbot-conversations-close=${onConversationsClose}>
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}
+          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
+          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
         </forge-ai-chatbot>
       </div>
     `;
@@ -1204,6 +1208,8 @@ export const WithEmptyConversationHistory: Story = {
     const onNewChat = action('forge-ai-chatbot-new-chat');
     const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
     const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
+    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
@@ -1219,7 +1225,9 @@ export const WithEmptyConversationHistory: Story = {
           @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
           @forge-ai-chatbot-new-chat=${onNewChat}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
-          @forge-ai-chatbot-conversations-close=${onConversationsClose}>
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}
+          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
+          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
         </forge-ai-chatbot>
       </div>
     `;

@@ -9,6 +9,7 @@
 :host {
   display: inline-block;
   position: relative;
+  color: #{forge-theme.variable(text-high)}; // Reset the cascade color in case of nesting
 
   // CSS Custom Properties for theming and configuration
   --_ai-dropdown-menu-min-width: var(--forge-ai-dropdown-menu-min-width, 200px);

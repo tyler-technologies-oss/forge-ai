@@ -8,7 +8,9 @@ import type { AiPromptComponent } from '../ai-prompt';
 import type {
   AiConversationsPanelComponent,
   ForgeAiConversationsPanelSearchEventData,
-  ForgeAiConversationsPanelLoadMoreEventData
+  ForgeAiConversationsPanelLoadMoreEventData,
+  ForgeAiConversationsPanelRenameEventData,
+  ForgeAiConversationsPanelDeleteEventData
 } from '../ai-conversations-panel';
 import { AiChatbotBase } from './ai-chatbot-base.js';
 import type {
@@ -17,6 +19,8 @@ import type {
   ForgeAiChatbotConversationSelectEventData,
   ForgeAiChatbotConversationSearchEventData,
   ForgeAiChatbotConversationLoadMoreEventData,
+  ForgeAiChatbotConversationRenameEventData,
+  ForgeAiChatbotConversationDeleteEventData,
   Thread
 } from './types.js';
 
@@ -62,6 +66,8 @@ declare global {
     'forge-ai-chatbot-new-chat': CustomEvent<void>;
     'forge-ai-chatbot-conversation-search': CustomEvent<ForgeAiChatbotConversationSearchEventData>;
     'forge-ai-chatbot-conversation-load-more': CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>;
+    'forge-ai-chatbot-conversation-rename': CustomEvent<ForgeAiChatbotConversationRenameEventData>;
+    'forge-ai-chatbot-conversation-delete': CustomEvent<ForgeAiChatbotConversationDeleteEventData>;
   }
 }
 
@@ -156,6 +162,8 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @event {CustomEvent<void>} forge-ai-chatbot-new-chat - Fired when user clicks new chat button (cancelable)
  * @event {CustomEvent<ForgeAiChatbotConversationSearchEventData>} forge-ai-chatbot-conversation-search - Fired when search query changes in conversations panel (debounced, cancelable)
  * @event {CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>} forge-ai-chatbot-conversation-load-more - Fired when scrolling near bottom in search view
+ * @event {CustomEvent<ForgeAiChatbotConversationRenameEventData>} forge-ai-chatbot-conversation-rename - Fired when user renames a conversation thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
+ * @event {CustomEvent<ForgeAiChatbotConversationDeleteEventData>} forge-ai-chatbot-conversation-delete - Fired when user deletes a conversation thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
  */
 @customElement(AiChatbotComponentTagName)
 export class AiChatbotComponent extends AiChatbotBase {
@@ -255,6 +263,13 @@ export class AiChatbotComponent extends AiChatbotBase {
 
   #handleEscapeKey(event: KeyboardEvent): void {
     if (event.key === 'Escape' && this.conversationsOpen) {
+      const path = event.composedPath();
+      const hasEscapeHandler = path.some(el => el instanceof HTMLElement && el.hasAttribute('data-handles-escape'));
+
+      if (hasEscapeHandler) {
+        return;
+      }
+
       event.stopPropagation();
       event.preventDefault();
       this.hideConversations();
@@ -328,6 +343,32 @@ export class AiChatbotComponent extends AiChatbotBase {
       }
     );
     this.dispatchEvent(event);
+  };
+
+  #handleConversationRename = (e: CustomEvent<ForgeAiConversationsPanelRenameEventData>): void => {
+    const event = new CustomEvent<ForgeAiChatbotConversationRenameEventData>('forge-ai-chatbot-conversation-rename', {
+      detail: e.detail,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    });
+    const dispatched = this.dispatchEvent(event);
+    if (!dispatched) {
+      e.preventDefault();
+    }
+  };
+
+  #handleConversationDelete = (e: CustomEvent<ForgeAiConversationsPanelDeleteEventData>): void => {
+    const event = new CustomEvent<ForgeAiChatbotConversationDeleteEventData>('forge-ai-chatbot-conversation-delete', {
+      detail: e.detail,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    });
+    const dispatched = this.dispatchEvent(event);
+    if (!dispatched) {
+      e.preventDefault();
+    }
   };
 
   get #sessionFilesTemplate(): TemplateResult | typeof nothing {
@@ -473,7 +514,9 @@ export class AiChatbotComponent extends AiChatbotBase {
                 @forge-ai-conversations-panel-new-chat=${this.#handleNewChat}
                 @forge-ai-conversations-panel-close=${this.#handlePanelClose}
                 @forge-ai-conversations-panel-search=${this.#handleConversationSearch}
-                @forge-ai-conversations-panel-load-more=${this.#handleConversationLoadMore}>
+                @forge-ai-conversations-panel-load-more=${this.#handleConversationLoadMore}
+                @forge-ai-conversations-panel-rename=${this.#handleConversationRename}
+                @forge-ai-conversations-panel-delete=${this.#handleConversationDelete}>
               </forge-ai-conversations-panel>
             </dialog>
           `
@@ -743,5 +786,7 @@ export type {
   Thread,
   ForgeAiChatbotConversationSelectEventData,
   ForgeAiChatbotConversationSearchEventData,
-  ForgeAiChatbotConversationLoadMoreEventData
+  ForgeAiChatbotConversationLoadMoreEventData,
+  ForgeAiChatbotConversationRenameEventData,
+  ForgeAiChatbotConversationDeleteEventData
 } from './types.js';
