@@ -353,6 +353,8 @@ export const WithConversationHistory: Story = {
           show-expand-button
           show-minimize-button
           show-conversations-button
+          show-conversation-rename
+          show-conversation-delete
           minimize-icon="panel"
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}

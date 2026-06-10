@@ -35,7 +35,7 @@ declare global {
   interface HTMLElementEventMap extends DropdownMenuEvents {}
 }
 
-export type DropdownMenuVariant = 'button' | 'icon-button';
+export type DropdownMenuVariant = 'button' | 'icon-button' | 'icon-button-squared';
 export type DropdownMenuDensity = 'small' | 'medium' | 'large';
 
 /**
@@ -444,7 +444,8 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
 
   get #triggerButton(): TemplateResult {
     const isButton = this.variant === 'button';
-    const isIconButton = this.variant === 'icon-button';
+    const isIconButton = this.variant === 'icon-button' || this.variant === 'icon-button-squared';
+    const isIconButtonSquared = this.variant === 'icon-button-squared';
     const densityClass =
       this.density !== 'medium' ? `${isButton ? 'forge-button' : 'forge-icon-button'}--${this.density}` : '';
 
@@ -454,6 +455,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
         class=${classMap({
           'forge-button': isButton,
           'forge-icon-button': isIconButton,
+          'forge-icon-button--squared': isIconButtonSquared,
           [densityClass]: !!densityClass
         })}
         type="button"

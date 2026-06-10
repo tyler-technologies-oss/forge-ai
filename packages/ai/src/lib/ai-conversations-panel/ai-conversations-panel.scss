@@ -6,6 +6,7 @@
 @use '@tylertech/forge/dist/icon/forge-icon';
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/list/forge-list';
+@use '@tylertech/forge/dist/button/forge-button';
 
 :host {
   display: grid;
@@ -176,5 +177,33 @@
     display: flex;
     align-items: center;
     gap: #{forge-spacing.variable(xxsmall)};
+  }
+}
+
+forge-ai-modal {
+  --forge-ai-modal-width: fit-content;
+  --forge-ai-modal-height: fit-content;
+}
+
+.delete-confirmation {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(medium)};
+  padding: #{forge-spacing.variable(medium)};
+  max-width: 90vw;
+
+  &__title {
+    @include forge-typography.style(heading4);
+    margin: 0;
+  }
+
+  &__text {
+    @include forge-typography.style(body1);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: #{forge-spacing.variable(small)};
   }
 }

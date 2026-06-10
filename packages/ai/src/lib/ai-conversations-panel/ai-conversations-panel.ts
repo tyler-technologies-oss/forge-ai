@@ -1,12 +1,14 @@
 import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
+import { createRef, ref, Ref } from 'lit/directives/ref.js';
 import type { Thread } from '../ai-threads';
+import type { AiModalComponent } from '../ai-modal/ai-modal';
 import '../ai-icon/ai-icon';
 import '../ai-spinner/ai-spinner';
 import '../ai-dropdown-menu/ai-dropdown-menu.js';
 import '../ai-dropdown-menu/ai-dropdown-menu-item.js';
-import '../ai-confirmation-prompt/ai-confirmation-prompt.js';
+import '../ai-modal/ai-modal.js';
 
 import styles from './ai-conversations-panel.scss?inline';
 
@@ -135,6 +137,8 @@ export class AiConversationsPanelComponent extends LitElement {
 
   @query('.thread-title-input')
   private _editInputElement?: HTMLInputElement;
+
+  #deleteModalRef: Ref<AiModalComponent> = createRef();
 
   public override connectedCallback(): void {
     super.connectedCallback();
@@ -390,6 +394,7 @@ export class AiConversationsPanelComponent extends LitElement {
 
   #handleDeleteClick(thread: Thread): void {
     this._confirmingDeleteThread = thread;
+    this.#deleteModalRef.value?.show();
   }
 
   #handleDeleteConfirm(): void {
@@ -424,10 +429,17 @@ export class AiConversationsPanelComponent extends LitElement {
       }
 
       this._confirmingDeleteThread = null;
+      this.#deleteModalRef.value?.close();
     }
   }
 
   #handleDeleteDeny(): void {
+    this._confirmingDeleteThread = null;
+    this.#deleteModalRef.value?.close();
+  }
+
+  #handleDeleteModalClose(evt: Event): void {
+    evt.stopPropagation();
     this._confirmingDeleteThread = null;
   }
 
@@ -467,20 +479,39 @@ export class AiConversationsPanelComponent extends LitElement {
     }
   }
 
-  get #confirmationPrompt(): TemplateResult | typeof nothing {
+  get #deleteConfirmationModal(): TemplateResult | typeof nothing {
     if (!this._confirmingDeleteThread) {
       return nothing;
     }
 
     return html`
-      <forge-ai-confirmation-prompt
-        layout="vertical"
-        text=${`Delete "${this._confirmingDeleteThread.title}"?`}
-        confirm-text="Delete"
-        deny-text="Cancel"
-        @forge-ai-confirmation-prompt-confirm=${this.#handleDeleteConfirm}
-        @forge-ai-confirmation-prompt-deny=${this.#handleDeleteDeny}>
-      </forge-ai-confirmation-prompt>
+      <forge-ai-modal
+        ${ref(this.#deleteModalRef)}
+        .open=${true}
+        size-strategy="fixed"
+        @forge-ai-modal-close=${this.#handleDeleteModalClose}>
+        <div class="delete-confirmation" role="alertdialog" aria-labelledby="delete-confirm-title">
+          <h2 id="delete-confirm-title" class="delete-confirmation__title">Delete conversation</h2>
+          <div class="delete-confirmation__text">
+            Are you sure you want to delete "${this._confirmingDeleteThread.title}"? This action cannot be undone.
+          </div>
+          <div class="delete-confirmation__actions">
+            <button
+              class="forge-button forge-button--outlined"
+              @click=${this.#handleDeleteDeny}
+              autofocus
+              aria-label="Cancel deletion">
+              Cancel
+            </button>
+            <button
+              class="forge-button forge-button--filled"
+              @click=${this.#handleDeleteConfirm}
+              aria-label="Confirm deletion">
+              Delete
+            </button>
+          </div>
+        </div>
+      </forge-ai-modal>
     `;
   }
 
@@ -637,7 +668,7 @@ export class AiConversationsPanelComponent extends LitElement {
                     () => html`
                       <div class="conversation-item-actions" @click=${this.#handleMenuSelect}>
                         <forge-ai-dropdown-menu
-                          variant="icon-button"
+                          variant="icon-button-squared"
                           density="small"
                           selection-mode="none"
                           popover-placement="bottom-start"
@@ -741,7 +772,8 @@ export class AiConversationsPanelComponent extends LitElement {
       <aside class="conversations-panel" role="complementary" aria-label="Conversation history">
         ${when(isMainView, () => this.#header)} ${when(isSearchView, () => this.#headerSearch)}
         ${when(isMainView, () => this.#chatActionsList)} ${when(isMainView, () => this.#chatsLabel)}
-        ${when(isSearchView, () => this.#searchFieldSearch)} ${this.#threadListContainer} ${this.#confirmationPrompt}
+        ${when(isSearchView, () => this.#searchFieldSearch)} ${this.#threadListContainer}
+        ${this.#deleteConfirmationModal}
       </aside>
     `;
   }
