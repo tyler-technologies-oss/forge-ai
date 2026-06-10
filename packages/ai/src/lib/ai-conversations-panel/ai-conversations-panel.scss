@@ -19,6 +19,7 @@
   min-height: 0;
   padding: #{forge-spacing.variable(medium)};
   background-color: #{forge-theme.variable(surface)};
+  position: relative;
 }
 
 .header {

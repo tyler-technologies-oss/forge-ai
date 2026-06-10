@@ -105,11 +105,21 @@ const meta = {
     selectedThreadId: {
       control: 'text',
       description: 'ID of the currently selected thread'
+    },
+    showConversationRename: {
+      control: 'boolean',
+      description: 'Show rename option in conversations panel'
+    },
+    showConversationDelete: {
+      control: 'boolean',
+      description: 'Show delete option in conversations panel'
     }
   },
   args: {
     recentThreads: sampleThreads,
-    selectedThreadId: null
+    selectedThreadId: null,
+    showConversationRename: true,
+    showConversationDelete: true
   },
   render: args => {
     return html`
@@ -117,6 +127,8 @@ const meta = {
         <forge-ai-conversations-panel
           .recentThreads=${args.recentThreads}
           .selectedThreadId=${args.selectedThreadId}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
@@ -157,6 +169,8 @@ export const WithLocalSearch: Story = {
         <forge-ai-conversations-panel
           .recentThreads=${args.recentThreads}
           .selectedThreadId=${args.selectedThreadId}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
@@ -229,6 +243,8 @@ export const WithAsyncSearch: Story = {
         <forge-ai-conversations-panel
           .recentThreads=${args.recentThreads}
           .selectedThreadId=${args.selectedThreadId}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
@@ -291,6 +307,8 @@ export const WithNoRecentThreads: Story = {
         <forge-ai-conversations-panel
           .recentThreads=${args.recentThreads}
           .selectedThreadId=${args.selectedThreadId}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
@@ -352,6 +370,8 @@ export const WithInfiniteScroll: Story = {
         <forge-ai-conversations-panel
           .recentThreads=${args.recentThreads}
           .selectedThreadId=${args.selectedThreadId}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}

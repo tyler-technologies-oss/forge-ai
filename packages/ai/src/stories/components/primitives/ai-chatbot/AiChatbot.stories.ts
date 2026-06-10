@@ -63,6 +63,14 @@ const meta = {
       control: 'boolean',
       description: 'Show conversations button in header'
     },
+    showConversationRename: {
+      control: 'boolean',
+      description: 'Show rename option in conversations panel'
+    },
+    showConversationDelete: {
+      control: 'boolean',
+      description: 'Show delete option in conversations panel'
+    },
     enableReactions: {
       control: 'boolean',
       description: 'Enable thumbs up/down reaction buttons'
@@ -83,6 +91,8 @@ const meta = {
     expanded: false,
     minimizeIcon: 'default',
     showConversationsButton: false,
+    showConversationRename: true,
+    showConversationDelete: true,
     enableReactions: false,
     disclaimerText: 'AI can make mistakes. Always verify responses.'
   },
@@ -120,6 +130,8 @@ const meta = {
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?show-conversations-button=${args.showConversationsButton}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           ?expanded=${args.expanded}
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
@@ -1178,6 +1190,8 @@ export const WithConversationHistory: Story = {
           .adapter=${adapter}
           .recentThreads=${threads}
           ?show-conversations-button=${true}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           placeholder=${args.placeholder}
           title-text="AI Assistant with History"
           file-upload=${args.fileUpload}
@@ -1217,6 +1231,8 @@ export const WithEmptyConversationHistory: Story = {
           .adapter=${adapter}
           .recentThreads=${[]}
           ?show-conversations-button=${true}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           placeholder=${args.placeholder}
           title-text="AI Assistant with Empty History"
           file-upload=${args.fileUpload}

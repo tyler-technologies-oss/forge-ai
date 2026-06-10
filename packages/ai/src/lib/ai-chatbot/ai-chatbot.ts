@@ -190,6 +190,12 @@ export class AiChatbotComponent extends AiChatbotBase {
   @property({ type: Boolean, attribute: 'conversations-open', reflect: true })
   public conversationsOpen = false;
 
+  @property({ type: Boolean, attribute: 'show-conversation-rename' })
+  public showConversationRename = false;
+
+  @property({ type: Boolean, attribute: 'show-conversation-delete' })
+  public showConversationDelete = false;
+
   @state()
   private _selectedThreadId: string | null = null;
 
@@ -510,6 +516,8 @@ export class AiChatbotComponent extends AiChatbotBase {
                 .recentThreads=${this.recentThreads}
                 .selectedThreadId=${this._selectedThreadId}
                 ?show-back-button=${true}
+                ?show-conversation-rename=${this.showConversationRename}
+                ?show-conversation-delete=${this.showConversationDelete}
                 @forge-ai-conversations-panel-select=${this.#handleThreadSelect}
                 @forge-ai-conversations-panel-new-chat=${this.#handleNewChat}
                 @forge-ai-conversations-panel-close=${this.#handlePanelClose}

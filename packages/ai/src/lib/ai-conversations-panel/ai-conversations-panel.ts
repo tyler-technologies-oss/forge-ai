@@ -85,6 +85,12 @@ export class AiConversationsPanelComponent extends LitElement {
   @property({ type: String, attribute: 'selected-thread-id' })
   public selectedThreadId: string | null = null;
 
+  @property({ type: Boolean, attribute: 'show-conversation-rename' })
+  public showConversationRename = false;
+
+  @property({ type: Boolean, attribute: 'show-conversation-delete' })
+  public showConversationDelete = false;
+
   @state()
   private _viewState: 'main' | 'search' = 'main';
 
@@ -469,7 +475,7 @@ export class AiConversationsPanelComponent extends LitElement {
     return html`
       <forge-ai-confirmation-prompt
         layout="vertical"
-        text="Delete '${this._confirmingDeleteThread.title}'?"
+        text=${`Delete "${this._confirmingDeleteThread.title}"?`}
         confirm-text="Delete"
         deny-text="Cancel"
         @forge-ai-confirmation-prompt-confirm=${this.#handleDeleteConfirm}
@@ -626,40 +632,66 @@ export class AiConversationsPanelComponent extends LitElement {
                   <button @click=${() => this.#handleThreadSelect(thread)} aria-selected=${isSelected}>
                     <span>${thread.title}</span>
                   </button>
-                  <div class="conversation-item-actions" @click=${this.#handleMenuSelect}>
-                    <forge-ai-dropdown-menu
-                      variant="icon-button"
-                      density="small"
-                      selection-mode="none"
-                      popover-placement="bottom-start"
-                      @keydown=${this.#handleMenuKeyDown}
-                      @forge-ai-dropdown-menu-open=${() => this.#handleMenuOpen(thread.id)}
-                      @forge-ai-dropdown-menu-close=${this.#handleMenuClose}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        slot="trigger-content"
-                        class="forge-icon">
-                        <path
-                          d="M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2" />
-                      </svg>
+                  ${when(
+                    this.showConversationRename || this.showConversationDelete,
+                    () => html`
+                      <div class="conversation-item-actions" @click=${this.#handleMenuSelect}>
+                        <forge-ai-dropdown-menu
+                          variant="icon-button"
+                          density="small"
+                          selection-mode="none"
+                          popover-placement="bottom-start"
+                          @keydown=${this.#handleMenuKeyDown}
+                          @forge-ai-dropdown-menu-open=${() => this.#handleMenuOpen(thread.id)}
+                          @forge-ai-dropdown-menu-close=${this.#handleMenuClose}>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            slot="trigger-content"
+                            class="forge-icon">
+                            <path
+                              d="M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2" />
+                          </svg>
 
-                      <forge-ai-dropdown-menu-item value="rename" @click=${() => this.#handleRenameClick(thread)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start" class="forge-icon">
-                          <path
-                            d="m15 16-4 4h10v-4zm-2.94-8.81L3 16.25V20h3.75l9.06-9.06zm6.65.85c.39-.39.39-1.04 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z" />
-                        </svg>
-                        <span>Rename</span>
-                      </forge-ai-dropdown-menu-item>
-
-                      <forge-ai-dropdown-menu-item value="delete" @click=${() => this.#handleDeleteClick(thread)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start" class="forge-icon">
-                          <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
-                        </svg>
-                        <span>Delete</span>
-                      </forge-ai-dropdown-menu-item>
-                    </forge-ai-dropdown-menu>
-                  </div>
+                          ${when(
+                            this.showConversationRename,
+                            () => html`
+                              <forge-ai-dropdown-menu-item
+                                value="rename"
+                                @click=${() => this.#handleRenameClick(thread)}>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  slot="start"
+                                  class="forge-icon">
+                                  <path
+                                    d="m15 16-4 4h10v-4zm-2.94-8.81L3 16.25V20h3.75l9.06-9.06zm6.65.85c.39-.39.39-1.04 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z" />
+                                </svg>
+                                <span>Rename</span>
+                              </forge-ai-dropdown-menu-item>
+                            `
+                          )}
+                          ${when(
+                            this.showConversationDelete,
+                            () => html`
+                              <forge-ai-dropdown-menu-item
+                                value="delete"
+                                @click=${() => this.#handleDeleteClick(thread)}>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  slot="start"
+                                  class="forge-icon">
+                                  <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
+                                </svg>
+                                <span>Delete</span>
+                              </forge-ai-dropdown-menu-item>
+                            `
+                          )}
+                        </forge-ai-dropdown-menu>
+                      </div>
+                    `
+                  )}
                 `
               )}
             </li>
