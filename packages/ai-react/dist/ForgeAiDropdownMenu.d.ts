@@ -30,6 +30,9 @@ export interface ForgeAiDropdownMenuProps extends Pick<
   /** The variant of the dropdown menu trigger button. */
   variant?: ForgeAiDropdownMenuElement["variant"];
 
+  /** The density of the dropdown menu trigger button. */
+  density?: ForgeAiDropdownMenuElement["density"];
+
   /** The selection mode for the dropdown menu.
 - 'none': No selection state, items act as actions only
 - 'single': Single selection with radio button behavior

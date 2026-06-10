@@ -4,7 +4,13 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { recentThreads, selectedThreadId, ...filteredProps } = props;
+  const {
+    showConversationRename,
+    showConversationDelete,
+    recentThreads,
+    selectedThreadId,
+    ...filteredProps
+  } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -32,6 +38,16 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
     "forge-ai-conversations-panel-load-more",
     props.onForgeAiConversationsPanelLoadMore,
   );
+  useEventListener(
+    ref,
+    "forge-ai-conversations-panel-rename",
+    props.onForgeAiConversationsPanelRename,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-conversations-panel-delete",
+    props.onForgeAiConversationsPanelDelete,
+  );
 
   return React.createElement(
     "forge-ai-conversations-panel",
@@ -53,6 +69,12 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
+      "show-conversation-rename": props.showConversationRename
+        ? true
+        : undefined,
+      "show-conversation-delete": props.showConversationDelete
+        ? true
+        : undefined,
       style: { ...props.style },
     },
     props.children,

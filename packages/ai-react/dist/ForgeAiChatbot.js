@@ -10,6 +10,8 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     expanded,
     showConversationsButton,
     conversationsOpen,
+    showConversationRename,
+    showConversationDelete,
     enableReactions,
     debugMode,
     minimizeIcon,
@@ -116,6 +118,16 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     "forge-ai-chatbot-conversation-load-more",
     props.onForgeAiChatbotConversationLoadMore,
   );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-conversation-rename",
+    props.onForgeAiChatbotConversationRename,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-conversation-delete",
+    props.onForgeAiChatbotConversationDelete,
+  );
 
   /** Properties - run whenever a property has changed */
   useProperties(ref, "agentInfo", props.agentInfo);
@@ -155,6 +167,12 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
         ? true
         : undefined,
       "conversations-open": props.conversationsOpen ? true : undefined,
+      "show-conversation-rename": props.showConversationRename
+        ? true
+        : undefined,
+      "show-conversation-delete": props.showConversationDelete
+        ? true
+        : undefined,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,
       style: { ...props.style },

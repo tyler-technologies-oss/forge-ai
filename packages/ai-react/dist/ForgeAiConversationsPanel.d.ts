@@ -19,6 +19,12 @@ export interface ForgeAiConversationsPanelProps extends Pick<
   | "onBlur"
 > {
   /** undefined */
+  showConversationRename?: boolean;
+
+  /** undefined */
+  showConversationDelete?: boolean;
+
+  /** undefined */
   recentThreads?: ForgeAiConversationsPanelElement["recentThreads"];
 
   /** undefined */
@@ -69,6 +75,16 @@ export interface ForgeAiConversationsPanelProps extends Pick<
   onForgeAiConversationsPanelLoadMore?: (
     event: CustomEvent<CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>>,
   ) => void;
+
+  /** Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. Otherwise optimistically updated. */
+  onForgeAiConversationsPanelRename?: (
+    event: CustomEvent<CustomEvent<ForgeAiConversationsPanelRenameEventData>>,
+  ) => void;
+
+  /** Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed. */
+  onForgeAiConversationsPanelDelete?: (
+    event: CustomEvent<CustomEvent<ForgeAiConversationsPanelDeleteEventData>>,
+  ) => void;
 }
 
 /**
@@ -82,5 +98,7 @@ export interface ForgeAiConversationsPanelProps extends Pick<
  * - **forge-ai-conversations-panel-close** - Fired when the close button is clicked.
  * - **forge-ai-conversations-panel-search** - Fired when search query changes (debounced). Cancelable - if prevented, shows loading and waits for setResults callback.
  * - **forge-ai-conversations-panel-load-more** - Fired when scrolling near bottom in search view. Always shows loading - call appendResults([]) to signal end.
+ * - **forge-ai-conversations-panel-rename** - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. Otherwise optimistically updated.
+ * - **forge-ai-conversations-panel-delete** - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
  */
 export const ForgeAiConversationsPanel: React.ForwardRefExoticComponent<ForgeAiConversationsPanelProps>;
