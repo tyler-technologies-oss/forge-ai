@@ -5,7 +5,7 @@ import { action } from 'storybook/actions';
 import '$lib/ai-floating-chat';
 import '$lib/ai-fab';
 import '$lib/ai-disclaimer';
-import { type Thread } from '$lib/ai-chatbot';
+import type { Thread } from '$lib/ai-threads';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
 const component = 'forge-ai-floating-chat';
