@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiModal = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, fullscreen, ...filteredProps } = props;
+  const { open, fullscreen, sizeStrategy, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(ref, "forge-ai-modal-open", props.onForgeAiModalOpen);
@@ -27,6 +27,7 @@ export const ForgeAiModal = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
+      "size-strategy": props.sizeStrategy || props["size-strategy"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
