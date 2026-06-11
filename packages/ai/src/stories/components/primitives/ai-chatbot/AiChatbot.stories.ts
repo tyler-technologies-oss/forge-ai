@@ -59,6 +59,18 @@ const meta = {
       options: ['default', 'panel'],
       description: 'Minimize icon variant'
     },
+    showConversationsButton: {
+      control: 'boolean',
+      description: 'Show conversations button in header'
+    },
+    showConversationRename: {
+      control: 'boolean',
+      description: 'Show rename option in conversations panel'
+    },
+    showConversationDelete: {
+      control: 'boolean',
+      description: 'Show delete option in conversations panel'
+    },
     enableReactions: {
       control: 'boolean',
       description: 'Enable thumbs up/down reaction buttons'
@@ -78,6 +90,9 @@ const meta = {
     showMinimizeButton: false,
     expanded: false,
     minimizeIcon: 'default',
+    showConversationsButton: false,
+    showConversationRename: true,
+    showConversationDelete: true,
     enableReactions: false,
     disclaimerText: 'AI can make mistakes. Always verify responses.'
   },
@@ -114,6 +129,9 @@ const meta = {
           debug-command=${args.debugCommand}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
+          ?show-conversations-button=${args.showConversationsButton}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           ?expanded=${args.expanded}
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
@@ -1206,6 +1224,121 @@ Key insights:
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithConversationHistory: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const threads = [
+      {
+        id: 'thread-1',
+        title: 'TypeScript best practices',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        messageCount: 8
+      },
+      {
+        id: 'thread-2',
+        title: 'Web component architecture',
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        messageCount: 15
+      },
+      {
+        id: 'thread-3',
+        title: 'How to use localStorage?',
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 3
+      },
+      {
+        id: 'thread-4',
+        title: 'Lit reactive controllers explained',
+        createdAt: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+        messageCount: 12
+      },
+      {
+        id: 'thread-5',
+        title: 'CSS Grid vs Flexbox comparison',
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 6
+      }
+    ];
+
+    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onNewChat = action('forge-ai-chatbot-new-chat');
+    const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
+    const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
+    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .recentThreads=${threads}
+          ?show-conversations-button=${true}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with History"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-new-chat=${onNewChat}
+          @forge-ai-chatbot-conversations-open=${onConversationsOpen}
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}
+          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
+          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithEmptyConversationHistory: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onNewChat = action('forge-ai-chatbot-new-chat');
+    const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
+    const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
+    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .recentThreads=${[]}
+          ?show-conversations-button=${true}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with Empty History"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-new-chat=${onNewChat}
+          @forge-ai-chatbot-conversations-open=${onConversationsOpen}
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}
+          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
+          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
         </forge-ai-chatbot>
       </div>
     `;

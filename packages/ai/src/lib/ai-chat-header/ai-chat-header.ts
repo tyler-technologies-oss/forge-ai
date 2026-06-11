@@ -32,6 +32,7 @@ declare global {
     'forge-ai-chat-header-clear': CustomEvent<void>;
     'forge-ai-chat-header-export': CustomEvent<void>;
     'forge-ai-chat-header-agent-change': CustomEvent<ForgeAiChatHeaderAgentChangeEventData>;
+    'forge-ai-chat-header-conversations-toggle': CustomEvent<void>;
   }
 }
 
@@ -156,6 +157,12 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ type: Boolean, attribute: 'disable-agent-selector' })
   public disableAgentSelector = false;
 
+  /**
+   * Shows the conversations button (hamburger menu) for accessing conversation history
+   */
+  @property({ type: Boolean, attribute: 'show-conversations-button' })
+  public showConversationsButton = false;
+
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
   @state()
@@ -203,7 +210,23 @@ export class AiChatHeaderComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="header">
-        <div class="start" id="title-container">${this.#titleElement}</div>
+        <div class="start" id="title-container">
+          ${when(
+            this.showConversationsButton,
+            () => html`
+              <button
+                id="conversations-button"
+                @click=${this.#handleConversationsToggle}
+                aria-label="Toggle conversations panel"
+                class="conversations-button forge-icon-button forge-icon-button--medium ai-icon-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z" />
+                </svg>
+              </button>
+            `
+          )}
+          ${this.#titleElement}
+        </div>
         <div class="end">
           <slot name="header-actions"></slot>
           ${when(
@@ -214,7 +237,7 @@ export class AiChatHeaderComponent extends LitElement {
                 @click=${this.#handleMinimizeClick}
                 aria-label="Minimize chat window"
                 aria-describedby="minimize-tooltip"
-                class="forge-icon-button forge-icon-button--large ai-icon-button">
+                class="forge-icon-button forge-icon-button--medium ai-icon-button">
                 ${when(
                   this.minimizeIcon === 'default',
                   () => html`
@@ -258,7 +281,7 @@ export class AiChatHeaderComponent extends LitElement {
                 @click=${this.#handleExpandClick}
                 aria-label=${this.expanded ? 'Collapse chat window' : 'Expand chat window'}
                 aria-describedby="expand-tooltip"
-                class="forge-icon-button forge-icon-button--large ai-icon-button">
+                class="forge-icon-button forge-icon-button--medium ai-icon-button">
                 ${when(
                   this.expanded,
                   () => html`
@@ -429,6 +452,15 @@ export class AiChatHeaderComponent extends LitElement {
     this.dispatchEvent(
       new CustomEvent('forge-ai-chat-header-agent-change', {
         detail: event.detail,
+        bubbles: true,
+        composed: true
+      })
+    );
+  }
+
+  #handleConversationsToggle(): void {
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-chat-header-conversations-toggle', {
         bubbles: true,
         composed: true
       })

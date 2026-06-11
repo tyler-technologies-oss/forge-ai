@@ -7,6 +7,8 @@ import styles from './ai-modal.scss?inline';
 
 const FULLSCREEN_WIDTH_THRESHOLD = 768;
 
+export type AiModalSizeStrategy = 'auto' | 'fixed';
+
 declare global {
   interface HTMLElementTagNameMap {
     'forge-ai-modal': AiModalComponent;
@@ -14,7 +16,7 @@ declare global {
 
   interface HTMLElementEventMap {
     'forge-ai-modal-open': CustomEvent<void>;
-    'forge-ai-modal-close': CustomEvent<void>;
+    'forge-ai-modal-close': CustomEvent<{ reason: 'backdrop' | 'escape' | 'programmatic' }>;
     'forge-ai-modal-fullscreen-change': CustomEvent<{ isFullscreen: boolean }>;
   }
 }
@@ -25,7 +27,7 @@ declare global {
  * @slot - Default slot for modal content
  *
  * @event {CustomEvent<void>} forge-ai-modal-open - Fired when the modal is opened
- * @event {CustomEvent<void>} forge-ai-modal-close - Fired when the modal is closed
+ * @event {CustomEvent<{ reason: 'backdrop' | 'escape' | 'programmatic' }>} forge-ai-modal-close - Fired when the modal is closed. Detail includes reason for closing.
  * @event {CustomEvent<{ isFullscreen: boolean }>} forge-ai-modal-fullscreen-change - Fired when the fullscreen state changes
  *
  * @cssproperty --forge-ai-modal-width - Width of the modal in non-fullscreen mode
@@ -53,11 +55,20 @@ export class AiModalComponent extends LitElement {
   @property({ type: Boolean })
   public fullscreen?: boolean;
 
+  /**
+   * Controls the modal sizing strategy.
+   * - 'auto' (default): Automatically switches to fullscreen on viewports < 768px
+   * - 'fixed': Maintains defined size regardless of viewport, never auto-fullscreens
+   */
+  @property({ type: String, attribute: 'size-strategy' })
+  public sizeStrategy: AiModalSizeStrategy = 'auto';
+
   @state()
   private _autoFullscreen = window.innerWidth <= FULLSCREEN_WIDTH_THRESHOLD;
 
   #mediaQuery?: MediaQueryList;
   readonly #internals: ElementInternals;
+  #closeReason: 'backdrop' | 'escape' | 'programmatic' = 'programmatic';
 
   constructor() {
     super();
@@ -66,7 +77,8 @@ export class AiModalComponent extends LitElement {
   }
 
   public render(): TemplateResult {
-    const isFullscreen = this.fullscreen ?? this._autoFullscreen;
+    const isFullscreen =
+      this.sizeStrategy === 'fixed' ? (this.fullscreen ?? false) : (this.fullscreen ?? this._autoFullscreen);
     const classes = {
       'forge-dialog': true,
       'forge-dialog--fullscreen': isFullscreen
@@ -76,7 +88,8 @@ export class AiModalComponent extends LitElement {
         class=${classMap(classes)}
         aria-labelledby="chat-interface-title"
         @close=${this.#handleDialogClose}
-        @click=${this.#handleDialogClick}>
+        @click=${this.#handleDialogClick}
+        @keydown=${this.#handleDialogKeydown}>
         <slot></slot>
       </dialog>
     `;
@@ -96,35 +109,55 @@ export class AiModalComponent extends LitElement {
     if (changedProperties.has('open')) {
       if (this.open) {
         if (this._dialog && !this._dialog.open) {
+          this.setAttribute('data-handles-escape', '');
           this._dialog.showModal();
           this.dispatchEvent(new CustomEvent('forge-ai-modal-open', { bubbles: true, composed: true }));
         }
       } else {
         if (this._dialog?.open) {
           this._dialog.close();
-          this.dispatchEvent(new CustomEvent('forge-ai-modal-close', { bubbles: true, composed: true }));
         }
+        this.removeAttribute('data-handles-escape');
+        this.dispatchEvent(
+          new CustomEvent('forge-ai-modal-close', {
+            bubbles: true,
+            composed: true,
+            detail: { reason: this.#closeReason }
+          })
+        );
+        this.#closeReason = 'programmatic';
       }
     }
 
-    if (changedProperties.has('fullscreen')) {
+    if (changedProperties.has('fullscreen') || changedProperties.has('sizeStrategy')) {
       this.#updateFullscreenState();
     }
   }
 
   #updateFullscreenState(): void {
-    const isFullscreen = this.fullscreen ?? this._autoFullscreen;
+    const isFullscreen =
+      this.sizeStrategy === 'fixed' ? (this.fullscreen ?? false) : (this.fullscreen ?? this._autoFullscreen);
     toggleState(this.#internals, 'fullscreen', isFullscreen);
   }
 
   #handleDialogClose(): void {
+    this.#closeReason = 'escape';
     this.open = false;
   }
 
   #handleDialogClick(event: MouseEvent): void {
     // Close modal when clicking on the backdrop (the dialog element itself)
     if (event.target === this._dialog) {
+      event.stopPropagation();
+      this.#closeReason = 'backdrop';
       this.close();
+    }
+  }
+
+  #handleDialogKeydown(event: KeyboardEvent): void {
+    // Stop Escape key from propagating to parent containers
+    if (event.key === 'Escape') {
+      event.stopPropagation();
     }
   }
 
@@ -139,6 +172,7 @@ export class AiModalComponent extends LitElement {
    * Closes the modal dialog.
    */
   public close(): void {
+    this.#closeReason = 'programmatic';
     this.open = false;
   }
 

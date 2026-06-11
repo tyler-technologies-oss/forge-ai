@@ -1,5 +1,5 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 
 import styles from './ai-confirmation-prompt.scss?inline';
 
@@ -40,6 +40,49 @@ export class AiConfirmationPromptComponent extends LitElement {
   @property({ type: Boolean })
   public disabled = false;
 
+  @property({ type: Boolean, attribute: 'auto-focus' })
+  public autoFocus = true;
+
+  @property()
+  public layout: 'horizontal' | 'vertical' = 'horizontal';
+
+  @query('.deny-button')
+  private _denyButton!: HTMLButtonElement;
+
+  public override connectedCallback(): void {
+    super.connectedCallback();
+    this.addEventListener('keydown', this.#handleKeyDown);
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.removeEventListener('keydown', this.#handleKeyDown);
+  }
+
+  public override firstUpdated(): void {
+    if (this.autoFocus) {
+      this.updateComplete.then(() => {
+        window.requestAnimationFrame(() => {
+          this._denyButton?.focus();
+        });
+      });
+    }
+  }
+
+  #handleKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+      event.preventDefault();
+      this.#handleDeny();
+    }
+  };
+
+  #handleBackdropClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.#handleDeny();
+    }
+  }
+
   #handleConfirm(): void {
     const event = new CustomEvent('forge-ai-confirmation-prompt-confirm', {
       bubbles: true,
@@ -57,24 +100,27 @@ export class AiConfirmationPromptComponent extends LitElement {
   }
 
   public override render(): TemplateResult {
+    const containerClass = `container container--${this.layout}`;
     return html`
-      <div class="container" role="alertdialog" aria-labelledby="confirmation-text" aria-modal="false">
-        <div id="confirmation-text" class="text">${this.text}</div>
-        <div class="actions">
-          <button
-            class="deny-button forge-button forge-button--outlined"
-            ?disabled=${this.disabled}
-            aria-label="Deny"
-            @click=${this.#handleDeny}>
-            ${this.denyText}
-          </button>
-          <button
-            class="confirm-button forge-button forge-button--raised"
-            ?disabled=${this.disabled}
-            aria-label="Confirm"
-            @click=${this.#handleConfirm}>
-            ${this.confirmText}
-          </button>
+      <div class="backdrop" @click=${this.#handleBackdropClick} data-handles-escape>
+        <div class=${containerClass} role="alertdialog" aria-labelledby="confirmation-text" aria-modal="true">
+          <div id="confirmation-text" class="text">${this.text}</div>
+          <div class="actions">
+            <button
+              class="deny-button forge-button forge-button--outlined"
+              ?disabled=${this.disabled}
+              aria-label="Deny"
+              @click=${this.#handleDeny}>
+              ${this.denyText}
+            </button>
+            <button
+              class="confirm-button forge-button forge-button--filled"
+              ?disabled=${this.disabled}
+              aria-label="Confirm"
+              @click=${this.#handleConfirm}>
+              ${this.confirmText}
+            </button>
+          </div>
         </div>
       </div>
     `;

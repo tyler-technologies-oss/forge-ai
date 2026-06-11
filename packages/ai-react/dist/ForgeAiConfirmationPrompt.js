@@ -4,7 +4,15 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiConfirmationPrompt = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { disabled, text, confirmText, denyText, ...filteredProps } = props;
+  const {
+    disabled,
+    autoFocus,
+    text,
+    confirmText,
+    denyText,
+    layout,
+    ...filteredProps
+  } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -33,12 +41,14 @@ export const ForgeAiConfirmationPrompt = forwardRef((props, forwardedRef) => {
       text: props.text,
       "confirm-text": props.confirmText || props["confirm-text"],
       "deny-text": props.denyText || props["deny-text"],
+      layout: props.layout,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
       disabled: props.disabled ? true : undefined,
+      "auto-focus": props.autoFocus ? true : undefined,
       style: { ...props.style },
     },
     props.children,

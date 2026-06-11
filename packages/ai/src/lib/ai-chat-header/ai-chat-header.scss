@@ -22,7 +22,7 @@
   grid-template-columns: 1fr auto;
   align-items: center;
   min-height: 56px;
-  padding-inline: #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxsmall)};
+  padding-inline: #{forge-spacing.variable(medium)} #{forge-spacing.variable(xsmall)};
 }
 
 .start {
@@ -37,6 +37,10 @@
   ::slotted([slot='icon']) {
     border-radius: var(--_ai-chat-header-icon-shape);
     display: block;
+  }
+
+  .conversations-button {
+    margin-inline: calc(#{forge-spacing.variable(xxsmall)} * -1) calc(#{forge-spacing.variable(small)} * -1);
   }
 
   .title {
