@@ -43,20 +43,20 @@ const meta = {
       {
         id: 'thread-1',
         title: 'Getting started with AI',
-        time: '10:30 AM',
-        date: new Date(Date.now() - 86400000)
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        messageCount: 5
       },
       {
         id: 'thread-2',
         title: 'Data analysis question',
-        time: '2:15 PM',
-        date: new Date(Date.now() - 3600000)
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        messageCount: 12
       },
       {
         id: 'thread-3',
         title: 'How do I implement authentication?',
-        time: '4:45 PM',
-        date: new Date()
+        createdAt: new Date().toISOString(),
+        messageCount: 3
       }
     ];
 

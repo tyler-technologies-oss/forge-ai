@@ -286,32 +286,32 @@ export const WithConversationHistory: Story = {
       {
         id: 'thread-1',
         title: 'TypeScript best practices',
-        time: '2:30 PM',
-        date: new Date(Date.now() - 2 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        messageCount: 8
       },
       {
         id: 'thread-2',
         title: 'Web component architecture',
-        time: '11:45 AM',
-        date: new Date(Date.now() - 5 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        messageCount: 15
       },
       {
         id: 'thread-3',
         title: 'How to use localStorage?',
-        time: 'Yesterday',
-        date: new Date(Date.now() - 24 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 3
       },
       {
         id: 'thread-4',
         title: 'Lit reactive controllers explained',
-        time: 'Yesterday',
-        date: new Date(Date.now() - 36 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+        messageCount: 12
       },
       {
         id: 'thread-5',
         title: 'CSS Grid vs Flexbox comparison',
-        time: '2 days ago',
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 6
       }
     ];
 

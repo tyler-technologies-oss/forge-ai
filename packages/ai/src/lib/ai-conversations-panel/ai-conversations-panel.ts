@@ -479,6 +479,43 @@ export class AiConversationsPanelComponent extends LitElement {
     }
   }
 
+  #formatThreadMeta(thread: Thread): string {
+    const parts: string[] = [];
+
+    if (thread.messageCount) {
+      parts.push(`${thread.messageCount} ${thread.messageCount === 1 ? 'message' : 'messages'}`);
+    }
+
+    if (thread.updatedAt || thread.createdAt) {
+      parts.push(this.#formatRelativeTime(thread.updatedAt ?? thread.createdAt));
+    }
+
+    return parts.join(' • ');
+  }
+
+  #formatRelativeTime(timestamp: string): string {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) {
+      return 'Just now';
+    }
+    if (diffMins < 60) {
+      return `${diffMins}m ago`;
+    }
+    if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    }
+    if (diffDays < 7) {
+      return `${diffDays}d ago`;
+    }
+    return date.toLocaleDateString();
+  }
+
   get #deleteConfirmationModal(): TemplateResult | typeof nothing {
     if (!this._confirmingDeleteThread) {
       return nothing;
@@ -614,7 +651,7 @@ export class AiConversationsPanelComponent extends LitElement {
     }
 
     return html`
-      <ul class="forge-list forge-list--dense forge-list--navlist" role="list">
+      <ul class="forge-list forge-list--two-line forge-list--dense forge-list--navlist" role="list">
         ${threads.map(thread => {
           const isSelected = this.selectedThreadId === thread.id;
           const isEditing = this._editingThreadId === thread.id;
@@ -660,8 +697,12 @@ export class AiConversationsPanelComponent extends LitElement {
                   </div>
                 `,
                 () => html`
-                  <button @click=${() => this.#handleThreadSelect(thread)} aria-selected=${isSelected}>
-                    <span>${thread.title}</span>
+                  <button
+                    class="thread-item"
+                    @click=${() => this.#handleThreadSelect(thread)}
+                    aria-selected=${isSelected}>
+                    <span class="thread-item__title">${thread.title}</span>
+                    <span class="thread-item__meta">${this.#formatThreadMeta(thread)}</span>
                   </button>
                   ${when(
                     this.showConversationRename || this.showConversationDelete,

@@ -33,12 +33,13 @@ const generateThreads = (count: number, startIndex = 0): Thread[] => {
     const topic = topics[index % topics.length];
     const action = actions[Math.floor(index / topics.length) % actions.length];
     const daysAgo = Math.floor(index / 5) + 1;
+    const messageCount = Math.floor(Math.random() * 20) + 1;
 
     return {
       id: `thread-${index + 1}`,
       title: `${topic} ${action}`,
-      time: daysAgo === 1 ? 'Yesterday' : `${daysAgo} days ago`,
-      date: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000)
+      createdAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString(),
+      messageCount
     };
   });
 };
@@ -47,50 +48,50 @@ const sampleThreads: Thread[] = [
   {
     id: 'thread-1',
     title: 'TypeScript best practices',
-    time: '2:30 PM',
-    date: new Date(Date.now() - 2 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    messageCount: 8
   },
   {
     id: 'thread-2',
     title: 'Web component architecture',
-    time: '11:45 AM',
-    date: new Date(Date.now() - 5 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    messageCount: 15
   },
   {
     id: 'thread-3',
     title: 'How to use localStorage?',
-    time: 'Yesterday',
-    date: new Date(Date.now() - 24 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    messageCount: 3
   },
   {
     id: 'thread-4',
     title: 'Lit reactive controllers explained',
-    time: 'Yesterday',
-    date: new Date(Date.now() - 36 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+    messageCount: 12
   },
   {
     id: 'thread-5',
     title: 'CSS Grid vs Flexbox comparison',
-    time: '2 days ago',
-    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    messageCount: 6
   },
   {
     id: 'thread-6',
     title: 'JavaScript async/await patterns',
-    time: '3 days ago',
-    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    messageCount: 9
   },
   {
     id: 'thread-7',
     title: 'React hooks vs Lit reactive properties',
-    time: '4 days ago',
-    date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    messageCount: 7
   },
   {
     id: 'thread-8',
     title: 'Testing web components',
-    time: '5 days ago',
-    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    messageCount: 11
   }
 ];
 
@@ -202,26 +203,26 @@ export const WithAsyncSearch: Story = {
       {
         id: 'thread-9',
         title: 'Advanced TypeScript generics tutorial',
-        time: '1 week ago',
-        date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 18
       },
       {
         id: 'thread-10',
         title: 'Building custom Lit directives',
-        time: '1 week ago',
-        date: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 5
       },
       {
         id: 'thread-11',
         title: 'TypeScript utility types explained',
-        time: '2 weeks ago',
-        date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 14
       },
       {
         id: 'thread-12',
         title: 'Performance optimization techniques',
-        time: '2 weeks ago',
-        date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 22
       }
     ];
 
@@ -278,14 +279,14 @@ export const WithNoRecentThreads: Story = {
       {
         id: 'thread-1',
         title: 'Old conversation about TypeScript',
-        time: '3 weeks ago',
-        date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 25
       },
       {
         id: 'thread-2',
         title: 'Archived discussion on web components',
-        time: '1 month ago',
-        date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 19
       }
     ];
 
