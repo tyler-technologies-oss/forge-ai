@@ -35,7 +35,8 @@ declare global {
   interface HTMLElementEventMap extends DropdownMenuEvents {}
 }
 
-export type DropdownMenuVariant = 'button' | 'icon-button';
+export type DropdownMenuVariant = 'button' | 'icon-button' | 'icon-button-squared';
+export type DropdownMenuDensity = 'small' | 'medium' | 'large';
 
 /**
  * @summary An AI dropdown menu component with advanced selection modes and submenu support.
@@ -103,6 +104,12 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
    */
   @property()
   public variant: DropdownMenuVariant = 'button';
+
+  /**
+   * The density of the dropdown menu trigger button.
+   */
+  @property()
+  public density: DropdownMenuDensity = 'medium';
 
   /**
    * Whether the dropdown is open.
@@ -212,10 +219,12 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
     if (changedProperties.has('open')) {
       this._popover.open = this.open;
       if (this.open) {
+        this.setAttribute('data-handles-escape', '');
         this._navigationController?.onOpen();
         this._dispatchOpenCloseEvent('open');
       } else if (changedProperties.get('open') === true) {
         // Was open, now closed
+        this.removeAttribute('data-handles-escape');
         this._dispatchOpenCloseEvent('close');
       }
     }
@@ -434,12 +443,20 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
   `;
 
   get #triggerButton(): TemplateResult {
+    const isButton = this.variant === 'button';
+    const isIconButton = this.variant === 'icon-button' || this.variant === 'icon-button-squared';
+    const isIconButtonSquared = this.variant === 'icon-button-squared';
+    const densityClass =
+      this.density !== 'medium' ? `${isButton ? 'forge-button' : 'forge-icon-button'}--${this.density}` : '';
+
     return html`
       <button
         id="dropdown-trigger"
         class=${classMap({
-          'forge-button': this.variant === 'button',
-          'forge-icon-button': this.variant === 'icon-button'
+          'forge-button': isButton,
+          'forge-icon-button': isIconButton,
+          'forge-icon-button--squared': isIconButtonSquared,
+          [densityClass]: !!densityClass
         })}
         type="button"
         aria-expanded=${this.open}

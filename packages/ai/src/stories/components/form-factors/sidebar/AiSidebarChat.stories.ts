@@ -15,6 +15,7 @@ import {
 import '$lib/ai-sidebar-chat';
 import '$lib/ai-button';
 import '$lib/ai-disclaimer';
+import type { Thread } from '$lib/ai-threads';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
 import {
@@ -260,6 +261,141 @@ export const WithDisclaimer: Story = {
           <forge-card>
             <p>Demo of the AI Sidebar Chat with disclaimer.</p>
             <p>Click "Agree" to show the chatbot, or "Disagree" to close the sidebar.</p>
+          </forge-card>
+        </main>
+
+        <div slot="body-right">${sidebarChat}</div>
+      </forge-scaffold>
+    `;
+  }
+};
+
+export const WithConversationHistory: Story = {
+  args: {
+    open: true
+  },
+  render: function (args) {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const threads: Thread[] = [
+      {
+        id: 'thread-1',
+        title: 'TypeScript best practices',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        messageCount: 8
+      },
+      {
+        id: 'thread-2',
+        title: 'Web component architecture',
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        messageCount: 15
+      },
+      {
+        id: 'thread-3',
+        title: 'How to use localStorage?',
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 3
+      },
+      {
+        id: 'thread-4',
+        title: 'Lit reactive controllers explained',
+        createdAt: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+        messageCount: 12
+      },
+      {
+        id: 'thread-5',
+        title: 'CSS Grid vs Flexbox comparison',
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 6
+      }
+    ];
+
+    const handleExpand = (e: Event) => {
+      action('forge-ai-sidebar-chat-expand')(e);
+      const chatbot = (e.target as HTMLElement).querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        chatbot.expanded = true;
+      }
+    };
+
+    const handleCollapse = (e: Event) => {
+      action('forge-ai-sidebar-chat-collapse')(e);
+      const chatbot = (e.target as HTMLElement).querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        chatbot.expanded = false;
+      }
+    };
+
+    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onNewChat = action('forge-ai-chatbot-new-chat');
+    const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
+    const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+
+    const sidebarChat = html`
+      <forge-ai-sidebar-chat
+        ?open=${args.open}
+        ?expanded=${args.expanded}
+        @forge-ai-sidebar-chat-open=${action('forge-ai-sidebar-chat-open')}
+        @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}
+        @forge-ai-sidebar-chat-expand=${handleExpand}
+        @forge-ai-sidebar-chat-collapse=${handleCollapse}>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .recentThreads=${threads}
+          file-upload=${args.fileUpload}
+          ?expanded=${args.expanded}
+          placeholder=${args.placeholder}
+          show-expand-button
+          show-minimize-button
+          show-conversations-button
+          show-conversation-rename
+          show-conversation-delete
+          minimize-icon="panel"
+          @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+          @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
+          @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+          @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+          @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}
+          @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
+          @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
+          @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}
+          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-new-chat=${onNewChat}
+          @forge-ai-chatbot-conversations-open=${onConversationsOpen}
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}>
+        </forge-ai-chatbot>
+      </forge-ai-sidebar-chat>
+    `;
+
+    return html`
+      <forge-scaffold style="overflow: hidden; height: 600px; border: 1px solid var(--forge-theme-outline);">
+        <forge-app-bar slot="header" title-text="AI Sidebar Chat with Conversation History"></forge-app-bar>
+
+        <forge-toolbar slot="body-header">
+          <h2 class="forge-typography--heading4">Page Title</h2>
+          <forge-ai-button
+            slot="end"
+            @click=${() => {
+              const sidebar = document.querySelector('forge-ai-sidebar-chat');
+              sidebar?.toggle();
+            }}
+            >Ask AI Assistant</forge-ai-button
+          >
+        </forge-toolbar>
+
+        <main slot="body" style="padding: 24px;">
+          <forge-card>
+            <p>Demo of the AI Sidebar Chat with conversation history.</p>
+            <p>
+              Click the hamburger icon in the chat header to view conversation history. The panel slides in from the
+              left with a list of recent conversations.
+            </p>
+            <p>Try selecting a conversation, searching, or starting a new chat.</p>
           </forge-card>
         </main>
 

@@ -7,11 +7,11 @@ import type { AiThreadsComponent, Thread } from '$lib/ai-threads';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
 const sampleThreads: Thread[] = [
-  { id: '1', title: 'Getting Started with AI', time: '2:30 PM', date: new Date('2024-01-15') },
-  { id: '2', title: 'Code Review Discussion', time: '10:45 AM', date: new Date('2024-01-14') },
-  { id: '3', title: 'Project Planning', time: '4:15 PM', date: new Date('2024-01-13') },
-  { id: '4', title: 'Bug Investigation', time: '9:20 AM', date: new Date('2024-01-12') },
-  { id: '5', title: 'Feature Development', time: '1:00 PM', date: new Date('2024-01-11') }
+  { id: '1', title: 'Getting Started with AI', createdAt: '2024-01-15T14:30:00Z', messageCount: 5 },
+  { id: '2', title: 'Code Review Discussion', createdAt: '2024-01-14T10:45:00Z', messageCount: 12 },
+  { id: '3', title: 'Project Planning', createdAt: '2024-01-13T16:15:00Z', messageCount: 8 },
+  { id: '4', title: 'Bug Investigation', createdAt: '2024-01-12T09:20:00Z', messageCount: 3 },
+  { id: '5', title: 'Feature Development', createdAt: '2024-01-11T13:00:00Z', messageCount: 15 }
 ];
 
 const component = 'forge-ai-threads';

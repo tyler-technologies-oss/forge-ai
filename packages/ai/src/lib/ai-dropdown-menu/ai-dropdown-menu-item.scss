@@ -87,6 +87,8 @@
   &__text {
     @include forge-list-item.text-container;
     @include forge-list-item.dense-text;
+
+    font-weight: normal;
   }
 
   &__description {

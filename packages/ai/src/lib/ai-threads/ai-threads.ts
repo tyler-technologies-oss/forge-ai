@@ -19,8 +19,9 @@ declare global {
 export interface Thread {
   id: string;
   title: string;
-  time: string;
-  date: Date;
+  createdAt: string;
+  updatedAt?: string;
+  messageCount?: number;
 }
 
 export interface ForgeAiThreadsSelectEventData {
@@ -120,6 +121,17 @@ export class AiThreadsComponent extends LitElement {
     this.dispatchEvent(event);
   }
 
+  #formatThreadDate(thread: Thread): string {
+    return new Date(thread.createdAt).toLocaleDateString();
+  }
+
+  #formatThreadTime(thread: Thread): string {
+    return new Date(thread.createdAt).toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  }
+
   readonly #searchField = html`
     <div class="forge-field">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
@@ -146,8 +158,8 @@ export class AiThreadsComponent extends LitElement {
               <button @click=${() => this._handleThreadSelect(thread)}>
                 <span>${thread.title}</span>
                 <div class="list-item-second-line">
-                  <span>${thread.date.toLocaleDateString()}</span>
-                  <span>${thread.time}</span>
+                  <span>${this.#formatThreadDate(thread)}</span>
+                  <span>${this.#formatThreadTime(thread)}</span>
                 </div>
               </button>
             </li>

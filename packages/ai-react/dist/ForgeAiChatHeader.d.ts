@@ -33,6 +33,9 @@ export interface ForgeAiChatHeaderProps extends Pick<
   /** Disables the agent selector (e.g., during streaming) */
   disableAgentSelector?: boolean;
 
+  /** Shows the conversations button (hamburger menu) for accessing conversation history */
+  showConversationsButton?: boolean;
+
   /** Controls which minimize icon to display */
   minimizeIcon?: ForgeAiChatHeaderElement["minimizeIcon"];
 
@@ -90,6 +93,9 @@ export interface ForgeAiChatHeaderProps extends Pick<
   /** undefined */
   onForgeAiChatHeaderAgentChange?: (event: CustomEvent) => void;
 
+  /** undefined */
+  onForgeAiChatHeaderConversationsToggle?: (event: CustomEvent) => void;
+
   /** Fired when the expand button is clicked */
   onForgeAiChatHeaderExpand?: (event: CustomEvent) => void;
 
@@ -106,6 +112,7 @@ export interface ForgeAiChatHeaderProps extends Pick<
  *  - **forge-ai-chat-header-export** - Fired when the export option is selected
  * - **forge-ai-chat-header-clear** - Fired when the clear chat option is selected
  * - **forge-ai-chat-header-agent-change**
+ * - **forge-ai-chat-header-conversations-toggle**
  * - **forge-ai-chat-header-expand** - Fired when the expand button is clicked
  * - **forge-ai-chat-header-minimize** - Fired when the minimize button is clicked
  *

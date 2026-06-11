@@ -13,6 +13,7 @@ export * from './ai-chat-interface';
 export * from './ai-chatbot';
 export * from './ai-chatbot-launcher';
 export * from './ai-confirmation-prompt';
+export * from './ai-conversations-panel';
 export * from './ai-dialog';
 export * from './ai-disclaimer';
 export * from './ai-dropdown-menu';
