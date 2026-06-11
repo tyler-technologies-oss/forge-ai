@@ -2,7 +2,6 @@
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
-@use '@tylertech/forge/sass/list/list-item' as forge-list-item;
 @use '@tylertech/forge/dist/field/forge-field';
 @use '@tylertech/forge/dist/icon/forge-icon';
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
@@ -81,11 +80,7 @@
 }
 
 .forge-list--navlist {
-  @include forge-list-item.dense-two-line;
-
   .forge-list-item {
-    --forge-list-item-dense-two-line-height: 48px;
-
     font-weight: normal;
     margin-inline: 0;
 
@@ -161,24 +156,6 @@
     .conversation-item-actions {
       display: flex;
     }
-  }
-}
-
-.thread-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-
-  &__title {
-    @include forge-typography.style(body1);
-    text-align: start;
-  }
-
-  &__meta {
-    @include forge-typography.style(label2);
-    color: #{forge-theme.variable(text-medium)};
-    text-align: start;
   }
 }
 
