@@ -1135,6 +1135,101 @@ export const WithDataTableTool: Story = {
   }
 };
 
+export const MarkdownTables: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const initialMessages: ChatMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        content: `Here's the data you requested:
+
+| Product | Q1 Sales | Q2 Sales | Q3 Sales | Q4 Sales |
+|---------|----------|----------|----------|----------|
+| Widget A | $45,000 | $52,000 | $48,000 | $61,000 |
+| Widget B | $32,000 | $38,000 | $41,000 | $39,000 |
+| Widget C | $28,000 | $31,000 | $35,000 | $42,000 |`,
+        timestamp: Date.now() - 60000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        content: `Thanks for sharing that data! I've analyzed the quarterly trends and here's a comparison with last year:
+
+| Product | This Year Total | Last Year Total | Growth |
+|---------|----------------|-----------------|--------|
+| Widget A | $206,000 | $180,000 | +14.4% |
+| Widget B | $150,000 | $145,000 | +3.4% |
+| Widget C | $136,000 | $115,000 | +18.3% |
+| **Total** | **$492,000** | **$440,000** | **+11.8%** |
+
+Key insights:
+- Widget A shows strongest absolute growth
+- Widget C has the highest growth percentage
+- All products show positive year-over-year growth`,
+        timestamp: Date.now() - 59000,
+        status: 'complete'
+      },
+      {
+        id: 'user-2',
+        role: 'user',
+        content: 'Can you show me the team roster?',
+        timestamp: Date.now() - 30000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-2',
+        role: 'assistant',
+        content: `Here's the current team roster with contact information:
+
+| Name | Department | Email | Extension | Location |
+|------|------------|-------|-----------|----------|
+| Sarah Johnson | Engineering | sarah.j@company.com | 5421 | Building A |
+| Michael Chen | Product | michael.c@company.com | 5422 | Building B |
+| Emily Rodriguez | Design | emily.r@company.com | 5423 | Building A |
+| James Wilson | Marketing | james.w@company.com | 5424 | Building C |
+| Lisa Anderson | Sales | lisa.a@company.com | 5425 | Building B |
+| David Martinez | Operations | david.m@company.com | 5426 | Building C |`,
+        timestamp: Date.now() - 29000,
+        status: 'complete'
+      }
+    ];
+
+    setTimeout(() => {
+      const chatbot = document.querySelector('forge-ai-chatbot') as any;
+      if (!chatbot) return;
+      chatbot.setThreadState({ messages: initialMessages });
+    }, 0);
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Markdown Tables Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            This demo shows markdown tables rendered in both user messages and assistant responses. Tables support all
+            standard markdown table syntax including alignment and formatting.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="Markdown Tables Demo"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
 export const WithConversationHistory: Story = {
   render: (args: any) => {
     const adapter = new MockAdapter({
