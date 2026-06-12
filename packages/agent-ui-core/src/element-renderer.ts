@@ -10,8 +10,16 @@ import {
   type ComponentContext,
   type ActionHandler,
   type RenderContext,
-  type FieldValidationState
+  type FieldValidationState,
+  type ChildReference
 } from './index.js';
+
+function parseChildRef(ref: ChildReference): { id: string; slot: string } {
+  if (typeof ref === 'string') {
+    return { id: ref, slot: 'default' };
+  }
+  return { id: ref.id, slot: ref.slot };
+}
 
 export interface RenderElementConfig<TResult, TChildren> {
   elementId: string;
@@ -29,6 +37,7 @@ export interface RenderElementConfig<TResult, TChildren> {
   nothingValue: TResult;
   createErrorResult: (error: Error, elementType: string) => TResult;
   errorFallback?: (error: Error, elementType: string) => TResult;
+  wrapWithSlot?: (child: TResult, slotName: string) => TResult;
 }
 
 export function renderElement<TResult, TChildren>(config: RenderElementConfig<TResult, TChildren>): TResult {
@@ -44,7 +53,8 @@ export function renderElement<TResult, TChildren>(config: RenderElementConfig<TR
     markTouched,
     nothingValue,
     createErrorResult,
-    errorFallback
+    errorFallback,
+    wrapWithSlot
   } = config;
 
   if (element.visible !== undefined && !isVisible(element.visible, renderContext)) {
@@ -61,19 +71,21 @@ export function renderElement<TResult, TChildren>(config: RenderElementConfig<TR
   const bindings = (element.props ? resolveBindingPaths(element.props, renderContext) : {}) ?? {};
 
   let children: TResult[];
+  let childrenBySlot: Map<string, TResult[]> = new Map();
 
   if (element.repeat && element.children?.length) {
     const array = getByPath(renderContext.stateModel, element.repeat.statePath) as unknown[] | undefined;
     if (Array.isArray(array)) {
       children = array.flatMap((_, index) => {
         const repeatCtx = createRepeatContext(renderContext, element.repeat!.statePath, index);
-        return element.children!.map(childId => {
-          const childElement = elements[childId];
+        return element.children!.map(childRef => {
+          const { id, slot } = parseChildRef(childRef);
+          const childElement = elements[id];
           if (!childElement) {
             return nothingValue;
           }
-          return renderElement({
-            elementId: childId,
+          let rendered = renderElement({
+            elementId: id,
             element: childElement,
             elements,
             renderContext: repeatCtx,
@@ -84,8 +96,20 @@ export function renderElement<TResult, TChildren>(config: RenderElementConfig<TR
             markTouched,
             nothingValue,
             createErrorResult,
-            errorFallback
+            errorFallback,
+            wrapWithSlot
           });
+
+          if (wrapWithSlot && slot !== 'default') {
+            rendered = wrapWithSlot(rendered, slot);
+          }
+
+          if (!childrenBySlot.has(slot)) {
+            childrenBySlot.set(slot, []);
+          }
+          childrenBySlot.get(slot)!.push(rendered);
+
+          return rendered;
         });
       });
     } else {
@@ -93,13 +117,14 @@ export function renderElement<TResult, TChildren>(config: RenderElementConfig<TR
     }
   } else {
     children =
-      element.children?.map(childId => {
-        const childElement = elements[childId];
+      element.children?.map(childRef => {
+        const { id, slot } = parseChildRef(childRef);
+        const childElement = elements[id];
         if (!childElement) {
           return nothingValue;
         }
-        return renderElement({
-          elementId: childId,
+        let rendered = renderElement({
+          elementId: id,
           element: childElement,
           elements,
           renderContext,
@@ -110,14 +135,29 @@ export function renderElement<TResult, TChildren>(config: RenderElementConfig<TR
           markTouched,
           nothingValue,
           createErrorResult,
-          errorFallback
+          errorFallback,
+          wrapWithSlot
         });
+
+        if (wrapWithSlot && slot !== 'default') {
+          rendered = wrapWithSlot(rendered, slot);
+        }
+
+        if (!childrenBySlot.has(slot)) {
+          childrenBySlot.set(slot, []);
+        }
+        childrenBySlot.get(slot)!.push(rendered);
+
+        return rendered;
       }) ?? [];
   }
+
+  const slots = childrenBySlot.size > 0 ? (Object.fromEntries(childrenBySlot) as Record<string, TChildren>) : undefined;
 
   const context: ComponentContext<Record<string, unknown>, TChildren> = {
     props: resolvedProps,
     children: children as TChildren,
+    slots,
     emit: createEmit(element.on, renderContext),
     state: stateManager,
     bindings,

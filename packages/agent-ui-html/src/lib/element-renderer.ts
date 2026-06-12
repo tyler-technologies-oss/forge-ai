@@ -10,6 +10,7 @@ import {
   type FieldValidationState
 } from '@tylertech/agent-ui-core';
 import type { LitResult, ErrorFallback } from './spec-renderer.js';
+import { withSlot } from './directives/with-slot.js';
 
 export interface RenderElementConfig {
   elementId: string;
@@ -32,7 +33,13 @@ export function renderElement(config: RenderElementConfig): LitResult {
     ...config,
     nothingValue: nothing,
     createErrorResult: (_error: Error, elementType: string) =>
-      html`<div class="render-error">Error rendering ${elementType}</div>`
+      html`<div class="render-error">Error rendering ${elementType}</div>`,
+    wrapWithSlot: (child: LitResult, slotName: string) => {
+      if (child === nothing) {
+        return child;
+      }
+      return withSlot(child, slotName) as LitResult;
+    }
   };
 
   return renderElementCore(coreConfig);

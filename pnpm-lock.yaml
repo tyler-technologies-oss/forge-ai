@@ -216,6 +216,9 @@ importers:
       '@tylertech/agent-ui-core':
         specifier: workspace:^
         version: link:../agent-ui-core
+      '@tylertech/agent-ui-kit':
+        specifier: workspace:^
+        version: link:../agent-ui-kit
       lit:
         specifier: 'catalog:'
         version: 3.3.2
@@ -259,6 +262,43 @@ importers:
       zod:
         specifier: ^4.0.0
         version: 4.3.6
+
+  packages/agent-ui-kit:
+    dependencies:
+      '@tylertech/agent-ui-core':
+        specifier: workspace:^
+        version: link:../agent-ui-core
+      lit:
+        specifier: 'catalog:'
+        version: 3.3.2
+      zod:
+        specifier: ^4.0.0
+        version: 4.3.6
+    devDependencies:
+      '@repo/prettier-config':
+        specifier: 'workspace:'
+        version: link:../prettier-config
+      '@tylertech/forge':
+        specifier: 'catalog:'
+        version: 3.14.1
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.4(jiti@2.6.1)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.1.3
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 'catalog:'
+        version: 7.3.2(@types/node@25.6.0)(jiti@2.6.1)(sass@1.93.3)(terser@5.44.1)(yaml@2.8.4)
+      vite-plugin-dts:
+        specifier: 'catalog:'
+        version: 4.5.4(@types/node@25.6.0)(rollup@4.52.4)(typescript@5.9.3)(vite@7.3.2(@types/node@25.6.0)(jiti@2.6.1)(sass@1.93.3)(terser@5.44.1)(yaml@2.8.4))
 
   packages/agent-ui-react:
     dependencies:

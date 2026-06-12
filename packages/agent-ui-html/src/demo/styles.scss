@@ -108,3 +108,52 @@ forge-ai-chatbot {
     border-radius: var(--forge-shape-medium);
   }
 }
+
+// Form builder demo page
+.form-builder-demo {
+  padding: var(--forge-spacing-large);
+  height: 100%;
+
+  &__container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: var(--forge-spacing-large);
+    height: 100%;
+  }
+
+  &__form {
+    overflow-y: auto;
+    padding-right: var(--forge-spacing-medium);
+  }
+
+  &__state {
+    position: sticky;
+    top: 0;
+    height: fit-content;
+    max-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__state-header {
+    h3 {
+      margin: 0 0 var(--forge-spacing-small);
+    }
+
+    p {
+      margin: 0;
+      color: var(--forge-theme-text-medium);
+    }
+  }
+
+  &__state-json {
+    flex: 1;
+    margin: 0;
+    padding: var(--forge-spacing-medium);
+    background: var(--forge-theme-surface-container-minimum);
+    font-size: 12px;
+    overflow: auto;
+    font-family: monospace;
+    border-radius: var(--forge-shape-large);
+  }
+}

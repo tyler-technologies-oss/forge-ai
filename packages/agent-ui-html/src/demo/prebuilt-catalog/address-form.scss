@@ -1,0 +1,23 @@
+.address-form {
+  h3 {
+    margin-block-start: 0;
+    margin-block-end: var(--forge-spacing-medium);
+  }
+
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--forge-spacing-medium);
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--forge-spacing-medium);
+
+    forge-text-field,
+    forge-select {
+      width: 100%;
+    }
+  }
+}

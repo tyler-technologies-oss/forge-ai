@@ -3,6 +3,7 @@ export type { Spec, UIElement, ActionBinding, ComputedFunction, Catalog } from '
 
 // Types (unique to this package)
 export type {
+  ChildReference,
   ActionHandler,
   SpecElement,
   ComponentDefinition,

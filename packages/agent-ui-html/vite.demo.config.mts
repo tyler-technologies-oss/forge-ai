@@ -12,7 +12,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'src/demo/index.html'),
-        'renderer-demo': resolve(__dirname, 'src/demo/renderer-demo.html')
+        'renderer-demo': resolve(__dirname, 'src/demo/renderer-demo.html'),
+        'form-builder-demo': resolve(__dirname, 'src/demo/form-builder-demo.html')
       }
     }
   }

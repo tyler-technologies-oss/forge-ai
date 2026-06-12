@@ -7,7 +7,7 @@ export const defaultSchema = defineSchema(s => ({
       s.object({
         type: s.ref('catalog.components'),
         props: s.propsOf('catalog.components'),
-        children: { ...s.array(s.string()), ...s.optional() },
+        children: { ...s.array(s.any()), ...s.optional() },
         visible: { ...s.any(), ...s.optional() }
       })
     ),

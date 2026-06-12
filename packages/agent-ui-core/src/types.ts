@@ -3,6 +3,8 @@ import type { ZodObject, ZodRawShape } from 'zod';
 // Re-export types from @json-render/core
 export type { Spec, UIElement, ActionBinding, ComputedFunction, Catalog } from '@json-render/core';
 
+export type ChildReference = string | { id: string; slot: string };
+
 // Spec element types (used by renderers)
 export interface ActionHandler {
   action: string;
@@ -12,7 +14,7 @@ export interface ActionHandler {
 export interface SpecElement {
   type: string;
   props?: Record<string, unknown>;
-  children?: string[];
+  children?: ChildReference[];
   visible?: unknown;
   on?: Record<string, ActionHandler>;
   watch?: Record<string, ActionHandler | ActionHandler[]>;
@@ -47,7 +49,6 @@ export interface ActionSchema {
   params?: unknown;
 }
 
-
 // Action Event
 export interface ActionEvent {
   action: string;
@@ -73,6 +74,7 @@ export interface StateManager {
 export interface ComponentContext<TProps = Record<string, unknown>, TChildren = unknown> {
   props: TProps;
   children: TChildren;
+  slots?: Record<string, TChildren>;
   emit: (action: string, payload?: Record<string, unknown>) => void;
   state: StateManager;
   bindings: Record<string, string>;

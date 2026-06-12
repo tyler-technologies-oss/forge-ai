@@ -1,26 +1,30 @@
 {
-  "name": "@tylertech/agent-ui-html",
+  "name": "@tylertech/agent-ui-kit",
   "version": "0.0.1",
-  "description": "Lit-based web component renderer for Tyler Agent UI - renders specs as HTML/web components.",
+  "description": "Pre-built Forge component wrappers for Tyler Agent UI - ready-to-use catalog components.",
   "license": "Apache-2.0",
   "author": "Tyler Technologies, Inc.",
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "customElements": "custom-elements.json",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.mjs"
     },
+    "./forge": {
+      "types": "./dist/forge/index.d.ts",
+      "default": "./dist/forge/index.mjs"
+    },
+    "./forge/catalog": {
+      "types": "./dist/forge/catalog.d.ts",
+      "default": "./dist/forge/catalog.mjs"
+    },
     "./package.json": {
       "default": "./package.json"
     }
   },
-  "files": [
-    "./dist",
-    "./custom-elements.json"
-  ],
+  "files": ["./dist"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tyler-technologies-oss/forge-ai.git"
@@ -28,33 +32,26 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "vite build",
-    "dev": "vite --config vite.demo.config.mts",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "dependencies": {
     "@tylertech/agent-ui-core": "workspace:^",
-    "@tylertech/agent-ui-kit": "workspace:^",
-    "lit": "catalog:"
+    "lit": "catalog:",
+    "zod": "^4.0.0"
   },
   "peerDependencies": {
-    "@tylertech/forge": "^4.0.0",
-    "@tylertech/forge-ai": "workspace:^"
+    "@tylertech/forge": "^4.0.0"
   },
   "devDependencies": {
     "@repo/prettier-config": "workspace:",
     "@types/node": "catalog:",
     "@tylertech/forge": "catalog:",
-    "@tylertech/forge-ai": "workspace:^",
-    "@tylertech/tyler-icons": "catalog:",
     "eslint": "catalog:",
-    "idb": "catalog:",
     "rimraf": "catalog:",
-    "sass": "catalog:",
     "typescript": "~5.9.3",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
-    "zod": "^4.0.0"
+    "vite-plugin-dts": "catalog:"
   }
 }

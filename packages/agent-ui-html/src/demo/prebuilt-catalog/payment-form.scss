@@ -1,0 +1,29 @@
+.payment-form {
+  h3 {
+    margin-block-start: 0;
+    margin-block-end: var(--forge-spacing-medium);
+  }
+
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--forge-spacing-medium);
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--forge-spacing-medium);
+
+    forge-text-field {
+      width: 100%;
+    }
+  }
+
+  &__billing {
+    padding: var(--forge-spacing-medium);
+    background-color: var(--forge-theme-surface-variant);
+    border-radius: var(--forge-shape-medium);
+    margin-block-start: var(--forge-spacing-small);
+  }
+}

@@ -1,0 +1,42 @@
+.form-section {
+  &__title {
+    margin-block-end: var(--forge-spacing-small);
+  }
+
+  &__description {
+    margin-block-end: var(--forge-spacing-medium);
+    color: var(--forge-theme-text-medium);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--forge-spacing-large);
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+  &[data-gap='sm'] {
+    gap: var(--forge-spacing-small);
+  }
+
+  &[data-gap='md'] {
+    gap: var(--forge-spacing-medium);
+  }
+
+  &[data-gap='lg'] {
+    gap: var(--forge-spacing-large);
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--forge-spacing-medium);
+  justify-content: flex-end;
+  margin-block-start: var(--forge-spacing-large);
+  padding-block-start: var(--forge-spacing-large);
+  border-block-start: 1px solid var(--forge-theme-outline);
+}
