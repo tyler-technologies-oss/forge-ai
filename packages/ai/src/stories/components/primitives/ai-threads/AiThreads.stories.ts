@@ -3,6 +3,9 @@ import { html } from 'lit';
 import { action } from 'storybook/actions';
 
 import '$lib/ai-threads';
+import '@tylertech/forge/scaffold';
+import '@tylertech/forge/app-bar';
+import '$lib/ai-chatbot-launcher';
 import type { AiThreadsComponent, Thread } from '$lib/ai-threads';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
@@ -35,31 +38,25 @@ const meta = {
       streamingDelay: 50,
       responseDelay: 500
     });
-
-    const handleClearHistory = (event: CustomEvent) => {
-      action('forge-ai-threads-clear-history')(event);
-      const threadsComponent = event.target as AiThreadsComponent;
-      if (threadsComponent) {
-        threadsComponent.threads = [];
-      }
-    };
-
     return html`
-      <div style="height: 600px;">
+      <forge-scaffold>
+        <forge-app-bar slot="header" title-text="Threads"></forge-app-bar>>
         <forge-ai-threads
+          slot="body"
+          style="height: 600px;"
           .threads=${args.threads}
           @forge-ai-threads-select=${action('forge-ai-threads-select')}
           @forge-ai-threads-new-chat=${action('forge-ai-threads-new-chat')}
-          @forge-ai-threads-clear-history=${handleClearHistory}>
-          <forge-ai-chatbot
+          @forge-ai-threads-clear-history=${action('forge-ai-threads-clear-history')}>
+          <forge-ai-chatbot-launcher
             .adapter=${adapter}
-            show-expand-button
             @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
             @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
-            @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
-          </forge-ai-chatbot>
+            @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+            @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
+          </forge-ai-chatbot-launcher>
         </forge-ai-threads>
-      </div>
+      </forge-scaffold>
     `;
   }
 } satisfies Meta;

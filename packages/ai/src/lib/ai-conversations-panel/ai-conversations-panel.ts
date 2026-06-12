@@ -1,14 +1,13 @@
 import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
-import { createRef, ref, Ref } from 'lit/directives/ref.js';
+import { DeleteThreadController } from '../utils/delete-thread-controller';
 import type { Thread } from '../ai-threads';
-import type { AiModalComponent } from '../ai-modal/ai-modal';
+import '../ai-modal/ai-modal';
 import '../ai-icon/ai-icon';
 import '../ai-spinner/ai-spinner';
-import '../ai-dropdown-menu/ai-dropdown-menu.js';
-import '../ai-dropdown-menu/ai-dropdown-menu-item.js';
-import '../ai-modal/ai-modal.js';
+import '../ai-thread-actions-menu';
+import '../ai-edit-thread';
 
 import styles from './ai-conversations-panel.scss?inline';
 
@@ -115,16 +114,43 @@ export class AiConversationsPanelComponent extends LitElement {
   private _editingThreadId: string | null = null;
 
   @state()
-  private _confirmingDeleteThread: Thread | null = null;
+  private _hiddenThreadIds: Set<string> = new Set();
 
   @state()
   private _openMenuThreadId: string | null = null;
 
-  @state()
-  private _hiddenThreadIds: Set<string> = new Set();
-
   #searchDebounceTimeout?: number;
   #scrollDebounceTimeout?: number;
+
+  #deleteThreadController = new DeleteThreadController(this, {
+    onConfirm: thread => {
+      const onSuccess = (): void => {
+        this._hiddenThreadIds.add(thread.id);
+        this.requestUpdate();
+      };
+
+      const onError = (error?: string): void => {
+        this._hiddenThreadIds.delete(thread.id);
+        this.requestUpdate();
+        if (error) {
+          console.error('Delete failed:', error);
+        }
+      };
+
+      const event = new CustomEvent<ForgeAiConversationsPanelDeleteEventData>('forge-ai-conversations-panel-delete', {
+        detail: { id: thread.id, thread, onSuccess, onError },
+        bubbles: true,
+        composed: true,
+        cancelable: true
+      });
+
+      const dispatched = this.dispatchEvent(event);
+      if (dispatched) {
+        this._hiddenThreadIds.add(thread.id);
+        this.requestUpdate();
+      }
+    }
+  });
 
   @query('#search-input-main')
   private _searchInputMain!: HTMLInputElement;
@@ -134,11 +160,6 @@ export class AiConversationsPanelComponent extends LitElement {
 
   @query('.thread-list-container')
   private _threadListContainer!: HTMLElement;
-
-  @query('.thread-title-input')
-  private _editInputElement?: HTMLInputElement;
-
-  #deleteModalRef: Ref<AiModalComponent> = createRef();
 
   public override connectedCallback(): void {
     super.connectedCallback();
@@ -159,9 +180,7 @@ export class AiConversationsPanelComponent extends LitElement {
 
   public resetToMainView(): void {
     this.#transitionToMain();
-    this._confirmingDeleteThread = null;
     this._editingThreadId = null;
-    this._openMenuThreadId = null;
   }
 
   get #displayedThreads(): Thread[] {
@@ -335,184 +354,66 @@ export class AiConversationsPanelComponent extends LitElement {
     this.dispatchEvent(event);
   }
 
-  #handleRenameClick(thread: Thread): void {
-    this._editingThreadId = thread.id;
-    requestAnimationFrame(() => {
-      if (this._editInputElement) {
-        this._editInputElement.focus();
-        this._editInputElement.select();
-        this._editInputElement.scrollLeft = 0;
-      }
-    });
+  #handleMenuRename(e: CustomEvent): void {
+    this._editingThreadId = e.detail.id;
+    this._openMenuThreadId = null;
   }
 
-  #handleRenameSave(thread: Thread): void {
-    const input = this._editInputElement;
-    if (!input) {
-      return;
-    }
-
-    const newTitle = input.value.trim();
-
-    if (newTitle && newTitle !== thread.title) {
-      const oldTitle = thread.title;
-
-      const onSuccess = (): void => {
-        thread.title = newTitle;
-        this.requestUpdate();
-      };
-
-      const onError = (error?: string): void => {
-        thread.title = oldTitle;
-        this.requestUpdate();
-        if (error) {
-          console.error('Rename failed:', error);
-        }
-      };
-
-      const event = new CustomEvent<ForgeAiConversationsPanelRenameEventData>('forge-ai-conversations-panel-rename', {
-        detail: { id: thread.id, oldTitle, newTitle, onSuccess, onError },
-        bubbles: true,
-        composed: true,
-        cancelable: true
-      });
-
-      const dispatched = this.dispatchEvent(event);
-
-      if (dispatched) {
-        thread.title = newTitle;
-        this.requestUpdate();
-      }
-    }
-
-    this._editingThreadId = null;
-  }
-
-  #handleRenameCancel(): void {
-    this._editingThreadId = null;
-  }
-
-  #handleDeleteClick(thread: Thread): void {
-    this._confirmingDeleteThread = thread;
-    this.#deleteModalRef.value?.show();
-  }
-
-  #handleDeleteConfirm(): void {
-    if (this._confirmingDeleteThread) {
-      const thread = this._confirmingDeleteThread;
-
-      const onSuccess = (): void => {
-        this._hiddenThreadIds.add(thread.id);
-        this.requestUpdate();
-      };
-
-      const onError = (error?: string): void => {
-        this._hiddenThreadIds.delete(thread.id);
-        this.requestUpdate();
-        if (error) {
-          console.error('Delete failed:', error);
-        }
-      };
-
-      const event = new CustomEvent<ForgeAiConversationsPanelDeleteEventData>('forge-ai-conversations-panel-delete', {
-        detail: { id: thread.id, thread, onSuccess, onError },
-        bubbles: true,
-        composed: true,
-        cancelable: true
-      });
-
-      const dispatched = this.dispatchEvent(event);
-
-      if (dispatched) {
-        this._hiddenThreadIds.add(thread.id);
-        this.requestUpdate();
-      }
-
-      this._confirmingDeleteThread = null;
-      this.#deleteModalRef.value?.close();
-    }
-  }
-
-  #handleDeleteDeny(): void {
-    this._confirmingDeleteThread = null;
-    this.#deleteModalRef.value?.close();
-  }
-
-  #handleDeleteModalClose(evt: Event): void {
-    evt.stopPropagation();
-    this._confirmingDeleteThread = null;
-  }
-
-  #handleRenameInputKeyDown(evt: KeyboardEvent, thread: Thread): void {
-    if (evt.key === 'Enter') {
-      evt.preventDefault();
-      this.#handleRenameSave(thread);
-    } else if (evt.key === 'Escape') {
-      evt.stopPropagation();
-      this.#handleRenameCancel();
-    }
-  }
-
-  #handleEditFieldFocusOut(evt: FocusEvent): void {
-    const relatedTarget = evt.relatedTarget as HTMLElement;
-    if (relatedTarget?.closest('.edit-thread-field')) {
-      return;
-    }
-    this.#handleRenameCancel();
-  }
-
-  #handleMenuSelect(evt: Event): void {
-    evt.stopPropagation();
-  }
-
-  #handleMenuOpen(threadId: string): void {
-    this._openMenuThreadId = threadId;
+  #handleMenuOpen(e: CustomEvent): void {
+    this._openMenuThreadId = e.detail.id;
   }
 
   #handleMenuClose(): void {
     this._openMenuThreadId = null;
   }
 
-  #handleMenuKeyDown(evt: KeyboardEvent): void {
-    if (evt.key === 'Escape') {
-      evt.stopPropagation();
+  #handleMenuDeleteClick(e: CustomEvent): void {
+    const { id } = e.detail;
+    const thread = this.#displayedThreads.find(t => t.id === id);
+    if (!thread) {
+      return;
     }
+    this.#deleteThreadController.show(thread);
   }
 
-  get #deleteConfirmationModal(): TemplateResult | typeof nothing {
-    if (!this._confirmingDeleteThread) {
-      return nothing;
+  #handleEditSave(e: CustomEvent): void {
+    const { id, oldTitle, newTitle } = e.detail;
+    const thread = this.#displayedThreads.find(t => t.id === id);
+    if (!thread) {
+      return;
     }
 
-    return html`
-      <forge-ai-modal
-        ${ref(this.#deleteModalRef)}
-        .open=${true}
-        size-strategy="fixed"
-        @forge-ai-modal-close=${this.#handleDeleteModalClose}>
-        <div class="delete-confirmation" role="alertdialog" aria-labelledby="delete-confirm-title">
-          <h2 id="delete-confirm-title" class="delete-confirmation__title">Delete chat</h2>
-          <div class="delete-confirmation__text">
-            Are you sure you want to delete "${this._confirmingDeleteThread.title}"? This action cannot be undone.
-          </div>
-          <div class="delete-confirmation__actions">
-            <button
-              class="forge-button forge-button--outlined"
-              @click=${this.#handleDeleteDeny}
-              autofocus
-              aria-label="Cancel deletion">
-              Cancel
-            </button>
-            <button
-              class="forge-button forge-button--filled"
-              @click=${this.#handleDeleteConfirm}
-              aria-label="Confirm deletion">
-              Delete
-            </button>
-          </div>
-        </div>
-      </forge-ai-modal>
-    `;
+    const onSuccess = (): void => {
+      thread.title = newTitle;
+      this.requestUpdate();
+    };
+
+    const onError = (error?: string): void => {
+      thread.title = oldTitle;
+      this.requestUpdate();
+      if (error) {
+        console.error('Rename failed:', error);
+      }
+    };
+
+    const event = new CustomEvent<ForgeAiConversationsPanelRenameEventData>('forge-ai-conversations-panel-rename', {
+      detail: { id, oldTitle, newTitle, onSuccess, onError },
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    });
+
+    const dispatched = this.dispatchEvent(event);
+    if (dispatched) {
+      thread.title = newTitle;
+      this.requestUpdate();
+    }
+
+    this._editingThreadId = null;
+  }
+
+  #handleEditCancel(): void {
+    this._editingThreadId = null;
   }
 
   readonly #header = html`
@@ -629,35 +530,12 @@ export class AiConversationsPanelComponent extends LitElement {
               ${when(
                 isEditing,
                 () => html`
-                  <div class="edit-thread-field" @focusout=${this.#handleEditFieldFocusOut}>
-                    <div class="forge-field">
-                      <input
-                        type="text"
-                        class="thread-title-input"
-                        data-handles-escape
-                        .value=${thread.title}
-                        @keydown=${(evt: KeyboardEvent) => this.#handleRenameInputKeyDown(evt, thread)} />
-                    </div>
-                    <div class="edit-thread-actions">
-                      <button
-                        class="forge-icon-button forge-icon-button--squared forge-icon-button--small"
-                        @click=${this.#handleRenameCancel}
-                        aria-label="Cancel">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
-                          <path
-                            d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                        </svg>
-                      </button>
-                      <button
-                        class="forge-icon-button forge-icon-button--squared forge-icon-button--small"
-                        @click=${() => this.#handleRenameSave(thread)}
-                        aria-label="Save">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
-                          <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
+                  <forge-ai-edit-thread
+                    .thread=${thread}
+                    .value=${thread.title}
+                    @forge-ai-edit-thread-save=${this.#handleEditSave}
+                    @forge-ai-edit-thread-cancel=${this.#handleEditCancel}>
+                  </forge-ai-edit-thread>
                 `,
                 () => html`
                   <button @click=${() => this.#handleThreadSelect(thread)} aria-selected=${isSelected}>
@@ -666,60 +544,16 @@ export class AiConversationsPanelComponent extends LitElement {
                   ${when(
                     this.showConversationRename || this.showConversationDelete,
                     () => html`
-                      <div class="conversation-item-actions" @click=${this.#handleMenuSelect}>
-                        <forge-ai-dropdown-menu
-                          variant="icon-button-squared"
-                          density="small"
-                          selection-mode="none"
-                          popover-placement="bottom-start"
-                          @keydown=${this.#handleMenuKeyDown}
-                          @forge-ai-dropdown-menu-open=${() => this.#handleMenuOpen(thread.id)}
-                          @forge-ai-dropdown-menu-close=${this.#handleMenuClose}>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            slot="trigger-content"
-                            class="forge-icon">
-                            <path
-                              d="M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2" />
-                          </svg>
-
-                          ${when(
-                            this.showConversationRename,
-                            () => html`
-                              <forge-ai-dropdown-menu-item
-                                value="rename"
-                                @click=${() => this.#handleRenameClick(thread)}>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  slot="start"
-                                  class="forge-icon">
-                                  <path
-                                    d="m15 16-4 4h10v-4zm-2.94-8.81L3 16.25V20h3.75l9.06-9.06zm6.65.85c.39-.39.39-1.04 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z" />
-                                </svg>
-                                <span>Rename</span>
-                              </forge-ai-dropdown-menu-item>
-                            `
-                          )}
-                          ${when(
-                            this.showConversationDelete,
-                            () => html`
-                              <forge-ai-dropdown-menu-item
-                                value="delete"
-                                @click=${() => this.#handleDeleteClick(thread)}>
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  slot="start"
-                                  class="forge-icon">
-                                  <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
-                                </svg>
-                                <span>Delete</span>
-                              </forge-ai-dropdown-menu-item>
-                            `
-                          )}
-                        </forge-ai-dropdown-menu>
+                      <div class="conversation-item-actions">
+                        <forge-ai-thread-actions-menu
+                          .thread=${thread}
+                          ?show-rename=${this.showConversationRename}
+                          ?show-delete=${this.showConversationDelete}
+                          @forge-ai-thread-actions-menu-rename=${this.#handleMenuRename}
+                          @forge-ai-thread-actions-menu-delete-click=${this.#handleMenuDeleteClick}
+                          @forge-ai-thread-actions-menu-open=${this.#handleMenuOpen}
+                          @forge-ai-thread-actions-menu-close=${this.#handleMenuClose}>
+                        </forge-ai-thread-actions-menu>
                       </div>
                     `
                   )}
@@ -773,8 +607,8 @@ export class AiConversationsPanelComponent extends LitElement {
         ${when(isMainView, () => this.#header)} ${when(isSearchView, () => this.#headerSearch)}
         ${when(isMainView, () => this.#chatActionsList)} ${when(isMainView, () => this.#chatsLabel)}
         ${when(isSearchView, () => this.#searchFieldSearch)} ${this.#threadListContainer}
-        ${this.#deleteConfirmationModal}
       </aside>
+      ${this.#deleteThreadController.template}
     `;
   }
 }

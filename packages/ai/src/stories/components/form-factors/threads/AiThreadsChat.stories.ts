@@ -5,7 +5,7 @@ import type { Thread } from '$lib/ai-threads';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
 import '$lib/ai-threads';
-import '$lib/ai-chatbot';
+import '$lib/ai-chatbot-launcher';
 
 const component = 'forge-ai-threads';
 
@@ -67,19 +67,18 @@ const meta = {
           @forge-ai-threads-select=${action('forge-ai-threads-select')}
           @forge-ai-threads-new-chat=${action('forge-ai-threads-new-chat')}
           @forge-ai-threads-clear-history=${action('forge-ai-threads-clear-history')}>
-          <forge-ai-chatbot
+          <forge-ai-chatbot-launcher
             .adapter=${adapter}
             file-upload=${args.fileUpload}
             placeholder=${args.placeholder}
             @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
-            @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
             @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
             @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
             @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}
             @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
-            @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
-            @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}>
-          </forge-ai-chatbot>
+            @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}
+            @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
+          </forge-ai-chatbot-launcher>
         </forge-ai-threads>
       </div>
     `;
