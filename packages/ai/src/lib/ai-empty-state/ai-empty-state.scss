@@ -1,5 +1,6 @@
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/dist/button/forge-button';
 
 :host {
@@ -36,11 +37,11 @@
   text-align: center;
 }
 
-.graphic {
-  height: 200px;
-  width: 200px;
-}
-
 ::slotted(:where(p, h1, h2, h3, h4, h5, h6)) {
   margin: 0;
+}
+
+::slotted([slot='icon']) {
+  height: 200px;
+  width: 200px;
 }

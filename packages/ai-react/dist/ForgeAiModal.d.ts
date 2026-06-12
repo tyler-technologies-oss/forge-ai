@@ -25,6 +25,11 @@ export interface ForgeAiModalProps extends Pick<
 When not explicitly set, this will be automatically determined based on viewport size. */
   fullscreen?: boolean | undefined;
 
+  /** Controls the modal sizing strategy.
+- 'auto' (default): Automatically switches to fullscreen on viewports < 768px
+- 'fixed': Maintains defined size regardless of viewport, never auto-fullscreens */
+  sizeStrategy?: ForgeAiModalElement["sizeStrategy"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -49,8 +54,12 @@ When not explicitly set, this will be automatically determined based on viewport
   /** Fired when the modal is opened */
   onForgeAiModalOpen?: (event: CustomEvent<CustomEvent<void>>) => void;
 
-  /** Fired when the modal is closed */
-  onForgeAiModalClose?: (event: CustomEvent<CustomEvent<void>>) => void;
+  /** Fired when the modal is closed. Detail includes reason for closing. */
+  onForgeAiModalClose?: (
+    event: CustomEvent<
+      CustomEvent<{ reason: "backdrop" | "escape" | "programmatic" }>
+    >,
+  ) => void;
 
   /** Fired when the fullscreen state changes */
   onForgeAiModalFullscreenChange?: (
@@ -65,7 +74,7 @@ When not explicitly set, this will be automatically determined based on viewport
  *
  * ### **Events:**
  *  - **forge-ai-modal-open** - Fired when the modal is opened
- * - **forge-ai-modal-close** - Fired when the modal is closed
+ * - **forge-ai-modal-close** - Fired when the modal is closed. Detail includes reason for closing.
  * - **forge-ai-modal-fullscreen-change** - Fired when the fullscreen state changes
  *
  * ### **Methods:**

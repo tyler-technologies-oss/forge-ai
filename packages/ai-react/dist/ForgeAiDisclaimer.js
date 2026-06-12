@@ -1,22 +1,24 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import "@tylertech/forge-ai/ai-modal";
+import "@tylertech/forge-ai/ai-disclaimer";
 import { useEventListener } from "./react-utils.js";
 
-export const ForgeAiModal = forwardRef((props, forwardedRef) => {
+export const ForgeAiDisclaimer = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, fullscreen, sizeStrategy, ...filteredProps } = props;
 
   /** Event listeners - run once */
-  useEventListener(ref, "forge-ai-modal-open", props.onForgeAiModalOpen);
-  useEventListener(ref, "forge-ai-modal-close", props.onForgeAiModalClose);
   useEventListener(
     ref,
-    "forge-ai-modal-fullscreen-change",
-    props.onForgeAiModalFullscreenChange,
+    "forge-ai-disclaimer-agree",
+    props.onForgeAiDisclaimerAgree,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-disclaimer-disagree",
+    props.onForgeAiDisclaimerDisagree,
   );
 
   return React.createElement(
-    "forge-ai-modal",
+    "forge-ai-disclaimer",
     {
       ref: (node) => {
         ref.current = node;
@@ -26,15 +28,12 @@ export const ForgeAiModal = forwardRef((props, forwardedRef) => {
           forwardedRef.current = node;
         }
       },
-      ...filteredProps,
-      "size-strategy": props.sizeStrategy || props["size-strategy"],
+      ...props,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      open: props.open ? true : undefined,
-      fullscreen: props.fullscreen ? true : undefined,
       style: { ...props.style },
     },
     props.children,

@@ -138,8 +138,9 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
  *
  * ### **Slots:**
  *  - **icon** - Slot for custom icon (used in both welcome view and conversation header)
- * - **heading** - Slot for custom heading content
- * - **description** - Slot for custom description/welcome message below the title
+ * - **heading** - Slot for custom heading content (welcome view only)
+ * - **description** - Slot for custom description/welcome message below the title (welcome view only)
+ * - **header-actions** - Slot for custom header action buttons in conversation mode (rendered before built-in header actions)
  *
  * ### **CSS Properties:**
  *  - **--forge-ai-chatbot-launcher-icon-color** - The fill color for the AI icon. _(default: undefined)_

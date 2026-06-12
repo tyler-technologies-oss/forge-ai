@@ -1,3 +1,5 @@
+import type { Thread } from '../ai-threads';
+
 /**
  * Valid HTML heading levels for accessibility and semantic structure
  */
@@ -275,3 +277,35 @@ export interface ThreadState {
   timestamp?: number;
   selectedAgentId?: string;
 }
+
+export interface ForgeAiChatbotConversationSelectEventData {
+  id: string;
+  title: string;
+}
+
+export interface ForgeAiChatbotConversationSearchEventData {
+  query: string;
+  setResults: (results: Thread[]) => void;
+}
+
+export interface ForgeAiChatbotConversationLoadMoreEventData {
+  query: string;
+  appendResults: (results: Thread[]) => void;
+}
+
+export interface ForgeAiChatbotConversationRenameEventData {
+  id: string;
+  oldTitle: string;
+  newTitle: string;
+  onSuccess: () => void;
+  onError: (error?: string) => void;
+}
+
+export interface ForgeAiChatbotConversationDeleteEventData {
+  id: string;
+  thread: Thread;
+  onSuccess: () => void;
+  onError: (error?: string) => void;
+}
+
+export type { Thread };

@@ -1,6 +1,7 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/icon/forge-icon';
 @use '@tylertech/forge/dist/scaffold/forge-scaffold';
@@ -21,7 +22,7 @@
   grid-template-columns: 1fr auto;
   align-items: center;
   min-height: 56px;
-  padding-inline: #{forge-spacing.variable(medium)} #{forge-spacing.variable(xxsmall)};
+  padding-inline: #{forge-spacing.variable(medium)} #{forge-spacing.variable(xsmall)};
 }
 
 .start {
@@ -30,6 +31,17 @@
   gap: #{forge-spacing.variable(medium)};
   overflow: visible;
   min-width: 0;
+
+  --_ai-chat-header-icon-shape: var(--forge-ai-chat-header-icon-shape, #{forge-shape.variable(round)});
+
+  ::slotted([slot='icon']) {
+    border-radius: var(--_ai-chat-header-icon-shape);
+    display: block;
+  }
+
+  .conversations-button {
+    margin-inline: calc(#{forge-spacing.variable(xxsmall)} * -1) calc(#{forge-spacing.variable(small)} * -1);
+  }
 
   .title {
     @include forge-typography.style(heading3);

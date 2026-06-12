@@ -10,6 +10,8 @@ import { type ToolDefinition, type Suggestion, type ChatMessage, type ToolCall }
 import { displayDataTableTool } from '$lib/tools';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { smallAgentList, largeAgentList } from '../../../utils/mock-agents';
+import { defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
+import { tylIconHistory, tylIconSettings } from '@tylertech/tyler-icons';
 
 const component = 'forge-ai-chatbot';
 
@@ -57,6 +59,18 @@ const meta = {
       options: ['default', 'panel'],
       description: 'Minimize icon variant'
     },
+    showConversationsButton: {
+      control: 'boolean',
+      description: 'Show conversations button in header'
+    },
+    showConversationRename: {
+      control: 'boolean',
+      description: 'Show rename option in conversations panel'
+    },
+    showConversationDelete: {
+      control: 'boolean',
+      description: 'Show delete option in conversations panel'
+    },
     enableReactions: {
       control: 'boolean',
       description: 'Enable thumbs up/down reaction buttons'
@@ -76,6 +90,9 @@ const meta = {
     showMinimizeButton: false,
     expanded: false,
     minimizeIcon: 'default',
+    showConversationsButton: false,
+    showConversationRename: true,
+    showConversationDelete: true,
     enableReactions: false,
     disclaimerText: 'AI can make mistakes. Always verify responses.'
   },
@@ -112,6 +129,9 @@ const meta = {
           debug-command=${args.debugCommand}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
+          ?show-conversations-button=${args.showConversationsButton}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
           ?expanded=${args.expanded}
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
@@ -984,6 +1004,44 @@ export const WithFeedbackPersistence: Story = {
   }
 };
 
+export const WithHeaderActions: Story = {
+  args: {
+    showMinimizeButton: true,
+    showExpandButton: true
+  },
+  render: (args: any) => {
+    defineIconButtonComponent();
+    defineIconComponent();
+    IconRegistry.define([tylIconHistory, tylIconSettings]);
+
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="Chatbot with Custom Actions"
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}>
+          <forge-icon-button slot="header-actions" aria-label="History">
+            <forge-icon name="history"></forge-icon>
+          </forge-icon-button>
+          <forge-icon-button slot="header-actions" aria-label="Settings">
+            <forge-icon name="settings"></forge-icon>
+          </forge-icon-button>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
 export const WithDataTableTool: Story = {
   render: (args: any) => {
     const adapter = new MockAdapter({
@@ -1071,6 +1129,288 @@ export const WithDataTableTool: Story = {
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
           @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const MarkdownTables: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const initialMessages: ChatMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        content: `Here's the data you requested:
+
+| Product | Q1 Sales | Q2 Sales | Q3 Sales | Q4 Sales |
+|---------|----------|----------|----------|----------|
+| Widget A | $45,000 | $52,000 | $48,000 | $61,000 |
+| Widget B | $32,000 | $38,000 | $41,000 | $39,000 |
+| Widget C | $28,000 | $31,000 | $35,000 | $42,000 |`,
+        timestamp: Date.now() - 60000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        content: `Thanks for sharing that data! I've analyzed the quarterly trends and here's a comparison with last year:
+
+| Product | This Year Total | Last Year Total | Growth |
+|---------|----------------|-----------------|--------|
+| Widget A | $206,000 | $180,000 | +14.4% |
+| Widget B | $150,000 | $145,000 | +3.4% |
+| Widget C | $136,000 | $115,000 | +18.3% |
+| **Total** | **$492,000** | **$440,000** | **+11.8%** |
+
+Key insights:
+- Widget A shows strongest absolute growth
+- Widget C has the highest growth percentage
+- All products show positive year-over-year growth`,
+        timestamp: Date.now() - 59000,
+        status: 'complete'
+      },
+      {
+        id: 'user-2',
+        role: 'user',
+        content: 'Can you show me the team roster?',
+        timestamp: Date.now() - 30000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-2',
+        role: 'assistant',
+        content: `Here's the current team roster with contact information:
+
+| Name | Department | Email | Extension | Location |
+|------|------------|-------|-----------|----------|
+| Sarah Johnson | Engineering | sarah.j@company.com | 5421 | Building A |
+| Michael Chen | Product | michael.c@company.com | 5422 | Building B |
+| Emily Rodriguez | Design | emily.r@company.com | 5423 | Building A |
+| James Wilson | Marketing | james.w@company.com | 5424 | Building C |
+| Lisa Anderson | Sales | lisa.a@company.com | 5425 | Building B |
+| David Martinez | Operations | david.m@company.com | 5426 | Building C |`,
+        timestamp: Date.now() - 29000,
+        status: 'complete'
+      }
+    ];
+
+    setTimeout(() => {
+      const chatbot = document.querySelector('forge-ai-chatbot') as any;
+      if (!chatbot) return;
+      chatbot.setThreadState({ messages: initialMessages });
+    }, 0);
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Markdown Tables Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            This demo shows markdown tables rendered in both user messages and assistant responses. Tables support all
+            standard markdown table syntax including alignment and formatting.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="Markdown Tables Demo"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithConversationHistory: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const threads = [
+      {
+        id: 'thread-1',
+        title: 'TypeScript best practices',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        messageCount: 8
+      },
+      {
+        id: 'thread-2',
+        title: 'Web component architecture',
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        messageCount: 15
+      },
+      {
+        id: 'thread-3',
+        title: 'How to use localStorage?',
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 3
+      },
+      {
+        id: 'thread-4',
+        title: 'Lit reactive controllers explained',
+        createdAt: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+        messageCount: 12
+      },
+      {
+        id: 'thread-5',
+        title: 'CSS Grid vs Flexbox comparison',
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 6
+      }
+    ];
+
+    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onNewChat = action('forge-ai-chatbot-new-chat');
+    const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
+    const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
+    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .recentThreads=${threads}
+          ?show-conversations-button=${true}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with History"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-new-chat=${onNewChat}
+          @forge-ai-chatbot-conversations-open=${onConversationsOpen}
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}
+          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
+          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithEmptyConversationHistory: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onNewChat = action('forge-ai-chatbot-new-chat');
+    const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
+    const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
+    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .recentThreads=${[]}
+          ?show-conversations-button=${true}
+          ?show-conversation-rename=${args.showConversationRename}
+          ?show-conversation-delete=${args.showConversationDelete}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with Empty History"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-new-chat=${onNewChat}
+          @forge-ai-chatbot-conversations-open=${onConversationsOpen}
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}
+          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
+          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const Branded: Story = {
+  parameters: {
+    controls: { include: ['iconShape'] }
+  },
+  argTypes: {
+    iconShape: {
+      control: 'select',
+      options: ['0px (square)', '8px (rounded)', '50% (circular)'],
+      description: 'Shape of header and empty state icons (--forge-ai-chatbot-icon-shape)'
+    }
+  },
+  args: {
+    iconShape: '50% (circular)'
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const suggestions = [
+      { text: 'Tell me about your products', value: 'products' },
+      { text: 'How can I get support?', value: 'support' },
+      { text: 'View pricing information', value: 'pricing' }
+    ] as Suggestion[];
+
+    const iconShapeValue = args.iconShape?.split(' ')[0] || '50%';
+    const chatbotLogo =
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Crect width='36' height='36' fill='%234A90E2'/%3E%3Ctext x='18' y='24' font-family='Arial, sans-serif' font-size='16' font-weight='bold' fill='white' text-anchor='middle'%3EAC%3C/text%3E%3C/svg%3E";
+
+    return html`
+      <style>
+        .branded-chatbot {
+          --forge-ai-chatbot-icon-shape: ${iconShapeValue};
+        }
+      </style>
+      <div style="width: 100%; height: 700px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          class="branded-chatbot"
+          .adapter=${adapter}
+          .suggestions=${suggestions}
+          placeholder="Ask Acme Corp anything..."
+          title-text="Acme Support Assistant">
+          <img
+            slot="icon"
+            src="${chatbotLogo}"
+            alt="Acme Corp Logo"
+            style="width: 36px; height: 36px; display: block;" />
+
+          <img
+            slot="empty-state-icon"
+            src="${chatbotLogo}"
+            alt="Acme Corp"
+            style="width: 200px; height: 200px; display: block;" />
+
+          <span slot="empty-state-heading">
+            <strong>Welcome to Acme Corp Support</strong>
+          </span>
+
+          <span slot="empty-state-message">
+            Get instant answers to your questions about our <b>products and services</b>. <br /><br />
+            Need personalized help?
+            <a href="#contact" style="color: #4A90E2; text-decoration: underline;">Contact our support team</a>
+          </span>
         </forge-ai-chatbot>
       </div>
     `;

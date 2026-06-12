@@ -3,7 +3,8 @@ import { html } from 'lit';
 import { action } from 'storybook/actions';
 
 import '$lib/ai-chat-header';
-import { defineCardComponent, defineIconButtonComponent } from '@tylertech/forge';
+import { defineCardComponent, defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
+import { tylIconHistory, tylIconSettings } from '@tylertech/tyler-icons';
 
 const component = 'forge-ai-chat-header';
 
@@ -15,6 +16,8 @@ const infoAction = action('forge-ai-chat-header-info');
 
 defineCardComponent();
 defineIconButtonComponent();
+defineIconComponent();
+IconRegistry.define([tylIconHistory, tylIconSettings]);
 
 const meta = {
   title: 'AI Components/Primitives/Chat Header',
@@ -104,3 +107,36 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {};
+
+export const WithHeaderActions: Story = {
+  args: {
+    showMinimizeButton: true,
+    showExpandButton: true
+  },
+  render: (args: any) => {
+    const titleText = args.useLongTitle
+      ? "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+      : args.titleText;
+
+    return html`
+      <forge-ai-chat-header
+        .titleText=${titleText}
+        .showExpandButton=${args.showExpandButton}
+        .showMinimizeButton=${args.showMinimizeButton}
+        .expanded=${args.expanded}
+        .minimizeIcon=${args.minimizeIcon}
+        heading-level="2"
+        @forge-ai-chat-header-expand=${expandAction}
+        @forge-ai-chat-header-minimize=${minimizeAction}
+        @forge-ai-chat-header-clear=${clearChatAction}
+        @forge-ai-chat-header-info=${infoAction}>
+        <forge-icon-button slot="header-actions" aria-label="History">
+          <forge-icon name="history"></forge-icon>
+        </forge-icon-button>
+        <forge-icon-button slot="header-actions" aria-label="Settings">
+          <forge-icon name="settings"></forge-icon>
+        </forge-icon-button>
+      </forge-ai-chat-header>
+    `;
+  }
+};

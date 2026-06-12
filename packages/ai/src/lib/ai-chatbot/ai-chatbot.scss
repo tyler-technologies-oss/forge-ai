@@ -2,11 +2,23 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/core/styles/elevation' as forge-elevation;
+@use '@tylertech/forge/dist/dialog/forge-dialog';
 
 :host {
   display: block;
   width: 100%;
   height: 100%;
+
+  --_ai-chatbot-icon-shape: var(--forge-ai-chatbot-icon-shape, #{forge-shape.variable(round)});
+}
+
+.chatbot-container {
+  position: relative;
+  display: grid;
+  height: 100%;
+  overflow: hidden;
 }
 
 forge-ai-chat-interface {
@@ -52,4 +64,29 @@ forge-ai-chat-interface {
 .suggestions-container {
   width: 100%;
   align-self: start;
+}
+
+.empty-state-icon,
+::slotted([slot='empty-state-icon']) {
+  height: 200px;
+  width: 200px;
+  border-radius: var(--_ai-chatbot-icon-shape);
+}
+
+.conversations-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: transparent;
+  z-index: 1;
+}
+
+.conversations-dialog {
+  display: grid;
+  width: min(90%, 360px);
+  padding: 0;
+  border: 0;
+  position: absolute;
+  z-index: 2;
+  --forge-dialog-shape: 0;
+  --forge-dialog-nonmodal-elevation: #{forge-elevation.value(1)};
 }

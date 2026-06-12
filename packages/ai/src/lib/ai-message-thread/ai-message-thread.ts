@@ -65,7 +65,9 @@ const SCROLL_THRESHOLD = 100;
  * The AI Message Thread component displays a chronological list of messages with support for markdown rendering,
  * tool calls, empty states, and thinking indicators. It handles its own scrolling behavior with auto-scroll support.
  *
+ * @slot empty-state-icon - Slot for custom empty state icon
  * @slot empty-state-heading - Slot for custom empty state heading content
+ * @slot empty-state-message - Slot for custom empty state message content
  * @slot empty-state-actions - Slot for custom empty state actions (e.g., suggestions)
  *
  * @cssproperty --forge-ai-message-thread-content-max-width - Controls the max-width of the message content area while keeping the scroll container full width.
@@ -262,6 +264,7 @@ export class AiMessageThreadComponent extends LitElement {
 
     return html`
       <forge-ai-empty-state>
+        <slot name="empty-state-icon" slot="icon"></slot>
         <slot name="empty-state-heading" slot="heading">
           <span>How can I help you today?</span>
         </slot>

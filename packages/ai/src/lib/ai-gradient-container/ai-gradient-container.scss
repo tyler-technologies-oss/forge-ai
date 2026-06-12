@@ -6,13 +6,19 @@
 :host {
   display: block;
 
+  --_ai-gradient-container-shape: var(--forge-ai-gradient-container-radius, #{forge-shape.variable(large)});
+
   // fixes border clipping issues in the threads view
   --forge-drawer-background: transparent;
 
   border: #{forge-shape.variable(small)} solid transparent;
-  border-radius: var(--forge-ai-gradient-container-radius, #{forge-shape.variable(large)});
+  border-radius: var(--_ai-gradient-container-shape);
   background-origin: border-box;
   background-clip: padding-box, border-box;
+}
+
+::slotted(*) {
+  border-radius: var(--_ai-gradient-container-shape);
 }
 
 :host(:state(low)) {

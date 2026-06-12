@@ -3,4 +3,4 @@
 '@tylertech/forge-ai': patch
 ---
 
-added new chatbot component and adent adapter/runner support
+feat(chatbot): add support for conversations
