@@ -1,41 +1,35 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import "@tylertech/forge-ai/ai-threads";
+import "@tylertech/forge-ai/ai-thread-actions-menu";
 import { useEventListener } from "./react-utils.js";
 
-export const ForgeAiThreads = forwardRef((props, forwardedRef) => {
+export const ForgeAiThreadActionsMenu = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { showThreadRename, showThreadDelete, threads, ...filteredProps } =
-    props;
+  const { showRename, showDelete, thread, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
     ref,
-    "forge-ai-threads-select",
-    props.onForgeAiThreadsSelect,
+    "forge-ai-thread-actions-menu-rename",
+    props.onForgeAiThreadActionsMenuRename,
   );
   useEventListener(
     ref,
-    "forge-ai-threads-new-chat",
-    props.onForgeAiThreadsNewChat,
+    "forge-ai-thread-actions-menu-delete-click",
+    props.onForgeAiThreadActionsMenuDeleteClick,
   );
   useEventListener(
     ref,
-    "forge-ai-threads-load-more",
-    props.onForgeAiThreadsLoadMore,
+    "forge-ai-thread-actions-menu-open",
+    props.onForgeAiThreadActionsMenuOpen,
   );
   useEventListener(
     ref,
-    "forge-ai-threads-rename",
-    props.onForgeAiThreadsRename,
-  );
-  useEventListener(
-    ref,
-    "forge-ai-threads-delete",
-    props.onForgeAiThreadsDelete,
+    "forge-ai-thread-actions-menu-close",
+    props.onForgeAiThreadActionsMenuClose,
   );
 
   return React.createElement(
-    "forge-ai-threads",
+    "forge-ai-thread-actions-menu",
     {
       ref: (node) => {
         ref.current = node;
@@ -46,14 +40,14 @@ export const ForgeAiThreads = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
-      threads: props.threads,
+      thread: props.thread,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      "show-thread-rename": props.showThreadRename ? true : undefined,
-      "show-thread-delete": props.showThreadDelete ? true : undefined,
+      "show-rename": props.showRename ? true : undefined,
+      "show-delete": props.showDelete ? true : undefined,
       style: { ...props.style },
     },
     props.children,

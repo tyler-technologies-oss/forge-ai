@@ -21,6 +21,12 @@ export interface ForgeAiThreadsProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
+  /** undefined */
+  showThreadRename?: boolean;
+
+  /** undefined */
+  showThreadDelete?: boolean;
+
   /** Array of threads to display in the navigation list */
   threads?: ForgeAiThreadsElement["threads"];
 
@@ -53,8 +59,20 @@ export interface ForgeAiThreadsProps extends Pick<
   /** Fired when the new chat button is clicked. */
   onForgeAiThreadsNewChat?: (event: CustomEvent) => void;
 
-  /** Fired when the clear history button is clicked. */
-  onForgeAiThreadsClearHistory?: (event: CustomEvent) => void;
+  /** Fired when scrolling near bottom. Call appendResults([]) to signal end. */
+  onForgeAiThreadsLoadMore?: (
+    event: CustomEvent<CustomEvent<ForgeAiThreadsLoadMoreEventData>>,
+  ) => void;
+
+  /** Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. */
+  onForgeAiThreadsRename?: (
+    event: CustomEvent<CustomEvent<ForgeAiThreadsRenameEventData>>,
+  ) => void;
+
+  /** Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. */
+  onForgeAiThreadsDelete?: (
+    event: CustomEvent<CustomEvent<ForgeAiThreadsDeleteEventData>>,
+  ) => void;
 }
 
 /**
@@ -65,9 +83,11 @@ export interface ForgeAiThreadsProps extends Pick<
  * ### **Events:**
  *  - **forge-ai-threads-select** - Fired when a thread is selected.
  * - **forge-ai-threads-new-chat** - Fired when the new chat button is clicked.
- * - **forge-ai-threads-clear-history** - Fired when the clear history button is clicked.
+ * - **forge-ai-threads-load-more** - Fired when scrolling near bottom. Call appendResults([]) to signal end.
+ * - **forge-ai-threads-rename** - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
+ * - **forge-ai-threads-delete** - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert.
  *
  * ### **Slots:**
- *  - _default_ - Default slot for chatbot component
+ *  - _default_ - Default slot for chatbot launcher component
  */
 export const ForgeAiThreads: React.ForwardRefExoticComponent<ForgeAiThreadsProps>;
