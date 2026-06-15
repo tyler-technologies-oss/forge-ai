@@ -133,7 +133,7 @@ export const WithAsyncSearch: Story = {
 
 export const WithInfiniteScroll: Story = {
   args: {
-    threads: [],
+    threads: generateThreads(20),
     showNewChat: true
   },
   render: (args: any) => {

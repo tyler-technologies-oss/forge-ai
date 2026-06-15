@@ -2,6 +2,7 @@ import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { DeleteThreadController } from '../utils/delete-thread-controller';
+import { InfiniteScrollController } from '../utils/infinite-scroll-controller';
 import type { Thread } from '../ai-threads';
 import '../ai-modal/ai-modal';
 import '../ai-icon/ai-icon';
@@ -59,9 +60,6 @@ export interface ForgeAiConversationsPanelDeleteEventData {
 
 export const AiConversationsPanelComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-conversations-panel';
 
-const SCROLL_THRESHOLD = 100;
-const SCROLL_DEBOUNCE_MS = 150;
-
 /**
  * @tag forge-ai-conversations-panel
  *
@@ -69,7 +67,7 @@ const SCROLL_DEBOUNCE_MS = 150;
  * @event {CustomEvent<void>} forge-ai-conversations-panel-new-chat - Fired when the new chat list item is clicked.
  * @event {CustomEvent<void>} forge-ai-conversations-panel-close - Fired when the close button is clicked.
  * @event {CustomEvent<ForgeAiConversationsPanelSearchEventData>} forge-ai-conversations-panel-search - Fired when search query changes (debounced). Cancelable - if prevented, shows loading and waits for setResults callback.
- * @event {CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>} forge-ai-conversations-panel-load-more - Fired when scrolling near bottom in search view. Always shows loading - call appendResults([]) to signal end.
+ * @event {CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>} forge-ai-conversations-panel-load-more - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts. Always shows loading - call appendResults([]) to signal end.
  * @event {CustomEvent<ForgeAiConversationsPanelRenameEventData>} forge-ai-conversations-panel-rename - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. Otherwise optimistically updated.
  * @event {CustomEvent<ForgeAiConversationsPanelDeleteEventData>} forge-ai-conversations-panel-delete - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
  *
@@ -105,12 +103,6 @@ export class AiConversationsPanelComponent extends LitElement {
   private _searchQuery = '';
 
   @state()
-  private _isLoadingMore = false;
-
-  @state()
-  private _hasMoreResults = true;
-
-  @state()
   private _editingThreadId: string | null = null;
 
   @state()
@@ -120,7 +112,6 @@ export class AiConversationsPanelComponent extends LitElement {
   private _openMenuThreadId: string | null = null;
 
   #searchDebounceTimeout?: number;
-  #scrollDebounceTimeout?: number;
 
   #deleteThreadController = new DeleteThreadController(this, {
     onConfirm: thread => {
@@ -152,6 +143,14 @@ export class AiConversationsPanelComponent extends LitElement {
     }
   });
 
+  #recentChatsScrollController = new InfiniteScrollController(this, {
+    onLoadMore: () => this.#handleRecentChatsLoadMore()
+  });
+
+  #searchChatsScrollController = new InfiniteScrollController(this, {
+    onLoadMore: () => this.#handleSearchChatsLoadMore()
+  });
+
   @query('#search-input-main')
   private _searchInputMain!: HTMLInputElement;
 
@@ -175,7 +174,33 @@ export class AiConversationsPanelComponent extends LitElement {
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
     clearTimeout(this.#searchDebounceTimeout);
-    clearTimeout(this.#scrollDebounceTimeout);
+  }
+
+  public override firstUpdated(): void {
+    this.#attachScrollController();
+  }
+
+  public override updated(changedProperties: Map<string, unknown>): void {
+    if (changedProperties.has('_viewState')) {
+      this.#attachScrollController();
+    }
+    if (changedProperties.has('recentThreads')) {
+      this.#recentChatsScrollController.reset();
+    }
+  }
+
+  #attachScrollController(): void {
+    if (!this._threadListContainer) {
+      return;
+    }
+
+    if (this._viewState === 'main') {
+      this.#searchChatsScrollController.detach();
+      this.#recentChatsScrollController.attach(this._threadListContainer);
+    } else {
+      this.#recentChatsScrollController.detach();
+      this.#searchChatsScrollController.attach(this._threadListContainer);
+    }
   }
 
   public resetToMainView(): void {
@@ -190,8 +215,7 @@ export class AiConversationsPanelComponent extends LitElement {
 
   #handleSearch(searchQuery: string): void {
     this._searchQuery = searchQuery;
-    this._hasMoreResults = true;
-    this._isLoadingMore = false;
+    this.#searchChatsScrollController.reset();
 
     const setResults = (results: Thread[]): void => {
       this._searchResults = results;
@@ -234,49 +258,36 @@ export class AiConversationsPanelComponent extends LitElement {
     }, 300);
   }
 
-  #handleScroll = (): void => {
-    if (this._viewState !== 'search') {
-      return;
-    }
-
-    clearTimeout(this.#scrollDebounceTimeout);
-    this.#scrollDebounceTimeout = window.setTimeout(() => {
-      this.#checkScrollPosition();
-    }, SCROLL_DEBOUNCE_MS);
-  };
-
-  #checkScrollPosition(): void {
-    if (!this._hasMoreResults || this._isLoadingMore || this._viewState !== 'search') {
-      return;
-    }
-
-    const container = this._threadListContainer;
-    if (!container) {
-      return;
-    }
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-
-    if (distanceFromBottom < SCROLL_THRESHOLD) {
-      this.#triggerLoadMore();
-    }
-  }
-
-  #triggerLoadMore(): void {
-    if (this._isLoadingMore || !this._hasMoreResults) {
-      return;
-    }
-
-    this._isLoadingMore = true;
-
+  #handleRecentChatsLoadMore(): void {
     const appendResults = (results: Thread[]): void => {
       if (results.length === 0) {
-        this._hasMoreResults = false;
+        this.#recentChatsScrollController.setHasMore(false);
+      } else {
+        this.recentThreads = [...this.recentThreads, ...results];
+      }
+      this.#recentChatsScrollController.setLoadingState(false);
+    };
+
+    const event = new CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>(
+      'forge-ai-conversations-panel-load-more',
+      {
+        detail: { query: '', appendResults },
+        bubbles: true,
+        composed: true
+      }
+    );
+
+    this.dispatchEvent(event);
+  }
+
+  #handleSearchChatsLoadMore(): void {
+    const appendResults = (results: Thread[]): void => {
+      if (results.length === 0) {
+        this.#searchChatsScrollController.setHasMore(false);
       } else {
         this._searchResults = [...this._searchResults, ...results];
       }
-      this._isLoadingMore = false;
+      this.#searchChatsScrollController.setLoadingState(false);
     };
 
     const event = new CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>(
@@ -299,9 +310,9 @@ export class AiConversationsPanelComponent extends LitElement {
     this._searchQuery = '';
     this._searchResults = this.recentThreads;
     this._isSearching = false;
-    this._isLoadingMore = false;
-    this._hasMoreResults = true;
     this._editingThreadId = null;
+    this.#recentChatsScrollController.reset();
+    this.#searchChatsScrollController.reset();
     this.updateComplete.then(() => this._searchInputSearch?.focus());
   }
 
@@ -313,11 +324,10 @@ export class AiConversationsPanelComponent extends LitElement {
     this._searchQuery = '';
     this._searchResults = [];
     this._isSearching = false;
-    this._isLoadingMore = false;
-    this._hasMoreResults = true;
     this._editingThreadId = null;
+    this.#recentChatsScrollController.reset();
+    this.#searchChatsScrollController.reset();
     clearTimeout(this.#searchDebounceTimeout);
-    clearTimeout(this.#scrollDebounceTimeout);
   }
 
   #handleBackClick(): void {
@@ -438,7 +448,7 @@ export class AiConversationsPanelComponent extends LitElement {
         <button
           class="back-button forge-icon-button forge-icon-button--medium"
           @click=${this.#handleBackClick}
-          aria-label="Back to main view">
+          aria-label="Back to recent chats">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path fill="none" d="M0 0h24v24H0z" />
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z" />
@@ -497,7 +507,10 @@ export class AiConversationsPanelComponent extends LitElement {
   }
 
   get #loadingMoreIndicator(): TemplateResult | typeof nothing {
-    if (!this._isLoadingMore || this._viewState !== 'search') {
+    const controller =
+      this._viewState === 'search' ? this.#searchChatsScrollController : this.#recentChatsScrollController;
+
+    if (!controller.isLoadingMore) {
       return nothing;
     }
     return html`
@@ -568,11 +581,7 @@ export class AiConversationsPanelComponent extends LitElement {
   }
 
   get #threadListContainer(): TemplateResult {
-    return html`
-      <div class="thread-list-container" @scroll=${this._viewState === 'search' ? this.#handleScroll : undefined}>
-        ${this.#threadList}
-      </div>
-    `;
+    return html` <div class="thread-list-container">${this.#threadList} ${this.#loadingMoreIndicator}</div> `;
   }
 
   readonly #chatActionsList = html`

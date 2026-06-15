@@ -20,13 +20,17 @@
   grid-template-columns: auto 1fr;
   height: 100%;
   min-height: 0;
+
+  .drawer {
+    min-height: 0;
+  }
 }
 
 .forge-drawer {
   display: grid;
   grid-template-rows: auto auto auto 1fr;
   min-height: 0;
-  padding: #{forge-spacing.variable(medium)};
+  padding: 0 #{forge-spacing.variable(medium)};
   background-color: #{forge-theme.variable(surface)};
 }
 
@@ -62,6 +66,7 @@
 
   overflow-y: auto;
   min-height: 0;
+  margin-inline-end: calc(#{forge-spacing.variable(medium)} * -1);
 }
 
 .forge-list--navlist {
@@ -103,6 +108,14 @@
       display: flex;
     }
   }
+}
+
+.loading-more-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-block: #{forge-spacing.variable(medium)};
+  margin-block-start: #{forge-spacing.variable(xxsmall)};
 }
 
 forge-ai-modal {

@@ -185,8 +185,8 @@ export const WithLocalSearch: Story = {
       <div style="margin-top: 16px;">
         <p><strong>Local Search (Default)</strong></p>
         <p>
-          Click "Search chats" to enter search view. Type in the search field - results are filtered locally from recent
-          threads with 300ms debounce.
+          Click "Search chats" to enter search chats. Type in the search field - results are filtered locally from
+          recent threads with 300ms debounce.
         </p>
       </div>
     `;
@@ -262,8 +262,8 @@ export const WithAsyncSearch: Story = {
           callback after 1 second.
         </p>
         <p>
-          The component shows a loading spinner while waiting. Results include threads beyond the recent 8 shown in the
-          main view (12 total searchable threads).
+          The component shows a loading spinner while waiting. Results include threads beyond the recent 8 shown in
+          recent chats (12 total searchable threads).
         </p>
       </div>
     `;
@@ -321,7 +321,7 @@ export const WithNoRecentThreads: Story = {
       <div style="margin-top: 16px; max-width: 400px;">
         <p><strong>No Recent Threads + Async Search</strong></p>
         <p>
-          No recent threads are shown in the main view. Click "Search chats" to search through older archived
+          No recent threads are shown in recent chats. Click "Search chats" to search through older archived
           conversations.
         </p>
       </div>
@@ -331,13 +331,14 @@ export const WithNoRecentThreads: Story = {
 
 export const WithInfiniteScroll: Story = {
   args: {
-    recentThreads: sampleThreads
+    recentThreads: generateThreads(20)
   },
   render: args => {
     const TOTAL_THREADS = 120;
     const PAGE_SIZE = 20;
     const allThreads = generateThreads(TOTAL_THREADS);
-    let currentPage = 0;
+    let searchChatsCurrentPage = 0;
+    let recentChatsCurrentPage = 1;
 
     const handleSearch = (e: CustomEvent<ForgeAiConversationsPanelSearchEventData>) => {
       action('forge-ai-conversations-panel-search')(e.detail);
@@ -348,21 +349,30 @@ export const WithInfiniteScroll: Story = {
       setTimeout(() => {
         const filtered = allThreads.filter(t => t.title.toLowerCase().includes(query.toLowerCase()));
         setResults(filtered.slice(0, PAGE_SIZE));
-        currentPage = 0;
+        searchChatsCurrentPage = 0;
       }, 500);
     };
 
     const handleLoadMore = (e: CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>) => {
       action('forge-ai-conversations-panel-load-more')(e.detail);
 
-      const { appendResults } = e.detail;
+      const { query, appendResults } = e.detail;
 
       setTimeout(() => {
-        currentPage++;
-        const start = currentPage * PAGE_SIZE;
-        const end = start + PAGE_SIZE;
-        const nextPage = allThreads.slice(start, end);
-        appendResults(nextPage);
+        if (query === '') {
+          recentChatsCurrentPage++;
+          const start = recentChatsCurrentPage * PAGE_SIZE;
+          const end = start + PAGE_SIZE;
+          const nextPage = allThreads.slice(start, end);
+          appendResults(nextPage);
+        } else {
+          searchChatsCurrentPage++;
+          const filtered = allThreads.filter(t => t.title.toLowerCase().includes(query.toLowerCase()));
+          const start = searchChatsCurrentPage * PAGE_SIZE;
+          const end = start + PAGE_SIZE;
+          const nextPage = filtered.slice(start, end);
+          appendResults(nextPage);
+        }
       }, 500);
     };
 
@@ -385,14 +395,14 @@ export const WithInfiniteScroll: Story = {
       <div style="margin-top: 16px; max-width: 400px;">
         <p><strong>Infinite Scroll Demo</strong></p>
         <p>
-          Click "Search chats" and enter a search term (try "TypeScript"). Results load 20 at a time with a 500ms delay
-          to simulate async search.
+          Demonstrates infinite scroll for both recent chats and search chats. Scroll to the bottom of the list to load
+          more results. Results load 20 at a time with a 500ms delay to simulate async loading.
         </p>
         <p><strong>Features:</strong></p>
         <ul>
-          <li>Initial search returns first 20 results</li>
-          <li>Scroll to bottom triggers load-more event</li>
-          <li>Each load-more appends 20 more results (500ms delay)</li>
+          <li>Recent chats: Scroll recent chats list to load more</li>
+          <li>Search chats: Click "Search chats", enter a term (try "TypeScript"), and scroll to load more results</li>
+          <li>Single load-more event handles both contexts (distinguished by query field)</li>
           <li>Loading spinner shows during fetch</li>
           <li>Pagination stops when all results loaded</li>
           <li>Total dataset: ${TOTAL_THREADS} threads</li>

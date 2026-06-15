@@ -1,8 +1,9 @@
-import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 
 import { DeleteThreadController } from '../utils/delete-thread-controller';
+import { InfiniteScrollController } from '../utils/infinite-scroll-controller';
 import '../ai-thread-actions-menu';
 import '../ai-edit-thread';
 import '../ai-spinner';
@@ -92,16 +93,16 @@ export class AiThreadsSearchComponent extends LitElement {
   @property({ type: Boolean, attribute: 'show-thread-delete' })
   public showThreadDelete = false;
 
+  @query('.results-container')
+  private _resultsContainer!: HTMLElement;
+
   @state() private _searchQuery = '';
   @state() private _isSearching = false;
   @state() private _searchResults: Thread[] = [];
-  @state() private _isLoadingMore = false;
-  @state() private _hasMoreResults = true;
   @state() private _editingThreadId: string | null = null;
   @state() private _hiddenThreadIds: Set<string> = new Set();
 
   private _searchTimeout?: number;
-  private _scrollTimeout?: number;
 
   #deleteThreadController = new DeleteThreadController(this, {
     onConfirm: thread => {
@@ -133,6 +134,21 @@ export class AiThreadsSearchComponent extends LitElement {
     }
   });
 
+  #infiniteScrollController = new InfiniteScrollController(this, {
+    onLoadMore: () => this.#loadMore()
+  });
+
+  public override firstUpdated(): void {
+    if (this._resultsContainer) {
+      this.#infiniteScrollController.attach(this._resultsContainer);
+    }
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    clearTimeout(this._searchTimeout);
+  }
+
   #handleSearchInput(e: InputEvent): void {
     const input = e.target as HTMLInputElement;
     this._searchQuery = input.value;
@@ -144,15 +160,15 @@ export class AiThreadsSearchComponent extends LitElement {
   }
 
   #performSearch(): void {
-    const query = this._searchQuery.trim();
+    const searchQuery = this._searchQuery.trim();
+    this.#infiniteScrollController.reset();
 
     const searchEvent = new CustomEvent<ForgeAiThreadsSearchQueryEventData>('forge-ai-threads-search-query', {
       detail: {
-        query,
+        query: searchQuery,
         setResults: (results: Thread[]) => {
           this._searchResults = results;
           this._isSearching = false;
-          this._hasMoreResults = true;
         }
       },
       bubbles: true,
@@ -165,37 +181,28 @@ export class AiThreadsSearchComponent extends LitElement {
     if (searchEvent.defaultPrevented) {
       this._isSearching = true;
     } else {
-      this._searchResults = this.threads.filter(thread => thread.title.toLowerCase().includes(query.toLowerCase()));
-      this._hasMoreResults = false;
+      this._searchResults = this.threads.filter(thread =>
+        thread.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      this.#infiniteScrollController.setHasMore(false);
     }
   }
 
-  #handleScroll(e: Event): void {
-    clearTimeout(this._scrollTimeout);
-    this._scrollTimeout = window.setTimeout(() => {
-      const container = e.target as HTMLElement;
-      const scrollThreshold = 100;
-      const nearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < scrollThreshold;
-
-      if (nearBottom && this._hasMoreResults && !this._isLoadingMore && this._searchQuery) {
-        this.#loadMore();
-      }
-    }, 150);
-  }
-
   #loadMore(): void {
-    this._isLoadingMore = true;
-
     const loadMoreEvent = new CustomEvent<ForgeAiThreadsSearchLoadMoreEventData>('forge-ai-threads-search-load-more', {
       detail: {
         query: this._searchQuery,
         appendResults: (results: Thread[]) => {
           if (results.length === 0) {
-            this._hasMoreResults = false;
+            this.#infiniteScrollController.setHasMore(false);
           } else {
-            this._searchResults = [...this._searchResults, ...results];
+            if (this._searchQuery) {
+              this._searchResults = [...this._searchResults, ...results];
+            } else {
+              this.threads = [...this.threads, ...results];
+            }
           }
-          this._isLoadingMore = false;
+          this.#infiniteScrollController.setLoadingState(false);
         }
       },
       bubbles: true,
@@ -307,7 +314,7 @@ export class AiThreadsSearchComponent extends LitElement {
     this._searchQuery = '';
     this._searchResults = [];
     this._isSearching = false;
-    this._hasMoreResults = true;
+    this.#infiniteScrollController.reset();
   }
 
   get #displayedThreads(): Thread[] {
@@ -399,28 +406,30 @@ export class AiThreadsSearchComponent extends LitElement {
     `;
   }
 
-  get #resultsList(): TemplateResult | typeof nothing {
+  get #resultsList(): TemplateResult {
     const displayThreads = this.#displayedThreads;
 
-    if (displayThreads.length === 0) {
-      return html`
-        <div class="empty-state">
-          <p>${this.emptyMessage}</p>
-        </div>
-      `;
-    }
-
     return html`
-      <div class="results-container" @scroll=${this.#handleScroll}>
-        <ul class="forge-list forge-list--dense forge-list--navlist" role="list">
-          ${displayThreads.map(thread => this.#renderThreadItem(thread))}
-        </ul>
+      <div class="results-container">
         ${when(
-          this._isLoadingMore,
+          displayThreads.length === 0,
           () => html`
-            <div class="loading-more-indicator">
-              <forge-ai-spinner></forge-ai-spinner>
+            <div class="empty-state">
+              <p>${this.emptyMessage}</p>
             </div>
+          `,
+          () => html`
+            <ul class="forge-list forge-list--dense forge-list--navlist" role="list">
+              ${displayThreads.map(thread => this.#renderThreadItem(thread))}
+            </ul>
+            ${when(
+              this.#infiniteScrollController.isLoadingMore,
+              () => html`
+                <div class="loading-more-indicator">
+                  <forge-ai-spinner></forge-ai-spinner>
+                </div>
+              `
+            )}
           `
         )}
       </div>
@@ -432,11 +441,5 @@ export class AiThreadsSearchComponent extends LitElement {
       <div class="threads-search-container">${this.#header} ${this.#searchField} ${this.#resultsList}</div>
       ${this.#deleteThreadController.template}
     `;
-  }
-
-  public override disconnectedCallback(): void {
-    super.disconnectedCallback();
-    clearTimeout(this._searchTimeout);
-    clearTimeout(this._scrollTimeout);
   }
 }

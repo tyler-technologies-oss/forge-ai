@@ -66,3 +66,54 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {};
+
+export const InfiniteScroll: Story = {
+  render: () => {
+    const generateThreads = (startId: number, count: number): Thread[] => {
+      return Array.from({ length: count }, (_, i) => ({
+        id: `${startId + i}`,
+        title: `Thread ${startId + i}`,
+        createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+        messageCount: Math.floor(Math.random() * 20) + 1
+      }));
+    };
+
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    let nextThreadId = 21;
+    const initialThreads = generateThreads(1, 20);
+
+    return html`
+      <forge-scaffold>
+        <forge-app-bar slot="header" title-text="Threads with Infinite Scroll"></forge-app-bar>
+        <forge-ai-threads
+          slot="body"
+          style="height: 600px; border: 1px solid var(--forge-theme-outline);"
+          .threads=${initialThreads}
+          @forge-ai-threads-select=${action('forge-ai-threads-select')}
+          @forge-ai-threads-new-chat=${action('forge-ai-threads-new-chat')}
+          @forge-ai-threads-load-more=${(e: CustomEvent) => {
+            action('forge-ai-threads-load-more')(e);
+            setTimeout(() => {
+              const moreThreads = generateThreads(nextThreadId, 10);
+              nextThreadId += 10;
+              e.detail.appendResults(moreThreads);
+            }, 1000);
+          }}>
+          <forge-ai-chatbot-launcher
+            .adapter=${adapter}
+            @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+            @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+            @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+            @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
+          </forge-ai-chatbot-launcher>
+        </forge-ai-threads>
+      </forge-scaffold>
+    `;
+  }
+};

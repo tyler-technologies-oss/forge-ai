@@ -1,9 +1,11 @@
-import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 
 import { DeleteThreadController } from '../utils/delete-thread-controller';
+import { InfiniteScrollController } from '../utils/infinite-scroll-controller';
 import '../ai-icon';
+import '../ai-spinner';
 import '../ai-thread-actions-menu';
 import '../ai-edit-thread';
 import '../ai-modal/ai-modal';
@@ -18,6 +20,7 @@ declare global {
   interface HTMLElementEventMap {
     'forge-ai-threads-select': CustomEvent<ForgeAiThreadsSelectEventData>;
     'forge-ai-threads-new-chat': CustomEvent;
+    'forge-ai-threads-load-more': CustomEvent<ForgeAiThreadsLoadMoreEventData>;
     'forge-ai-threads-rename': CustomEvent<ForgeAiThreadsRenameEventData>;
     'forge-ai-threads-delete': CustomEvent<ForgeAiThreadsDeleteEventData>;
   }
@@ -34,6 +37,10 @@ export interface Thread {
 export interface ForgeAiThreadsSelectEventData {
   id: string;
   title: string;
+}
+
+export interface ForgeAiThreadsLoadMoreEventData {
+  appendResults: (results: Thread[]) => void;
 }
 
 export interface ForgeAiThreadsRenameEventData {
@@ -60,6 +67,7 @@ export const AiThreadsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  *
  * @event {CustomEvent<ForgeAiThreadsSelectEventData>} forge-ai-threads-select - Fired when a thread is selected.
  * @event {CustomEvent} forge-ai-threads-new-chat - Fired when the new chat button is clicked.
+ * @event {CustomEvent<ForgeAiThreadsLoadMoreEventData>} forge-ai-threads-load-more - Fired when scrolling near bottom. Call appendResults([]) to signal end.
  * @event {CustomEvent<ForgeAiThreadsRenameEventData>} forge-ai-threads-rename - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
  * @event {CustomEvent<ForgeAiThreadsDeleteEventData>} forge-ai-threads-delete - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert.
  *
@@ -80,6 +88,9 @@ export class AiThreadsComponent extends LitElement {
 
   @property({ type: Boolean, attribute: 'show-thread-delete' })
   public showThreadDelete = false;
+
+  @query('.thread-list-container')
+  private _threadListContainer!: HTMLElement;
 
   /** Currently selected thread ID */
   @state()
@@ -124,6 +135,22 @@ export class AiThreadsComponent extends LitElement {
     }
   });
 
+  #infiniteScrollController = new InfiniteScrollController(this, {
+    onLoadMore: () => this.#handleLoadMore()
+  });
+
+  public override firstUpdated(): void {
+    if (this._threadListContainer) {
+      this.#infiniteScrollController.attach(this._threadListContainer);
+    }
+  }
+
+  public override updated(changedProperties: Map<string, unknown>): void {
+    if (changedProperties.has('threads')) {
+      this.#infiniteScrollController.reset();
+    }
+  }
+
   private _handleThreadSelect(thread: Thread): void {
     // Update selected thread ID to trigger re-render with new selection
     this._selectedThreadId = thread.id;
@@ -152,6 +179,25 @@ export class AiThreadsComponent extends LitElement {
       composed: true,
       cancelable: true
     });
+    this.dispatchEvent(event);
+  }
+
+  #handleLoadMore(): void {
+    const appendResults = (results: Thread[]): void => {
+      if (results.length === 0) {
+        this.#infiniteScrollController.setHasMore(false);
+      } else {
+        this.threads = [...this.threads, ...results];
+      }
+      this.#infiniteScrollController.setLoadingState(false);
+    };
+
+    const event = new CustomEvent<ForgeAiThreadsLoadMoreEventData>('forge-ai-threads-load-more', {
+      detail: { appendResults },
+      bubbles: true,
+      composed: true
+    });
+
     this.dispatchEvent(event);
   }
 
@@ -299,8 +345,19 @@ export class AiThreadsComponent extends LitElement {
 
   readonly #chatsLabel = html`<div class="chats-label">Recent chats</div>`;
 
+  get #loadingMoreIndicator(): TemplateResult | typeof nothing {
+    if (!this.#infiniteScrollController.isLoadingMore) {
+      return nothing;
+    }
+    return html`
+      <div class="loading-more-indicator">
+        <forge-ai-spinner size="small"></forge-ai-spinner>
+      </div>
+    `;
+  }
+
   get #threadListContainer(): TemplateResult {
-    return html`<div class="thread-list-container">${this.#threadList}</div>`;
+    return html` <div class="thread-list-container">${this.#threadList} ${this.#loadingMoreIndicator}</div> `;
   }
 
   get #drawer(): TemplateResult {
