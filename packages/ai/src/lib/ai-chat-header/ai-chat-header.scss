@@ -134,3 +134,7 @@ forge-ai-modal:state(fullscreen) {
     flex-direction: column;
   }
 }
+
+.close-button {
+  margin-inline-end: #{forge-spacing.variable(xsmall)};
+}
