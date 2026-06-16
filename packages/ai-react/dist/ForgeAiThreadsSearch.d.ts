@@ -30,6 +30,11 @@ export interface ForgeAiThreadsSearchProps extends Pick<
   /** undefined */
   threads?: ForgeAiThreadsSearchElement["threads"];
 
+  /** Total number of threads available. When set to a positive number and fewer threads
+are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to disable
+infinite scroll entirely. Useful when all data is loaded upfront. */
+  totalChats?: ForgeAiThreadsSearchElement["totalChats"];
+
   /** undefined */
   placeholder?: ForgeAiThreadsSearchElement["placeholder"];
 

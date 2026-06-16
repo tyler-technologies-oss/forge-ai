@@ -8,6 +8,7 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
     showConversationRename,
     showConversationDelete,
     recentThreads,
+    totalChats,
     selectedThreadId,
     ...filteredProps
   } = props;
@@ -62,6 +63,7 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
       },
       ...filteredProps,
       recentThreads: props.recentThreads,
+      "total-chats": props.totalChats || props["total-chats"],
       "selected-thread-id":
         props.selectedThreadId || props["selected-thread-id"],
       class: props.className,

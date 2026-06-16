@@ -30,6 +30,11 @@ export interface ForgeAiThreadsProps extends Pick<
   /** Array of threads to display in the navigation list */
   threads?: ForgeAiThreadsElement["threads"];
 
+  /** Total number of threads available. When set to a positive number and fewer threads
+are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to disable
+infinite scroll entirely. Useful when all data is loaded upfront. */
+  totalChats?: ForgeAiThreadsElement["totalChats"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -59,6 +64,9 @@ export interface ForgeAiThreadsProps extends Pick<
   /** Fired when the new chat button is clicked. */
   onForgeAiThreadsNewChat?: (event: CustomEvent) => void;
 
+  /** Fired when the search chats button is clicked. */
+  onForgeAiThreadsSearchChats?: (event: CustomEvent) => void;
+
   /** Fired when scrolling near bottom. Call appendResults([]) to signal end. */
   onForgeAiThreadsLoadMore?: (
     event: CustomEvent<CustomEvent<ForgeAiThreadsLoadMoreEventData>>,
@@ -83,6 +91,7 @@ export interface ForgeAiThreadsProps extends Pick<
  * ### **Events:**
  *  - **forge-ai-threads-select** - Fired when a thread is selected.
  * - **forge-ai-threads-new-chat** - Fired when the new chat button is clicked.
+ * - **forge-ai-threads-search-chats** - Fired when the search chats button is clicked.
  * - **forge-ai-threads-load-more** - Fired when scrolling near bottom. Call appendResults([]) to signal end.
  * - **forge-ai-threads-rename** - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
  * - **forge-ai-threads-delete** - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert.

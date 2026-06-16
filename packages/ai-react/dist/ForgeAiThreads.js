@@ -4,8 +4,13 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiThreads = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { showThreadRename, showThreadDelete, threads, ...filteredProps } =
-    props;
+  const {
+    showThreadRename,
+    showThreadDelete,
+    threads,
+    totalChats,
+    ...filteredProps
+  } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -17,6 +22,11 @@ export const ForgeAiThreads = forwardRef((props, forwardedRef) => {
     ref,
     "forge-ai-threads-new-chat",
     props.onForgeAiThreadsNewChat,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-threads-search-chats",
+    props.onForgeAiThreadsSearchChats,
   );
   useEventListener(
     ref,
@@ -47,6 +57,7 @@ export const ForgeAiThreads = forwardRef((props, forwardedRef) => {
       },
       ...filteredProps,
       threads: props.threads,
+      "total-chats": props.totalChats || props["total-chats"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

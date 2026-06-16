@@ -8,6 +8,7 @@ export const ForgeAiThreadsSearch = forwardRef((props, forwardedRef) => {
     showThreadRename,
     showThreadDelete,
     threads,
+    totalChats,
     placeholder,
     emptyMessage,
     ...filteredProps
@@ -58,6 +59,7 @@ export const ForgeAiThreadsSearch = forwardRef((props, forwardedRef) => {
       },
       ...filteredProps,
       threads: props.threads,
+      "total-chats": props.totalChats || props["total-chats"],
       placeholder: props.placeholder,
       "empty-message": props.emptyMessage || props["empty-message"],
       class: props.className,
