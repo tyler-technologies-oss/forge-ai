@@ -209,7 +209,7 @@ class ThreadsDemoContainer extends LitElement {
     action('forge-ai-threads-new-chat')();
     this.currentView = 'launcher';
     this.selectedThreadId = null;
-    this.launcherElement?.clearMessages();
+    this.launcherElement?.startNewChat();
 
     if (this.threadsElement) {
       (this.threadsElement as any)._selectedThreadId = null;
@@ -256,7 +256,7 @@ class ThreadsDemoContainer extends LitElement {
     action('forge-ai-threads-search-new-chat')();
     this.currentView = 'launcher';
     this.selectedThreadId = null;
-    this.launcherElement?.clearMessages();
+    this.launcherElement?.startNewChat();
 
     if (this.threadsElement) {
       (this.threadsElement as any)._selectedThreadId = null;

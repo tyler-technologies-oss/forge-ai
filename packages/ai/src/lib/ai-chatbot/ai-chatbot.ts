@@ -261,6 +261,21 @@ export class AiChatbotComponent extends AiChatbotBase {
     }
   }
 
+  /**
+   * Starts a new chat conversation by clearing messages and resetting conversation state.
+   *
+   * This method:
+   * - Clears all messages via the controller
+   * - Resets the selected thread ID
+   *
+   * Does not fire events - meant for programmatic use.
+   * For user-initiated actions, the event handler fires the event before calling this.
+   */
+  public override startNewChat(): void {
+    super.startNewChat();
+    this._selectedThreadId = null;
+  }
+
   #handleConversationsDialogClose(): void {
     window.removeEventListener('keydown', this.#boundEscapeHandler, { capture: true });
     this.conversationsOpen = false;
@@ -316,8 +331,7 @@ export class AiChatbotComponent extends AiChatbotBase {
     const hostEvent = this._dispatchHostEvent({ type: 'forge-ai-chatbot-new-chat', cancelable: true });
 
     if (!hostEvent.defaultPrevented) {
-      this._coreController.clearMessages();
-      this._selectedThreadId = null;
+      this.startNewChat();
     }
 
     this.hideConversations();
