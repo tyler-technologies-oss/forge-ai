@@ -306,6 +306,27 @@ class ThreadsDemoContainer extends LitElement {
     }, 1000);
   };
 
+  private handleSearchLoadMore = (e: CustomEvent): void => {
+    action('forge-ai-threads-search-load-more')(e);
+
+    setTimeout(() => {
+      const currentCount = this.threads.length;
+      const nextBatch = this.allThreads.slice(currentCount, currentCount + 10);
+
+      if (nextBatch.length > 0) {
+        this.threads = [...this.threads, ...nextBatch];
+        nextBatch.forEach(thread => {
+          const messages = this.allMessagesMap.get(thread.id);
+          if (messages) {
+            this.threadMessagesMap.set(thread.id, messages);
+          }
+        });
+      }
+
+      e.detail.appendResults(nextBatch);
+    }, 1000);
+  };
+
   protected render(): TemplateResult {
     return html`
       <forge-scaffold style="height: 600px;">
@@ -344,8 +365,10 @@ class ThreadsDemoContainer extends LitElement {
                   this.searchElement = el as HTMLElement;
                 })}
                 .threads=${this.threads}
+                total-chats=${this.totalChats}
                 @forge-ai-threads-search-select=${this.handleSearchSelect}
-                @forge-ai-threads-search-new-chat=${this.handleSearchNewChat}>
+                @forge-ai-threads-search-new-chat=${this.handleSearchNewChat}
+                @forge-ai-threads-search-load-more=${this.handleSearchLoadMore}>
               </forge-ai-threads-search>
             `
           )}

@@ -259,15 +259,13 @@ export class AiConversationsPanelComponent extends LitElement {
       cancelable: true
     });
 
-    const localFiltered = this.recentThreads.filter(thread =>
-      thread.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
     if (!this.dispatchEvent(event)) {
       this._isSearching = true;
     } else {
       this._isSearching = false;
-      this._searchResults = localFiltered;
+      this._searchResults = this.recentThreads.filter(thread =>
+        thread.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
   }
 
@@ -611,7 +609,7 @@ export class AiConversationsPanelComponent extends LitElement {
   }
 
   get #threadListContainer(): TemplateResult {
-    return html` <div class="thread-list-container">${this.#threadList} ${this.#loadingMoreIndicator}</div> `;
+    return html` <div class="thread-list-container">${this.#threadList}</div> `;
   }
 
   readonly #chatActionsList = html`

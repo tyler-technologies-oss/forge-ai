@@ -20,6 +20,7 @@ declare global {
   interface HTMLElementEventMap {
     'forge-ai-threads-select': CustomEvent<ForgeAiThreadsSelectEventData>;
     'forge-ai-threads-new-chat': CustomEvent;
+    'forge-ai-threads-search-chats': CustomEvent;
     'forge-ai-threads-load-more': CustomEvent<ForgeAiThreadsLoadMoreEventData>;
     'forge-ai-threads-rename': CustomEvent<ForgeAiThreadsRenameEventData>;
     'forge-ai-threads-delete': CustomEvent<ForgeAiThreadsDeleteEventData>;
@@ -67,6 +68,7 @@ export const AiThreadsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  *
  * @event {CustomEvent<ForgeAiThreadsSelectEventData>} forge-ai-threads-select - Fired when a thread is selected.
  * @event {CustomEvent} forge-ai-threads-new-chat - Fired when the new chat button is clicked.
+ * @event {CustomEvent} forge-ai-threads-search-chats - Fired when the search chats button is clicked.
  * @event {CustomEvent<ForgeAiThreadsLoadMoreEventData>} forge-ai-threads-load-more - Fired when scrolling near bottom. Call appendResults([]) to signal end.
  * @event {CustomEvent<ForgeAiThreadsRenameEventData>} forge-ai-threads-rename - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
  * @event {CustomEvent<ForgeAiThreadsDeleteEventData>} forge-ai-threads-delete - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert.
