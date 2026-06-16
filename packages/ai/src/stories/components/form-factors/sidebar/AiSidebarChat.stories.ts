@@ -16,6 +16,7 @@ import '$lib/ai-sidebar-chat';
 import '$lib/ai-button';
 import '$lib/ai-disclaimer';
 import type { Thread } from '$lib/ai-threads';
+import type { AgentInfo } from '$lib/ai-agent-info';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
 import {
@@ -84,6 +85,13 @@ const meta = {
       responseDelay: 500
     });
 
+    const agentInfo: AgentInfo = {
+      name: 'Staff Assistant',
+      version: '1.3.5',
+      identifier: 'agent-49ff3a19-6986-43e9-a255-7bcdd40cbdc0',
+      threadId: '7cbc1ec3-6fd1-4c13-a737-fc3d9f9ec2baf'
+    };
+
     const handleExpand = (e: Event) => {
       action('forge-ai-sidebar-chat-expand')(e);
       const chatbot = (e.target as HTMLElement).querySelector('forge-ai-chatbot');
@@ -110,6 +118,7 @@ const meta = {
         @forge-ai-sidebar-chat-collapse=${handleCollapse}>
         <forge-ai-chatbot
           .adapter=${adapter}
+          .agentInfo=${agentInfo}
           file-upload=${args.fileUpload}
           ?expanded=${args.expanded}
           placeholder=${args.placeholder}
@@ -282,6 +291,13 @@ export const WithConversationHistory: Story = {
       responseDelay: 500
     });
 
+    const agentInfo: AgentInfo = {
+      name: 'Staff Assistant',
+      version: '1.3.5',
+      identifier: 'agent-49ff3a19-6986-43e9-a255-7bcdd40cbdc0',
+      threadId: '7cbc1ec3-6fd1-4c13-a737-fc3d9f9ec2baf'
+    };
+
     const threads: Thread[] = [
       {
         id: 'thread-1',
@@ -346,6 +362,7 @@ export const WithConversationHistory: Story = {
         @forge-ai-sidebar-chat-collapse=${handleCollapse}>
         <forge-ai-chatbot
           .adapter=${adapter}
+          .agentInfo=${agentInfo}
           .recentThreads=${threads}
           file-upload=${args.fileUpload}
           ?expanded=${args.expanded}

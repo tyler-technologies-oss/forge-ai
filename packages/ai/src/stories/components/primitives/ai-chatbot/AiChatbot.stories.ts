@@ -7,6 +7,7 @@ import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
 import '$lib/ai-voice-input';
 import { type ToolDefinition, type Suggestion, type ChatMessage, type ToolCall } from '$lib/ai-chatbot';
+import type { AgentInfo } from '$lib/ai-agent-info';
 import { displayDataTableTool } from '$lib/tools';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { smallAgentList, largeAgentList } from '../../../utils/mock-agents';
@@ -104,6 +105,13 @@ const meta = {
       responseDelay: 500
     });
 
+    const agentInfo: AgentInfo = {
+      name: 'Staff Assistant',
+      version: '1.3.5',
+      identifier: 'agent-49ff3a19-6986-43e9-a255-7bcdd40cbdc0',
+      threadId: '7cbc1ec3-6fd1-4c13-a737-fc3d9f9ec2baf'
+    };
+
     const onConnected = action('forge-ai-chatbot-connected');
     const onDisconnected = action('forge-ai-chatbot-disconnected');
     const onMessageSent = action('forge-ai-chatbot-message-sent');
@@ -122,6 +130,7 @@ const meta = {
         <forge-ai-chatbot
           style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;"
           .adapter=${adapter}
+          .agentInfo=${agentInfo}
           placeholder=${args.placeholder}
           title-text=${args.titleText}
           file-upload=${args.fileUpload}

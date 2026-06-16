@@ -12,6 +12,7 @@ export * from './ai-chat-header';
 export * from './ai-chat-interface';
 export * from './ai-chatbot';
 export * from './ai-chatbot-launcher';
+export * from './ai-copy-button';
 export * from './ai-confirmation-prompt';
 export * from './ai-conversations-panel';
 export * from './ai-dialog';

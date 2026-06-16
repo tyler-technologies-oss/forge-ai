@@ -2,6 +2,7 @@ import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 
+import '../ai-copy-button/ai-copy-button.js';
 import styles from './ai-agent-info.scss?inline';
 
 declare global {
@@ -19,6 +20,7 @@ export interface AgentInfo {
   version?: string;
   model?: string;
   lastUpdated?: string;
+  threadId?: string;
 }
 
 /**
@@ -36,21 +38,6 @@ export class AiAgentInfoComponent extends LitElement {
   @property({ type: Object, attribute: false })
   public agentInfo?: AgentInfo;
 
-  #formatDate(dateString: string): string {
-    try {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit'
-      }).format(date);
-    } catch {
-      return dateString;
-    }
-  }
-
   public override render(): TemplateResult {
     if (!this.agentInfo) {
       return html`${nothing}`;
@@ -58,12 +45,12 @@ export class AiAgentInfoComponent extends LitElement {
 
     return html`
       <div class="agent-info-container">
-        <div class="agent-info-header">
+        <div class="agent-info-row">
           ${when(
             this.agentInfo.name,
             () => html`
               <div class="forge-label-value">
-                <div class="forge-label-value__label">Name</div>
+                <div class="forge-label-value__label">Agent name</div>
                 <div class="forge-label-value__value">${this.agentInfo?.name}</div>
               </div>
             `
@@ -77,47 +64,29 @@ export class AiAgentInfoComponent extends LitElement {
               </div>
             `
           )}
-          ${when(
-            this.agentInfo.lastUpdated,
-            () => html`
-              <div class="forge-label-value">
-                <div class="forge-label-value__label">Last Updated</div>
-                <div class="forge-label-value__value">
-                  ${this.agentInfo?.lastUpdated ? this.#formatDate(this.agentInfo.lastUpdated) : ''}
-                </div>
-              </div>
-            `
-          )}
         </div>
         ${when(
-          this.agentInfo.description,
-          () => html`
-            <div class="forge-label-value">
-              <div class="forge-label-value__label">Description</div>
-              <div class="forge-label-value__value">${this.agentInfo?.description}</div>
-            </div>
-          `
+          this.agentInfo.identifier,
+          () =>
+            html`<div class="forge-label-value with-copy-button">
+              <div class="forge-label-value__label">Agent ID</div>
+              <div class="forge-label-value__value">
+                <span class="value-text">${this.agentInfo?.identifier}</span>
+                <forge-ai-copy-button .value=${this.agentInfo?.identifier as string}></forge-ai-copy-button>
+              </div>
+            </div>`
         )}
-        <div class="agent-info-grid">
-          ${when(
-            this.agentInfo.identifier,
-            () => html`
-              <div class="forge-label-value">
-                <div class="forge-label-value__label">Identifier</div>
-                <div class="forge-label-value__value">${this.agentInfo?.identifier}</div>
+        ${when(
+          this.agentInfo.threadId,
+          () =>
+            html`<div class="forge-label-value with-copy-button">
+              <div class="forge-label-value__label">Session ID</div>
+              <div class="forge-label-value__value">
+                <span class="value-text">${this.agentInfo?.threadId}</span>
+                <forge-ai-copy-button .value=${this.agentInfo?.threadId as string}></forge-ai-copy-button>
               </div>
-            `
-          )}
-          ${when(
-            this.agentInfo.model,
-            () => html`
-              <div class="forge-label-value">
-                <div class="forge-label-value__label">Model</div>
-                <div class="forge-label-value__value">${this.agentInfo?.model}</div>
-              </div>
-            `
-          )}
-        </div>
+            </div>`
+        )}
       </div>
     `;
   }

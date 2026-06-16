@@ -9,25 +9,21 @@ const component = 'forge-ai-agent-info';
 const meta = {
   title: 'AI Components/Primitives/Agent Info',
   component,
-  render: ({ name, description, identifier, version, model, lastUpdated }: AgentInfo) => {
-    const agentInfo: AgentInfo = { name, description, identifier, version, model, lastUpdated };
-    return html`<forge-ai-agent-info .agentInfo=${agentInfo}></forge-ai-agent-info>`;
+  render: ({ name, identifier, version, threadId }: AgentInfo) => {
+    const agentInfo: AgentInfo = { name, identifier, version, threadId };
+    return html`<forge-ai-agent-info style="max-width: 400px;" .agentInfo=${agentInfo}></forge-ai-agent-info>`;
   },
   argTypes: {
     name: { control: 'text' },
-    description: { control: 'text' },
     identifier: { control: 'text' },
     version: { control: 'text' },
-    model: { control: 'text' },
-    lastUpdated: { control: 'text' }
+    threadId: { control: 'text' }
   },
   args: {
-    name: 'Customer Support Agent',
-    description: 'An AI assistant that helps customers with their inquiries and provides support.',
-    identifier: 'agent-cs-001',
-    version: '2.1.0',
-    model: 'gpt-4-turbo',
-    lastUpdated: '2024-01-15'
+    name: 'Staff Assistant',
+    identifier: 'agent-49ff3a19-6986-43e9-a255-7bcdd40cbdc0',
+    version: '1.3.5',
+    threadId: '7cbc1ec3-6fd1-4c13-a737-fc3d9f9ec2baf'
   }
 } satisfies Meta;
 

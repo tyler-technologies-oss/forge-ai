@@ -369,8 +369,20 @@ export class AiChatHeaderComponent extends LitElement {
           <forge-ai-modal ${ref(this.#agentInfoModalRef)}>
             <div class="forge-scaffold">
               <div class="forge-scaffold__header">
-                <div class="forge-toolbar forge-toolbar--no-divider">
+                <div class="forge-toolbar">
                   <h2 class="forge-toolbar__start agent-info-title">Agent Information</h2>
+                  <div class="forge-toolbar__end">
+                    <button
+                      class="forge-icon-button forge-icon-button--medium ai-icon-button close-button"
+                      @click=${this.#handleModalClose}
+                      aria-label="Close agent information dialog">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path fill="none" d="M0 0h24v24H0z" />
+                        <path
+                          d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="forge-scaffold__body">
@@ -379,8 +391,11 @@ export class AiChatHeaderComponent extends LitElement {
                 </div>
               </div>
               <div class="forge-scaffold__footer">
-                <div class="forge-toolbar forge-toolbar--no-divider">
-                  <button class="forge-button forge-button--filled forge-toolbar__end" @click=${this.#handleModalClose}>
+                <div class="forge-toolbar forge-toolbar--inverted">
+                  <button
+                    class="forge-button forge-button--filled forge-toolbar__end"
+                    autofocus
+                    @click=${this.#handleModalClose}>
                     Close
                   </button>
                 </div>
