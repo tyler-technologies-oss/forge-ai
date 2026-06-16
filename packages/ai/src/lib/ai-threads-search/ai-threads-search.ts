@@ -81,6 +81,14 @@ export class AiThreadsSearchComponent extends LitElement {
   @property({ type: Array })
   public threads: Thread[] = [];
 
+  /**
+   * Total number of threads available. When set to a positive number and fewer threads
+   * are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to disable
+   * infinite scroll entirely. Useful when all data is loaded upfront.
+   */
+  @property({ type: Number, attribute: 'total-chats' })
+  public totalChats = 0;
+
   @property({ type: String })
   public placeholder = 'Search chats...';
 
@@ -138,9 +146,31 @@ export class AiThreadsSearchComponent extends LitElement {
     onLoadMore: () => this.#loadMore()
   });
 
+  get #shouldEnablePagination(): boolean {
+    if (this.totalChats <= 0) {
+      return false;
+    }
+    const displayedCount = this.#displayedThreads.length;
+    return displayedCount < this.totalChats;
+  }
+
   public override firstUpdated(): void {
-    if (this._resultsContainer) {
+    if (this.#shouldEnablePagination && this._resultsContainer) {
       this.#infiniteScrollController.attach(this._resultsContainer);
+    }
+  }
+
+  public override updated(changedProperties: Map<string, unknown>): void {
+    if (changedProperties.has('threads') || changedProperties.has('totalChats')) {
+      this.#infiniteScrollController.reset();
+
+      if (this.#shouldEnablePagination) {
+        if (this._resultsContainer) {
+          this.#infiniteScrollController.attach(this._resultsContainer);
+        }
+      } else {
+        this.#infiniteScrollController.detach();
+      }
     }
   }
 

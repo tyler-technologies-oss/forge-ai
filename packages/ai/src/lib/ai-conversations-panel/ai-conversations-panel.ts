@@ -81,6 +81,14 @@ export class AiConversationsPanelComponent extends LitElement {
   @property({ type: Array })
   public recentThreads: Thread[] = [];
 
+  /**
+   * Total number of threads available. When set to a positive number and fewer threads
+   * are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to disable
+   * infinite scroll entirely. Useful when all data is loaded upfront.
+   */
+  @property({ type: Number, attribute: 'total-chats' })
+  public totalChats = 0;
+
   @property({ type: String, attribute: 'selected-thread-id' })
   public selectedThreadId: string | null = null;
 
@@ -151,6 +159,22 @@ export class AiConversationsPanelComponent extends LitElement {
     onLoadMore: () => this.#handleSearchChatsLoadMore()
   });
 
+  get #shouldEnableRecentPagination(): boolean {
+    if (this.totalChats <= 0) {
+      return false;
+    }
+    const displayedCount = this.recentThreads.filter(t => !this._hiddenThreadIds.has(t.id)).length;
+    return displayedCount < this.totalChats;
+  }
+
+  get #shouldEnableSearchPagination(): boolean {
+    if (this.totalChats <= 0) {
+      return false;
+    }
+    const displayedCount = this._searchResults.filter(t => !this._hiddenThreadIds.has(t.id)).length;
+    return displayedCount < this.totalChats;
+  }
+
   @query('#search-input-main')
   private _searchInputMain!: HTMLInputElement;
 
@@ -181,11 +205,16 @@ export class AiConversationsPanelComponent extends LitElement {
   }
 
   public override updated(changedProperties: Map<string, unknown>): void {
-    if (changedProperties.has('_viewState')) {
+    if (
+      changedProperties.has('_viewState') ||
+      changedProperties.has('recentThreads') ||
+      changedProperties.has('totalChats')
+    ) {
+      if (changedProperties.has('recentThreads') || changedProperties.has('totalChats')) {
+        this.#recentChatsScrollController.reset();
+        this.#searchChatsScrollController.reset();
+      }
       this.#attachScrollController();
-    }
-    if (changedProperties.has('recentThreads')) {
-      this.#recentChatsScrollController.reset();
     }
   }
 
@@ -194,11 +223,12 @@ export class AiConversationsPanelComponent extends LitElement {
       return;
     }
 
-    if (this._viewState === 'main') {
-      this.#searchChatsScrollController.detach();
+    this.#recentChatsScrollController.detach();
+    this.#searchChatsScrollController.detach();
+
+    if (this._viewState === 'main' && this.#shouldEnableRecentPagination) {
       this.#recentChatsScrollController.attach(this._threadListContainer);
-    } else {
-      this.#recentChatsScrollController.detach();
+    } else if (this._viewState === 'search' && this.#shouldEnableSearchPagination) {
       this.#searchChatsScrollController.attach(this._threadListContainer);
     }
   }

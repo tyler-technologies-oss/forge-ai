@@ -103,6 +103,10 @@ const meta = {
       control: 'object',
       description: 'Array of recent conversation threads to display'
     },
+    totalChats: {
+      control: { type: 'number' },
+      description: 'Total number of chats available for pagination. Set to 0 to disable infinite scroll.'
+    },
     selectedThreadId: {
       control: 'text',
       description: 'ID of the currently selected thread'
@@ -118,6 +122,7 @@ const meta = {
   },
   args: {
     recentThreads: sampleThreads,
+    totalChats: 0,
     selectedThreadId: null,
     showConversationRename: true,
     showConversationDelete: true
@@ -127,6 +132,7 @@ const meta = {
       <div style="width: 400px; height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-conversations-panel
           .recentThreads=${args.recentThreads}
+          total-chats=${args.totalChats}
           .selectedThreadId=${args.selectedThreadId}
           ?show-conversation-rename=${args.showConversationRename}
           ?show-conversation-delete=${args.showConversationDelete}
@@ -134,6 +140,12 @@ const meta = {
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
           @forge-ai-conversations-panel-search=${action('forge-ai-conversations-panel-search')}
+          @forge-ai-conversations-panel-load-more=${(e: CustomEvent) => {
+            action('forge-ai-conversations-panel-load-more')(e);
+            setTimeout(() => {
+              e.detail.appendResults([]);
+            }, 1000);
+          }}
           @forge-ai-conversations-panel-rename=${action('forge-ai-conversations-panel-rename')}
           @forge-ai-conversations-panel-delete=${action('forge-ai-conversations-panel-delete')}>
         </forge-ai-conversations-panel>
@@ -380,6 +392,7 @@ export const WithInfiniteScroll: Story = {
       <div style="width: 400px; height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-conversations-panel
           .recentThreads=${args.recentThreads}
+          total-chats=${TOTAL_THREADS}
           .selectedThreadId=${args.selectedThreadId}
           ?show-conversation-rename=${args.showConversationRename}
           ?show-conversation-delete=${args.showConversationDelete}

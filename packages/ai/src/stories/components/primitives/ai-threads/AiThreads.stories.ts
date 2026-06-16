@@ -3,8 +3,6 @@ import { html } from 'lit';
 import { action } from 'storybook/actions';
 
 import '$lib/ai-threads';
-import '@tylertech/forge/scaffold';
-import '@tylertech/forge/app-bar';
 import '$lib/ai-chatbot-launcher';
 import type { AiThreadsComponent, Thread } from '$lib/ai-threads';
 import { MockAdapter } from '../../../utils/mock-adapter';
@@ -26,10 +24,15 @@ const meta = {
     threads: {
       control: 'object',
       description: 'Array of threads to display in the navigation list'
+    },
+    totalChats: {
+      control: { type: 'number' },
+      description: 'Total number of chats available for pagination. Set to 0 to disable infinite scroll.'
     }
   },
   args: {
-    threads: sampleThreads
+    threads: sampleThreads,
+    totalChats: 0
   },
   render: (args: any) => {
     const adapter = new MockAdapter({
@@ -39,15 +42,19 @@ const meta = {
       responseDelay: 500
     });
     return html`
-      <forge-scaffold>
-        <forge-app-bar slot="header" title-text="Threads"></forge-app-bar>>
+      <div style="height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-threads
-          slot="body"
-          style="height: 600px;"
           .threads=${args.threads}
+          total-chats=${args.totalChats}
           @forge-ai-threads-select=${action('forge-ai-threads-select')}
           @forge-ai-threads-new-chat=${action('forge-ai-threads-new-chat')}
-          @forge-ai-threads-clear-history=${action('forge-ai-threads-clear-history')}>
+          @forge-ai-threads-clear-history=${action('forge-ai-threads-clear-history')}
+          @forge-ai-threads-load-more=${(e: CustomEvent) => {
+            action('forge-ai-threads-load-more')(e);
+            setTimeout(() => {
+              e.detail.appendResults([]);
+            }, 1000);
+          }}>
           <forge-ai-chatbot-launcher
             .adapter=${adapter}
             @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
@@ -56,7 +63,7 @@ const meta = {
             @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
           </forge-ai-chatbot-launcher>
         </forge-ai-threads>
-      </forge-scaffold>
+      </div>
     `;
   }
 } satisfies Meta;
@@ -89,12 +96,10 @@ export const InfiniteScroll: Story = {
     const initialThreads = generateThreads(1, 20);
 
     return html`
-      <forge-scaffold>
-        <forge-app-bar slot="header" title-text="Threads with Infinite Scroll"></forge-app-bar>
+      <div style="height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-threads
-          slot="body"
-          style="height: 600px; border: 1px solid var(--forge-theme-outline);"
           .threads=${initialThreads}
+          total-chats=${100}
           @forge-ai-threads-select=${action('forge-ai-threads-select')}
           @forge-ai-threads-new-chat=${action('forge-ai-threads-new-chat')}
           @forge-ai-threads-load-more=${(e: CustomEvent) => {
@@ -113,7 +118,7 @@ export const InfiniteScroll: Story = {
             @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
           </forge-ai-chatbot-launcher>
         </forge-ai-threads>
-      </forge-scaffold>
+      </div>
     `;
   }
 };

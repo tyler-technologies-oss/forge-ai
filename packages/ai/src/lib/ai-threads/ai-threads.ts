@@ -83,6 +83,14 @@ export class AiThreadsComponent extends LitElement {
   @property({ type: Array })
   public threads: Thread[] = [];
 
+  /**
+   * Total number of threads available. When set to a positive number and fewer threads
+   * are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to disable
+   * infinite scroll entirely. Useful when all data is loaded upfront.
+   */
+  @property({ type: Number, attribute: 'total-chats' })
+  public totalChats = 0;
+
   @property({ type: Boolean, attribute: 'show-thread-rename' })
   public showThreadRename = false;
 
@@ -139,15 +147,31 @@ export class AiThreadsComponent extends LitElement {
     onLoadMore: () => this.#handleLoadMore()
   });
 
+  get #shouldEnablePagination(): boolean {
+    if (this.totalChats <= 0) {
+      return false;
+    }
+    const displayedCount = this.threads.filter(t => !this._hiddenThreadIds.has(t.id)).length;
+    return displayedCount < this.totalChats;
+  }
+
   public override firstUpdated(): void {
-    if (this._threadListContainer) {
+    if (this.#shouldEnablePagination && this._threadListContainer) {
       this.#infiniteScrollController.attach(this._threadListContainer);
     }
   }
 
   public override updated(changedProperties: Map<string, unknown>): void {
-    if (changedProperties.has('threads')) {
+    if (changedProperties.has('threads') || changedProperties.has('totalChats')) {
       this.#infiniteScrollController.reset();
+
+      if (this.#shouldEnablePagination) {
+        if (this._threadListContainer) {
+          this.#infiniteScrollController.attach(this._threadListContainer);
+        }
+      } else {
+        this.#infiniteScrollController.detach();
+      }
     }
   }
 
@@ -361,12 +385,15 @@ export class AiThreadsComponent extends LitElement {
   }
 
   get #drawer(): TemplateResult {
+    const displayedThreads = this.threads.filter(t => !this._hiddenThreadIds.has(t.id));
+    const hasThreads = displayedThreads.length > 0;
+
     return html`
       <aside class="forge-drawer" role="complementary" aria-label="Thread navigation">
         <slot name="header"></slot>
         ${this.#chatActionsList}
         <slot name="actions"></slot>
-        ${this.#chatsLabel} ${this.#threadListContainer}
+        ${when(hasThreads, () => html`${this.#chatsLabel} ${this.#threadListContainer}`)}
       </aside>
     `;
   }

@@ -34,6 +34,10 @@ const meta = {
       control: 'object',
       description: 'Array of threads to display'
     },
+    totalChats: {
+      control: { type: 'number' },
+      description: 'Total number of chats available for pagination. Set to 0 to disable infinite scroll.'
+    },
     showNewChat: {
       control: 'boolean',
       description: 'Show "New chat" button in header'
@@ -57,6 +61,7 @@ const meta = {
   },
   args: {
     threads: generateThreads(10),
+    totalChats: 0,
     showNewChat: true,
     placeholder: 'Search conversations...',
     emptyMessage: 'No conversations found'
@@ -66,13 +71,19 @@ const meta = {
       <div style="height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-threads-search
           .threads=${args.threads}
+          total-chats=${args.totalChats}
           ?show-new-chat=${args.showNewChat}
           ?show-thread-rename=${args.showThreadRename}
           ?show-thread-delete=${args.showThreadDelete}
           placeholder=${args.placeholder}
           empty-message=${args.emptyMessage}
           @forge-ai-threads-search-query=${action('forge-ai-threads-search-query')}
-          @forge-ai-threads-search-load-more=${action('forge-ai-threads-search-load-more')}
+          @forge-ai-threads-search-load-more=${(e: CustomEvent) => {
+            action('forge-ai-threads-search-load-more')(e);
+            setTimeout(() => {
+              e.detail.appendResults([]);
+            }, 1000);
+          }}
           @forge-ai-threads-search-select=${action('forge-ai-threads-search-select')}
           @forge-ai-threads-search-new-chat=${action('forge-ai-threads-search-new-chat')}
           @forge-ai-threads-search-rename=${action('forge-ai-threads-search-rename')}
@@ -172,6 +183,7 @@ export const WithInfiniteScroll: Story = {
       <div style="height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-threads-search
           .threads=${args.threads}
+          total-chats=${120}
           ?show-new-chat=${args.showNewChat}
           @forge-ai-threads-search-query=${handleSearch}
           @forge-ai-threads-search-load-more=${handleLoadMore}
