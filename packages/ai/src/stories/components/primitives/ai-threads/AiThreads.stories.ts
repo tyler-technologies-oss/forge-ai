@@ -3,6 +3,7 @@ import { html } from 'lit';
 import { action } from 'storybook/actions';
 
 import '$lib/ai-threads';
+import '$lib/ai-chatbot-launcher';
 import type { AiThreadsComponent, Thread } from '$lib/ai-threads';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
@@ -23,10 +24,15 @@ const meta = {
     threads: {
       control: 'object',
       description: 'Array of threads to display in the navigation list'
+    },
+    totalChats: {
+      control: { type: 'number' },
+      description: 'Total number of chats available for pagination. Set to 0 to disable infinite scroll.'
     }
   },
   args: {
-    threads: sampleThreads
+    threads: sampleThreads,
+    totalChats: 0
   },
   render: (args: any) => {
     const adapter = new MockAdapter({
@@ -35,29 +41,27 @@ const meta = {
       streamingDelay: 50,
       responseDelay: 500
     });
-
-    const handleClearHistory = (event: CustomEvent) => {
-      action('forge-ai-threads-clear-history')(event);
-      const threadsComponent = event.target as AiThreadsComponent;
-      if (threadsComponent) {
-        threadsComponent.threads = [];
-      }
-    };
-
     return html`
-      <div style="height: 600px;">
+      <div style="height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-threads
           .threads=${args.threads}
+          total-chats=${args.totalChats}
           @forge-ai-threads-select=${action('forge-ai-threads-select')}
           @forge-ai-threads-new-chat=${action('forge-ai-threads-new-chat')}
-          @forge-ai-threads-clear-history=${handleClearHistory}>
-          <forge-ai-chatbot
+          @forge-ai-threads-clear-history=${action('forge-ai-threads-clear-history')}
+          @forge-ai-threads-load-more=${(e: CustomEvent) => {
+            action('forge-ai-threads-load-more')(e);
+            setTimeout(() => {
+              e.detail.appendResults([]);
+            }, 1000);
+          }}>
+          <forge-ai-chatbot-launcher
             .adapter=${adapter}
-            show-expand-button
             @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
             @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
-            @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
-          </forge-ai-chatbot>
+            @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+            @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
+          </forge-ai-chatbot-launcher>
         </forge-ai-threads>
       </div>
     `;
@@ -69,3 +73,52 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {};
+
+export const InfiniteScroll: Story = {
+  render: () => {
+    const generateThreads = (startId: number, count: number): Thread[] => {
+      return Array.from({ length: count }, (_, i) => ({
+        id: `${startId + i}`,
+        title: `Thread ${startId + i}`,
+        createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+        messageCount: Math.floor(Math.random() * 20) + 1
+      }));
+    };
+
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    let nextThreadId = 21;
+    const initialThreads = generateThreads(1, 20);
+
+    return html`
+      <div style="height: 600px; border: 1px solid var(--forge-theme-outline);">
+        <forge-ai-threads
+          .threads=${initialThreads}
+          total-chats=${100}
+          @forge-ai-threads-select=${action('forge-ai-threads-select')}
+          @forge-ai-threads-new-chat=${action('forge-ai-threads-new-chat')}
+          @forge-ai-threads-load-more=${(e: CustomEvent) => {
+            action('forge-ai-threads-load-more')(e);
+            setTimeout(() => {
+              const moreThreads = generateThreads(nextThreadId, 10);
+              nextThreadId += 10;
+              e.detail.appendResults(moreThreads);
+            }, 1000);
+          }}>
+          <forge-ai-chatbot-launcher
+            .adapter=${adapter}
+            @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+            @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+            @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+            @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
+          </forge-ai-chatbot-launcher>
+        </forge-ai-threads>
+      </div>
+    `;
+  }
+};

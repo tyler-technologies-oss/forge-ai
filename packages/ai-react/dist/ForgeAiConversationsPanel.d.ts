@@ -27,6 +27,11 @@ export interface ForgeAiConversationsPanelProps extends Pick<
   /** undefined */
   recentThreads?: ForgeAiConversationsPanelElement["recentThreads"];
 
+  /** Total number of threads available. When set to a positive number and fewer threads
+are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to disable
+infinite scroll entirely. Useful when all data is loaded upfront. */
+  totalChats?: ForgeAiConversationsPanelElement["totalChats"];
+
   /** undefined */
   selectedThreadId?: ForgeAiConversationsPanelElement["selectedThreadId"];
 
@@ -71,7 +76,7 @@ export interface ForgeAiConversationsPanelProps extends Pick<
     event: CustomEvent<CustomEvent<ForgeAiConversationsPanelSearchEventData>>,
   ) => void;
 
-  /** Fired when scrolling near bottom in search view. Always shows loading - call appendResults([]) to signal end. */
+  /** Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts. Always shows loading - call appendResults([]) to signal end. */
   onForgeAiConversationsPanelLoadMore?: (
     event: CustomEvent<CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>>,
   ) => void;
@@ -97,7 +102,7 @@ export interface ForgeAiConversationsPanelProps extends Pick<
  * - **forge-ai-conversations-panel-new-chat** - Fired when the new chat list item is clicked.
  * - **forge-ai-conversations-panel-close** - Fired when the close button is clicked.
  * - **forge-ai-conversations-panel-search** - Fired when search query changes (debounced). Cancelable - if prevented, shows loading and waits for setResults callback.
- * - **forge-ai-conversations-panel-load-more** - Fired when scrolling near bottom in search view. Always shows loading - call appendResults([]) to signal end.
+ * - **forge-ai-conversations-panel-load-more** - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts. Always shows loading - call appendResults([]) to signal end.
  * - **forge-ai-conversations-panel-rename** - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. Otherwise optimistically updated.
  * - **forge-ai-conversations-panel-delete** - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
  */

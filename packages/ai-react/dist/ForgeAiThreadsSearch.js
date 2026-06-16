@@ -1,51 +1,53 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import "@tylertech/forge-ai/ai-threads";
+import "@tylertech/forge-ai/ai-threads-search";
 import { useEventListener } from "./react-utils.js";
 
-export const ForgeAiThreads = forwardRef((props, forwardedRef) => {
+export const ForgeAiThreadsSearch = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
   const {
     showThreadRename,
     showThreadDelete,
     threads,
     totalChats,
+    placeholder,
+    emptyMessage,
     ...filteredProps
   } = props;
 
   /** Event listeners - run once */
   useEventListener(
     ref,
-    "forge-ai-threads-select",
-    props.onForgeAiThreadsSelect,
+    "forge-ai-threads-search-query",
+    props.onForgeAiThreadsSearchQuery,
   );
   useEventListener(
     ref,
-    "forge-ai-threads-new-chat",
-    props.onForgeAiThreadsNewChat,
+    "forge-ai-threads-search-load-more",
+    props.onForgeAiThreadsSearchLoadMore,
   );
   useEventListener(
     ref,
-    "forge-ai-threads-search-chats",
-    props.onForgeAiThreadsSearchChats,
+    "forge-ai-threads-search-select",
+    props.onForgeAiThreadsSearchSelect,
   );
   useEventListener(
     ref,
-    "forge-ai-threads-load-more",
-    props.onForgeAiThreadsLoadMore,
+    "forge-ai-threads-search-new-chat",
+    props.onForgeAiThreadsSearchNewChat,
   );
   useEventListener(
     ref,
-    "forge-ai-threads-rename",
-    props.onForgeAiThreadsRename,
+    "forge-ai-threads-search-rename",
+    props.onForgeAiThreadsSearchRename,
   );
   useEventListener(
     ref,
-    "forge-ai-threads-delete",
-    props.onForgeAiThreadsDelete,
+    "forge-ai-threads-search-delete",
+    props.onForgeAiThreadsSearchDelete,
   );
 
   return React.createElement(
-    "forge-ai-threads",
+    "forge-ai-threads-search",
     {
       ref: (node) => {
         ref.current = node;
@@ -58,6 +60,8 @@ export const ForgeAiThreads = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       threads: props.threads,
       "total-chats": props.totalChats || props["total-chats"],
+      placeholder: props.placeholder,
+      "empty-message": props.emptyMessage || props["empty-message"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

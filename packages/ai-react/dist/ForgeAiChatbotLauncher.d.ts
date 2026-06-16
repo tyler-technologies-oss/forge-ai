@@ -136,6 +136,25 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
  * - **forge-ai-chatbot-info** - Fired when header info option is selected
  * - **forge-ai-chatbot-agent-change** - Fired when agent selection changes
  *
+ * ### **Methods:**
+ *  - **clearMessages(): _boolean_** - Clears all messages from the chat.
+ *
+ * This is a lower-level operation that removes message history without
+ * the semantic meaning of "starting a new conversation". For user-facing
+ * "new chat" actions, prefer startNewChat which provides
+ * conversation-level cleanup.
+ * - **startNewChat(): _void_** - Starts a new chat conversation.
+ *
+ * This clears all messages and resets the conversation to a fresh state.
+ * Use this when the user explicitly wants to begin a new conversation.
+ *
+ * Contrast with clearMessages, which fires events and can be prevented.
+ * This method does not fire events - it's meant for programmatic use.
+ * For user-initiated actions, use event handlers that fire events before calling this.
+ *
+ * Subclasses may override this to add conversation-specific cleanup like
+ * resetting thread IDs or closing panels.
+ *
  * ### **Slots:**
  *  - **icon** - Slot for custom icon (used in both welcome view and conversation header)
  * - **heading** - Slot for custom heading content (welcome view only)

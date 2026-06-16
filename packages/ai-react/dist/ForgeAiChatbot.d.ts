@@ -183,7 +183,7 @@ export interface ForgeAiChatbotProps extends Pick<
     event: CustomEvent<CustomEvent<ForgeAiChatbotConversationSearchEventData>>,
   ) => void;
 
-  /** Fired when scrolling near bottom in search view */
+  /** Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts. */
   onForgeAiChatbotConversationLoadMore?: (
     event: CustomEvent<
       CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>
@@ -226,9 +226,25 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **forge-ai-chatbot-conversation-select** - Fired when user selects a conversation thread
  * - **forge-ai-chatbot-new-chat** - Fired when user clicks new chat button (cancelable)
  * - **forge-ai-chatbot-conversation-search** - Fired when search query changes in conversations panel (debounced, cancelable)
- * - **forge-ai-chatbot-conversation-load-more** - Fired when scrolling near bottom in search view
+ * - **forge-ai-chatbot-conversation-load-more** - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts.
  * - **forge-ai-chatbot-conversation-rename** - Fired when user renames a conversation thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
  * - **forge-ai-chatbot-conversation-delete** - Fired when user deletes a conversation thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
+ *
+ * ### **Methods:**
+ *  - **startNewChat(): _void_** - Starts a new chat conversation by clearing messages and resetting conversation state.
+ *
+ * This method:
+ * - Clears all messages via the controller
+ * - Resets the selected thread ID
+ *
+ * Does not fire events - meant for programmatic use.
+ * For user-initiated actions, the event handler fires the event before calling this.
+ * - **clearMessages(): __** - Clears all messages from the chat.
+ *
+ * This is a lower-level operation that removes message history without
+ * the semantic meaning of "starting a new conversation". For user-facing
+ * "new chat" actions, prefer startNewChat which provides
+ * conversation-level cleanup.
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content

@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  ForgeAiThreads as ForgeAiThreadsElement,
+  ForgeAiThreadsSearch as ForgeAiThreadsSearchElement,
   CustomEvent,
-} from "@tylertech/forge-ai/ai-threads";
+} from "@tylertech/forge-ai/ai-threads-search";
 
-export type { ForgeAiThreadsElement, CustomEvent };
+export type { ForgeAiThreadsSearchElement, CustomEvent };
 
-export interface ForgeAiThreadsProps extends Pick<
+export interface ForgeAiThreadsSearchProps extends Pick<
   React.AllHTMLAttributes<HTMLElement>,
   | "children"
   | "dir"
@@ -27,13 +27,19 @@ export interface ForgeAiThreadsProps extends Pick<
   /** undefined */
   showThreadDelete?: boolean;
 
-  /** Array of threads to display in the navigation list */
-  threads?: ForgeAiThreadsElement["threads"];
+  /** undefined */
+  threads?: ForgeAiThreadsSearchElement["threads"];
 
   /** Total number of threads available. When set to a positive number and fewer threads
 are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to disable
 infinite scroll entirely. Useful when all data is loaded upfront. */
-  totalChats?: ForgeAiThreadsElement["totalChats"];
+  totalChats?: ForgeAiThreadsSearchElement["totalChats"];
+
+  /** undefined */
+  placeholder?: ForgeAiThreadsSearchElement["placeholder"];
+
+  /** undefined */
+  emptyMessage?: ForgeAiThreadsSearchElement["emptyMessage"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -56,30 +62,32 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
+  /** Fired when search query changes (debounced). */
+  onForgeAiThreadsSearchQuery?: (
+    event: CustomEvent<CustomEvent<ForgeAiThreadsSearchQueryEventData>>,
+  ) => void;
+
+  /** Fired when user scrolls near bottom for pagination. */
+  onForgeAiThreadsSearchLoadMore?: (
+    event: CustomEvent<CustomEvent<ForgeAiThreadsSearchLoadMoreEventData>>,
+  ) => void;
+
   /** Fired when a thread is selected. */
-  onForgeAiThreadsSelect?: (
-    event: CustomEvent<CustomEvent<ForgeAiThreadsSelectEventData>>,
+  onForgeAiThreadsSearchSelect?: (
+    event: CustomEvent<CustomEvent<ForgeAiThreadsSearchSelectEventData>>,
   ) => void;
 
-  /** Fired when the new chat button is clicked. */
-  onForgeAiThreadsNewChat?: (event: CustomEvent) => void;
-
-  /** Fired when the search chats button is clicked. */
-  onForgeAiThreadsSearchChats?: (event: CustomEvent) => void;
-
-  /** Fired when scrolling near bottom. Call appendResults([]) to signal end. */
-  onForgeAiThreadsLoadMore?: (
-    event: CustomEvent<CustomEvent<ForgeAiThreadsLoadMoreEventData>>,
-  ) => void;
+  /** Fired when new chat button clicked. */
+  onForgeAiThreadsSearchNewChat?: (event: CustomEvent) => void;
 
   /** Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. */
-  onForgeAiThreadsRename?: (
-    event: CustomEvent<CustomEvent<ForgeAiThreadsRenameEventData>>,
+  onForgeAiThreadsSearchRename?: (
+    event: CustomEvent<CustomEvent<ForgeAiThreadsSearchRenameEventData>>,
   ) => void;
 
   /** Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. */
-  onForgeAiThreadsDelete?: (
-    event: CustomEvent<CustomEvent<ForgeAiThreadsDeleteEventData>>,
+  onForgeAiThreadsSearchDelete?: (
+    event: CustomEvent<CustomEvent<ForgeAiThreadsSearchDeleteEventData>>,
   ) => void;
 }
 
@@ -89,14 +97,11 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
  *
  *
  * ### **Events:**
- *  - **forge-ai-threads-select** - Fired when a thread is selected.
- * - **forge-ai-threads-new-chat** - Fired when the new chat button is clicked.
- * - **forge-ai-threads-search-chats** - Fired when the search chats button is clicked.
- * - **forge-ai-threads-load-more** - Fired when scrolling near bottom. Call appendResults([]) to signal end.
- * - **forge-ai-threads-rename** - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
- * - **forge-ai-threads-delete** - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert.
- *
- * ### **Slots:**
- *  - _default_ - Default slot for chatbot launcher component
+ *  - **forge-ai-threads-search-query** - Fired when search query changes (debounced).
+ * - **forge-ai-threads-search-load-more** - Fired when user scrolls near bottom for pagination.
+ * - **forge-ai-threads-search-select** - Fired when a thread is selected.
+ * - **forge-ai-threads-search-new-chat** - Fired when new chat button clicked.
+ * - **forge-ai-threads-search-rename** - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
+ * - **forge-ai-threads-search-delete** - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert.
  */
-export const ForgeAiThreads: React.ForwardRefExoticComponent<ForgeAiThreadsProps>;
+export const ForgeAiThreadsSearch: React.ForwardRefExoticComponent<ForgeAiThreadsSearchProps>;

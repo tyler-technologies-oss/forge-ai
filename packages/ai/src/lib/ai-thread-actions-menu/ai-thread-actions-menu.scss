@@ -1,0 +1,14 @@
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/dist/icon/forge-icon';
+
+:host {
+  display: flex;
+}
+
+forge-ai-dropdown-menu {
+  display: flex;
+}
+
+.forge-icon {
+  color: #{forge-theme.variable(text-medium)};
+}

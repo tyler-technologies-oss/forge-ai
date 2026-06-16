@@ -173,6 +173,11 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     return false;
   }
 
+  public override startNewChat(): void {
+    super.startNewChat();
+    this.#transitionToWelcome();
+  }
+
   public override setMessages(messages: ChatMessage[]): void {
     super.setMessages(messages);
     if (messages.length > 0) {

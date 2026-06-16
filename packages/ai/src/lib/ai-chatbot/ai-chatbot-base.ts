@@ -429,6 +429,17 @@ export abstract class AiChatbotBase extends LitElement {
     }
   }
 
+  /**
+   * Clears all messages from the chat.
+   *
+   * This is a lower-level operation that removes message history without
+   * the semantic meaning of "starting a new conversation". For user-facing
+   * "new chat" actions, prefer {@link startNewChat} which provides
+   * conversation-level cleanup.
+   *
+   * @returns true if messages were cleared, false if prevented via event.preventDefault()
+   * @fires forge-ai-chatbot-clear - Cancelable event fired before clearing
+   */
   public clearMessages(): boolean {
     const event = this._dispatchHostEvent({ type: 'forge-ai-chatbot-clear', cancelable: true });
 
@@ -438,6 +449,23 @@ export abstract class AiChatbotBase extends LitElement {
 
     this._coreController.clearMessages();
     return true;
+  }
+
+  /**
+   * Starts a new chat conversation.
+   *
+   * This clears all messages and resets the conversation to a fresh state.
+   * Use this when the user explicitly wants to begin a new conversation.
+   *
+   * Contrast with {@link clearMessages}, which fires events and can be prevented.
+   * This method does not fire events - it's meant for programmatic use.
+   * For user-initiated actions, use event handlers that fire events before calling this.
+   *
+   * Subclasses may override this to add conversation-specific cleanup like
+   * resetting thread IDs or closing panels.
+   */
+  public startNewChat(): void {
+    this._coreController.clearMessages();
   }
 
   public getMessages(): ChatMessage[] {

@@ -1,6 +1,7 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 @use '@tylertech/forge/dist/drawer/forge-drawer';
 @use '@tylertech/forge/dist/list/forge-list';
 @use '@tylertech/forge/dist/field/forge-field';
@@ -9,63 +10,138 @@
 @use '@tylertech/forge/dist/button/forge-button';
 
 :host {
-  display: block;
+  display: grid;
   height: 100%;
+  min-height: 0;
 }
 
 .threads-container {
   display: grid;
   grid-template-columns: auto 1fr;
   height: 100%;
-}
+  min-height: 0;
 
-.forge-field {
-  --forge-field-height: 48px;
+  .drawer {
+    min-height: 0;
+  }
 }
 
 .forge-drawer {
   display: grid;
-  grid-template-rows: auto 1fr;
-  --forge-drawer-width: 304px;
+  grid-template-rows: auto auto auto 1fr;
+  min-height: 0;
+  padding: 0 #{forge-spacing.variable(medium)};
+  background-color: #{forge-theme.variable(surface)};
+}
+
+.body {
   padding: #{forge-spacing.variable(medium)};
+  min-height: 0;
+}
+
+.chats-label {
+  @include forge-typography.style(label1);
+
+  margin-block-start: #{forge-spacing.variable(xsmall)};
+  font-weight: 500;
+}
+
+.chat-actions-list {
+  .forge-list-item {
+    button {
+      display: flex;
+      align-items: center;
+      gap: #{forge-spacing.variable(small)};
+    }
+
+    .forge-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
 }
 
 .thread-list-container {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  margin-block-start: #{forge-spacing.variable(small)};
-}
+  @include forge-scrollbar.base;
 
-.forge-list-item {
-  --forge-list-item-height: 56px;
-  --forge-list-item-margin: 0;
-
-  button {
-    @include forge-typography.style(body2);
-    display: flex;
-    flex-direction: column;
-    text-box-trim: both;
-  }
-
-  .list-item-second-line {
-    @include forge-typography.style(body1);
-    color: #{forge-theme.variable(text-medium)};
-
-    display: flex;
-    align-items: center;
-    gap: #{forge-spacing.variable(medium)};
-  }
+  overflow-y: auto;
+  min-height: 0;
+  margin-inline-end: calc(#{forge-spacing.variable(medium)} * -1);
 }
 
 .forge-list--navlist {
-  margin-block: 0;
+  .forge-list-item {
+    font-weight: normal;
+    margin-inline: 0;
+
+    &--selected {
+      font-weight: bold;
+    }
+  }
+
+  .forge-icon {
+    color: #{forge-theme.variable(text-medium)};
+  }
 }
 
-.forge-list-item--selected {
-  background-color: #{forge-theme.variable(tertiary-container-minimum)};
-  color: #{forge-theme.variable(text-high)};
+.forge-list-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
+
+  button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .thread-item-actions {
+    display: none;
+    align-items: center;
+    gap: #{forge-spacing.variable(xxsmall)};
+  }
+
+  &:hover,
+  &:focus-within,
+  &.forge-list-item--menu-open {
+    .thread-item-actions {
+      display: flex;
+    }
+  }
 }
 
-.forge-divider {
-  margin-block: #{forge-spacing.variable(large)};
+.loading-more-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-block: #{forge-spacing.variable(medium)};
+  margin-block-start: #{forge-spacing.variable(xxsmall)};
+}
+
+forge-ai-modal {
+  --forge-ai-modal-width: fit-content;
+  --forge-ai-modal-height: fit-content;
+}
+
+.delete-confirmation {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(medium)};
+  padding: #{forge-spacing.variable(medium)};
+  max-width: 90vw;
+
+  &__title {
+    @include forge-typography.style(heading4);
+    margin: 0;
+  }
+
+  &__text {
+    @include forge-typography.style(body1);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: #{forge-spacing.variable(small)};
+  }
 }
