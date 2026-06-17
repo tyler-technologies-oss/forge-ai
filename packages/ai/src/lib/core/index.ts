@@ -1,4 +1,5 @@
 export { DragController, type DragControllerOptions } from './drag-controller.js';
+export { ResizeController, type ResizeControllerOptions } from './resize-controller.js';
 export {
   ChatbotCoreController,
   type ChatbotCoreCallbacks,

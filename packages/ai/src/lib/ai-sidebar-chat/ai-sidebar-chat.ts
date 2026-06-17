@@ -49,6 +49,9 @@ export class AiSidebarChatComponent extends LitElement {
   @property({ type: Boolean })
   public expanded = false;
 
+  @property({ type: Boolean })
+  public resizable = true;
+
   #sidebarRef: Ref<AiSidebarComponent> = createRef();
   #modalRef: Ref<AiModalComponent> = createRef();
 
@@ -75,6 +78,7 @@ export class AiSidebarChatComponent extends LitElement {
           <forge-ai-sidebar
             ${ref(this.#sidebarRef)}
             ?open=${this.open && !this.expanded}
+            ?resizable=${this.resizable}
             @forge-ai-sidebar-open=${this.#handleSidebarOpen}
             @forge-ai-sidebar-close=${this.#handleSidebarClose}>
             ${this.#slotContent}

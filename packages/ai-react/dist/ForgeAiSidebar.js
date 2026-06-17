@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiSidebar = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, ...filteredProps } = props;
+  const { open, resizable, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(ref, "forge-ai-sidebar-open", props.onForgeAiSidebarOpen);
@@ -28,6 +28,7 @@ export const ForgeAiSidebar = forwardRef((props, forwardedRef) => {
       part: props.part,
       tabindex: props.tabIndex,
       open: props.open ? true : undefined,
+      resizable: props.resizable ? true : undefined,
       style: { ...props.style },
     },
     props.children,
