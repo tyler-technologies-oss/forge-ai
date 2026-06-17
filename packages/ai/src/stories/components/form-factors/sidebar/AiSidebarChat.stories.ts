@@ -62,6 +62,10 @@ const meta = {
       control: { type: 'boolean' },
       description: 'Controls whether the chat is displayed in an expanded modal state'
     },
+    resizable: {
+      control: { type: 'boolean' },
+      description: 'Enables sidebar resizing'
+    },
     fileUpload: {
       control: { type: 'select' },
       options: ['on', 'off'],
@@ -75,6 +79,7 @@ const meta = {
   args: {
     open: true,
     expanded: false,
+    resizable: true,
     fileUpload: 'off',
     placeholder: 'Ask a question...'
   },
@@ -113,6 +118,7 @@ const meta = {
       <forge-ai-sidebar-chat
         ?open=${args.open}
         ?expanded=${args.expanded}
+        ?resizable=${args.resizable}
         @forge-ai-sidebar-chat-open=${action('forge-ai-sidebar-chat-open')}
         @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}
         @forge-ai-sidebar-chat-expand=${handleExpand}
@@ -221,6 +227,7 @@ export const WithDisclaimer: Story = {
       <forge-ai-sidebar-chat
         ?open=${args.open}
         ?expanded=${args.expanded}
+        ?resizable=${args.resizable}
         @forge-ai-sidebar-chat-open=${action('forge-ai-sidebar-chat-open')}
         @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}
         @forge-ai-sidebar-chat-expand=${handleExpand}
@@ -357,6 +364,7 @@ export const WithConversationHistory: Story = {
       <forge-ai-sidebar-chat
         ?open=${args.open}
         ?expanded=${args.expanded}
+        ?resizable=${args.resizable}
         @forge-ai-sidebar-chat-open=${action('forge-ai-sidebar-chat-open')}
         @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}
         @forge-ai-sidebar-chat-expand=${handleExpand}

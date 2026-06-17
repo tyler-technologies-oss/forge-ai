@@ -51,11 +51,16 @@ const meta = {
     expanded: {
       control: { type: 'boolean' },
       description: 'Controls whether the sidebar is displayed in an expanded state'
+    },
+    resizable: {
+      control: { type: 'boolean' },
+      description: 'Enables sidebar resizing'
     }
   },
   args: {
     open: false,
-    expanded: false
+    expanded: false,
+    resizable: true
   },
   render: args => {
     const handleOpen = action('forge-ai-sidebar-open');
@@ -98,6 +103,7 @@ const meta = {
         <forge-ai-sidebar
           slot="body-right"
           ?open=${args.open}
+          ?resizable=${args.resizable}
           @forge-ai-sidebar-open=${handleOpen}
           @forge-ai-sidebar-close=${handleClose}>
           <forge-ai-chat-interface>

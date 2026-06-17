@@ -1,4 +1,7 @@
 @use '@tylertech/forge/dist/drawer/forge-drawer';
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 
 :host {
   display: block;
@@ -8,7 +11,7 @@
 }
 
 .animation-container {
-  --forge-drawer-width: 420px; /* Default value, can be overridden */
+  --forge-drawer-width: 420px;
   width: var(--forge-drawer-width);
   height: 100%;
   position: relative;
@@ -26,6 +29,10 @@
   &--open {
     width: var(--forge-drawer-width);
   }
+
+  &--resizing {
+    transition: none;
+  }
 }
 
 .forge-drawer {
@@ -37,4 +44,58 @@
   position: absolute;
   top: 0;
   right: 0;
+
+  &--resizing {
+    user-select: none;
+    transition: none;
+  }
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 10;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: #{forge-theme.variable(outline)};
+    opacity: 0;
+    transition: all #{forge-animation.variable(duration-short4)} #{forge-animation.variable(easing-standard)};
+  }
+
+  &:hover::before {
+    opacity: 0.4;
+    width: 2px;
+    background-color: #{forge-theme.variable(primary)};
+  }
+
+  &:focus-visible {
+    outline: 2px solid #{forge-theme.variable(primary)};
+    outline-offset: -2px;
+
+    &::before {
+      opacity: 0.6;
+      width: 2px;
+      background-color: #{forge-theme.variable(primary)};
+    }
+  }
+
+  &--active::before {
+    opacity: 0.8;
+    width: 3px;
+    background-color: #{forge-theme.variable(primary)};
+  }
+}
+
+:host([resizable='false']) .resize-handle {
+  display: none;
 }

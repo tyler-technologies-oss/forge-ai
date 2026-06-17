@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiSidebarChat = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, expanded, ...filteredProps } = props;
+  const { open, expanded, resizable, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -47,6 +47,7 @@ export const ForgeAiSidebarChat = forwardRef((props, forwardedRef) => {
       tabindex: props.tabIndex,
       open: props.open ? true : undefined,
       expanded: props.expanded ? true : undefined,
+      resizable: props.resizable ? true : undefined,
       style: { ...props.style },
     },
     props.children,
