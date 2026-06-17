@@ -131,11 +131,23 @@ $_max-content-width: 768px;
   &__text {
     @include forge-typography.style(body2);
 
+    display: block;
     margin-inline-start: #{forge-spacing.variable(xxsmall)};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
+  }
+
+  &__button {
+    @include forge-typography.style(body2);
+
+    --forge-focus-indicator-outward-offset: 0px;
+
+    display: block;
+    padding-inline: #{forge-spacing.variable(xxxsmall)};
+    min-width: 0;
+    color: #{forge-theme.variable(text-medium)};
   }
 }
 
