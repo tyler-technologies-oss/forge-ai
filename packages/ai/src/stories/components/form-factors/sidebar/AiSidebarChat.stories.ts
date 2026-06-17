@@ -15,6 +15,7 @@ import {
 import '$lib/ai-sidebar-chat';
 import '$lib/ai-button';
 import '$lib/ai-disclaimer';
+import '$lib/ai-chatbot';
 import type { Thread } from '$lib/ai-threads';
 import type { AgentInfo } from '$lib/ai-agent-info';
 import { MockAdapter } from '../../../utils/mock-adapter';
