@@ -38,6 +38,8 @@ export const AiThreadActionsMenuComponentTagName: keyof HTMLElementTagNameMap = 
 /**
  * @tag forge-ai-thread-actions-menu
  *
+ * @slot trigger-icon - Slot for custom trigger icon (default: three-dot menu icon)
+ *
  * @event {CustomEvent<ForgeAiThreadActionsMenuRenameEventData>} forge-ai-thread-actions-menu-rename - Fired when rename menu item is clicked.
  * @event {CustomEvent<ForgeAiThreadActionsMenuDeleteClickEventData>} forge-ai-thread-actions-menu-delete-click - Fired when delete menu item is clicked. Parent should show confirmation modal.
  * @event {CustomEvent<ForgeAiThreadActionsMenuOpenEventData>} forge-ai-thread-actions-menu-open - Fired when the dropdown menu is opened.
@@ -118,10 +120,12 @@ export class AiThreadActionsMenuComponent extends LitElement {
         @forge-ai-dropdown-menu-open=${this.#handleMenuOpen}
         @forge-ai-dropdown-menu-close=${this.#handleMenuClose}
         @click=${this.#handleMenuSelect}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="trigger-content" class="forge-icon">
-          <path
-            d="M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2" />
-        </svg>
+        <slot name="trigger-icon" slot="trigger-content">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+            <path
+              d="M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2" />
+          </svg>
+        </slot>
 
         ${when(
           this.showRename,

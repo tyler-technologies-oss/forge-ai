@@ -81,5 +81,8 @@ export interface ForgeAiThreadActionsMenuProps extends Pick<
  * - **forge-ai-thread-actions-menu-delete-click** - Fired when delete menu item is clicked. Parent should show confirmation modal.
  * - **forge-ai-thread-actions-menu-open** - Fired when the dropdown menu is opened.
  * - **forge-ai-thread-actions-menu-close** - Fired when the dropdown menu is closed.
+ *
+ * ### **Slots:**
+ *  - **trigger-icon** - Slot for custom trigger icon (default: three-dot menu icon)
  */
 export const ForgeAiThreadActionsMenu: React.ForwardRefExoticComponent<ForgeAiThreadActionsMenuProps>;
