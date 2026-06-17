@@ -9,9 +9,12 @@ import type { AiPromptComponent, ForgeAiPromptSendEventData } from '../ai-prompt
 import type { ForgeAiSuggestionsEventData } from '../ai-suggestions';
 import { AiChatbotBase } from '../ai-chatbot/ai-chatbot-base.js';
 import type { ChatMessage, ThreadState } from '../ai-chatbot/types.js';
+import { DeleteThreadController } from '../utils/delete-thread-controller';
+import type { Thread } from '../ai-threads/ai-threads';
 
 import '../ai-attachment';
 import '../ai-chat-header';
+import '../ai-edit-thread';
 import '../ai-file-picker';
 import '../ai-icon';
 import '../ai-message-thread';
@@ -19,10 +22,27 @@ import '../ai-prompt';
 import '../ai-suggestions';
 import '../ai-voice-input';
 import '../ai-gradient-container';
+import '../ai-thread-actions-menu';
+import '../core/tooltip';
 
 import styles from './ai-chatbot-launcher.scss?inline';
 
 export type LauncherViewState = 'welcome' | 'conversation';
+
+export interface ForgeAiChatbotLauncherThreadRenameEventData {
+  id: string;
+  oldTitle: string;
+  newTitle: string;
+  onSuccess: () => void;
+  onError: (error?: string) => void;
+}
+
+export interface ForgeAiChatbotLauncherThreadDeleteEventData {
+  id: string;
+  thread: Thread;
+  onSuccess: () => void;
+  onError: (error?: string) => void;
+}
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -31,6 +51,8 @@ declare global {
 
   interface HTMLElementEventMap {
     'forge-ai-chatbot-launcher-conversation-start': CustomEvent<void>;
+    'forge-ai-chatbot-launcher-thread-rename': CustomEvent<ForgeAiChatbotLauncherThreadRenameEventData>;
+    'forge-ai-chatbot-launcher-thread-delete': CustomEvent<ForgeAiChatbotLauncherThreadDeleteEventData>;
   }
 }
 
@@ -58,6 +80,9 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @property {AgentInfo} agentInfo - Agent metadata for info dialog
  * @property {Agent[]} agents - List of available agents for selector
  * @property {string} selectedAgentId - Currently selected agent ID
+ * @property {string} threadName - The name of the current thread (shown in conversation view breadcrumb)
+ * @property {boolean} showThreadRename - Whether to show the rename option in thread actions menu
+ * @property {boolean} showThreadDelete - Whether to show the delete option in thread actions menu
  *
  * @cssproperty --forge-ai-chatbot-launcher-icon-color - The fill color for the AI icon.
  *
@@ -70,6 +95,8 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @event {CustomEvent<ForgeAiChatbotResponseFeedbackEventData>} forge-ai-chatbot-response-feedback - Fired when user provides feedback on a response
  * @event {CustomEvent<void>} forge-ai-chatbot-info - Fired when header info option is selected
  * @event {CustomEvent<ForgeAiChatbotAgentChangeEventData>} forge-ai-chatbot-agent-change - Fired when agent selection changes
+ * @event {CustomEvent<ForgeAiChatbotLauncherThreadRenameEventData>} forge-ai-chatbot-launcher-thread-rename - Fired when thread rename is saved. Parent should update threadName property and call onSuccess() or onError()
+ * @event {CustomEvent<ForgeAiChatbotLauncherThreadDeleteEventData>} forge-ai-chatbot-launcher-thread-delete - Fired when thread deletion is confirmed. Parent should delete thread and call onSuccess() or onError()
  */
 @customElement(AiChatbotLauncherComponentTagName)
 export class AiChatbotLauncherComponent extends AiChatbotBase {
@@ -80,16 +107,57 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   @property({ attribute: 'description-text' })
   public descriptionText?: string;
 
+  @property({ attribute: 'thread-name' })
+  public threadName?: string;
+
+  @property({ type: Boolean, attribute: 'show-thread-rename' })
+  public showThreadRename = false;
+
+  @property({ type: Boolean, attribute: 'show-thread-delete' })
+  public showThreadDelete = false;
+
   @state()
   private _viewState: LauncherViewState = 'welcome';
 
   @state()
   private _skipAnimation = false;
 
+  @state()
+  private _editingThreadId: string | null = null;
+
   protected override _messageThreadRef = createRef<AiMessageThreadComponent>();
   protected override _promptRef = createRef<AiPromptComponent>();
   #headerRef = createRef<AiChatHeaderComponent>();
   #internals!: ElementInternals;
+
+  #deleteThreadController = new DeleteThreadController(this, {
+    onConfirm: thread => {
+      const onSuccess = (): void => {
+        // Thread deleted successfully
+      };
+
+      const onError = (error?: string): void => {
+        if (error) {
+          console.error('Delete failed:', error);
+        }
+      };
+
+      const event = this._dispatchHostEvent({
+        type: 'forge-ai-chatbot-launcher-thread-delete',
+        detail: {
+          id: thread.id,
+          thread,
+          onSuccess,
+          onError
+        },
+        cancelable: true
+      });
+
+      if (!event.defaultPrevented) {
+        this.clearMessages();
+      }
+    }
+  });
 
   constructor() {
     super();
@@ -153,6 +221,56 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
   #handleHeaderInfo(): void {
     this._handleInfo();
+  }
+
+  #handleThreadRename(evt: CustomEvent<{ id: string }>): void {
+    this._editingThreadId = evt.detail.id;
+  }
+
+  #handleEditSave(evt: CustomEvent<{ id: string; oldTitle: string; newTitle: string }>): void {
+    const { id, oldTitle, newTitle } = evt.detail;
+
+    const onSuccess = (): void => {
+      this._editingThreadId = null;
+    };
+
+    const onError = (): void => {
+      this._editingThreadId = null;
+    };
+
+    const event = this._dispatchHostEvent({
+      type: 'forge-ai-chatbot-launcher-thread-rename',
+      detail: {
+        id,
+        oldTitle,
+        newTitle,
+        onSuccess,
+        onError
+      },
+      cancelable: true
+    });
+
+    if (!event.defaultPrevented) {
+      this._editingThreadId = null;
+    }
+  }
+
+  #handleEditCancel(): void {
+    this._editingThreadId = null;
+  }
+
+  #handleThreadNameClick(): void {
+    const threadId = this.agentInfo?.threadId || '';
+    this._editingThreadId = threadId;
+  }
+
+  #handleThreadDelete(): void {
+    const thread: Thread = {
+      id: this.agentInfo?.threadId || '',
+      title: this.threadName || '',
+      createdAt: new Date().toISOString()
+    };
+    this.#deleteThreadController.show(thread);
   }
 
   protected override async _handleSend(evt: CustomEvent<ForgeAiPromptSendEventData>): Promise<void> {
@@ -305,6 +423,70 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     `;
   }
 
+  get #threadName(): TemplateResult {
+    const showActions = this.showThreadRename || this.showThreadDelete;
+    const threadId = this.agentInfo?.threadId || '';
+    const isEditing = this._editingThreadId === threadId;
+
+    return html`
+      <div class="thread-name" slot="thread-name">
+        <div class="thread-name__separator">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+            <path d="m7 21 7.9-18H17L9.1 21z" />
+          </svg>
+        </div>
+        ${when(
+          isEditing,
+          () => html`
+            <forge-ai-edit-thread
+              .thread=${{
+                id: threadId,
+                title: this.threadName || '',
+                createdAt: new Date().toISOString()
+              }}
+              .value=${this.threadName || ''}
+              @forge-ai-edit-thread-save=${this.#handleEditSave}
+              @forge-ai-edit-thread-cancel=${this.#handleEditCancel}>
+            </forge-ai-edit-thread>
+          `,
+          () => html`
+            <button
+              class="forge-button forge-button--dense thread-name__button"
+              id="thread-name-button"
+              aria-label="Edit thread name: ${this.threadName}"
+              @click=${this.#handleThreadNameClick}>
+              <span class="thread-name__text">${this.threadName}</span>
+            </button>
+            <forge-ai-tooltip for="thread-name-button" placement="bottom">${this.threadName}</forge-ai-tooltip>
+            ${when(showActions, () => this.#threadActionsMenu)}
+          `
+        )}
+      </div>
+    `;
+  }
+
+  get #threadActionsMenu(): TemplateResult {
+    const thread = {
+      id: this.agentInfo?.threadId || '',
+      title: this.threadName || '',
+      createdAt: new Date().toISOString()
+    };
+
+    return html`
+      <forge-ai-thread-actions-menu
+        .thread=${thread}
+        ?show-rename=${this.showThreadRename}
+        ?show-delete=${this.showThreadDelete}
+        @forge-ai-thread-actions-menu-rename=${this.#handleThreadRename}
+        @forge-ai-thread-actions-menu-delete-click=${this.#handleThreadDelete}>
+        <svg slot="trigger-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+          <path fill="none" d="M0 0h24v24H0z" />
+          <path d="m7 10 5 5 5-5z" />
+        </svg>
+      </forge-ai-thread-actions-menu>
+    `;
+  }
+
   get #conversationContentTemplate(): TemplateResult {
     return html`
       <div class="conversation">
@@ -326,6 +508,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
             <forge-ai-icon></forge-ai-icon>
           </slot>
           <slot name="header-actions" slot="header-actions"></slot>
+          ${when(this.threadName, () => this.#threadName)}
         </forge-ai-chat-header>
         <forge-ai-message-thread
           ${ref(this._messageThreadRef)}
@@ -368,6 +551,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
         ${this._viewState === 'welcome' ? this.#welcomeHeaderTemplate : this.#conversationContentTemplate}
         ${this.#promptSectionTemplate} ${this._viewState === 'welcome' ? this.#welcomeSuggestionsTemplate : nothing}
       </div>
+      ${this.#deleteThreadController.template}
     `;
   }
 }

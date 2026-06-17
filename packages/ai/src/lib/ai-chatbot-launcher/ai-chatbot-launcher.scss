@@ -4,6 +4,8 @@
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
+@use '@tylertech/forge/dist/icon/forge-icon';
+@use '@tylertech/forge/dist/button/forge-button';
 
 $_max-content-width: 768px;
 
@@ -106,6 +108,47 @@ $_max-content-width: 768px;
   flex: 1;
   min-height: 0;
   animation: fade-in #{forge-animation.variable(duration-medium2)} #{forge-animation.variable(easing-decelerate)};
+}
+
+.thread-name {
+  margin-inline-start: -8px;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+  max-width: 300px;
+
+  &__separator {
+    --forge-icon-font-size: 1.125rem;
+    display: flex;
+    margin-inline-end: #{forge-spacing.variable(xxxsmall)};
+
+    .forge-icon {
+      fill: #{forge-theme.variable(text-low)};
+    }
+  }
+
+  &__text {
+    @include forge-typography.style(body2);
+
+    display: block;
+    margin-inline-start: #{forge-spacing.variable(xxsmall)};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  &__button {
+    @include forge-typography.style(body2);
+
+    --forge-focus-indicator-outward-offset: 0px;
+
+    display: block;
+    padding-inline: #{forge-spacing.variable(xxxsmall)};
+    min-width: 0;
+    color: #{forge-theme.variable(text-medium)};
+  }
 }
 
 .session-files {
@@ -214,4 +257,37 @@ $_max-content-width: 768px;
   .prompt-section {
     animation: none;
   }
+}
+
+forge-ai-modal {
+  --forge-ai-modal-width: fit-content;
+  --forge-ai-modal-height: fit-content;
+}
+
+.delete-confirmation {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(medium)};
+  padding: #{forge-spacing.variable(medium)};
+  max-width: 90vw;
+
+  &__title {
+    @include forge-typography.style(heading4);
+    margin: 0;
+  }
+
+  &__text {
+    @include forge-typography.style(body1);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: #{forge-spacing.variable(small)};
+  }
+}
+
+forge-ai-edit-thread {
+  flex: 1;
+  min-width: 0;
 }

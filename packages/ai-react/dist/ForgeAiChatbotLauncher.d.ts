@@ -18,6 +18,12 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
+  /** Whether to show the rename option in thread actions menu */
+  showThreadRename?: boolean;
+
+  /** Whether to show the delete option in thread actions menu */
+  showThreadDelete?: boolean;
+
   /** undefined */
   enableReactions?: boolean;
 
@@ -26,6 +32,9 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
 
   /** The description text displayed below the title in the welcome view. */
   descriptionText?: ForgeAiChatbotLauncherElement["descriptionText"];
+
+  /** The name of the current thread (shown in conversation view breadcrumb) */
+  threadName?: ForgeAiChatbotLauncherElement["threadName"];
 
   /** undefined */
   fileUpload?: ForgeAiChatbotLauncherElement["fileUpload"];
@@ -118,6 +127,20 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   onForgeAiChatbotAgentChange?: (
     event: CustomEvent<CustomEvent<ForgeAiChatbotAgentChangeEventData>>,
   ) => void;
+
+  /** Fired when thread rename is saved. Parent should update threadName property and call onSuccess() or onError() */
+  onForgeAiChatbotLauncherThreadRename?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotLauncherThreadRenameEventData>
+    >,
+  ) => void;
+
+  /** Fired when thread deletion is confirmed. Parent should delete thread and call onSuccess() or onError() */
+  onForgeAiChatbotLauncherThreadDelete?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotLauncherThreadDeleteEventData>
+    >,
+  ) => void;
 }
 
 /**
@@ -135,6 +158,8 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
  * - **forge-ai-chatbot-response-feedback** - Fired when user provides feedback on a response
  * - **forge-ai-chatbot-info** - Fired when header info option is selected
  * - **forge-ai-chatbot-agent-change** - Fired when agent selection changes
+ * - **forge-ai-chatbot-launcher-thread-rename** - Fired when thread rename is saved. Parent should update threadName property and call onSuccess() or onError()
+ * - **forge-ai-chatbot-launcher-thread-delete** - Fired when thread deletion is confirmed. Parent should delete thread and call onSuccess() or onError()
  *
  * ### **Methods:**
  *  - **clearMessages(): _boolean_** - Clears all messages from the chat.

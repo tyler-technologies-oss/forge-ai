@@ -122,5 +122,6 @@ export interface ForgeAiChatHeaderProps extends Pick<
  * ### **Slots:**
  *  - **icon** - Slot for custom icon (default: forge-ai-icon)
  * - **header-actions** - Slot for custom header action buttons (rendered before built-in header actions)
+ * - **thread-name** - Slot for content to be rendered after the title
  */
 export const ForgeAiChatHeader: React.ForwardRefExoticComponent<ForgeAiChatHeaderProps>;

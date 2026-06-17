@@ -42,6 +42,10 @@
   @include forge-list-item.dense;
   @include forge-state-layer.standalone;
 
+  margin: #{forge-spacing.variable(xxxsmall)} #{forge-spacing.variable(xxsmall)};
+  padding: 0 #{forge-spacing.variable(xsmall)};
+  border-radius: #{forge-shape.variable(medium)};
+  font-size: 0.875rem;
   cursor: pointer;
 
   ::slotted([slot='start']),

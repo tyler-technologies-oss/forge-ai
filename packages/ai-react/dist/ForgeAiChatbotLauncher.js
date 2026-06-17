@@ -5,9 +5,12 @@ import { useEventListener, useProperties } from "./react-utils.js";
 export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
   const {
+    showThreadRename,
+    showThreadDelete,
     enableReactions,
     debugMode,
     descriptionText,
+    threadName,
     fileUpload,
     voiceInput,
     placeholder,
@@ -59,6 +62,16 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
     "forge-ai-chatbot-agent-change",
     props.onForgeAiChatbotAgentChange,
   );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-thread-rename",
+    props.onForgeAiChatbotLauncherThreadRename,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-thread-delete",
+    props.onForgeAiChatbotLauncherThreadDelete,
+  );
 
   /** Properties - run whenever a property has changed */
   useProperties(ref, "agentInfo", props.agentInfo);
@@ -77,6 +90,7 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       },
       ...filteredProps,
       "description-text": props.descriptionText || props["description-text"],
+      "thread-name": props.threadName || props["thread-name"],
       "file-upload": props.fileUpload || props["file-upload"],
       "voice-input": props.voiceInput || props["voice-input"],
       placeholder: props.placeholder,
@@ -90,6 +104,8 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
+      "show-thread-rename": props.showThreadRename ? true : undefined,
+      "show-thread-delete": props.showThreadDelete ? true : undefined,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,
       style: { ...props.style },

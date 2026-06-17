@@ -66,6 +66,7 @@ export interface AgentInfo {
  *
  * @slot icon - Slot for custom icon (default: forge-ai-icon)
  * @slot header-actions - Slot for custom header action buttons (rendered before built-in header actions)
+ * @slot thread-name - Slot for content to be rendered after the title
  *
  * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
@@ -226,6 +227,7 @@ export class AiChatHeaderComponent extends LitElement {
             `
           )}
           ${this.#titleElement}
+          <slot name="thread-name"></slot>
         </div>
         <div class="end">
           <slot name="header-actions"></slot>

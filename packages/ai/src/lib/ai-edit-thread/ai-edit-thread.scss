@@ -19,6 +19,7 @@
     flex: 1;
     min-width: 0;
     box-sizing: border-box;
+    padding-inline: #{forge-spacing.variable(xsmall)};
     --forge-field-height: 24px;
   }
 

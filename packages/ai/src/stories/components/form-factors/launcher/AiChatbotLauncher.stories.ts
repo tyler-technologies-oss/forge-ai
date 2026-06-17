@@ -44,6 +44,18 @@ const meta = {
     disclaimerText: {
       control: 'text',
       description: 'Disclaimer text displayed below the prompt'
+    },
+    threadName: {
+      control: 'text',
+      description: 'Thread name displayed in conversation view breadcrumb'
+    },
+    showThreadRename: {
+      control: 'boolean',
+      description: 'Show rename option in thread actions menu'
+    },
+    showThreadDelete: {
+      control: 'boolean',
+      description: 'Show delete option in thread actions menu'
     }
   },
   args: {
@@ -107,6 +119,67 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {};
+
+export const WithThreadName: Story = {
+  args: {
+    threadName: 'Discussion about project requirements and timeline',
+    showThreadRename: true,
+    showThreadDelete: true
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const onThreadRename = action('forge-ai-chatbot-launcher-thread-rename');
+    const onThreadDelete = action('forge-ai-chatbot-launcher-thread-delete');
+
+    const agentInfo = {
+      threadId: 'thread-12345'
+    };
+
+    return html`
+      <div
+        style="width: 100%; height: 600px; max-width: 900px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+        <forge-ai-chatbot-launcher
+          .adapter=${adapter}
+          .agentInfo=${agentInfo}
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          .disclaimerText=${args.disclaimerText}
+          thread-name=${args.threadName}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
+          @forge-ai-chatbot-launcher-thread-rename=${(evt: CustomEvent) => {
+            onThreadRename(evt.detail);
+            const launcher = evt.target as any;
+            launcher.threadName = evt.detail.newTitle;
+            setTimeout(() => {
+              action('onSuccess')('Rename succeeded');
+              evt.detail.onSuccess();
+            }, 500);
+          }}
+          @forge-ai-chatbot-launcher-thread-delete=${(evt: CustomEvent) => {
+            onThreadDelete(evt.detail);
+            const launcher = evt.target as any;
+            launcher.threadName = '';
+            setTimeout(() => {
+              action('onSuccess')('Delete succeeded');
+              evt.detail.onSuccess();
+            }, 500);
+          }}
+          @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
+        </forge-ai-chatbot-launcher>
+      </div>
+    `;
+  }
+};
 
 export const WithSuggestions: Story = {
   render: (args: any) => {
