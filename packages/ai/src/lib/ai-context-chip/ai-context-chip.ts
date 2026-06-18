@@ -1,5 +1,5 @@
-import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { LitElement, PropertyValues, TemplateResult, html, nothing, unsafeCSS } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 
 import '../core/tooltip/tooltip.js';
@@ -30,7 +30,7 @@ export const AiContextChipComponentTagName: keyof HTMLElementTagNameMap = 'forge
  *
  * @description
  * A component for displaying context metadata in AI chat interfaces. Shows context information
- * with optional icon, label text, and optional tooltip description.
+ * with optional icon, label text, and tooltip on overflow.
  *
  * @event {CustomEvent<ForgeAiContextChipRemoveEventData>} forge-ai-context-chip-remove - Fired when the remove button is clicked
  *
@@ -49,9 +49,6 @@ export class AiContextChipComponent extends LitElement {
   @property()
   public label = '';
 
-  @property()
-  public description?: string;
-
   @property({ type: Boolean })
   public removable = true;
 
@@ -64,8 +61,35 @@ export class AiContextChipComponent extends LitElement {
   @property()
   public type?: 'file' | 'context';
 
+  @state() private _isLabelOverflowing = false;
+
   get #chipId(): string {
     return `context-chip-${this.id}`;
+  }
+
+  #checkLabelOverflow(): void {
+    requestAnimationFrame(() => {
+      const labelElement = this.shadowRoot?.querySelector('.context-content') as HTMLElement;
+      if (labelElement) {
+        const isOverflowing = labelElement.scrollWidth > labelElement.offsetWidth;
+        if (this._isLabelOverflowing !== isOverflowing) {
+          this._isLabelOverflowing = isOverflowing;
+        }
+      }
+    });
+  }
+
+  // eslint-disable-next-line @tylertech-eslint/require-private-modifier
+  protected override firstUpdated(): void {
+    this.#checkLabelOverflow();
+  }
+
+  // eslint-disable-next-line @tylertech-eslint/require-private-modifier
+  protected override updated(changedProperties: PropertyValues): void {
+    super.updated(changedProperties);
+    if (changedProperties.has('label')) {
+      this.#checkLabelOverflow();
+    }
   }
 
   #handleRemove(): void {
@@ -76,7 +100,6 @@ export class AiContextChipComponent extends LitElement {
           item: {
             id: this.id,
             label: this.label,
-            description: this.description,
             removable: this.removable,
             sublabel: this.sublabel,
             loading: this.loading,
@@ -129,9 +152,6 @@ export class AiContextChipComponent extends LitElement {
   `;
 
   public override render(): TemplateResult {
-    const tooltipContent = this.type === 'file' ? this.label : this.description;
-    const hasTooltip = !!tooltipContent;
-
     return html`
       <div
         id=${this.#chipId}
@@ -149,8 +169,8 @@ export class AiContextChipComponent extends LitElement {
         ${this.#removeButton}
       </div>
       ${when(
-        hasTooltip,
-        () => html`<forge-ai-tooltip for=${this.#chipId} placement="top">${tooltipContent}</forge-ai-tooltip>`
+        this._isLabelOverflowing,
+        () => html`<forge-ai-tooltip for=${this.#chipId} placement="top">${this.label}</forge-ai-tooltip>`
       )}
     `;
   }

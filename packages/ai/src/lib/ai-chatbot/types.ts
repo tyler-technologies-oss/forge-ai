@@ -311,7 +311,6 @@ export interface ForgeAiChatbotConversationDeleteEventData {
 export interface ContextItem {
   id: string;
   label: string;
-  description?: string;
   removable?: boolean;
   sublabel?: string;
   loading?: boolean;

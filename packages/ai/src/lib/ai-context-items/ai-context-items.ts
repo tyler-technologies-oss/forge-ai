@@ -42,7 +42,6 @@ export class AiContextItemsComponent extends LitElement {
             .id=${item.id}
             .label=${item.label}
             .sublabel=${item.sublabel}
-            .description=${item.description}
             .type=${item.type}
             ?loading=${item.loading ?? false}
             ?removable=${item.removable ?? true}

@@ -245,13 +245,11 @@ export const WithContextItems: Story = {
       {
         id: '1',
         label: 'Customer ID: 12345',
-        description: 'Currently viewing customer record',
         removable: false
       },
       {
         id: '2',
-        label: 'Project: Phoenix',
-        description: 'Active project context'
+        label: 'Project: Phoenix'
       },
       {
         id: '3',
