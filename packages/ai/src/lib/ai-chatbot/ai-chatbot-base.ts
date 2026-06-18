@@ -1,4 +1,4 @@
-import { html, nothing, LitElement, type PropertyValues, type TemplateResult } from 'lit';
+import { LitElement, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import type { Ref } from 'lit/directives/ref.js';
 import type { AgentInfo } from '../ai-agent-info';
@@ -14,6 +14,7 @@ import { ChatbotCoreController } from '../core/chatbot-core-controller.js';
 import type {
   Agent,
   ChatMessage,
+  ContextItem,
   HeadingLevel,
   MessageItem,
   SlashCommand,
@@ -22,7 +23,7 @@ import type {
   ToolCall,
   ToolDefinition
 } from './types.js';
-import { downloadFile, generateId } from './utils.js';
+import { downloadFile, generateId, fileAttachmentsToContextItems } from './utils.js';
 import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
 
 export type FeatureToggle = 'on' | 'off';
@@ -73,6 +74,9 @@ export abstract class AiChatbotBase extends LitElement {
   @property({ attribute: 'selected-agent-id' })
   public selectedAgentId?: string;
 
+  @property({ attribute: false })
+  public contextItems: ContextItem[] = [];
+
   protected _coreController!: ChatbotCoreController;
 
   protected get _isStreaming(): boolean {
@@ -93,6 +97,16 @@ export abstract class AiChatbotBase extends LitElement {
 
   protected get _hasMessages(): boolean {
     return this._coreController?.hasMessages ?? false;
+  }
+
+  protected get _allContextItems(): ContextItem[] {
+    return [
+      ...this.contextItems,
+      ...fileAttachmentsToContextItems(
+        this._coreController?.completedAttachments ?? [],
+        this._coreController?.pendingAttachments ?? []
+      )
+    ];
   }
 
   public override connectedCallback(): void {
@@ -214,31 +228,56 @@ export abstract class AiChatbotBase extends LitElement {
     }
   }
 
-  protected get _sessionFilesTemplate(): TemplateResult | typeof nothing {
-    const completed = this._coreController?.completedAttachments ?? [];
-    const uploading = this._coreController?.pendingAttachments ?? [];
-    const allFiles = [...uploading, ...completed];
+  protected _handleContextChipRemove(evt: CustomEvent<{ id: string; item: ContextItem }>): void {
+    const { id, item } = evt.detail;
 
-    if (allFiles.length === 0) {
-      return nothing;
+    const hostEvent = this._dispatchHostEvent({
+      type: 'forge-ai-chatbot-context-remove',
+      detail: { id, item },
+      cancelable: true
+    });
+
+    if (!hostEvent.defaultPrevented) {
+      this.contextItems = this.contextItems.filter(i => i.id !== id);
+    }
+  }
+
+  protected _handlePromptContextRemove(evt: CustomEvent<{ id: string; item: ContextItem }>): void {
+    const { id, item } = evt.detail;
+
+    if (item.type === 'file') {
+      const hostEvent = this._dispatchHostEvent({
+        type: 'forge-ai-chatbot-context-remove',
+        detail: { id, item },
+        cancelable: true
+      });
+
+      if (hostEvent.defaultPrevented) {
+        return;
+      }
+
+      const pendingFile = this._coreController?.pendingAttachments.find(a => a.id === id);
+      if (pendingFile) {
+        this._handleAttachmentRemove(
+          new CustomEvent('forge-ai-attachment-remove', {
+            detail: { filename: pendingFile.filename }
+          }) as CustomEvent<{ filename: string }>
+        );
+        return;
+      }
+
+      const completedFile = this._coreController?.completedAttachments.find(a => a.id === id);
+      if (completedFile) {
+        this._handleAttachmentRemove(
+          new CustomEvent('forge-ai-attachment-remove', {
+            detail: { filename: completedFile.filename }
+          }) as CustomEvent<{ filename: string }>
+        );
+      }
+      return;
     }
 
-    return html`
-      <div class="session-files-header">Session Files (${allFiles.length})</div>
-      <div class="session-files-list">
-        ${allFiles.map(
-          attachment => html`
-            <forge-ai-attachment
-              .filename=${attachment.filename}
-              .size=${attachment.size}
-              ?uploading=${attachment.uploading ?? false}
-              removable
-              @forge-ai-attachment-remove=${this._handleAttachmentRemove}>
-            </forge-ai-attachment>
-          `
-        )}
-      </div>
-    `;
+    this._handleContextChipRemove(evt);
   }
 
   protected async _handleSend(evt: CustomEvent<ForgeAiPromptSendEventData>): Promise<void> {

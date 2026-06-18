@@ -2,12 +2,13 @@ import { LitElement, PropertyValues, TemplateResult, html, unsafeCSS, nothing } 
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { toggleState } from '../utils';
-import type { SlashCommand, ForgeAiSlashCommandMenuSelectEventData } from '../ai-chatbot/types.js';
+import type { SlashCommand, ForgeAiSlashCommandMenuSelectEventData, ContextItem } from '../ai-chatbot/types.js';
 
 import styles from './ai-prompt.scss?inline';
 
 import '../ai-slash-command-menu/ai-slash-command-menu.js';
 import '../core/tooltip/tooltip.js';
+import '../ai-context-items';
 
 const MAX_HISTORY_SIZE = 50;
 
@@ -23,6 +24,7 @@ declare global {
     'forge-ai-prompt-stop': CustomEvent<void>;
     'forge-ai-prompt-debug-toggle': CustomEvent<void>;
     'forge-ai-prompt-command': CustomEvent<ForgeAiPromptCommandEventData>;
+    'forge-ai-prompt-context-remove': CustomEvent<{ id: string; item: ContextItem }>;
   }
 }
 
@@ -103,6 +105,10 @@ export class AiPromptComponent extends LitElement {
   /** Available slash commands */
   @property({ type: Array, attribute: false })
   public slashCommands: SlashCommand[] = [];
+
+  /** Context items to display above the input */
+  @property({ attribute: false })
+  public contextItems: ContextItem[] = [];
 
   @state()
   private _slashMenuOpen = false;
@@ -461,6 +467,29 @@ export class AiPromptComponent extends LitElement {
     this._slashMenuQuery = '';
   }
 
+  #handleContextItemRemove(evt: CustomEvent<{ id: string; item: ContextItem }>): void {
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-prompt-context-remove', {
+        detail: { id: evt.detail.id, item: evt.detail.item },
+        bubbles: true,
+        composed: true
+      })
+    );
+  }
+
+  get #contextItemsTemplate(): TemplateResult | typeof nothing {
+    if (this.contextItems.length === 0) {
+      return nothing;
+    }
+
+    return html`
+      <forge-ai-context-items
+        .items=${this.contextItems}
+        @forge-ai-context-items-remove=${this.#handleContextItemRemove}>
+      </forge-ai-context-items>
+    `;
+  }
+
   get #textArea(): TemplateResult {
     return html` <textarea
       id="chat-input"
@@ -550,6 +579,7 @@ export class AiPromptComponent extends LitElement {
         () => html`
           <div class="input-container">
             <div class="forge-card">
+              ${this.#contextItemsTemplate}
               <div class="forge-field">
                 ${this.#textArea} ${when(this.debugMode, () => html` ${this.#debugButton} `)}
               </div>
@@ -564,6 +594,7 @@ export class AiPromptComponent extends LitElement {
         () => html`
           <div class="input-container">
             <div class="forge-card">
+              ${this.#contextItemsTemplate}
               <div class="forge-field">
                 ${this.#actionsStartSlot} ${this.#textArea} ${when(this.debugMode, () => html` ${this.#debugButton} `)}
                 <div class="actions-end-container">${this.#actionsEndSlot} ${this.#sendButton}</div>

@@ -15,6 +15,8 @@ export * from './ai-chatbot-launcher';
 export * from './ai-copy-button';
 export * from './ai-confirmation-prompt';
 export * from './ai-conversations-panel';
+export * from './ai-context-chip';
+export * from './ai-context-items';
 export * from './ai-dialog';
 export * from './ai-disclaimer';
 export * from './ai-dropdown-menu';

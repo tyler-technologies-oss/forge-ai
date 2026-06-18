@@ -11,7 +11,7 @@ declare global {
 
 export const AiSpinnerComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-spinner';
 
-export type SpinnerSize = 'small' | 'medium' | 'large';
+export type SpinnerSize = 'extra-small' | 'small' | 'medium' | 'large';
 
 /**
  * @tag forge-ai-spinner

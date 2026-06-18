@@ -2,6 +2,7 @@ import { marked } from 'marked';
 import DOMPurify, { type Config } from 'dompurify';
 import remend from 'remend';
 import { v4 as uuidv4 } from 'uuid';
+import type { FileAttachment, ContextItem } from './types.js';
 
 const DOMPURIFY_CONFIG: Config = {
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
@@ -48,4 +49,41 @@ export function downloadFile(content: string, filename: string, mimeType = 'text
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+/**
+ * Converts file attachments to context items
+ */
+export function fileAttachmentsToContextItems(
+  completedAttachments: FileAttachment[],
+  pendingAttachments: FileAttachment[]
+): ContextItem[] {
+  const pending = pendingAttachments.map(file => ({
+    id: file.id,
+    label: file.filename,
+    sublabel: formatBytes(file.size),
+    loading: file.uploading ?? true,
+    removable: true,
+    type: 'file' as const
+  }));
+
+  const completed = completedAttachments.map(file => ({
+    id: file.id,
+    label: file.filename,
+    sublabel: formatBytes(file.size),
+    removable: true,
+    type: 'file' as const
+  }));
+
+  return [...pending, ...completed];
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) {
+    return '0 B';
+  }
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${Math.round((bytes / Math.pow(k, i)) * 100) / 100} ${sizes[i]}`;
 }

@@ -73,11 +73,17 @@ export interface ForgeAiPromptProps extends Pick<
   /** Available slash commands */
   slashCommands?: ForgeAiPromptElement["slashCommands"];
 
+  /** Context items to display above the input */
+  contextItems?: ForgeAiPromptElement["contextItems"];
+
   /** undefined */
   onInput?: (event: CustomEvent) => void;
 
   /** undefined */
   onForgeAiPromptCommand?: (event: CustomEvent) => void;
+
+  /** undefined */
+  onForgeAiPromptContextRemove?: (event: CustomEvent) => void;
 
   /** Fired when the send button is clicked or Enter is pressed (without Shift). Cancelable - if cancelled, running state is not set and input is not cleared. */
   onForgeAiPromptSend?: (
@@ -107,6 +113,7 @@ export interface ForgeAiPromptProps extends Pick<
  * ### **Events:**
  *  - **input**
  * - **forge-ai-prompt-command**
+ * - **forge-ai-prompt-context-remove**
  * - **forge-ai-prompt-send** - Fired when the send button is clicked or Enter is pressed (without Shift). Cancelable - if cancelled, running state is not set and input is not cleared.
  * - **forge-ai-prompt-cancel** - Fired when the Escape key is pressed (if cancelOnEscape is true).
  * - **forge-ai-prompt-attachment** - Fired when files are pasted into the textarea.

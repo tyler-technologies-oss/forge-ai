@@ -31,27 +31,6 @@ forge-ai-chat-interface {
   }
 }
 
-.session-files {
-  display: flex;
-  flex-direction: column;
-  gap: #{forge-spacing.variable(xsmall)};
-  min-width: 0;
-
-  .session-files-header {
-    @include forge-typography.style(label1, medium);
-    color: #{forge-theme.variable(text-medium)};
-  }
-
-  .session-files-list {
-    @include forge-scrollbar.base;
-
-    display: flex;
-    gap: #{forge-spacing.variable(small)};
-    overflow-x: auto;
-    padding-block-end: #{forge-spacing.variable(xsmall)};
-  }
-}
-
 .disclaimer {
   @include forge-typography.style(label1);
 
