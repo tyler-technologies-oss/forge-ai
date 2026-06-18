@@ -308,4 +308,18 @@ export interface ForgeAiChatbotConversationDeleteEventData {
   onError: (error?: string) => void;
 }
 
+export interface ContextItem {
+  id: string;
+  label: string;
+  removable?: boolean;
+  sublabel?: string;
+  loading?: boolean;
+  type?: 'file' | 'context';
+}
+
+export interface ForgeAiChatbotContextRemoveEventData {
+  id: string;
+  item: ContextItem;
+}
+
 export type { Thread };

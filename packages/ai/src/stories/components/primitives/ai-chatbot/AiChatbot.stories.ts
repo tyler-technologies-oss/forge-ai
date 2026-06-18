@@ -6,7 +6,7 @@ import '$lib/ai-chatbot';
 import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
 import '$lib/ai-voice-input';
-import { type ToolDefinition, type Suggestion, type ChatMessage, type ToolCall } from '$lib/ai-chatbot';
+import { type ToolDefinition, type Suggestion, type ChatMessage, type ToolCall, ContextItem } from '$lib/ai-chatbot';
 import type { AgentInfo } from '$lib/ai-agent-info';
 import { displayDataTableTool } from '$lib/tools';
 import { MockAdapter } from '../../../utils/mock-adapter';
@@ -79,6 +79,14 @@ const meta = {
     disclaimerText: {
       control: 'text',
       description: 'Disclaimer text displayed below the prompt. Set to empty string to hide.'
+    },
+    contextItems: {
+      control: 'object',
+      description: 'Context items to display as chips above the input',
+      table: {
+        type: { summary: 'ContextItem[]' },
+        category: 'Properties'
+      }
     }
   },
   args: {
@@ -95,7 +103,8 @@ const meta = {
     showConversationRename: true,
     showConversationDelete: true,
     enableReactions: false,
-    disclaimerText: 'AI can make mistakes. Always verify responses.'
+    disclaimerText: 'AI can make mistakes. Always verify responses.',
+    contextItems: []
   },
   render: (args: any) => {
     const adapter = new MockAdapter({
@@ -124,6 +133,7 @@ const meta = {
     const onExport = action('forge-ai-chatbot-export');
     const onInfo = action('forge-ai-chatbot-info');
     const onFeedback = action('forge-ai-chatbot-response-feedback');
+    const onContextRemove = action('forge-ai-chatbot-context-remove');
 
     return html`
       <div>
@@ -145,6 +155,7 @@ const meta = {
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
           .disclaimerText=${args.disclaimerText}
+          .contextItems=${args.contextItems}
           @forge-ai-chatbot-connected=${onConnected}
           @forge-ai-chatbot-disconnected=${onDisconnected}
           @forge-ai-chatbot-message-sent=${onMessageSent}
@@ -156,7 +167,8 @@ const meta = {
           @forge-ai-chatbot-clear=${onClear}
           @forge-ai-chat-header-export=${onExport}
           @forge-ai-chatbot-info=${onInfo}
-          @forge-ai-chatbot-response-feedback=${(evt: CustomEvent) => onFeedback(evt.detail)}>
+          @forge-ai-chatbot-response-feedback=${(evt: CustomEvent) => onFeedback(evt.detail)}
+          @forge-ai-chatbot-context-remove=${(evt: CustomEvent) => onContextRemove(evt.detail)}>
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
@@ -211,6 +223,64 @@ export const WithSuggestions: Story = {
           @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}>
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithContextItems: Story = {
+  args: {
+    fileUpload: 'on'
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const contextItems: ContextItem[] = [
+      {
+        id: '1',
+        label: 'Customer ID: 12345',
+        removable: false
+      },
+      {
+        id: '2',
+        label: 'Project: Phoenix'
+      },
+      {
+        id: '3',
+        label: 'Order #78901'
+      }
+    ];
+
+    const onContextRemove = action('forge-ai-chatbot-context-remove');
+
+    return html`
+      <div style="height: 600px; max-width: 420px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .contextItems=${contextItems}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with Context"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?show-expand-button=${args.showExpandButton}
+          ?show-minimize-button=${args.showMinimizeButton}
+          ?expanded=${args.expanded}
+          ?enable-reactions=${args.enableReactions}
+          .minimizeIcon=${args.minimizeIcon}
+          @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
+          @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
+          @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
+          @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}
+          @forge-ai-chatbot-context-remove=${(evt: CustomEvent) => onContextRemove(evt.detail)}
+          @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything with the current context in mind.</span>
         </forge-ai-chatbot>
       </div>
     `;

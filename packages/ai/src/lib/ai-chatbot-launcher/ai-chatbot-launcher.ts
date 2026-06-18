@@ -345,15 +345,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     }
   }
 
-  get #sessionFilesTemplate(): TemplateResult | typeof nothing {
-    const content = this._sessionFilesTemplate;
-    if (content === nothing) {
-      return nothing;
-    }
-
-    return html`<div class="session-files">${content}</div>`;
-  }
-
   get #promptTemplate(): TemplateResult {
     const isUploading = this._isUploading;
     return html`
@@ -362,13 +353,15 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
         .placeholder=${this.placeholder}
         .running=${this._isStreaming || isUploading}
         .slashCommands=${this._slashCommands}
+        .contextItems=${this._allContextItems}
         ?disabled=${isUploading}
         ?debug-mode=${this.debugMode}
         @forge-ai-prompt-send=${this._handleSend}
         @forge-ai-prompt-stop=${this._handleStop}
         @forge-ai-prompt-cancel=${this._handleCancel}
         @forge-ai-prompt-debug-toggle=${this._handleDebugToggle}
-        @forge-ai-prompt-command=${this._handleSlashCommand}>
+        @forge-ai-prompt-command=${this._handleSlashCommand}
+        @forge-ai-prompt-context-remove=${this._handlePromptContextRemove}>
         ${when(
           this.fileUpload === 'on',
           () => html`
@@ -532,7 +525,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   get #promptSectionTemplate(): TemplateResult {
     return html`
       <div class="prompt-section">
-        ${this.#sessionFilesTemplate}
         <forge-ai-gradient-container class="prompt-container" variant="medium">
           ${this.#promptTemplate}
         </forge-ai-gradient-container>

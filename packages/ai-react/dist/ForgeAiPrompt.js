@@ -15,6 +15,7 @@ export const ForgeAiPrompt = forwardRef((props, forwardedRef) => {
     value,
     variant,
     slashCommands,
+    contextItems,
     ...filteredProps
   } = props;
 
@@ -24,6 +25,11 @@ export const ForgeAiPrompt = forwardRef((props, forwardedRef) => {
     ref,
     "forge-ai-prompt-command",
     props.onForgeAiPromptCommand,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-prompt-context-remove",
+    props.onForgeAiPromptContextRemove,
   );
   useEventListener(ref, "forge-ai-prompt-send", props.onForgeAiPromptSend);
   useEventListener(ref, "forge-ai-prompt-cancel", props.onForgeAiPromptCancel);
@@ -41,6 +47,7 @@ export const ForgeAiPrompt = forwardRef((props, forwardedRef) => {
 
   /** Properties - run whenever a property has changed */
   useProperties(ref, "slashCommands", props.slashCommands);
+  useProperties(ref, "contextItems", props.contextItems);
 
   return React.createElement(
     "forge-ai-prompt",

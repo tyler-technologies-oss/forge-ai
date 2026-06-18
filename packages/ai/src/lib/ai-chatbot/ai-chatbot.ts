@@ -1,4 +1,4 @@
-import { html, nothing, unsafeCSS, type TemplateResult } from 'lit';
+import { html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
@@ -21,12 +21,14 @@ import type {
   ForgeAiChatbotConversationLoadMoreEventData,
   ForgeAiChatbotConversationRenameEventData,
   ForgeAiChatbotConversationDeleteEventData,
+  ForgeAiChatbotContextRemoveEventData,
   Thread
 } from './types.js';
 
 import '../ai-attachment';
 import '../ai-chat-header';
 import '../ai-chat-interface';
+import '../ai-context-chip';
 import '../ai-conversations-panel';
 import '../ai-file-picker';
 import '../ai-message-thread';
@@ -68,6 +70,7 @@ declare global {
     'forge-ai-chatbot-conversation-load-more': CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>;
     'forge-ai-chatbot-conversation-rename': CustomEvent<ForgeAiChatbotConversationRenameEventData>;
     'forge-ai-chatbot-conversation-delete': CustomEvent<ForgeAiChatbotConversationDeleteEventData>;
+    'forge-ai-chatbot-context-remove': CustomEvent<ForgeAiChatbotContextRemoveEventData>;
   }
 }
 
@@ -391,15 +394,6 @@ export class AiChatbotComponent extends AiChatbotBase {
     }
   };
 
-  get #sessionFilesTemplate(): TemplateResult | typeof nothing {
-    const content = this._sessionFilesTemplate;
-    if (content === nothing) {
-      return nothing;
-    }
-
-    return html`<div class="session-files" slot="attachments">${content}</div>`;
-  }
-
   get #promptSlot(): TemplateResult {
     const isUploading = this._isUploading;
     return html`
@@ -409,13 +403,15 @@ export class AiChatbotComponent extends AiChatbotBase {
         .placeholder=${this.placeholder}
         .running=${this._isStreaming || isUploading}
         .slashCommands=${this._slashCommands}
+        .contextItems=${this._allContextItems}
         ?disabled=${isUploading}
         ?debug-mode=${this.debugMode}
         @forge-ai-prompt-send=${this._handleSend}
         @forge-ai-prompt-stop=${this._handleStop}
         @forge-ai-prompt-cancel=${this._handleCancel}
         @forge-ai-prompt-debug-toggle=${this._handleDebugToggle}
-        @forge-ai-prompt-command=${this._handleSlashCommand}>
+        @forge-ai-prompt-command=${this._handleSlashCommand}
+        @forge-ai-prompt-context-remove=${this._handlePromptContextRemove}>
         ${when(
           this.fileUpload === 'on',
           () => html`
@@ -508,7 +504,7 @@ export class AiChatbotComponent extends AiChatbotBase {
             </slot>
             <slot name="header-actions" slot="header-actions"></slot>
           </forge-ai-chat-header>
-          ${this.#sessionFilesTemplate} ${this.#messageThread} ${this.#promptSlot}
+          ${this.#messageThread} ${this.#promptSlot}
           ${when(
             this.disclaimerText,
             () => html`<div class="disclaimer" slot="disclaimer">${this.disclaimerText}</div>`

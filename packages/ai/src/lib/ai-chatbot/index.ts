@@ -41,6 +41,7 @@ export {
 export type {
   Agent,
   ChatMessage,
+  ContextItem,
   ToolDefinition,
   ToolCall,
   ToolRenderer,
@@ -56,7 +57,8 @@ export type {
   FileRemoveCallbacks,
   ThreadState,
   FeedbackType,
-  ResponseFeedback
+  ResponseFeedback,
+  ForgeAiChatbotContextRemoveEventData
 } from './types.js';
 
 // AG-UI adapter

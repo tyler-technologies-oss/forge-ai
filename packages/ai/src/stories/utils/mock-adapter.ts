@@ -1,5 +1,5 @@
 import { AgentAdapter } from '$lib/ai-chatbot/agent-adapter.js';
-import type { ChatMessage, FileAttachment, ToolDefinition } from '$lib/ai-chatbot/types.js';
+import type { ChatMessage, ToolDefinition, UploadedFileMetadata } from '$lib/ai-chatbot/types.js';
 import { generateId } from '$lib/ai-chatbot/utils.js';
 
 export interface MockAdapterOptions {
@@ -43,6 +43,9 @@ export class MockAdapter extends AgentAdapter {
   }
 
   async connect(): Promise<void> {
+    this.onFileUpload(({ file, updateProgress, markComplete, markError, onAbort }) => {
+      void this.#simulateFileUpload(file, { updateProgress, markComplete, markError, onAbort });
+    });
     this._updateState({ isConnected: true });
   }
 
@@ -51,7 +54,7 @@ export class MockAdapter extends AgentAdapter {
     this._updateState({ isConnected: false });
   }
 
-  sendMessage(messages: ChatMessage[], _attachments?: FileAttachment[]): void {
+  sendMessage(messages: ChatMessage[]): void {
     this._updateState({ isRunning: true });
     this._emitRunStarted();
 
@@ -205,5 +208,30 @@ export class MockAdapter extends AgentAdapter {
         }, this.#options.streamingDelay);
       }, this.#options.streamingDelay);
     }, this.#options.responseDelay);
+  }
+
+  async #simulateFileUpload(
+    file: File,
+    callbacks: {
+      updateProgress: (progress: number) => void;
+      markComplete: (metadata: UploadedFileMetadata) => void;
+      markError: (error: string) => void;
+      onAbort: (callback: () => void) => void;
+    }
+  ): Promise<void> {
+    for (let progress = 0; progress <= 100; progress += 5) {
+      callbacks.updateProgress(progress);
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    const uploadedFile: UploadedFileMetadata = {
+      fileId: generateId(),
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+      uploadedAt: new Date().toISOString()
+    };
+
+    callbacks.markComplete(uploadedFile);
   }
 }
