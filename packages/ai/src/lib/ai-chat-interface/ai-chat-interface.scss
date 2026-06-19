@@ -6,8 +6,8 @@
 :host {
   display: block;
   height: 100%;
-  flex-grow: 1;
   border-radius: inherit;
+  overflow: hidden;
 
   --_ai-chat-interface-message-container-padding: 0;
 }
@@ -24,6 +24,7 @@
     #{forge-theme.variable(surface)}
   );
   border-radius: inherit;
+  overflow: hidden;
 }
 
 .messages-container {
