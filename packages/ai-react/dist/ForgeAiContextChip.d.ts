@@ -31,9 +31,6 @@ export interface ForgeAiContextChipProps extends Pick<
   label?: ForgeAiContextChipElement["label"];
 
   /** undefined */
-  description?: ForgeAiContextChipElement["description"];
-
-  /** undefined */
   sublabel?: ForgeAiContextChipElement["sublabel"];
 
   /** undefined */

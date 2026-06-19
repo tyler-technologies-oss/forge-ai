@@ -4,16 +4,8 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiContextChip = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const {
-    removable,
-    loading,
-    id,
-    label,
-    description,
-    sublabel,
-    type,
-    ...filteredProps
-  } = props;
+  const { removable, loading, id, label, sublabel, type, ...filteredProps } =
+    props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -36,7 +28,6 @@ export const ForgeAiContextChip = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       id: props.id,
       label: props.label,
-      description: props.description,
       sublabel: props.sublabel,
       type: props.type,
       class: props.className,
