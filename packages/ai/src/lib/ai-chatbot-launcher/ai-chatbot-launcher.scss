@@ -104,6 +104,8 @@ $_max-content-width: 768px;
 
 .conversation forge-ai-message-thread {
   --forge-ai-message-thread-content-max-width: #{$_max-content-width};
+  --forge-typography-body1-font-size: 1rem;
+  --forge-typography-body1-line-height: 1.6;
 
   flex: 1;
   min-height: 0;
