@@ -12,6 +12,8 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
     descriptionText,
     threadName,
     fileUpload,
+    maxFileSize,
+    acceptedFileTypes,
     voiceInput,
     placeholder,
     titleText,
@@ -92,6 +94,9 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       "description-text": props.descriptionText || props["description-text"],
       "thread-name": props.threadName || props["thread-name"],
       "file-upload": props.fileUpload || props["file-upload"],
+      "max-file-size": props.maxFileSize || props["max-file-size"],
+      "accepted-file-types":
+        props.acceptedFileTypes || props["accepted-file-types"],
       "voice-input": props.voiceInput || props["voice-input"],
       placeholder: props.placeholder,
       "title-text": props.titleText || props["title-text"],
