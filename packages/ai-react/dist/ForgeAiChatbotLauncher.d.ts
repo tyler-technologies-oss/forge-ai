@@ -40,6 +40,12 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   fileUpload?: ForgeAiChatbotLauncherElement["fileUpload"];
 
   /** undefined */
+  maxFileSize?: ForgeAiChatbotLauncherElement["maxFileSize"];
+
+  /** undefined */
+  acceptedFileTypes?: ForgeAiChatbotLauncherElement["acceptedFileTypes"];
+
+  /** undefined */
   voiceInput?: ForgeAiChatbotLauncherElement["voiceInput"];
 
   /** undefined */

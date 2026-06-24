@@ -420,6 +420,8 @@ export class AiChatbotComponent extends AiChatbotBase {
               variant="icon-button"
               multiple
               ?disabled=${isUploading}
+              .maxSize=${this.maxFileSize}
+              .accept=${this.acceptedFileTypes}
               .selectedFiles=${this._coreController?.pendingAttachments.map(a => a.filename) ?? []}
               @forge-ai-file-picker-change=${this._handleFileSelect}
               @forge-ai-file-picker-error=${this._handleFileError}>

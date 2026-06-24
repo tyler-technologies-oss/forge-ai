@@ -38,6 +38,12 @@ export abstract class AiChatbotBase extends LitElement {
   @property({ attribute: 'file-upload' })
   public fileUpload: FeatureToggle = 'off';
 
+  @property({ type: Number, attribute: 'max-file-size' })
+  public maxFileSize = 10485760;
+
+  @property({ attribute: 'accepted-file-types' })
+  public acceptedFileTypes = '';
+
   @property({ attribute: 'voice-input' })
   public voiceInput: FeatureToggle = 'on';
 
