@@ -445,14 +445,23 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
             </forge-ai-edit-thread>
           `,
           () => html`
-            <button
-              class="forge-button forge-button--dense thread-name__button"
-              id="thread-name-button"
-              aria-label="Edit thread name: ${this.threadName}"
-              @click=${this.#handleThreadNameClick}>
-              <span class="thread-name__text">${this.threadName}</span>
-            </button>
-            <forge-ai-tooltip for="thread-name-button" placement="bottom">${this.threadName}</forge-ai-tooltip>
+            ${when(
+              this.showThreadRename,
+              () => html`
+                <button
+                  class="forge-button forge-button--dense thread-name__button"
+                  id="thread-name-button"
+                  aria-label="Edit thread name: ${this.threadName}"
+                  @click=${this.#handleThreadNameClick}>
+                  <span class="thread-name__text">${this.threadName}</span>
+                </button>
+                <forge-ai-tooltip for="thread-name-button" placement="bottom">${this.threadName}</forge-ai-tooltip>
+              `,
+              () => html`
+                <span class="thread-name__text" id="thread-name-text">${this.threadName}</span>
+                <forge-ai-tooltip for="thread-name-text" placement="bottom">${this.threadName}</forge-ai-tooltip>
+              `
+            )}
             ${when(showActions, () => this.#threadActionsMenu)}
           `
         )}
