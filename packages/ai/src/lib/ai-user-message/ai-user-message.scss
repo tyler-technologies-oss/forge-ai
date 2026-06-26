@@ -28,7 +28,6 @@
 }
 
 span {
-  @include forge-typography.style(body1);
   color: #{forge-theme.variable(on-surface)};
   overflow-wrap: break-word;
 }
