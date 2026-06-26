@@ -6,9 +6,12 @@
 
 @mixin markdown-content {
   @include forge-typography.style(body1);
+
+  font-size: var(--forge-ai-markdown-font-size, 0.875rem);
+  line-height: var(--forge-ai-markdown-line-height, 1.5rem);
+
   color: #{forge-theme.variable(on-surface)};
   overflow-wrap: break-word;
-  line-height: 1.5;
 
   h1,
   h2,
@@ -37,7 +40,7 @@
     background-color: #{forge-theme.variable(surface-container-low)};
     border-radius: #{forge-shape.variable(medium)};
     padding: #{forge-spacing.variable(xxxsmall)} #{forge-spacing.variable(xxsmall)};
-    font-size: 0.75rem;
+    font-size: 0.75em;
   }
 
   pre {
