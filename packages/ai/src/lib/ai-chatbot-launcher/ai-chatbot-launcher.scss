@@ -139,6 +139,7 @@ $_max-content-width: 768px;
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
+    color: #{forge-theme.variable(text-medium)};
   }
 
   &__button {
@@ -149,7 +150,6 @@ $_max-content-width: 768px;
     display: block;
     padding-inline: #{forge-spacing.variable(xxxsmall)};
     min-width: 0;
-    color: #{forge-theme.variable(text-medium)};
   }
 }
 
