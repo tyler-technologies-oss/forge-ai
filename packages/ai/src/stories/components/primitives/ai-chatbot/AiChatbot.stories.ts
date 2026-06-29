@@ -349,6 +349,8 @@ export const WithTools: Story = {
           .minimizeIcon=${args.minimizeIcon}
           debug-mode
           @forge-ai-chatbot-tool-call=${onToolCall}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -428,6 +430,8 @@ export const WithPersistence: Story = {
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-message-sent=${action('forge-ai-chatbot-message-sent')}
           @forge-ai-chatbot-message-received=${action('forge-ai-chatbot-message-received')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -456,6 +460,8 @@ export const MixedResponses: Story = {
           placeholder=${args.placeholder}
           title-text="Mixed Responses"
           ?enable-reactions=${args.enableReactions}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -973,6 +979,8 @@ export const WithAgents: Story = {
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
           @forge-ai-chatbot-agent-change=${(e: CustomEvent) => onAgentChange(e.detail)}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -1077,6 +1085,8 @@ export const WithFeedbackPersistence: Story = {
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
           @forge-ai-chatbot-response-feedback=${action('forge-ai-chatbot-response-feedback')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -1115,6 +1125,8 @@ export const WithHeaderActions: Story = {
           <forge-icon-button slot="header-actions" aria-label="Settings">
             <forge-icon name="settings"></forge-icon>
           </forge-icon-button>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -1208,6 +1220,8 @@ export const WithDataTableTool: Story = {
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
           @forge-ai-chatbot-tool-call=${action('forge-ai-chatbot-tool-call')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -1303,6 +1317,8 @@ Key insights:
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -1377,6 +1393,8 @@ export const WithConversationHistory: Story = {
           @forge-ai-chatbot-conversations-close=${onConversationsClose}
           @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
           @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -1418,6 +1436,8 @@ export const WithEmptyConversationHistory: Story = {
           @forge-ai-chatbot-conversations-close=${onConversationsClose}
           @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
           @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </div>
     `;
@@ -1436,7 +1456,7 @@ export const Branded: Story = {
     }
   },
   args: {
-    iconShape: '50% (circular)'
+    iconShape: '0px (square)'
   },
   render: (args: any) => {
     const adapter = new MockAdapter({
@@ -1447,14 +1467,13 @@ export const Branded: Story = {
     });
 
     const suggestions = [
-      { text: 'Tell me about your products', value: 'products' },
+      { text: 'Tell me about Tyler products', value: 'products' },
       { text: 'How can I get support?', value: 'support' },
-      { text: 'View pricing information', value: 'pricing' }
+      { text: 'Learn about Forge components', value: 'forge' }
     ] as Suggestion[];
 
-    const iconShapeValue = args.iconShape?.split(' ')[0] || '50%';
-    const chatbotLogo =
-      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Crect width='36' height='36' fill='%234A90E2'/%3E%3Ctext x='18' y='24' font-family='Arial, sans-serif' font-size='16' font-weight='bold' fill='white' text-anchor='middle'%3EAC%3C/text%3E%3C/svg%3E";
+    const iconShapeValue = args.iconShape?.split(' ')[0] || '0px';
+    const tylerLogo = 'https://cdn.forge.tylertech.com/v1/images/branding/tyler/talking-t-logo.svg';
 
     return html`
       <style>
@@ -1467,26 +1486,26 @@ export const Branded: Story = {
           class="branded-chatbot"
           .adapter=${adapter}
           .suggestions=${suggestions}
-          placeholder="Ask Acme Corp anything..."
-          title-text="Acme Support Assistant">
+          placeholder="Ask Tyler AI anything..."
+          title-text="Tyler AI Assistant">
           <img
             slot="icon"
-            src="${chatbotLogo}"
-            alt="Acme Corp Logo"
+            src="${tylerLogo}"
+            alt="Tyler Technologies Logo"
             style="width: 36px; height: 36px; display: block;" />
 
           <img
             slot="empty-state-icon"
-            src="${chatbotLogo}"
-            alt="Acme Corp"
+            src="${tylerLogo}"
+            alt="Tyler Technologies"
             style="width: 200px; height: 200px; display: block;" />
 
           <span slot="empty-state-heading">
-            <strong>Welcome to Acme Corp Support</strong>
+            <strong>Welcome to Tyler AI Assistant</strong>
           </span>
 
           <span slot="empty-state-message">
-            Get instant answers to your questions about our <b>products and services</b>. <br /><br />
+            Get instant answers to your questions about Tyler Technologies <b>products and services</b>. <br /><br />
             Need personalized help?
             <a href="#contact" style="color: #4A90E2; text-decoration: underline;">Contact our support team</a>
           </span>

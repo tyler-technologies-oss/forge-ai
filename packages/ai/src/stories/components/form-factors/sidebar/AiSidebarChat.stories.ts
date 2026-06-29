@@ -140,6 +140,8 @@ const meta = {
           @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
           @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
           @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </forge-ai-sidebar-chat>
     `;
@@ -394,6 +396,8 @@ export const WithConversationHistory: Story = {
           @forge-ai-chatbot-new-chat=${onNewChat}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
           @forge-ai-chatbot-conversations-close=${onConversationsClose}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
       </forge-ai-sidebar-chat>
     `;
