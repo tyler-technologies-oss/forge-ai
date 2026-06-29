@@ -125,8 +125,14 @@ export class AiMessageThreadComponent extends LitElement {
     super.updated(changedProperties);
 
     if (this.autoScroll === 'on' && (changedProperties.has('messageItems') || changedProperties.has('showThinking'))) {
-      this.scrollToBottom();
+      this.#scheduleScroll();
     }
+  }
+
+  async #scheduleScroll(): Promise<void> {
+    await this.updateComplete;
+    await new Promise(requestAnimationFrame);
+    this.scrollToBottom();
   }
 
   #checkScrollState(): void {
