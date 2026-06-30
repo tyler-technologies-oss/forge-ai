@@ -37,6 +37,11 @@ const meta = {
       options: ['on', 'off'],
       description: 'Enable voice input functionality'
     },
+    exportOption: {
+      control: 'select',
+      options: ['on', 'off'],
+      description: 'Control export option visibility'
+    },
     enableReactions: {
       control: 'boolean',
       description: 'Enable thumbs up/down reaction buttons'
@@ -64,6 +69,7 @@ const meta = {
     descriptionText: '',
     fileUpload: 'on',
     voiceInput: 'on',
+    exportOption: 'on',
     enableReactions: false,
     disclaimerText: 'AI can make mistakes. Always verify responses.'
   },
@@ -96,6 +102,7 @@ const meta = {
           description-text=${args.descriptionText}
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
+          export-option=${args.exportOption}
           ?enable-reactions=${args.enableReactions}
           .disclaimerText=${args.disclaimerText}
           @forge-ai-chatbot-launcher-connected=${onConnected}
@@ -151,6 +158,7 @@ export const WithThreadName: Story = {
           title-text=${args.titleText}
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
+          export-option=${args.exportOption}
           ?enable-reactions=${args.enableReactions}
           .disclaimerText=${args.disclaimerText}
           thread-name=${args.threadName}
