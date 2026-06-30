@@ -43,6 +43,11 @@ const meta = {
       options: ['on', 'off'],
       description: 'Show/hide debug mode slash command'
     },
+    exportOption: {
+      control: 'select',
+      options: ['on', 'off'],
+      description: 'Control export option visibility'
+    },
     showExpandButton: {
       control: 'boolean',
       description: 'Show expand button in header'
@@ -95,6 +100,7 @@ const meta = {
     fileUpload: 'off',
     voiceInput: 'on',
     debugCommand: 'on',
+    exportOption: 'on',
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,
@@ -146,6 +152,7 @@ const meta = {
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           debug-command=${args.debugCommand}
+          export-option=${args.exportOption}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?show-conversations-button=${args.showConversationsButton}

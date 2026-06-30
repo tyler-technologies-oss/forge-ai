@@ -71,6 +71,9 @@ export abstract class AiChatbotBase extends LitElement {
   @property({ attribute: 'debug-command' })
   public debugCommand: FeatureToggle = 'on';
 
+  @property({ attribute: 'export-option' })
+  public exportOption: FeatureToggle = 'on';
+
   @property({ type: Object, attribute: false })
   public agentInfo?: AgentInfo;
 

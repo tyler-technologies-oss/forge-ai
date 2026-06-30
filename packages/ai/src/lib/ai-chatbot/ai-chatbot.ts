@@ -486,7 +486,7 @@ export class AiChatbotComponent extends AiChatbotBase {
             ?show-conversations-button=${this.showConversationsButton}
             ?expanded=${this.expanded}
             ?disable-agent-selector=${this._isStreaming}
-            export-option=${this._hasMessages ? 'enabled' : 'off'}
+            export-option=${this.exportOption === 'off' ? 'off' : this._hasMessages ? 'enabled' : 'off'}
             clear-option=${this._hasMessages ? 'enabled' : 'off'}
             .minimizeIcon=${this.minimizeIcon}
             .agentInfo=${this.agentInfo}
