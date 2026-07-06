@@ -4,7 +4,6 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiChatbotToolCall = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { debugMode, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -24,13 +23,12 @@ export const ForgeAiChatbotToolCall = forwardRef((props, forwardedRef) => {
           forwardedRef.current = node;
         }
       },
-      ...filteredProps,
+      ...props,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      "debug-mode": props.debugMode ? true : undefined,
       style: { ...props.style },
     },
     props.children,

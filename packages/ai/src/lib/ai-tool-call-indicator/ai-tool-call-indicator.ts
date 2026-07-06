@@ -198,10 +198,11 @@ export class AiToolCallIndicatorComponent extends LitElement {
   }
 
   #detailPayload(toolCall: ToolCall): Record<string, unknown> {
+    // prettier-ignore
     const payload: Record<string, unknown> = {
-      tool_name: toolCall.name,
-      tool_call_id: toolCall.id,
-      status: toolCall.status
+      'tool_name': toolCall.name,
+      'tool_call_id': toolCall.id,
+      'status': toolCall.status
     };
     const duration = this.#rowDuration(toolCall);
     if (duration) {
