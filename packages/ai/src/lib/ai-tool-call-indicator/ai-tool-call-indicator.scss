@@ -267,7 +267,6 @@ $marker-size: 28px;
 .code-card__status {
   display: inline-flex;
   align-items: center;
-  gap: #{forge-spacing.variable(xxsmall)};
   flex-shrink: 0;
   padding-block: #{forge-spacing.variable(xxxsmall)};
   padding-inline: #{forge-spacing.variable(xsmall)};
@@ -286,13 +285,6 @@ $marker-size: 28px;
     color: #{forge-theme.variable(error)};
     background-color: #{forge-theme.variable(error-container)};
   }
-}
-
-.code-card__status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: currentColor;
 }
 
 .code-card__code {
