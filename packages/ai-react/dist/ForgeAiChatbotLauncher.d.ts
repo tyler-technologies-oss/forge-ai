@@ -64,6 +64,9 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   debugCommand?: ForgeAiChatbotLauncherElement["debugCommand"];
 
   /** undefined */
+  exportOption?: ForgeAiChatbotLauncherElement["exportOption"];
+
+  /** undefined */
   selectedAgentId?: ForgeAiChatbotLauncherElement["selectedAgentId"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
