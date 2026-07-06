@@ -27,6 +27,7 @@
   @include forge-typography.style(heading1);
 
   width: fit-content;
+  overflow: hidden;
 }
 
 .forge-toolbar__end {
