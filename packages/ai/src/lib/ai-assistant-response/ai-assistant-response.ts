@@ -1,17 +1,14 @@
 import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import type { AssistantResponse, StreamEvent, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
+import type { AssistantResponse, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-response-message-toolbar';
 
 import '../ai-response-message-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
 import '../ai-tool-call-indicator';
-import '../ai-event-stream-viewer';
-import '../core/popover/popover.js';
-import '../core/tooltip/tooltip.js';
 
 import styles from './ai-assistant-response.scss?inline';
 
@@ -61,21 +58,8 @@ export class AiAssistantResponseComponent extends LitElement {
   @property({ type: Boolean, attribute: 'debug-mode' })
   public debugMode = false;
 
-  @state()
-  private _debugPopoverOpen = false;
-
-  @query('#debug-btn')
-  private _debugButton?: HTMLButtonElement;
-
   #internals = this.attachInternals();
   #markdownController!: MarkdownStreamController;
-
-  readonly #debugIcon = html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path
-        d="M14 12h-4v-2h4m0 6h-4v-2h4m6-6h-2.81a6 6 0 0 0-1.82-1.96L17 4.41 15.59 3l-2.17 2.17a6 6 0 0 0-2.83 0L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20z" />
-    </svg>
-  `;
 
   public override connectedCallback(): void {
     super.connectedCallback();
@@ -92,15 +76,7 @@ export class AiAssistantResponseComponent extends LitElement {
         const content = typeof child.content === 'string' ? child.content : '';
         return content.trim().length > 0;
       }
-      if (this.debugMode) {
-        return true;
-      }
-      const toolCall = child.data;
-      if (toolCall.type === 'agent') {
-        return true;
-      }
-      const toolDef = this.tools?.get(toolCall.name);
-      return !!toolDef?.renderer && toolCall.status === 'complete';
+      return true;
     });
   }
 
@@ -125,63 +101,49 @@ export class AiAssistantResponseComponent extends LitElement {
   #renderToolCall(toolCall: ToolCall): TemplateResult | typeof nothing {
     const toolDefinition = this.tools?.get(toolCall.name);
 
-    if (!this.debugMode) {
-      if (!toolDefinition?.renderer || toolCall.status !== 'complete') {
-        return nothing;
-      }
+    if (!toolDefinition?.renderer || toolCall.status !== 'complete') {
+      return nothing;
     }
 
     return html`<forge-ai-chatbot-tool-call
       .toolCall=${toolCall}
-      .toolDefinition=${toolDefinition}
-      ?debug-mode=${this.debugMode}></forge-ai-chatbot-tool-call>`;
+      .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
   }
 
   get #children(): (TemplateResult | typeof nothing)[] {
     const results: (TemplateResult | typeof nothing)[] = [];
-    let agentToolBuffer: ToolCall[] = [];
+    let toolBuffer: ToolCall[] = [];
 
-    const flushAgentIndicator = (reason: 'content' | 'end'): void => {
-      if (agentToolBuffer.length > 0) {
-        const executingCount = agentToolBuffer.filter(tc => tc.status !== 'complete' && tc.status !== 'error').length;
-        const isComplete = executingCount === 0 && (reason === 'content' || this.response.status === 'complete');
+    const flushIndicator = (): void => {
+      if (toolBuffer.length === 0) {
+        return;
+      }
 
-        let elapsedMs: number | undefined;
-        if (isComplete) {
-          const startTime = Math.min(...agentToolBuffer.map(tc => tc.startTimestamp ?? 0).filter(t => t > 0));
-          const endTime = Math.max(...agentToolBuffer.map(tc => tc.endTimestamp ?? 0).filter(t => t > 0));
-          if (startTime > 0 && endTime > 0) {
-            elapsedMs = endTime - startTime;
-          }
-        }
+      const flushed = toolBuffer;
+      toolBuffer = [];
 
-        results.push(
-          html`<forge-ai-tool-call-indicator
-            ?complete=${isComplete}
-            .elapsedMs=${elapsedMs}></forge-ai-tool-call-indicator>`
-        );
-        agentToolBuffer = [];
+      results.push(
+        html`<forge-ai-tool-call-indicator
+          .toolCalls=${flushed}
+          .tools=${this.tools}
+          ?debug-mode=${this.debugMode}></forge-ai-tool-call-indicator>`
+      );
+
+      for (const toolCall of flushed) {
+        results.push(this.#renderToolCall(toolCall));
       }
     };
 
     for (const child of this.response.children) {
       if (child.type === 'text') {
-        flushAgentIndicator('content');
+        flushIndicator();
         results.push(this.#renderTextChunk(child));
       } else {
-        const toolCall = child.data;
-        const isAgentTool = toolCall.type === 'agent';
-
-        if (isAgentTool && !this.debugMode) {
-          agentToolBuffer.push(toolCall);
-        } else {
-          flushAgentIndicator('content');
-          results.push(this.#renderToolCall(toolCall));
-        }
+        toolBuffer.push(child.data);
       }
     }
 
-    flushAgentIndicator('end');
+    flushIndicator();
     return results;
   }
 
@@ -202,53 +164,6 @@ export class AiAssistantResponseComponent extends LitElement {
       detail: { responseId: this.response.id, feedback }
     });
     this.dispatchEvent(bubbleEvent);
-  }
-
-  #handleDebugClick(): void {
-    this._debugPopoverOpen = !this._debugPopoverOpen;
-  }
-
-  #handleDebugPopoverToggle(event: CustomEvent<{ open: boolean }>): void {
-    this._debugPopoverOpen = event.detail.open;
-  }
-
-  get #debugButton(): TemplateResult | typeof nothing {
-    const hasDebugData = this.debugMode && (this.response.eventStream?.length ?? 0) > 0;
-    if (!hasDebugData) {
-      return nothing;
-    }
-
-    return html`
-      <button
-        id="debug-btn"
-        aria-label="View event stream"
-        class="forge-icon-button forge-icon-button--tonal forge-icon-button--small debug-button"
-        @click=${this.#handleDebugClick}>
-        ${this.#debugIcon}
-      </button>
-      <forge-ai-tooltip for="debug-btn" placement="bottom">Event Stream</forge-ai-tooltip>
-    `;
-  }
-
-  get #debugPopover(): TemplateResult | typeof nothing {
-    const hasDebugData = this.debugMode && this.response.eventStream;
-    if (!hasDebugData) {
-      return nothing;
-    }
-
-    return html`
-      <forge-ai-popover
-        .anchor=${this._debugButton as Element | null}
-        .open=${this._debugPopoverOpen}
-        id="debug-popover"
-        placement="right"
-        .flip=${true}
-        .shift=${true}
-        @forge-ai-popover-toggle=${this.#handleDebugPopoverToggle}>
-        <forge-ai-event-stream-viewer
-          .events=${this.response.eventStream as StreamEvent[]}></forge-ai-event-stream-viewer>
-      </forge-ai-popover>
-    `;
   }
 
   get #toolbar(): TemplateResult | typeof nothing {
@@ -277,7 +192,6 @@ export class AiAssistantResponseComponent extends LitElement {
           @forge-ai-response-message-toolbar-action=${this.#handleToolbarAction}
           @forge-ai-response-message-toolbar-feedback=${this.#handleToolbarFeedback}>
         </forge-ai-response-message-toolbar>
-        ${this.#debugButton}
       </div>
     `;
   }
@@ -287,7 +201,6 @@ export class AiAssistantResponseComponent extends LitElement {
       <div class="assistant-response" ?data-complete=${this.response.status === 'complete'}>
         ${this.#children} ${this.#toolbar}
       </div>
-      ${this.#debugPopover}
     `;
   }
 }

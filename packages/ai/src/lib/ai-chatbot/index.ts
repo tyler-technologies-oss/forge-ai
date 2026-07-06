@@ -58,6 +58,7 @@ export type {
   ThreadState,
   FeedbackType,
   ResponseFeedback,
+  MessageItem,
   ForgeAiChatbotContextRemoveEventData
 } from './types.js';
 
