@@ -69,6 +69,11 @@ export interface ForgeAiFloatingChatProps extends Pick<
  * - **forge-ai-floating-chat-expand** - Fired when the chat is expanded
  * - **forge-ai-floating-chat-collapse** - Fired when the chat is collapsed
  *
+ * ### **Methods:**
+ *  - **toggle(): _void_** - Toggles the chat open/closed state.
+ *
+ * If the chat is open, closes it. If the chat is closed, opens it.
+ *
  * ### **Slots:**
  *  - _default_ - Default slot for chatbot component
  */

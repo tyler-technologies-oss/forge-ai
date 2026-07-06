@@ -79,6 +79,14 @@ export class AiFloatingChatComponent extends LitElement {
     this.#dispatchEvent('forge-ai-floating-chat-close');
   }
 
+  /**
+   * Toggles the chat open/closed state.
+   *
+   * If the chat is open, closes it. If the chat is closed, opens it.
+   *
+   * @fires forge-ai-floating-chat-open - When opening the chat
+   * @fires forge-ai-floating-chat-close - When closing the chat
+   */
   public toggle(): void {
     if (this.open) {
       this.close();

@@ -133,7 +133,7 @@ export class AiThreadActionsMenuComponent extends LitElement {
             <forge-ai-dropdown-menu-item value="rename" @click=${this.#handleRenameClick}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start" class="forge-icon">
                 <path
-                  d="m15 16-4 4h10v-4zm-2.94-8.81L3 16.25V20h3.75l9.06-9.06zm6.65.85c.39-.39.39-1.04 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z" />
+                  d="m14.06 9 .94.94L5.92 19H5v-.92zm3.6-6c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29m-3.6 3.19L3 17.25V21h3.75L17.81 9.94z" />
               </svg>
               <span>Rename</span>
             </forge-ai-dropdown-menu-item>
@@ -144,7 +144,8 @@ export class AiThreadActionsMenuComponent extends LitElement {
           () => html`
             <forge-ai-dropdown-menu-item value="delete" @click=${this.#handleDeleteClick}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start" class="forge-icon">
-                <path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
+                <path
+                  d="M9 3v1H4v2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1V4h-5V3zM7 6h10v13H7zm2 2v9h2V8zm4 0v9h2V8z" />
               </svg>
               <span>Delete</span>
             </forge-ai-dropdown-menu-item>
