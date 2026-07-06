@@ -32,7 +32,7 @@
   overflow: visible;
   min-width: 0;
 
-  --_ai-chat-header-icon-shape: var(--forge-ai-chat-header-icon-shape, 0);
+  --_ai-chat-header-icon-shape: var(--forge-ai-chat-header-icon-shape, #{forge-shape.variable(round)});
 
   ::slotted([slot='icon']) {
     border-radius: var(--_ai-chat-header-icon-shape);
@@ -45,6 +45,7 @@
 
   .title {
     @include forge-typography.style(heading3);
+    color: var(--forge-ai-chat-header-title-color, currentColor);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

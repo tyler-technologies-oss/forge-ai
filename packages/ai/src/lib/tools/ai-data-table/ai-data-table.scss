@@ -5,6 +5,7 @@
 @use '@tylertech/forge/sass/table/core' as forge-table-core;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '@tylertech/forge/dist/icon/forge-icon';
 @use '@tylertech/forge/dist/field/forge-field.css';
 @use '../../mixins' as mixins;
 
@@ -20,6 +21,11 @@
 
 .title {
   @include forge-typography.style(heading1);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 .sr-only {

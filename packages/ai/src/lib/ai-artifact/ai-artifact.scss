@@ -11,16 +11,29 @@
 }
 
 .forge-toolbar {
+  height: auto;
+  min-height: 56px;
+  display: flex;
+  gap: 0;
+  flex-wrap: wrap;
   padding-inline: #{forge-spacing.variable(medium)};
   border-start-start-radius: #{forge-shape.variable(large)};
   border-start-end-radius: #{forge-shape.variable(large)};
+  align-items: center;
+  overflow: hidden;
 }
 
 .forge-toolbar__start {
   @include forge-typography.style(heading1);
+
+  width: fit-content;
+  overflow: hidden;
 }
 
 .forge-toolbar__end {
+  width: auto;
+  margin-left: auto;
+  padding-block: 8px;
   color: #{forge-theme.variable(text-medium)};
 }
 

@@ -1,9 +1,13 @@
 import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { when } from 'lit/directives/when.js';
 import type { IToolRenderer, ToolCall } from '../../ai-chatbot';
-import '../../ai-artifact/ai-artifact.ts';
-import '../../ai-empty-state/ai-empty-state.ts';
-import '../ai-paginator/ai-paginator.ts';
+import { buildCSVContent, downloadCSV, sanitizeFilename } from '../../utils/csv-utils';
+
+import '../../ai-artifact/ai-artifact.js';
+import '../../ai-empty-state/ai-empty-state.js';
+import '../ai-paginator/ai-paginator.js';
+import '../../core/tooltip/tooltip.js';
 
 import styles from './ai-data-table.scss?inline';
 
@@ -131,24 +135,69 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
     this.#setHeightFromContent();
   }
 
-  readonly #filterInput = html`
-    <div class="actions" slot="actions">
-      <label for="data-table-filter-input" class="sr-only">Filter table data</label>
-      <div class="forge-field forge-field--small icon-field">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path d="M10 18h4v-2h-4zM3 6v2h18V6zm3 7h12v-2H6z" />
-        </svg>
-        <input
-          autocomplete="off"
-          type="text"
-          id="data-table-filter-input"
-          placeholder="Filter data"
-          .value=${this._filterValue}
-          @input=${this.#handleFilterInput} />
+  #handleExport(): void {
+    const data = this.#tableData;
+    if (!data || !data.headers || !data.rows) {
+      return;
+    }
+
+    const csvContent = buildCSVContent(data.headers, data.rows);
+    const filename = sanitizeFilename(data.title || '', 'chatbot-data-table');
+    downloadCSV(csvContent, filename);
+  }
+
+  get #exportButton(): TemplateResult | typeof nothing {
+    const data = this.#tableData;
+    if (!data || !data.headers?.length || !data.rows?.length) {
+      return nothing;
+    }
+
+    return html`
+      <div>
+        <button
+          type="button"
+          id="export-button"
+          class="forge-icon-button forge-icon-button--medium"
+          @click=${this.#handleExport}
+          aria-label="Download table as CSV">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+            <path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7z" />
+          </svg>
+        </button>
+        <forge-ai-tooltip for="export-button" placement="bottom">Download CSV</forge-ai-tooltip>
       </div>
+    `;
+  }
+
+  readonly #filterInputField = html`
+    <label for="data-table-filter-input" class="sr-only">Filter table data</label>
+    <div class="forge-field forge-field--small icon-field">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path fill="none" d="M0 0h24v24H0z" />
+        <path d="M10 18h4v-2h-4zM3 6v2h18V6zm3 7h12v-2H6z" />
+      </svg>
+      <input
+        autocomplete="off"
+        type="text"
+        id="data-table-filter-input"
+        placeholder="Filter data"
+        .value=${this._filterValue}
+        @input=${this.#handleFilterInput} />
     </div>
   `;
+
+  get #actionButtons(): TemplateResult | typeof nothing {
+    const showFilter = this.#shouldShowFilter;
+    const showExport = this.#tableData?.headers?.length && this.#tableData?.rows?.length;
+
+    if (!showFilter && !showExport) {
+      return nothing;
+    }
+
+    return html`
+      <div class="actions" slot="actions">${when(showFilter, () => this.#filterInputField)} ${this.#exportButton}</div>
+    `;
+  }
 
   get #emptyState(): TemplateResult {
     return html`
@@ -209,13 +258,6 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
     return html`<h2 class="title" slot="start">${data.title}</h2>`;
   }
 
-  get #filterBar(): TemplateResult | typeof nothing {
-    if (!this.#shouldShowFilter) {
-      return nothing;
-    }
-    return this.#filterInput;
-  }
-
   get #pagination(): TemplateResult | typeof nothing {
     if (!this.#shouldShowPaginator) {
       return nothing;
@@ -234,7 +276,7 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
 
     return html`
       <forge-ai-artifact class="artifact">
-        ${this.#header} ${this.#filterBar} ${this.#tableContent} ${this.#pagination}
+        ${this.#header} ${this.#actionButtons} ${this.#tableContent} ${this.#pagination}
       </forge-ai-artifact>
     `;
   }

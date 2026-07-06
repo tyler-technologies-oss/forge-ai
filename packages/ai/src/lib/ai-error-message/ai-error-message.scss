@@ -15,8 +15,13 @@
   &__title {
     font-weight: bold;
   }
+
+  &__content {
+    overflow-wrap: anywhere;
+  }
 }
 
 ::slotted(*) {
   margin-block: 0;
+  overflow-wrap: anywhere;
 }
