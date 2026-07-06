@@ -20,10 +20,15 @@ import type {
   SlashCommand,
   SlashCommandId,
   ThreadState,
-  ToolCall,
   ToolDefinition
 } from './types.js';
-import { downloadFile, generateId, fileAttachmentsToContextItems } from './utils.js';
+import {
+  createChatExportFilename,
+  downloadFile,
+  fileAttachmentsToContextItems,
+  formatChatTranscript,
+  generateId
+} from './utils.js';
 import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
 
 export type FeatureToggle = 'on' | 'off';
@@ -608,43 +613,14 @@ export abstract class AiChatbotBase extends LitElement {
     return event;
   }
 
-  protected _formatToolCallForExport(toolCall: ToolCall): string {
-    const lines = [`  Tool: ${toolCall.name}`, `  Args: ${JSON.stringify(toolCall.args)}`];
-
-    if (toolCall.status === 'error') {
-      const errorMsg =
-        typeof toolCall.result === 'object' && toolCall.result !== null && 'error' in toolCall.result
-          ? (toolCall.result as { error: string }).error
-          : 'Unknown error';
-      lines.push(`  Error: ${errorMsg}`);
-    } else if (toolCall.result !== undefined) {
-      lines.push(`  Result: ${JSON.stringify(toolCall.result)}`);
-    }
-
-    return lines.join('\n');
-  }
-
   protected _handleExport(): void {
     const messages = this.getMessages();
     if (messages.length === 0) {
       return;
     }
 
-    const chatText = messages
-      .map(message => {
-        const timestamp = new Date(message.timestamp).toLocaleString();
-        const role = message.role === 'user' ? 'You' : 'Assistant';
-        let output = `[${timestamp}] ${role}:\n${message.content}\n`;
-
-        if (message.toolCalls?.length) {
-          output += '\n' + message.toolCalls.map(tc => this._formatToolCallForExport(tc)).join('\n\n') + '\n';
-        }
-
-        return output;
-      })
-      .join('\n');
-
-    const filename = `chat-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
-    downloadFile(chatText, filename, 'text/plain');
+    const chatText = formatChatTranscript(messages, { includeToolCalls: this.debugMode });
+    const agentName = this.getSelectedAgent()?.name ?? this.titleText;
+    downloadFile(chatText, createChatExportFilename(agentName), 'text/plain');
   }
 }

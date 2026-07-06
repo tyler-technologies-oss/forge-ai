@@ -93,11 +93,11 @@ export class AiMessageThreadComponent extends LitElement {
   @property({ type: Boolean, attribute: 'show-thinking' })
   public showThinking = false;
 
-  @property({ attribute: 'auto-scroll' })
-  public autoScroll: FeatureToggle = 'on';
-
   @property({ type: Boolean, attribute: 'debug-mode' })
   public debugMode = false;
+
+  @property({ attribute: 'auto-scroll' })
+  public autoScroll: FeatureToggle = 'on';
 
   @query('.message-thread')
   private _messageThreadContainer!: HTMLElement;
@@ -240,8 +240,7 @@ export class AiMessageThreadComponent extends LitElement {
     const toolDefinition = this.tools?.get(toolCall.name);
     return html`<forge-ai-chatbot-tool-call
       .toolCall=${toolCall}
-      .toolDefinition=${toolDefinition}
-      ?debug-mode=${this.debugMode}></forge-ai-chatbot-tool-call>`;
+      .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
   }
 
   #renderAssistantResponse(response: AssistantResponse): TemplateResult {
@@ -305,26 +304,11 @@ export class AiMessageThreadComponent extends LitElement {
         if (c.type !== 'toolCall') {
           return false;
         }
-        const isActive = c.data.status === 'parsing' || c.data.status === 'executing' || c.data.status === 'pending';
-        if (!isActive) {
-          return false;
-        }
-        return this.debugMode || c.data.type === 'agent';
+        return c.data.status === 'parsing' || c.data.status === 'executing' || c.data.status === 'pending';
       });
       if (hasActiveResponseToolCall) {
         return nothing;
       }
-    }
-
-    const hasActiveToolCall =
-      this.debugMode &&
-      lastItem?.type === 'toolCall' &&
-      (lastItem.data.status === 'parsing' ||
-        lastItem.data.status === 'executing' ||
-        lastItem.data.status === 'pending');
-
-    if (hasActiveToolCall) {
-      return nothing;
     }
 
     return html`<div class="thinking-indicator">
@@ -338,9 +322,6 @@ export class AiMessageThreadComponent extends LitElement {
         return true;
       }
       if (item.type === 'toolCall') {
-        if (this.debugMode) {
-          return true;
-        }
         const toolDef = this.tools?.get(item.data.name);
         return !!toolDef?.renderer;
       }
