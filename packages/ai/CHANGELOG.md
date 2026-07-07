@@ -1,5 +1,19 @@
 # @tylertech/forge-ai
 
+## 0.13.4
+
+### Patch Changes
+
+- aa3c5c6: fix(message-thread): improve auto-scroll handling
+- 5f12ca9: feat(chatbot): update thread name display logic with conditional rendering
+- 8a5577c: fix(chatbot): fix error message content wrapping
+- 04a5c34: feat(launcher): increase default font-size
+- fc32709: feat(chatbot): add export option control to chatbot components
+- a1aa22d: feat(chatbot): remove default empty state logo
+- 03056d5: refactor(chatbot): update tool call UX and debug mode integration
+- 1439791: feat: expose maxFileSize and acceptedFileTypes for file picker through chatbot base
+- 8a5577c: feat(data-table): add CSV export button
+
 ## 0.13.2
 
 ### Patch Changes
