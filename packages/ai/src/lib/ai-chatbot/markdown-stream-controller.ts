@@ -1,5 +1,5 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import { renderMarkdown } from './utils.js';
+import { renderMarkdown, type RenderMarkdownOptions } from './utils.js';
 
 /**
  * Reactive controller for caching parsed markdown and throttling renders.
@@ -25,18 +25,18 @@ export class MarkdownStreamController implements ReactiveController {
     this.#markdownCache.clear();
   }
 
-  #getCacheKey(messageId: string, content: string): string {
+  #getCacheKey(messageId: string, content: string, { streaming = true }: RenderMarkdownOptions): string {
     const hash = content.length + ':' + content.slice(0, 50);
-    return `${messageId}:${hash}`;
+    return `${messageId}:${hash}:${streaming}`;
   }
 
-  public getCachedHtml(messageId: string, content: string): string {
+  public getCachedHtml(messageId: string, content: string, options: RenderMarkdownOptions = {}): string {
     const str = String(content ?? '');
-    const key = this.#getCacheKey(messageId, str);
+    const key = this.#getCacheKey(messageId, str, options);
     let html = this.#markdownCache.get(key);
 
     if (!html) {
-      html = renderMarkdown(str);
+      html = renderMarkdown(str, options);
       this.#markdownCache.set(key, html);
 
       if (this.#markdownCache.size > 100) {
