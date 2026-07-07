@@ -1,7 +1,24 @@
 import { marked } from 'marked';
 import DOMPurify, { type Config } from 'dompurify';
-import remend from 'remend';
+import remend, { type RemendOptions } from 'remend';
 import { v4 as uuidv4 } from 'uuid';
+
+export interface RenderMarkdownOptions {
+  /**
+   * Whether the content is still being streamed. Streaming content (the
+   * default) is run through markdown-completion repairs that finish partial
+   * syntax as tokens arrive. Complete content (e.g. finalized user messages)
+   * should set this to `false` so those repairs don't mangle intentional text
+   * such as `[text](` into incomplete-link placeholders.
+   */
+  streaming?: boolean;
+}
+
+/**
+ * `remend` config applied to complete (non-streaming) content: disable the
+ * link/image completion handlers, keeping escaping repairs intact.
+ */
+const COMPLETE_CONTENT_REMEND_OPTIONS: RemendOptions = { links: false, images: false };
 import type { ChatMessage, ContextItem, FileAttachment, ResponseItem, ToolCall } from './types.js';
 
 const DOMPURIFY_CONFIG: Config = {
@@ -20,8 +37,8 @@ export function generateId(): string {
 /**
  * Renders markdown content to sanitized HTML
  */
-export function renderMarkdown(content: string): string {
-  const completedMarkdown = remend(content);
+export function renderMarkdown(content: string, { streaming = true }: RenderMarkdownOptions = {}): string {
+  const completedMarkdown = remend(content, streaming ? undefined : COMPLETE_CONTENT_REMEND_OPTIONS);
   const renderer = new marked.Renderer();
   renderer.link = function (args) {
     const link = marked.Renderer.prototype.link.call(this, args);

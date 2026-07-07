@@ -343,7 +343,7 @@ export class AiMessageThreadComponent extends LitElement {
       const msg = item.data;
       const content = typeof msg.content === 'string' ? msg.content : '';
       if (msg.role === 'user') {
-        const renderedHtml = this.#markdownController.getCachedHtml(msg.id, content);
+        const renderedHtml = this.#markdownController.getCachedHtml(msg.id, content, { streaming: false });
         return html`
           <forge-ai-user-message
             message-id=${msg.id}
