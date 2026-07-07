@@ -1,5 +1,11 @@
 # @tylertech/forge-ai
 
+## 0.13.5
+
+### Patch Changes
+
+- 351ccd4: fix(ai-message-thread): render user markdown as complete content
+
 ## 0.13.4
 
 ### Patch Changes
