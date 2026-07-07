@@ -41,11 +41,14 @@ const meta = {
         <img slot="icon" src="./chatbot-logo.png" alt="AI Icon" />
         ${args.headingText ? html`<span slot="heading">${args.headingText}</span>` : ''}
         ${args.customMessage ? html`<span slot="body">${args.customMessage}</span>` : ''}
-        ${args.showSuggestions
-          ? html`
-              <forge-ai-suggestions slot="actions" variant="block" .suggestions=${suggestions}> </forge-ai-suggestions>
-            `
-          : ''}
+        ${
+          args.showSuggestions
+            ? html`
+                <forge-ai-suggestions slot="actions" variant="block" .suggestions=${suggestions}>
+                </forge-ai-suggestions>
+              `
+            : ''
+        }
       </forge-ai-empty-state>
     `;
   }

@@ -303,9 +303,9 @@ export class AiThreadsComponent extends LitElement {
 
           return html`
             <li
-              class="forge-list-item ${isSelected ? 'forge-list-item--selected' : ''} ${hasOpenMenu
-                ? 'forge-list-item--menu-open'
-                : ''}"
+              class="forge-list-item ${isSelected ? 'forge-list-item--selected' : ''} ${
+                hasOpenMenu ? 'forge-list-item--menu-open' : ''
+              }"
               role="listitem">
               ${when(
                 isEditing,

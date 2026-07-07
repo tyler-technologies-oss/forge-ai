@@ -73,10 +73,12 @@ const meta = {
         popover-placement=${args.popoverPlacement}
         ?disabled=${args.disabled}
         @forge-ai-dropdown-menu-change=${(evt: CustomEvent) => changeAction(evt.detail)}>
-        ${args.variant === 'icon-button'
-          ? html`<forge-icon name="more_vert" slot="trigger-content"></forge-icon>`
-          : html`<span slot="trigger-content">${args.text}</span>
-              <forge-icon name="arrow_drop_down" slot="end"></forge-icon>`}
+        ${
+          args.variant === 'icon-button'
+            ? html`<forge-icon name="more_vert" slot="trigger-content"></forge-icon>`
+            : html`<span slot="trigger-content">${args.text}</span>
+                <forge-icon name="arrow_drop_down" slot="end"></forge-icon>`
+        }
 
         <forge-ai-dropdown-menu-item value="gpt-4.1">
           <span>GPT-4.1</span>

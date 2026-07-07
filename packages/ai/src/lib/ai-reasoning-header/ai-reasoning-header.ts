@@ -59,13 +59,15 @@ export class AiReasoningHeaderComponent extends LitElement {
         <span class="button-header-text">
           ${this.reasoning ? html`<slot name="reasoning-title"></slot>` : html`<slot name="title"></slot>`}
         </span>
-        ${this.expanded
-          ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
-              <path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
-            </svg>`
-          : html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
-              <path d="M7.41 8.58 12 13.17l4.59-4.59L18 10l-6 6-6-6z" />
-            </svg>`}
+        ${
+          this.expanded
+            ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                <path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
+              </svg>`
+            : html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                <path d="M7.41 8.58 12 13.17l4.59-4.59L18 10l-6 6-6-6z" />
+              </svg>`
+        }
       </button>
     `;
   }

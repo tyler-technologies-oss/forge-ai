@@ -510,13 +510,15 @@ export class AiPromptComponent extends LitElement {
         class="forge-icon-button forge-icon-button--medium send-button"
         ?disabled=${this.sendDisabled || this.inputDisabled}
         @click=${this.#shouldShowStopButton ? this._handleStop : this._handleSend}>
-        ${this.#shouldShowStopButton
-          ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path d="M18 18H6V6h12z" />
-            </svg>`
-          : html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path d="m2 21 21-9L2 3v7l15 2-15 2z" />
-            </svg>`}
+        ${
+          this.#shouldShowStopButton
+            ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M18 18H6V6h12z" />
+              </svg>`
+            : html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="m2 21 21-9L2 3v7l15 2-15 2z" />
+              </svg>`
+        }
         <forge-ai-tooltip for="send-btn" placement="top"
           >${this.#shouldShowStopButton ? 'Stop' : 'Send'}</forge-ai-tooltip
         >
