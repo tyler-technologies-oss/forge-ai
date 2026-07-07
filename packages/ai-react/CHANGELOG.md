@@ -1,5 +1,21 @@
 # @tylertech/forge-ai-react
 
+## 0.13.3
+
+### Patch Changes
+
+- 1439791: feat: expose maxFileSize and acceptedFileTypes for file picker through chatbot base
+- Updated dependencies [aa3c5c6]
+- Updated dependencies [5f12ca9]
+- Updated dependencies [8a5577c]
+- Updated dependencies [04a5c34]
+- Updated dependencies [fc32709]
+- Updated dependencies [a1aa22d]
+- Updated dependencies [03056d5]
+- Updated dependencies [1439791]
+- Updated dependencies [8a5577c]
+  - @tylertech/forge-ai@0.13.4
+
 ## 0.13.2
 
 ### Patch Changes
