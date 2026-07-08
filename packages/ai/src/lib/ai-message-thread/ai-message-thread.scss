@@ -90,6 +90,8 @@ forge-ai-empty-state {
 }
 
 // Markdown formatting style overrides
-forge-ai-user-message {
+forge-ai-user-message,
+forge-ai-response-message,
+forge-ai-error-message {
   @include markdown.markdown-content;
 }
