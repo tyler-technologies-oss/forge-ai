@@ -1,5 +1,15 @@
 # @tylertech/forge-ai
 
+## 0.13.6
+
+### Patch Changes
+
+- 6a831f0: feat(chatbot): add new CSS var to control header title color
+- 1ad8d51: fix(data-table): render raw <a> text as HTML
+- 6a831f0: feat(chatbot): expose clearOption property
+- 7f0a6dc: feat(ai-tool-call-indicator): remove description and fix rendering artifacts
+- 1ad8d51: fix(markdown): render tables and code blocks as scrollable
+
 ## 0.13.5
 
 ### Patch Changes

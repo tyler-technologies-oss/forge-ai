@@ -1,5 +1,17 @@
 # @tylertech/forge-ai-react
 
+## 0.13.4
+
+### Patch Changes
+
+- 6a831f0: feat(chatbot): expose clearOption property
+- Updated dependencies [6a831f0]
+- Updated dependencies [1ad8d51]
+- Updated dependencies [6a831f0]
+- Updated dependencies [7f0a6dc]
+- Updated dependencies [1ad8d51]
+  - @tylertech/forge-ai@0.13.6
+
 ## 0.13.3
 
 ### Patch Changes
