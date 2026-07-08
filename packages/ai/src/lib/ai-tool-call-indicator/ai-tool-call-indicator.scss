@@ -5,6 +5,7 @@
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/state-layer' as forge-state-layer;
 @use '@tylertech/forge/sass/focus-indicator' as forge-focus-indicator;
+@use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 
 @include forge-focus-indicator.keyframes;
 
@@ -174,7 +175,10 @@ $marker-size: 28px;
   border-radius: 50%;
   background-color: #{forge-theme.variable(primary-container)};
   color: #{forge-theme.variable(primary)};
-  margin-block-start: #{forge-spacing.variable(xxsmall)};
+
+  :host(:state(debug-mode)) & {
+    margin-block-start: #{forge-spacing.variable(xxsmall)};
+  }
 
   &--complete {
     background-color: #{forge-theme.variable(success-container)};
@@ -204,13 +208,6 @@ $marker-size: 28px;
   line-height: normal;
   font-weight: 500;
   color: #{forge-theme.variable(text-high)};
-}
-
-.row-description {
-  @include forge-typography.style(label1);
-
-  line-height: normal;
-  color: #{forge-theme.variable(text-medium)};
 }
 
 .code-card {
@@ -288,6 +285,8 @@ $marker-size: 28px;
 }
 
 .code-card__code {
+  @include forge-scrollbar.base;
+
   font-family: monospace;
   font-size: 0.8125rem;
   line-height: 1.6;

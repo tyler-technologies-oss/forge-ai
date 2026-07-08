@@ -1,4 +1,4 @@
-import { LitElement, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
+import { LitElement, html, nothing, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
@@ -31,6 +31,8 @@ const MAX_DETAIL_LENGTH = 2000;
 @customElement(AiToolCallIndicatorComponentTagName)
 export class AiToolCallIndicatorComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
+
+  readonly #internals = this.attachInternals();
 
   @property({ attribute: false })
   public toolCalls: ToolCall[] = [];
@@ -119,6 +121,12 @@ export class AiToolCallIndicatorComponent extends LitElement {
     const elapsed = this.#elapsedMs;
     const base = `Used ${this.#count} ${this.#count === 1 ? 'tool' : 'tools'}`;
     return elapsed === undefined ? base : `${base} · ${this.#formattedElapsed}`;
+  }
+
+  public override willUpdate(changedProperties: PropertyValues<this>): void {
+    if (changedProperties.has('debugMode')) {
+      this.#internals.states[this.debugMode ? 'add' : 'delete']('debug-mode');
+    }
   }
 
   #toggle(): void {
@@ -270,7 +278,6 @@ export class AiToolCallIndicatorComponent extends LitElement {
 
     const definition = this.tools?.get(toolCall.name);
     const name = definition?.displayName ?? toolCall.name;
-    const description = definition?.description;
 
     return html`
       <div class="timeline-row" data-status=${toolCall.status}>
@@ -278,7 +285,6 @@ export class AiToolCallIndicatorComponent extends LitElement {
           ${this.#statusMarker(toolCall)}
           <span class="row-label">
             <span class="row-name">${name}${this.#statusBadge(toolCall)}</span>
-            ${description ? html`<span class="row-description">${description}</span>` : nothing}
           </span>
         </div>
       </div>
