@@ -79,6 +79,9 @@ export abstract class AiChatbotBase extends LitElement {
   @property({ attribute: 'export-option' })
   public exportOption: FeatureToggle = 'on';
 
+  @property({ attribute: 'clear-option' })
+  public clearOption: FeatureToggle = 'on';
+
   @property({ type: Object, attribute: false })
   public agentInfo?: AgentInfo;
 

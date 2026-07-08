@@ -79,6 +79,9 @@ export interface ForgeAiChatbotProps extends Pick<
   exportOption?: ForgeAiChatbotElement["exportOption"];
 
   /** undefined */
+  clearOption?: ForgeAiChatbotElement["clearOption"];
+
+  /** undefined */
   selectedAgentId?: ForgeAiChatbotElement["selectedAgentId"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
@@ -266,5 +269,6 @@ export interface ForgeAiChatbotProps extends Pick<
  *  - **--forge-ai-chatbot-icon-color** - The fill color for the AI icon. Defaults to `tertiary`. _(default: undefined)_
  * - **--forge-ai-chatbot-suggestion-background** - The background color for suggestion buttons. Defaults to `tertiary-container`. _(default: undefined)_
  * - **--forge-ai-chatbot-suggestion-foreground** - The text color for suggestion buttons. Defaults to `on-tertiary-container`. _(default: undefined)_
+ * - **--forge-ai-chatbot-header-title-color** - The color of the header title text. Defaults to `currentColor`. _(default: undefined)_
  */
 export const ForgeAiChatbot: React.ForwardRefExoticComponent<ForgeAiChatbotProps>;

@@ -123,5 +123,8 @@ export interface ForgeAiChatHeaderProps extends Pick<
  *  - **icon** - Slot for custom icon (default: forge-ai-icon)
  * - **header-actions** - Slot for custom header action buttons (rendered before built-in header actions)
  * - **thread-name** - Slot for content to be rendered after the title
+ *
+ * ### **CSS Properties:**
+ *  - **--forge-ai-chat-header-title-color** - The color of the title text. Defaults to `currentColor`. _(default: undefined)_
  */
 export const ForgeAiChatHeader: React.ForwardRefExoticComponent<ForgeAiChatHeaderProps>;

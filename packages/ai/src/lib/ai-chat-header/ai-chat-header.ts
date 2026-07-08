@@ -71,6 +71,8 @@ export interface AgentInfo {
  * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
  *
+ * @cssproperty --forge-ai-chat-header-title-color - The color of the title text. Defaults to `currentColor`.
+ *
  * @event forge-ai-chat-header-expand - Fired when the expand button is clicked
  * @event forge-ai-chat-header-minimize - Fired when the minimize button is clicked
  * @event forge-ai-chat-header-clear - Fired when the clear chat option is selected

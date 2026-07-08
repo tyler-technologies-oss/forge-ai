@@ -32,6 +32,10 @@ forge-ai-chat-interface {
   }
 }
 
+forge-ai-chat-header {
+  --forge-ai-chat-header-title-color: var(--forge-ai-chatbot-header-title-color, currentColor);
+}
+
 .disclaimer {
   @include forge-typography.style(label1);
 

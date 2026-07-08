@@ -498,7 +498,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           ${ref(this.#headerRef)}
           ?disable-agent-selector=${this._isStreaming}
           export-option=${this.exportOption === 'off' ? 'off' : this._hasMessages ? 'enabled' : 'off'}
-          clear-option=${this._hasMessages ? 'enabled' : 'off'}
+          clear-option=${this.clearOption === 'off' ? 'off' : this._hasMessages ? 'enabled' : 'off'}
           .agentInfo=${this.agentInfo}
           .headingLevel=${this.headingLevel}
           .titleText=${this.titleText}

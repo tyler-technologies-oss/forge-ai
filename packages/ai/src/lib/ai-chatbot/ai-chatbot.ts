@@ -140,10 +140,13 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @property {AgentInfo} agentInfo - Agent metadata for info dialog
  * @property {Agent[]} agents - List of available agents for selector
  * @property {Suggestion[]} suggestions - Suggestions to display in the empty state
+ * @property {FeatureToggle} clearOption - Controls the clear-conversation header action. `'on'` (default) shows it when messages exist; `'off'` hides it entirely.
+ * @property {FeatureToggle} exportOption - Controls the export-conversation header action. `'on'` (default) shows it when messages exist; `'off'` hides it entirely.
  *
  * @cssproperty --forge-ai-chatbot-icon-color - The fill color for the AI icon. Defaults to `tertiary`.
  * @cssproperty --forge-ai-chatbot-suggestion-background - The background color for suggestion buttons. Defaults to `tertiary-container`.
  * @cssproperty --forge-ai-chatbot-suggestion-foreground - The text color for suggestion buttons. Defaults to `on-tertiary-container`.
+ * @cssproperty --forge-ai-chatbot-header-title-color - The color of the header title text. Defaults to `currentColor`.
  *
  * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
  * @event {CustomEvent<void>} forge-ai-chatbot-disconnected - Fired when adapter disconnects
@@ -487,7 +490,7 @@ export class AiChatbotComponent extends AiChatbotBase {
             ?expanded=${this.expanded}
             ?disable-agent-selector=${this._isStreaming}
             export-option=${this.exportOption === 'off' ? 'off' : this._hasMessages ? 'enabled' : 'off'}
-            clear-option=${this._hasMessages ? 'enabled' : 'off'}
+            clear-option=${this.clearOption === 'off' ? 'off' : this._hasMessages ? 'enabled' : 'off'}
             .minimizeIcon=${this.minimizeIcon}
             .agentInfo=${this.agentInfo}
             .headingLevel=${this.headingLevel}
