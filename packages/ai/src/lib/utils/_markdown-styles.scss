@@ -3,6 +3,7 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/typography' as forge-typography;
 @use '@tylertech/forge/sass/table/core' as forge-table-core;
+@use '../mixins' as mixins;
 
 @mixin markdown-content {
   @include forge-typography.style(body1);
@@ -46,19 +47,31 @@
   pre {
     border: 1px solid #{forge-theme.variable(outline)};
     border-radius: #{forge-shape.variable(medium)};
-    margin-block: #{forge-spacing.variable(medium)} 0;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
     margin: 0;
+    max-width: 100%;
+    overflow-x: auto;
+
+    @include mixins.scroll-region-focus-ring;
 
     code {
       display: block;
       padding: #{forge-spacing.variable(xsmall)} #{forge-spacing.variable(small)};
       color: #{forge-theme.variable(on-surface-container-minimum)};
       background: #{forge-theme.variable(surface-container-minimum)};
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      overflow-x: visible;
+      white-space: pre;
+    }
+  }
+
+  [data-scroll-region='table'] {
+    max-width: 100%;
+    overflow-x: auto;
+    border-radius: #{forge-shape.variable(large)};
+    margin-block: #{forge-spacing.variable(medium)};
+
+    @include mixins.scroll-region-focus-ring;
+
+    table {
+      margin-block: 0;
     }
   }
 

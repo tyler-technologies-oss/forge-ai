@@ -1,5 +1,5 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import { renderMarkdown, type RenderMarkdownOptions } from './utils.js';
+import { renderMarkdown, type RenderMarkdownOptions } from '../utils/markdown.js';
 
 /**
  * Reactive controller for caching parsed markdown and throttling renders.

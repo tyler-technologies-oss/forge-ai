@@ -48,6 +48,11 @@ const meta = {
       options: ['on', 'off'],
       description: 'Control export option visibility'
     },
+    clearOption: {
+      control: 'select',
+      options: ['on', 'off'],
+      description: 'Control clear-conversation option visibility. "off" hides it entirely.'
+    },
     showExpandButton: {
       control: 'boolean',
       description: 'Show expand button in header'
@@ -101,6 +106,7 @@ const meta = {
     voiceInput: 'on',
     debugCommand: 'on',
     exportOption: 'on',
+    clearOption: 'on',
     showExpandButton: false,
     showMinimizeButton: false,
     expanded: false,
@@ -153,6 +159,7 @@ const meta = {
           voice-input=${args.voiceInput}
           debug-command=${args.debugCommand}
           export-option=${args.exportOption}
+          clear-option=${args.clearOption}
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?show-conversations-button=${args.showConversationsButton}
@@ -1443,6 +1450,268 @@ export const WithEmptyConversationHistory: Story = {
           @forge-ai-chatbot-conversations-close=${onConversationsClose}
           @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
           @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const OverflowingContent: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const wideTable = `| Region | Q1 Revenue | Q2 Revenue | Q3 Revenue | Q4 Revenue | YoY Growth | Market Share | Notes |
+|--------|-----------|-----------|-----------|-----------|-----------|-------------|-------|
+| North America Central | $1,250,000 | $1,340,000 | $1,410,000 | $1,580,000 | +18.2% | 34.5% | Strongest performing region this fiscal year |
+| Europe Middle East Africa | $980,000 | $1,020,000 | $1,110,000 | $1,240,000 | +12.4% | 27.1% | Steady growth across all product lines |
+| Asia Pacific Region | $760,000 | $840,000 | $920,000 | $1,050,000 | +24.8% | 22.9% | Fastest growing region driven by emerging markets |`;
+
+    const longCode = `\`\`\`bash
+docker run --rm -it --name my-very-long-container-name -e "DATABASE_URL=postgres://user:password@some-very-long-hostname.example.com:5432/mydatabase" -v /host/path/to/data:/container/path/to/data --network my-custom-bridge-network my-registry.example.com/my-org/my-image:latest --flag-one --flag-two --flag-three
+\`\`\``;
+
+    const initialMessages: ChatMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        content: 'Show me the regional breakdown and the deploy command.',
+        timestamp: Date.now() - 60000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        content: `Here's the full regional revenue breakdown. This table is wider than the chat, so it becomes a keyboard-focusable scroll region:\n\n${wideTable}\n\nAnd here's the deploy command as a single long line — the code block scrolls horizontally instead of wrapping:\n\n${longCode}`,
+        timestamp: Date.now() - 59000,
+        status: 'complete'
+      }
+    ];
+
+    setTimeout(() => {
+      const chatbot = document.querySelector('forge-ai-chatbot') as any;
+      if (!chatbot) return;
+      chatbot.setThreadState({ messages: initialMessages });
+    }, 0);
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 520px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Overflowing Content Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            The wide table and long code block overflow horizontally. They become focusable scroll regions
+            (<code>role="region"</code>, <code>tabindex="0"</code>, <code>aria-label</code>). Press <kbd>Tab</kbd> to
+            focus them and use arrow keys to scroll. Content that fits gets no tab stop.
+          </p>
+        </div>
+        <forge-ai-chatbot .adapter=${adapter} placeholder=${args.placeholder} title-text="Overflowing Content">
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const LinkifiedContent: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500,
+      tools: [displayDataTableTool]
+    });
+
+    const linkTableToolCall: ToolCall = {
+      id: 'tool-links-1',
+      messageId: 'assistant-2',
+      name: 'displayDataTable',
+      status: 'complete',
+      type: 'client',
+      args: {
+        title: 'Team Resources',
+        headers: ['Name', 'Email', 'Docs'],
+        rows: [
+          ['Sarah Johnson', 'sarah.j@company.com', 'https://docs.company.com/sarah'],
+          ['Michael Chen', 'michael.c@company.com', 'https://docs.company.com/michael'],
+          ['Emily Rodriguez', 'emily.r@company.com', 'www.company.com/emily'],
+          ['Priya Patel', 'priya.p@company.com', '<a href="https://docs.company.com/priya">Priya\'s docs</a>']
+        ]
+      }
+    };
+
+    const initialMessages: ChatMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        content: 'Where can I find the docs and who do I contact?',
+        timestamp: Date.now() - 60000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        content: `You can find everything at https://docs.company.com and email support@company.com with questions. Bare links also work inside markdown tables:
+
+| Resource | Link |
+|----------|------|
+| API Reference | https://api.company.com/reference |
+| Support | support@company.com |
+| Homepage | www.company.com |`,
+        timestamp: Date.now() - 59000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-2',
+        role: 'assistant',
+        content: 'And here it is rendered via the data-table tool — links in those cells are clickable too:',
+        timestamp: Date.now() - 58000,
+        status: 'complete',
+        toolCalls: [linkTableToolCall],
+        children: [
+          {
+            type: 'text',
+            messageId: 'assistant-2',
+            content: 'And here it is rendered via the data-table tool — links in those cells are clickable too:',
+            status: 'complete'
+          },
+          { type: 'toolCall', data: linkTableToolCall }
+        ]
+      }
+    ];
+
+    setTimeout(() => {
+      const chatbot = document.querySelector('forge-ai-chatbot') as any;
+      if (!chatbot) return;
+      chatbot.setThreadState({ messages: initialMessages });
+    }, 0);
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Linkified Content Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Bare URLs and email addresses are automatically turned into clickable links in prose, markdown table cells,
+            and data-table tool cells. Data-table cells also render raw
+            <code>&lt;a&gt;</code> anchors emitted by the agent. Links open in a new tab with
+            <code>rel="noreferrer noopener"</code>.
+          </p>
+        </div>
+        <forge-ai-chatbot .adapter=${adapter} placeholder=${args.placeholder} title-text="Linkified Content">
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const ClearOptionOff: Story = {
+  args: {
+    clearOption: 'off'
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const initialMessages: ChatMessage[] = [
+      {
+        id: 'user-1',
+        role: 'user',
+        content: 'What is a web component?',
+        timestamp: Date.now() - 60000,
+        status: 'complete'
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        content:
+          'Web components are a set of web platform APIs that let you create reusable, encapsulated custom HTML elements.',
+        timestamp: Date.now() - 59000,
+        status: 'complete'
+      }
+    ];
+
+    setTimeout(() => {
+      const chatbot = document.querySelector('forge-ai-chatbot') as any;
+      if (!chatbot) return;
+      chatbot.setThreadState({ messages: initialMessages });
+    }, 0);
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Clear Option Off Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Even though messages are present, <code>clear-option="off"</code> suppresses the "Clear chat" action in the
+            header options menu. Set the <code>clearOption</code> control back to "on" to restore the default behavior.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="Clear Option Off"
+          clear-option=${args.clearOption}
+          @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const BrandedHeaderTitle: Story = {
+  parameters: {
+    controls: { include: ['headerTitleColor'] }
+  },
+  argTypes: {
+    headerTitleColor: {
+      control: 'color',
+      description: 'Header title color (--forge-ai-chatbot-header-title-color)'
+    }
+  },
+  args: {
+    headerTitleColor: '#6200ee'
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    return html`
+      <style>
+        .branded-title-chatbot {
+          --forge-ai-chatbot-header-title-color: ${args.headerTitleColor};
+        }
+      </style>
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Branded Header Title Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            The header title color is themed via the <code>--forge-ai-chatbot-header-title-color</code>
+            custom property to match tenant branding.
+          </p>
+        </div>
+        <forge-ai-chatbot
+          class="branded-title-chatbot"
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text="Tenant Branded Assistant">
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>

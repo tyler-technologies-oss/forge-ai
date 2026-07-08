@@ -47,6 +47,7 @@
   border-radius: #{forge-shape.variable(large)};
   overflow-x: auto;
 
+  @include mixins.scroll-region-focus-ring;
   @include forge-scrollbar.base;
 
   &::-webkit-scrollbar,
@@ -103,6 +104,10 @@ td {
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: #{forge-theme.variable(outline)};
+}
+
+td a {
+  color: #{forge-theme.variable(primary)};
 }
 
 .body2 {

@@ -81,4 +81,4 @@ export { FileUploadManager, type FileUploadManagerConfig } from './file-upload-m
 export { MarkdownStreamController } from './markdown-stream-controller.js';
 
 // Utilities
-export { generateId, renderMarkdown } from './utils.js';
+export { generateId, renderMarkdown, renderInlineMarkdown } from './utils.js';

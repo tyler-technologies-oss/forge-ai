@@ -1,8 +1,10 @@
 import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import type { IToolRenderer, ToolCall } from '../../ai-chatbot';
 import { buildCSVContent, downloadCSV, sanitizeFilename } from '../../utils/csv-utils';
+import { renderInlineMarkdown } from '../../utils/markdown';
 
 import '../../ai-artifact/ai-artifact.js';
 import '../../ai-empty-state/ai-empty-state.js';
@@ -234,7 +236,7 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
           ${this.#paginatedRows.map(
             row => html`
               <tr class="table-row">
-                ${row.map(cell => html` <td>${cell}</td> `)}
+                ${row.map(cell => html` <td>${unsafeHTML(renderInlineMarkdown(String(cell)))}</td> `)}
               </tr>
             `
           )}
@@ -247,7 +249,16 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
     if (this.#shouldShowEmptyState) {
       return this.#emptyState;
     }
-    return html` <div class="table-container">${this.#table}</div> `;
+    return html`
+      <div
+        class="table-container"
+        data-scroll-region="table"
+        role="group"
+        tabindex="0"
+        aria-label="Tabular data: ${this.#tableData?.title || 'Table'}">
+        ${this.#table}
+      </div>
+    `;
   }
 
   get #header(): TemplateResult | typeof nothing {
