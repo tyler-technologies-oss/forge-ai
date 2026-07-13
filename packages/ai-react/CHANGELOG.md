@@ -1,5 +1,14 @@
 # @tylertech/forge-ai-react
 
+## 0.13.6
+
+### Patch Changes
+
+- 6b2318d: feat(ai-threads): add selectedThreadId property for managing active thread selection
+- Updated dependencies [ab84d27]
+- Updated dependencies [6b2318d]
+  - @tylertech/forge-ai@0.13.8
+
 ## 0.13.5
 
 ### Patch Changes
