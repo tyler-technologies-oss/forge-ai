@@ -1,5 +1,11 @@
 # @tylertech/forge-ai
 
+## 0.13.9
+
+### Patch Changes
+
+- 5440757: fix(chatbot): remove internal tools cache to support dynamic tools
+
 ## 0.13.8
 
 ### Patch Changes
