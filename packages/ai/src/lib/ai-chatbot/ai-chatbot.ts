@@ -1,5 +1,5 @@
 import { html, unsafeCSS, type TemplateResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
 import type { AiChatInterfaceComponent } from '../ai-chat-interface';
@@ -142,6 +142,7 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @property {Suggestion[]} suggestions - Suggestions to display in the empty state
  * @property {FeatureToggle} clearOption - Controls the clear-conversation header action. `'on'` (default) shows it when messages exist; `'off'` hides it entirely.
  * @property {FeatureToggle} exportOption - Controls the export-conversation header action. `'on'` (default) shows it when messages exist; `'off'` hides it entirely.
+ * @property {string | null} selectedThreadId - The id of the currently selected conversation thread. Set this to highlight a thread in the conversations panel (e.g. when restoring a conversation loaded from the backend). Updated internally when a thread is selected or a new chat starts.
  *
  * @cssproperty --forge-ai-chatbot-icon-color - The fill color for the AI icon. Defaults to `tertiary`.
  * @cssproperty --forge-ai-chatbot-suggestion-background - The background color for suggestion buttons. Defaults to `tertiary-container`.
@@ -202,8 +203,8 @@ export class AiChatbotComponent extends AiChatbotBase {
   @property({ type: Boolean, attribute: 'show-conversation-delete' })
   public showConversationDelete = false;
 
-  @state()
-  private _selectedThreadId: string | null = null;
+  @property({ type: String, attribute: 'selected-thread-id' })
+  public selectedThreadId: string | null = null;
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   protected override _messageThreadRef = createRef<AiMessageThreadComponent>();
@@ -279,7 +280,7 @@ export class AiChatbotComponent extends AiChatbotBase {
    */
   public override startNewChat(): void {
     super.startNewChat();
-    this._selectedThreadId = null;
+    this.selectedThreadId = null;
   }
 
   #handleConversationsDialogClose(): void {
@@ -321,7 +322,7 @@ export class AiChatbotComponent extends AiChatbotBase {
 
   #handleThreadSelect(evt: CustomEvent): void {
     const { id, title } = evt.detail;
-    this._selectedThreadId = id;
+    this.selectedThreadId = id;
     this._dispatchHostEvent({
       type: 'forge-ai-chatbot-conversation-select',
       detail: { id, title }
@@ -529,7 +530,7 @@ export class AiChatbotComponent extends AiChatbotBase {
               <forge-ai-conversations-panel
                 ${ref(this.#conversationsPanelRef)}
                 .recentThreads=${this.recentThreads}
-                .selectedThreadId=${this._selectedThreadId}
+                .selectedThreadId=${this.selectedThreadId}
                 ?show-back-button=${true}
                 ?show-conversation-rename=${this.showConversationRename}
                 ?show-conversation-delete=${this.showConversationDelete}

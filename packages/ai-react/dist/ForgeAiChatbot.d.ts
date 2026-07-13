@@ -48,6 +48,9 @@ export interface ForgeAiChatbotProps extends Pick<
   /** undefined */
   minimizeIcon?: ForgeAiChatbotElement["minimizeIcon"];
 
+  /** The id of the currently selected conversation thread. Set this to highlight a thread in the conversations panel (e.g. when restoring a conversation loaded from the backend). Updated internally when a thread is selected or a new chat starts. */
+  selectedThreadId?: ForgeAiChatbotElement["selectedThreadId"];
+
   /** undefined */
   fileUpload?: ForgeAiChatbotElement["fileUpload"];
 

@@ -15,6 +15,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     enableReactions,
     debugMode,
     minimizeIcon,
+    selectedThreadId,
     fileUpload,
     maxFileSize,
     acceptedFileTypes,
@@ -151,6 +152,8 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       },
       ...filteredProps,
       "minimize-icon": props.minimizeIcon || props["minimize-icon"],
+      "selected-thread-id":
+        props.selectedThreadId || props["selected-thread-id"],
       "file-upload": props.fileUpload || props["file-upload"],
       "max-file-size": props.maxFileSize || props["max-file-size"],
       "accepted-file-types":
