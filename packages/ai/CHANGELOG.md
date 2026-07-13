@@ -1,5 +1,13 @@
 # @tylertech/forge-ai
 
+## 0.13.7
+
+### Patch Changes
+
+- 6f1d5f4: feat(ai-chatbot): add conversation-related event data types to exports
+- 2eafa07: feat(ai-chatbot): add selectedThreadId property to manage active conversation thread
+- be2b248: fix(ai-chat-header): update condition for rendering dropdown menu separator
+
 ## 0.13.6
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @tylertech/forge-ai-react
 
+## 0.13.5
+
+### Patch Changes
+
+- 2eafa07: feat(ai-chatbot): add selectedThreadId property to manage active conversation thread
+- Updated dependencies [6f1d5f4]
+- Updated dependencies [2eafa07]
+- Updated dependencies [be2b248]
+  - @tylertech/forge-ai@0.13.7
+
 ## 0.13.4
 
 ### Patch Changes
