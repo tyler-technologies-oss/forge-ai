@@ -103,8 +103,8 @@ export class AiThreadsComponent extends LitElement {
   private _threadListContainer!: HTMLElement;
 
   /** Currently selected thread ID */
-  @state()
-  private _selectedThreadId: string | null = null;
+  @property({ type: String, attribute: 'selected-thread-id' })
+  public selectedThreadId: string | null = null;
 
   @state()
   private _editingThreadId: string | null = null;
@@ -179,7 +179,7 @@ export class AiThreadsComponent extends LitElement {
 
   private _handleThreadSelect(thread: Thread): void {
     // Update selected thread ID to trigger re-render with new selection
-    this._selectedThreadId = thread.id;
+    this.selectedThreadId = thread.id;
 
     const event = new CustomEvent<ForgeAiThreadsSelectEventData>('forge-ai-threads-select', {
       detail: { id: thread.id, title: thread.title },
@@ -297,7 +297,7 @@ export class AiThreadsComponent extends LitElement {
     return html`
       <ul class="forge-list forge-list--dense forge-list--navlist" role="list">
         ${displayedThreads.map((thread: Thread) => {
-          const isSelected = this._selectedThreadId === thread.id;
+          const isSelected = this.selectedThreadId === thread.id;
           const isEditing = this._editingThreadId === thread.id;
           const hasOpenMenu = this._openMenuThreadId === thread.id;
 

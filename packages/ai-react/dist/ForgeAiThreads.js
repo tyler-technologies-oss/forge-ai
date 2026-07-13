@@ -9,6 +9,7 @@ export const ForgeAiThreads = forwardRef((props, forwardedRef) => {
     showThreadDelete,
     threads,
     totalChats,
+    selectedThreadId,
     ...filteredProps
   } = props;
 
@@ -58,6 +59,8 @@ export const ForgeAiThreads = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       threads: props.threads,
       "total-chats": props.totalChats || props["total-chats"],
+      "selected-thread-id":
+        props.selectedThreadId || props["selected-thread-id"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
