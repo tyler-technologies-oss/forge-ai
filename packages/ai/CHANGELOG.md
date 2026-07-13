@@ -1,5 +1,12 @@
 # @tylertech/forge-ai
 
+## 0.13.8
+
+### Patch Changes
+
+- ab84d27: feat(ai-thinking-indicator): update status messages for improved user feedback
+- 6b2318d: feat(ai-threads): add selectedThreadId property for managing active thread selection
+
 ## 0.13.7
 
 ### Patch Changes
