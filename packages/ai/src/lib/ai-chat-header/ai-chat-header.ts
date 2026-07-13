@@ -348,7 +348,7 @@ export class AiChatHeaderComponent extends LitElement {
                   `
                 )}
                 ${when(
-                  this.agentInfo && (this.exportOption === 'enabled' || this.clearOption === 'enabled'),
+                  this.clearOption === 'enabled' && (this.agentInfo || this.exportOption === 'enabled'),
                   () => html`<forge-ai-dropdown-menu-separator></forge-ai-dropdown-menu-separator>`
                 )}
                 ${when(
