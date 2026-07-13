@@ -3,7 +3,6 @@ import type {
   ChatMessage,
   MessageItem,
   ToolCall,
-  ToolDefinition,
   StreamEvent,
   AssistantResponse,
   ResponseItem,
@@ -21,7 +20,6 @@ import type {
 import { generateId } from './utils.js';
 
 export interface MessageStateControllerConfig {
-  tools: Map<string, ToolDefinition>;
   onThreadSettled?: () => void;
 }
 
