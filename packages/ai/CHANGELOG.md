@@ -1,5 +1,11 @@
 # @tylertech/forge-ai
 
+## 0.13.10
+
+### Patch Changes
+
+- 2f6452e: fix(tool-call): fix tool call artifact spacing
+
 ## 0.13.9
 
 ### Patch Changes
