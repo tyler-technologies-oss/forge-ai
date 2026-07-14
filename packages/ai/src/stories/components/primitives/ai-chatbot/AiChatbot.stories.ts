@@ -1213,7 +1213,13 @@ export const WithDataTableTool: Story = {
             content: "Here's the Q4 2024 sales report broken down by region and product:",
             status: 'complete'
           },
-          { type: 'toolCall', data: dataTableToolCall }
+          { type: 'toolCall', data: dataTableToolCall },
+          {
+            type: 'text',
+            messageId: 'assistant-2',
+            content: 'Is there anything else you would like to know?',
+            status: 'complete'
+          }
         ]
       }
     ];
