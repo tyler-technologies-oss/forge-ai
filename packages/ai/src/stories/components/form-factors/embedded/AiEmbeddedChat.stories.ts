@@ -32,13 +32,18 @@ const meta = {
     placeholder: {
       control: 'text',
       description: 'Placeholder text for input'
+    },
+    label: {
+      control: 'text',
+      description: 'Accessible label announced by screen readers when the modal is expanded'
     }
   },
   args: {
     expanded: false,
     gradientVariant: 'medium',
     fileUpload: 'off',
-    placeholder: 'Ask a question...'
+    placeholder: 'Ask a question...',
+    label: 'AI Assistant'
   },
   render: args => {
     const adapter = new MockAdapter({
@@ -59,6 +64,7 @@ const meta = {
           gradient-variant=${args.gradientVariant}
           file-upload=${args.fileUpload}
           placeholder=${args.placeholder}
+          label=${args.label}
           @forge-ai-embedded-chat-expand=${action('forge-ai-embedded-chat-expand')}
           @forge-ai-embedded-chat-collapse=${action('forge-ai-embedded-chat-collapse')}
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}

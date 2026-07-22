@@ -74,7 +74,7 @@ export class AiPaginator extends LitElement {
             class="forge-icon-button forge-icon-button--medium"
             ?disabled=${this._isPreviousDisabled}
             @click=${this.#handlePreviousClick}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M15.41 16.58 10.83 12l4.58-4.59L14 6l-6 6 6 6z" />
             </svg>
           </button>
@@ -86,7 +86,7 @@ export class AiPaginator extends LitElement {
             class="forge-icon-button forge-icon-button--medium"
             ?disabled=${this._isNextDisabled}
             @click=${this.#handleNextClick}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M8.59 16.58 13.17 12 8.59 7.41 10 6l6 6-6 6z" />
             </svg>
           </button>

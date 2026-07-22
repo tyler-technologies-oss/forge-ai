@@ -50,6 +50,12 @@ export class AiDialogComponent extends LitElement {
   @property({ type: Boolean })
   public expanded = false;
 
+  /**
+   * Accessible label for the dialog, announced by screen readers when it opens.
+   */
+  @property({ type: String })
+  public label = 'AI Assistant';
+
   @state()
   private _isFullscreen = window.innerWidth <= VIEWPORT_WIDTH_THRESHOLD;
 
@@ -124,7 +130,7 @@ export class AiDialogComponent extends LitElement {
       <dialog
         ${ref(this.#popoverElementRef)}
         aria-modal="false"
-        aria-labelledby="dialog-title"
+        aria-label=${this.label}
         popover="manual"
         class="${dialogClasses}"
         @toggle=${this.#handlePopoverToggle}>
@@ -136,7 +142,7 @@ export class AiDialogComponent extends LitElement {
           tabindex="0"
           @pointerdown=${this.#dragController?.handlePointerDown}
           @keydown=${this.#dragController?.handleKeyDown}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="none" d="M0 0h24v24H0z" />
             <path d="M20 9H4v2h16zM4 15h16v-2H4z" />
           </svg>
@@ -148,7 +154,10 @@ export class AiDialogComponent extends LitElement {
 
   get #modalTemplate(): TemplateResult {
     return html`
-      <forge-ai-modal ${ref(this.#aiModalElementRef)} @forge-ai-modal-close=${this.#handleDialogClose}>
+      <forge-ai-modal
+        ${ref(this.#aiModalElementRef)}
+        label=${this.label}
+        @forge-ai-modal-close=${this.#handleDialogClose}>
         ${this.#content}
       </forge-ai-modal>
     `;

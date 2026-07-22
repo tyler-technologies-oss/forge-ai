@@ -35,13 +35,18 @@ const meta = {
     placeholder: {
       control: 'text',
       description: 'Placeholder text for input'
+    },
+    label: {
+      control: 'text',
+      description: 'Accessible label announced by screen readers when the dialog opens'
     }
   },
   args: {
     open: false,
     expanded: false,
     fileUpload: 'off',
-    placeholder: 'Ask a question...'
+    placeholder: 'Ask a question...',
+    label: 'AI Assistant'
   },
   render: args => {
     const adapter = new MockAdapter({
@@ -78,6 +83,7 @@ const meta = {
       <forge-ai-floating-chat
         ?open=${args.open}
         ?expanded=${args.expanded}
+        label=${args.label}
         @forge-ai-floating-chat-open=${action('forge-ai-floating-chat-open')}
         @forge-ai-floating-chat-close=${action('forge-ai-floating-chat-close')}
         @forge-ai-floating-chat-expand=${handleExpand}

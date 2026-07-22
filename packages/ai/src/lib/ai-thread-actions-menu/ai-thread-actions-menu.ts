@@ -116,12 +116,13 @@ export class AiThreadActionsMenuComponent extends LitElement {
         density="small"
         selection-mode="none"
         popover-placement="bottom-start"
+        trigger-label="Conversation options"
         @keydown=${this.#handleMenuKeyDown}
         @forge-ai-dropdown-menu-open=${this.#handleMenuOpen}
         @forge-ai-dropdown-menu-close=${this.#handleMenuClose}
         @click=${this.#handleMenuSelect}>
         <slot name="trigger-icon" slot="trigger-content">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" class="forge-icon">
             <path
               d="M12 16a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0-6a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2" />
           </svg>
@@ -131,7 +132,12 @@ export class AiThreadActionsMenuComponent extends LitElement {
           this.showRename,
           () => html`
             <forge-ai-dropdown-menu-item value="rename" @click=${this.#handleRenameClick}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start" class="forge-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                slot="start"
+                class="forge-icon"
+                aria-hidden="true">
                 <path
                   d="m14.06 9 .94.94L5.92 19H5v-.92zm3.6-6c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29m-3.6 3.19L3 17.25V21h3.75L17.81 9.94z" />
               </svg>
@@ -143,7 +149,12 @@ export class AiThreadActionsMenuComponent extends LitElement {
           this.showDelete,
           () => html`
             <forge-ai-dropdown-menu-item value="delete" @click=${this.#handleDeleteClick}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" slot="start" class="forge-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                slot="start"
+                class="forge-icon"
+                aria-hidden="true">
                 <path
                   d="M9 3v1H4v2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1V4h-5V3zM7 6h10v13H7zm2 2v9h2V8zm4 0v9h2V8z" />
               </svg>

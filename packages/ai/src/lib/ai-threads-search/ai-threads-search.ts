@@ -359,7 +359,7 @@ export class AiThreadsSearchComponent extends LitElement {
           <span class="title">All chats</span>
         </div>
         <button class="forge-button new-chat-button" @click=${this.#handleNewChatClick}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
           </svg>
           New chat
@@ -371,7 +371,7 @@ export class AiThreadsSearchComponent extends LitElement {
   get #searchField(): TemplateResult {
     return html`
       <div class="forge-field forge-field--rounded forge-field--small search-field">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
           <path fill="none" d="M0 0h24v24H0z" />
           <path
             d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14" />
@@ -387,7 +387,7 @@ export class AiThreadsSearchComponent extends LitElement {
           this._searchQuery.length,
           () => html`
             <button class="forge-icon-button forge-icon-button--small" type="button" @click=${this.#handleClearSearch}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
                 <path
                   d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
               </svg>

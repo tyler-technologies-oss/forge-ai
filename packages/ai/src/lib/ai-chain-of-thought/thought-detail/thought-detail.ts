@@ -22,7 +22,7 @@ export class ThoughtDetailComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <forge-ai-thought-base>
-        <svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+        <svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
           <path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4" />
         </svg>
         <slot slot="title" name="title"></slot>
