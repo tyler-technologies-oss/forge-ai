@@ -63,6 +63,12 @@ export class AiModalComponent extends LitElement {
   @property({ type: String, attribute: 'size-strategy' })
   public sizeStrategy: AiModalSizeStrategy = 'auto';
 
+  /**
+   * Accessible label for the dialog, announced by screen readers when the modal opens.
+   */
+  @property({ type: String })
+  public label = 'AI Assistant';
+
   @state()
   private _autoFullscreen = window.innerWidth <= FULLSCREEN_WIDTH_THRESHOLD;
 
@@ -86,7 +92,7 @@ export class AiModalComponent extends LitElement {
     return html`
       <dialog
         class=${classMap(classes)}
-        aria-labelledby="chat-interface-title"
+        aria-label=${this.label}
         @close=${this.#handleDialogClose}
         @click=${this.#handleDialogClick}
         @keydown=${this.#handleDialogKeydown}>

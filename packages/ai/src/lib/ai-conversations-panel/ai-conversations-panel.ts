@@ -461,7 +461,7 @@ export class AiConversationsPanelComponent extends LitElement {
         class="close-button forge-icon-button forge-icon-button--medium"
         @click=${this.#handleCloseClick}
         aria-label="Close conversations panel">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="none" d="M0 0h24v24H0z" />
           <path
             d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
@@ -477,7 +477,7 @@ export class AiConversationsPanelComponent extends LitElement {
           class="back-button forge-icon-button forge-icon-button--medium"
           @click=${this.#handleBackClick}
           aria-label="Back to recent chats">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="none" d="M0 0h24v24H0z" />
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z" />
           </svg>
@@ -488,7 +488,7 @@ export class AiConversationsPanelComponent extends LitElement {
             class="close-button forge-icon-button forge-icon-button--medium"
             @click=${this.#handleCloseClick}
             aria-label="Close conversations panel">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="none" d="M0 0h24v24H0z" />
               <path
                 d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
@@ -504,7 +504,7 @@ export class AiConversationsPanelComponent extends LitElement {
   get #searchFieldSearch(): TemplateResult {
     return html`
       <div class="forge-field forge-field--small search-field">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
           <path fill="none" d="M0 0h24v24H0z" />
           <path
             d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14" />
@@ -616,7 +616,7 @@ export class AiConversationsPanelComponent extends LitElement {
     <ul class="forge-list forge-list--dense forge-list--navlist chat-actions-list" role="list">
       <li class="forge-list-item new-chat-item" role="listitem">
         <button @click=${this.#handleNewChatClick}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
             <path
               d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.2L4 17.2V4h16zm-4-7v2h-3v3h-2v-3H8V9h3V6h2v3z" />
           </svg>
@@ -625,7 +625,7 @@ export class AiConversationsPanelComponent extends LitElement {
       </li>
       <li class="forge-list-item new-chat-item" role="listitem">
         <button @click=${this.#handleSearchChatsClick}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
             <path
               d="M9 6v2H2V6zm0 5v2H2v-2zm9 5v2H2v-2zm1.31-4.5c.44-.68.69-1.5.69-2.39 0-2.5-2-4.5-4.5-4.5s-4.5 2-4.5 4.5 2 4.5 4.5 4.5c.87 0 1.69-.25 2.38-.68L21 16l1.39-1.39zm-3.81.11c-1.38 0-2.5-1.11-2.5-2.5s1.12-2.5 2.5-2.5a2.5 2.5 0 0 1 0 5" />
           </svg>

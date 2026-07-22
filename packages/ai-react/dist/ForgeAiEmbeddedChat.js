@@ -10,6 +10,7 @@ export const ForgeAiEmbeddedChat = forwardRef((props, forwardedRef) => {
     threadId,
     fileUpload,
     placeholder,
+    label,
     adapter,
     suggestions,
     ...filteredProps
@@ -47,6 +48,7 @@ export const ForgeAiEmbeddedChat = forwardRef((props, forwardedRef) => {
       "thread-id": props.threadId || props["thread-id"],
       "file-upload": props.fileUpload || props["file-upload"],
       placeholder: props.placeholder,
+      label: props.label,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

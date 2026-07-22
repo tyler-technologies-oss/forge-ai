@@ -426,7 +426,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     return html`
       <div class="thread-name" slot="thread-name">
         <div class="thread-name__separator">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
             <path d="m7 21 7.9-18H17L9.1 21z" />
           </svg>
         </div>
@@ -483,7 +483,12 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
         ?show-delete=${this.showThreadDelete}
         @forge-ai-thread-actions-menu-rename=${this.#handleThreadRename}
         @forge-ai-thread-actions-menu-delete-click=${this.#handleThreadDelete}>
-        <svg slot="trigger-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+        <svg
+          slot="trigger-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          class="forge-icon"
+          aria-hidden="true">
           <path fill="none" d="M0 0h24v24H0z" />
           <path d="m7 10 5 5 5-5z" />
         </svg>

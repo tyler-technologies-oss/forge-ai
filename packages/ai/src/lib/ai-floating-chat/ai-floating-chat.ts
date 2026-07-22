@@ -45,6 +45,13 @@ export class AiFloatingChatComponent extends LitElement {
   @property({ type: Boolean })
   public expanded = false;
 
+  /**
+   * Accessible label for the dialog, announced by screen readers when it opens.
+   * Set this to match the slotted chatbot's title.
+   */
+  @property({ type: String })
+  public label = 'AI Assistant';
+
   @state()
   private _userExpanded = false;
 
@@ -56,6 +63,7 @@ export class AiFloatingChatComponent extends LitElement {
         ${ref(this.#dialogRef)}
         ?open=${this.open}
         ?expanded=${this.expanded}
+        label=${this.label}
         @forge-ai-dialog-fullscreen-change=${this.#handleFullscreenChange}
         @forge-ai-dialog-close=${this.#handleDialogClose}>
         <slot

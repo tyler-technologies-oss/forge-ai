@@ -34,7 +34,7 @@ export class AiSpinnerComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="spinner spinner--${this.size}">
-        <svg viewBox="0 0 48 48">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
           <circle class="track" cx="24" cy="24" r="20" fill="none" stroke-width="4"></circle>
           <circle class="indicator" cx="24" cy="24" r="20" fill="none" stroke-width="4"></circle>
         </svg>
