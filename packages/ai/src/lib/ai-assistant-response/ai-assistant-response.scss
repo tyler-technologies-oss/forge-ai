@@ -1,3 +1,4 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '../utils/markdown-styles' as markdown;
@@ -18,6 +19,15 @@
 
 .text-chunk {
   @include markdown.markdown-content;
+}
+
+.thinking-indicator {
+  margin-block-start: #{forge-spacing.variable(xsmall)};
+}
+
+// No leading space when the indicator directly follows a tool-call indicator
+forge-ai-tool-call-indicator + .thinking-indicator {
+  margin-block-start: 0;
 }
 
 .toolbar-container {

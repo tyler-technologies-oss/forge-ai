@@ -463,7 +463,10 @@ export const MixedResponses: Story = {
       { text: 'Alternating', value: 'alternating' },
       { text: 'Multiple tools', value: 'multiple-tools' },
       { text: 'Slow sequential tools', value: 'slow-sequential' },
-      { text: 'Multiple text chunks', value: 'multiple-text' }
+      { text: 'Multiple text chunks', value: 'multiple-text' },
+      { text: 'Text then gap', value: 'text-then-gap' },
+      { text: 'Tool then gap then tool', value: 'tool-gap-tool' },
+      { text: 'Tool then gap then text', value: 'tool-gap-text' }
     ] as Suggestion[];
 
     return html`
@@ -486,6 +489,7 @@ class MixedResponseAdapter extends MockAdapter {
   #initialDelay = 2000;
   #toolExecutionDelay = 2000;
   #textGapDelay = 500;
+  #betweenToolGapDelay = 2000;
   #streamDelay = 50;
 
   constructor() {
@@ -514,6 +518,12 @@ class MixedResponseAdapter extends MockAdapter {
       this.#slowSequentialTools();
     } else if (content.includes('multiple-text') || content === 'multiple text chunks') {
       this.#multipleText();
+    } else if (content.includes('text-then-gap') || content === 'text then gap') {
+      this.#textThenGap();
+    } else if (content.includes('tool-gap-tool') || content === 'tool then gap then tool') {
+      this.#toolGapTool();
+    } else if (content.includes('tool-gap-text') || content === 'tool then gap then text') {
+      this.#toolGapText();
     }
   }
 
@@ -897,6 +907,115 @@ class MixedResponseAdapter extends MockAdapter {
           );
         }
       );
+    }, this.#initialDelay);
+  }
+
+  #textThenGap(): void {
+    const gapDelay = 3000;
+    const msg1 = this.#id();
+    setTimeout(() => {
+      this._emitMessageStart(msg1);
+      this.#streamText(msg1, 'Here is a first thought. Now watch for a gap with no active tool.', () => {
+        this._emitMessageEnd(msg1);
+        setTimeout(() => {
+          const msg2 = this.#id();
+          this._emitMessageStart(msg2);
+          this.#streamText(msg2, 'And here is more after the gap.', () => {
+            this._emitMessageEnd(msg2);
+            this._updateState({ isRunning: false });
+            this._emitRunFinished();
+          });
+        }, gapDelay);
+      });
+    }, this.#initialDelay);
+  }
+
+  #toolGapTool(): void {
+    const messageId = this.#id();
+    const tool1 = this.#id();
+    const tool2 = this.#id();
+    setTimeout(() => {
+      this._emitMessageStart(messageId);
+      this.#streamText(messageId, 'Let me check the weather and look up the forecast history.', () => {
+        this._emitToolCallStart({ id: tool1, messageId, name: 'getCurrentWeather' });
+        setTimeout(() => {
+          this._emitToolCallEnd({ id: tool1, messageId, name: 'getCurrentWeather', args: { location: 'Seattle' } });
+          this._emitToolResult({
+            toolCallId: tool1,
+            result: { temperature: 55, conditions: 'rainy' },
+            message: {
+              id: this.#id(),
+              role: 'tool',
+              content: '',
+              timestamp: Date.now(),
+              status: 'complete',
+              toolCallId: tool1
+            }
+          });
+          setTimeout(() => {
+            this._emitToolCallStart({ id: tool2, messageId, name: 'searchDatabase' });
+            setTimeout(() => {
+              this._emitToolCallEnd({ id: tool2, messageId, name: 'searchDatabase', args: { query: 'forecast' } });
+              this._emitToolResult({
+                toolCallId: tool2,
+                result: { records: 30, summary: 'Forecast data found' },
+                message: {
+                  id: this.#id(),
+                  role: 'tool',
+                  content: '',
+                  timestamp: Date.now(),
+                  status: 'complete',
+                  toolCallId: tool2
+                }
+              });
+              this.#streamText(
+                messageId,
+                "It's currently rainy and 55°F in Seattle, with matching historical trends.",
+                () => {
+                  this._emitMessageEnd(messageId);
+                  this._updateState({ isRunning: false });
+                  this._emitRunFinished();
+                }
+              );
+            }, this.#toolExecutionDelay);
+          }, this.#betweenToolGapDelay);
+        }, this.#toolExecutionDelay);
+      });
+    }, this.#initialDelay);
+  }
+
+  #toolGapText(): void {
+    const messageId = this.#id();
+    const tool1 = this.#id();
+    setTimeout(() => {
+      this._emitMessageStart(messageId);
+      this.#streamText(messageId, 'Let me pull up the current weather for you.', () => {
+        this._emitToolCallStart({ id: tool1, messageId, name: 'getCurrentWeather' });
+        setTimeout(() => {
+          this._emitToolCallEnd({ id: tool1, messageId, name: 'getCurrentWeather', args: { location: 'Austin' } });
+          this._emitToolResult({
+            toolCallId: tool1,
+            result: { temperature: 92, conditions: 'sunny' },
+            message: {
+              id: this.#id(),
+              role: 'tool',
+              content: '',
+              timestamp: Date.now(),
+              status: 'complete',
+              toolCallId: tool1
+            }
+          });
+          setTimeout(() => {
+            const textId = this.#id();
+            this._emitMessageStart(textId);
+            this.#streamText(textId, 'Based on the data I gathered, here is your summary.', () => {
+              this._emitMessageEnd(textId);
+              this._updateState({ isRunning: false });
+              this._emitRunFinished();
+            });
+          }, this.#betweenToolGapDelay);
+        }, this.#toolExecutionDelay);
+      });
     }, this.#initialDelay);
   }
 

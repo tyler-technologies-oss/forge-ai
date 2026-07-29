@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiAssistantResponse = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { enableReactions, debugMode, ...filteredProps } = props;
+  const { enableReactions, debugMode, showThinking, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -47,6 +47,7 @@ export const ForgeAiAssistantResponse = forwardRef((props, forwardedRef) => {
       tabindex: props.tabIndex,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,
+      "show-thinking": props.showThinking ? true : undefined,
       style: { ...props.style },
     },
     props.children,
