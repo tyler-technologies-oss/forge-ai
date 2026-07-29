@@ -318,7 +318,9 @@ export class AiThreadsComponent extends LitElement {
                   </forge-ai-edit-thread>
                 `,
                 () => html`
-                  <button @click=${() => this._handleThreadSelect(thread)} aria-selected=${isSelected}>
+                  <button
+                    @click=${() => this._handleThreadSelect(thread)}
+                    aria-current=${isSelected ? 'true' : nothing}>
                     <span>${thread.title}</span>
                   </button>
                   ${when(
