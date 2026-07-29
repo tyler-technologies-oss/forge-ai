@@ -33,6 +33,10 @@ const meta = {
       control: 'text',
       description: 'The text content of the trigger button'
     },
+    triggerLabel: {
+      control: 'text',
+      description: 'Accessible label for the trigger button. Set this for icon-only triggers with no visible text.'
+    },
     disabled: {
       control: 'boolean',
       description: 'Whether the dropdown menu is disabled'
@@ -61,6 +65,7 @@ const meta = {
     variant: 'button',
     selectionMode: 'none',
     text: 'Choose model...',
+    triggerLabel: '',
     disabled: false,
     popoverPlacement: 'bottom-start'
   },
@@ -71,6 +76,7 @@ const meta = {
         variant=${args.variant}
         selection-mode=${args.selectionMode}
         popover-placement=${args.popoverPlacement}
+        trigger-label=${args.triggerLabel || undefined}
         ?disabled=${args.disabled}
         @forge-ai-dropdown-menu-change=${(evt: CustomEvent) => changeAction(evt.detail)}>
         ${

@@ -24,6 +24,10 @@ export interface ForgeAiFloatingChatProps extends Pick<
   /** undefined */
   expanded?: boolean;
 
+  /** Accessible label for the dialog, announced by screen readers when it opens.
+Set this to match the slotted chatbot's title. */
+  label?: ForgeAiFloatingChatElement["label"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 

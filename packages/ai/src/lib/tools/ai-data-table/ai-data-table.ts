@@ -162,7 +162,7 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
           class="forge-icon-button forge-icon-button--medium"
           @click=${this.#handleExport}
           aria-label="Download table as CSV">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
             <path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7z" />
           </svg>
         </button>
@@ -174,7 +174,7 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
   readonly #filterInputField = html`
     <label for="data-table-filter-input" class="sr-only">Filter table data</label>
     <div class="forge-field forge-field--small icon-field">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
         <path fill="none" d="M0 0h24v24H0z" />
         <path d="M10 18h4v-2h-4zM3 6v2h18V6zm3 7h12v-2H6z" />
       </svg>
@@ -204,7 +204,12 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
   get #emptyState(): TemplateResult {
     return html`
       <forge-ai-empty-state>
-        <svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="empty-state-icon">
+        <svg
+          slot="icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          class="empty-state-icon"
+          aria-hidden="true">
           <path fill="none" d="M0 0h24v24H0z" />
           <path
             d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14" />

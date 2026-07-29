@@ -26,6 +26,9 @@ When true, the dialog will have an expanded width and be centered on the screen.
 When false, the dialog will be positioned at the bottom-right corner with a fixed width. */
   expanded?: boolean;
 
+  /** Accessible label for the dialog, announced by screen readers when it opens. */
+  label?: ForgeAiDialogElement["label"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 

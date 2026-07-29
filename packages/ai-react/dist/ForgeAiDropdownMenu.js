@@ -12,6 +12,7 @@ export const ForgeAiDropdownMenu = forwardRef((props, forwardedRef) => {
     selectionMode,
     value,
     popoverPlacement,
+    triggerLabel,
     ...filteredProps
   } = props;
 
@@ -40,6 +41,7 @@ export const ForgeAiDropdownMenu = forwardRef((props, forwardedRef) => {
       "selection-mode": props.selectionMode || props["selection-mode"],
       value: props.value,
       "popover-placement": props.popoverPlacement || props["popover-placement"],
+      "trigger-label": props.triggerLabel || props["trigger-label"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

@@ -360,14 +360,22 @@ export class ForgeAiDropdownMenuItemComponent extends LitElement {
         : 'M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4'; // Circle medium icon
 
     return html`
-      <svg class="ai-dropdown-menu-item__selection-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <svg
+        class="ai-dropdown-menu-item__selection-svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        aria-hidden="true">
         <path d="${iconPath}" />
       </svg>
     `;
   }
 
   private readonly _submenuArrowIcon = html`
-    <svg class="ai-dropdown-menu-item__submenu-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <svg
+      class="ai-dropdown-menu-item__submenu-arrow"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      aria-hidden="true">
       <path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z" />
     </svg>
   `;

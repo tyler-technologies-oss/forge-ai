@@ -50,20 +50,38 @@ export class AiToolCallIndicatorComponent extends LitElement {
   private _expandedRows = new Set<string>();
 
   readonly #completeIcon = html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="16" width="16" fill="currentColor">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      height="16"
+      width="16"
+      fill="currentColor"
+      aria-hidden="true">
       <path d="M21 7 9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59z" />
     </svg>
   `;
 
   readonly #summaryCompleteIcon = html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="16" width="16" fill="currentColor">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      height="16"
+      width="16"
+      fill="currentColor"
+      aria-hidden="true">
       <path
         d="M13 2.03v2.02c4.39.54 7.5 4.53 6.96 8.92-.46 3.64-3.32 6.53-6.96 6.96v2c5.5-.55 9.5-5.43 8.95-10.93-.45-4.75-4.22-8.5-8.95-8.97m-2 .03c-1.95.19-3.81.94-5.33 2.2L7.1 5.74c1.12-.9 2.47-1.48 3.9-1.68zM4.26 5.67A9.9 9.9 0 0 0 2.05 11h2c.19-1.42.75-2.77 1.64-3.9zM2.06 13c.2 1.96.97 3.81 2.21 5.33l1.42-1.43A8 8 0 0 1 4.06 13zm5.04 5.37-1.43 1.37A10 10 0 0 0 11 22v-2a8 8 0 0 1-3.9-1.63m9.72-3.18-4.11-4.11c.41-1.04.18-2.26-.68-3.11-.9-.91-2.25-1.09-3.34-.59l1.94 1.94-1.35 1.36-1.99-1.95c-.54 1.09-.29 2.44.59 3.35.86.86 2.08 1.08 3.12.68l4.11 4.1c.18.19.45.19.63 0l1.04-1.03c.22-.18.22-.5.04-.64" />
     </svg>
   `;
 
   readonly #errorIcon = html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="16" width="16" fill="currentColor">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      height="16"
+      width="16"
+      fill="currentColor"
+      aria-hidden="true">
       <path d="M12 2 1 21h22zm0 3.99L19.53 19H4.47zM11 10v4h2v-4zm0 6v2h2v-2z" />
     </svg>
   `;
@@ -75,13 +93,20 @@ export class AiToolCallIndicatorComponent extends LitElement {
       viewBox="0 0 24 24"
       height="20"
       width="20"
-      fill="currentColor">
+      fill="currentColor"
+      aria-hidden="true">
       <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
     </svg>
   `;
 
   readonly #codeIcon = html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="18" width="18" fill="currentColor">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      height="18"
+      width="18"
+      fill="currentColor"
+      aria-hidden="true">
       <path d="M9.4 16.6 4.8 12l4.6-4.6L8 6l-6 6 6 6zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6z" />
     </svg>
   `;

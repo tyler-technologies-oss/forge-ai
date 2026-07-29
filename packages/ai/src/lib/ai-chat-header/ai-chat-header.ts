@@ -222,7 +222,7 @@ export class AiChatHeaderComponent extends LitElement {
                 @click=${this.#handleConversationsToggle}
                 aria-label="Toggle conversations panel"
                 class="conversations-button forge-icon-button forge-icon-button--medium ai-icon-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z" />
                 </svg>
               </button>
@@ -245,13 +245,13 @@ export class AiChatHeaderComponent extends LitElement {
                 ${when(
                   this.minimizeIcon === 'default',
                   () => html`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                       <path fill="none" d="M0 0h24v24H0z" />
                       <path d="M6 19h12v2H6z" />
                     </svg>
                   `,
                   () => html`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                       <defs>
                         <style>
                           .cls-1 {
@@ -289,12 +289,12 @@ export class AiChatHeaderComponent extends LitElement {
                 ${when(
                   this.expanded,
                   () => html`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                       <path d="M14 14h5v2h-3v3h-2zm-9 0h5v5H8v-3H5zm3-9h2v5H5V8h3zm11 3v2h-5V5h2v3z" />
                     </svg>
                   `,
                   () => html`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                       <path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zm3 9h2v5h-5v-2h3zm-7 3v2H5v-5h2v3z" />
                     </svg>
                   `
@@ -312,11 +312,13 @@ export class AiChatHeaderComponent extends LitElement {
                 variant="icon-button"
                 popover-placement="bottom-end"
                 selection-mode="none"
+                trigger-label="More options"
                 @forge-ai-dropdown-menu-change=${this.#handleDropdownChange}>
                 <svg
                   slot="trigger-content"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                   class="forge-icon ai-icon-button">
                   <path fill="none" d="M0 0h24v24H0z" />
                   <path
@@ -326,7 +328,12 @@ export class AiChatHeaderComponent extends LitElement {
                   this.exportOption === 'enabled',
                   () => html`
                     <forge-ai-dropdown-menu-item value="export">
-                      <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                      <svg
+                        slot="start"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        class="forge-icon"
+                        aria-hidden="true">
                         <path d="m15.61 8.92 1.41-1.41-5-5-5 5 1.41 1.41 2.59-2.58v9.67h2V6.34z" />
                         <path d="M19.05 14.06V19h-14v-4.94h-2V19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4.94z" />
                       </svg>
@@ -338,7 +345,12 @@ export class AiChatHeaderComponent extends LitElement {
                   this.agentInfo,
                   () => html`
                     <forge-ai-dropdown-menu-item value="info">
-                      <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                      <svg
+                        slot="start"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        class="forge-icon"
+                        aria-hidden="true">
                         <path fill="none" d="M0 0h24v24H0z" />
                         <path
                           d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8" />
@@ -355,7 +367,12 @@ export class AiChatHeaderComponent extends LitElement {
                   this.clearOption === 'enabled',
                   () => html`
                     <forge-ai-dropdown-menu-item value="clear-chat">
-                      <svg slot="start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon">
+                      <svg
+                        slot="start"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        class="forge-icon"
+                        aria-hidden="true">
                         <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z" />
                       </svg>
                       <span>Clear chat</span>
@@ -370,7 +387,7 @@ export class AiChatHeaderComponent extends LitElement {
       ${when(
         this.agentInfo,
         () => html`
-          <forge-ai-modal ${ref(this.#agentInfoModalRef)}>
+          <forge-ai-modal ${ref(this.#agentInfoModalRef)} label="Agent Information">
             <div class="forge-scaffold">
               <div class="forge-scaffold__header">
                 <div class="forge-toolbar">
@@ -380,7 +397,7 @@ export class AiChatHeaderComponent extends LitElement {
                       class="forge-icon-button forge-icon-button--medium ai-icon-button close-button"
                       @click=${this.#handleModalClose}
                       aria-label="Close agent information dialog">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                         <path fill="none" d="M0 0h24v24H0z" />
                         <path
                           d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />

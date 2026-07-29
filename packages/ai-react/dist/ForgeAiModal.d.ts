@@ -30,6 +30,9 @@ When not explicitly set, this will be automatically determined based on viewport
 - 'fixed': Maintains defined size regardless of viewport, never auto-fullscreens */
   sizeStrategy?: ForgeAiModalElement["sizeStrategy"];
 
+  /** Accessible label for the dialog, announced by screen readers when the modal opens. */
+  label?: ForgeAiModalElement["label"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 

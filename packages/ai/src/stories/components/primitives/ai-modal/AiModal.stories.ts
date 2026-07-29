@@ -22,7 +22,7 @@ const meta = {
 
     return html`
       <forge-button variant="raised" @click=${toggleModal}>Show Modal</forge-button>
-      <forge-ai-modal ${ref(modalRef)} .open=${args.open}>
+      <forge-ai-modal ${ref(modalRef)} .open=${args.open} label=${args.label}>
         <div style="padding: 24px;">
           <h3 style="margin: 0 0 16px 0;">Modal Title</h3>
           <p style="margin: 0 0 16px 0;">This is a basic modal dialog with some sample content.</p>
@@ -33,10 +33,12 @@ const meta = {
   },
   component,
   argTypes: {
-    open: { control: 'boolean' }
+    open: { control: 'boolean' },
+    label: { control: 'text' }
   },
   args: {
-    open: false
+    open: false,
+    label: 'AI Assistant'
   }
 } satisfies Meta;
 

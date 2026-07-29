@@ -4,7 +4,7 @@ import { useEventListener, useProperties } from "./react-utils.js";
 
 export const ForgeAiDialog = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, expanded, isFullscreen, ...filteredProps } = props;
+  const { open, expanded, label, isFullscreen, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -29,6 +29,7 @@ export const ForgeAiDialog = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
+      label: props.label,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

@@ -72,6 +72,12 @@ export class AiEmbeddedChatComponent extends LitElement {
   @property()
   public placeholder = 'Ask a question...';
 
+  /**
+   * Accessible label for the modal, announced by screen readers when expanded.
+   */
+  @property()
+  public label = 'AI Assistant';
+
   @property({ attribute: false })
   public suggestions?: Suggestion[];
 
@@ -114,6 +120,7 @@ export class AiEmbeddedChatComponent extends LitElement {
           <forge-ai-modal
             ${ref(this.#modalRef)}
             ?open=${this.expanded}
+            label=${this.label}
             @forge-ai-modal-close=${this.#handleModalClose}
             @forge-ai-modal-fullscreen-change=${this.#handleModalFullscreenChange}>
             ${this.#chatInterface}

@@ -33,6 +33,9 @@ export interface ForgeAiEmbeddedChatProps extends Pick<
   /** Placeholder text for input (default: "Ask a question...") */
   placeholder?: ForgeAiEmbeddedChatElement["placeholder"];
 
+  /** Accessible label for the modal, announced by screen readers when expanded. */
+  label?: ForgeAiEmbeddedChatElement["label"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 

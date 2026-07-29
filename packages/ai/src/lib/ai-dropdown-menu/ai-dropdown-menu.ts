@@ -148,6 +148,13 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
   @property({ attribute: 'popover-placement' })
   public popoverPlacement: PopoverPlacement = 'bottom-start';
 
+  /**
+   * Accessible label for the trigger button. Set this for icon-only triggers
+   * that have no visible text so screen readers can announce the button.
+   */
+  @property({ attribute: 'trigger-label' })
+  public triggerLabel?: string;
+
   @state()
   private _isSubmenu = false;
 
@@ -459,6 +466,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
           [densityClass]: !!densityClass
         })}
         type="button"
+        aria-label=${ifDefined(this.triggerLabel)}
         aria-expanded=${this.open}
         aria-haspopup=${this._ariaHasPopup}
         aria-controls="dropdown-content"

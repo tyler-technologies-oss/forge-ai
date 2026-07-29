@@ -22,11 +22,16 @@ const meta = {
     expanded: {
       control: { type: 'boolean' },
       description: 'Controls whether the dialog is displayed in an expanded state'
+    },
+    label: {
+      control: { type: 'text' },
+      description: 'Accessible label announced by screen readers when the dialog opens'
     }
   },
   args: {
     open: false,
-    expanded: false
+    expanded: false,
+    label: 'AI Assistant'
   },
   render: args => {
     const handleExpandClick = () => {
@@ -42,7 +47,7 @@ const meta = {
     };
 
     const dialog = html`
-      <forge-ai-dialog ?open=${args.open} ?expanded=${args.expanded}>
+      <forge-ai-dialog ?open=${args.open} ?expanded=${args.expanded} label=${args.label}>
         <forge-ai-chat-interface>
           <forge-ai-chat-header
             slot="header"

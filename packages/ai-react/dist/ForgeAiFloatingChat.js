@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiFloatingChat = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, expanded, ...filteredProps } = props;
+  const { open, expanded, label, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -40,6 +40,7 @@ export const ForgeAiFloatingChat = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
+      label: props.label,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
