@@ -1,5 +1,12 @@
 # @tylertech/forge-ai
 
+## 0.13.11
+
+### Patch Changes
+
+- c69ce37: fix(thinking-indicator): ensure thinking indicator is visible when streaming unhandled events
+- fe40235: fix(a11y): resolve chatbot accessibility issues
+
 ## 0.13.10
 
 ### Patch Changes
