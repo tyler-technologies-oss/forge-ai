@@ -65,11 +65,11 @@
   "dependencies": {
     "@ag-ui/client": "^0.0.57",
     "@ag-ui/core": "^0.0.57",
-    "@floating-ui/dom": "^1.7.6",
+    "@floating-ui/dom": "^1.8.0",
     "@lit/context": "^1.1.6",
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.12",
     "lit": "catalog:",
-    "marked": "^18.0.5",
+    "marked": "^18.0.7",
     "remend": "^1.3.0",
     "uuid": "^14.0.1"
   },
@@ -93,7 +93,7 @@
     "@types/node": "catalog:",
     "@types/react": "^18.3.31",
     "@types/sinon": "catalog:",
-    "@ungap/structured-clone": "^1.3.2",
+    "@ungap/structured-clone": "^1.3.3",
     "@vueless/storybook-dark-mode": "catalog:",
     "@wc-toolkit/jsdoc-tags": "^1.2.0",
     "@web/dev-server-esbuild": "catalog:",
