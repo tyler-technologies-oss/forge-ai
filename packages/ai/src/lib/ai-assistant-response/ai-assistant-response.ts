@@ -9,6 +9,7 @@ import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-respo
 import '../ai-response-message-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
 import '../ai-tool-call-indicator';
+import '../ai-thinking-indicator';
 
 import styles from './ai-assistant-response.scss?inline';
 
@@ -58,6 +59,9 @@ export class AiAssistantResponseComponent extends LitElement {
   @property({ type: Boolean, attribute: 'debug-mode' })
   public debugMode = false;
 
+  @property({ type: Boolean, attribute: 'show-thinking' })
+  public showThinking = false;
+
   #internals = this.attachInternals();
   #markdownController!: MarkdownStreamController;
 
@@ -81,7 +85,7 @@ export class AiAssistantResponseComponent extends LitElement {
   }
 
   #updateEmptyState(): void {
-    const isEmpty = !this.#hasVisibleContent && this.response.status !== 'complete';
+    const isEmpty = !this.#hasVisibleContent && this.response.status !== 'complete' && !this.showThinking;
     if (isEmpty) {
       this.#internals.states.add('empty');
     } else {
@@ -196,10 +200,40 @@ export class AiAssistantResponseComponent extends LitElement {
     `;
   }
 
+  get #thinkingIndicator(): TemplateResult | typeof nothing {
+    if (!this.showThinking) {
+      return nothing;
+    }
+
+    // Hide while text is actively streaming — the streaming text itself signals activity.
+    const lastChild = this.response.children[this.response.children.length - 1];
+    if (lastChild?.type === 'text' && lastChild.status === 'streaming') {
+      const content = typeof lastChild.content === 'string' ? lastChild.content : '';
+      if (content.trim().length > 0) {
+        return nothing;
+      }
+    }
+
+    // Hide while a tool call is active — the tool-call indicator already shows a spinner.
+    const hasActiveToolCall = this.response.children.some(child => {
+      if (child.type !== 'toolCall') {
+        return false;
+      }
+      return child.data.status === 'parsing' || child.data.status === 'executing' || child.data.status === 'pending';
+    });
+    if (hasActiveToolCall) {
+      return nothing;
+    }
+
+    return html`<div class="thinking-indicator">
+      <forge-ai-thinking-indicator show-text></forge-ai-thinking-indicator>
+    </div>`;
+  }
+
   public override render(): TemplateResult {
     return html`
       <div class="assistant-response" ?data-complete=${this.response.status === 'complete'}>
-        ${this.#children} ${this.#toolbar}
+        ${this.#children} ${this.#thinkingIndicator} ${this.#toolbar}
       </div>
     `;
   }

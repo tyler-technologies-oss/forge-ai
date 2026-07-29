@@ -243,6 +243,11 @@ export class AiMessageThreadComponent extends LitElement {
       .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
   }
 
+  get #activeResponse(): AssistantResponse | undefined {
+    const lastItem = this.messageItems[this.messageItems.length - 1];
+    return lastItem?.type === 'assistant' ? lastItem.data : undefined;
+  }
+
   #renderAssistantResponse(response: AssistantResponse): TemplateResult {
     return html`
       <forge-ai-assistant-response
@@ -250,6 +255,7 @@ export class AiMessageThreadComponent extends LitElement {
         .tools=${this.tools}
         ?enable-reactions=${this.enableReactions}
         ?debug-mode=${this.debugMode}
+        ?show-thinking=${this.showThinking && response === this.#activeResponse}
         @forge-ai-assistant-response-copy=${(e: CustomEvent<{ responseId: string }>) =>
           this.#handleCopy(e.detail.responseId)}
         @forge-ai-assistant-response-resend=${(e: CustomEvent<{ responseId: string }>) =>
@@ -286,29 +292,10 @@ export class AiMessageThreadComponent extends LitElement {
       return nothing;
     }
 
-    const lastItem = this.messageItems[this.messageItems.length - 1];
-
-    if (lastItem?.type === 'assistant') {
-      const response = lastItem.data;
-      const hasTextContent = response.children.some(c => {
-        if (c.type !== 'text') {
-          return false;
-        }
-        const content = typeof c.content === 'string' ? c.content : '';
-        return content.trim().length > 0;
-      });
-      if (hasTextContent) {
-        return nothing;
-      }
-      const hasActiveResponseToolCall = response.children.some(c => {
-        if (c.type !== 'toolCall') {
-          return false;
-        }
-        return c.data.status === 'parsing' || c.data.status === 'executing' || c.data.status === 'pending';
-      });
-      if (hasActiveResponseToolCall) {
-        return nothing;
-      }
+    // Once an assistant response exists, it renders the indicator inline so it aligns
+    // with the response's streaming text and tool calls.
+    if (this.#activeResponse) {
+      return nothing;
     }
 
     return html`<div class="thinking-indicator">
