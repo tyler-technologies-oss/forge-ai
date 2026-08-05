@@ -133,6 +133,14 @@
   margin-block-start: #{forge-spacing.variable(xxsmall)};
 }
 
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-block: #{forge-spacing.variable(xsmall)};
+  margin-inline-start: #{forge-spacing.variable(xsmall)};
+}
+
 .forge-list-item {
   position: relative;
   display: flex;

@@ -118,6 +118,10 @@ const meta = {
     showConversationDelete: {
       control: 'boolean',
       description: 'Show delete option in conversations panel'
+    },
+    loading: {
+      control: 'boolean',
+      description: 'Show a loading indicator in the recent chats list while threads are loading'
     }
   },
   args: {
@@ -125,7 +129,8 @@ const meta = {
     totalChats: 0,
     selectedThreadId: null,
     showConversationRename: true,
-    showConversationDelete: true
+    showConversationDelete: true,
+    loading: false
   },
   render: args => {
     return html`
@@ -136,6 +141,7 @@ const meta = {
           .selectedThreadId=${args.selectedThreadId}
           ?show-conversation-rename=${args.showConversationRename}
           ?show-conversation-delete=${args.showConversationDelete}
+          ?loading=${args.loading}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
@@ -169,6 +175,13 @@ export const WithSelectedThread: Story = {
 export const EmptyState: Story = {
   args: {
     recentThreads: []
+  }
+};
+
+export const Loading: Story = {
+  args: {
+    recentThreads: [],
+    loading: true
   }
 };
 

@@ -12,6 +12,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     conversationsOpen,
     showConversationRename,
     showConversationDelete,
+    threadsLoading,
     enableReactions,
     debugMode,
     minimizeIcon,
@@ -185,6 +186,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       "show-conversation-delete": props.showConversationDelete
         ? true
         : undefined,
+      "threads-loading": props.threadsLoading ? true : undefined,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,
       style: { ...props.style },
