@@ -212,6 +212,7 @@ export interface AssistantResponse {
   timestamp: number;
   eventStream?: StreamEvent[];
   feedback?: ResponseFeedback;
+  isThinking?: boolean;
 }
 
 export interface FileAttachment {
