@@ -1,5 +1,14 @@
 # @tylertech/forge-ai-react
 
+## 0.13.8
+
+### Patch Changes
+
+- 07d435f: feat(conversations-panel): add loading indicator for recent chats
+- Updated dependencies [8662d53]
+- Updated dependencies [07d435f]
+  - @tylertech/forge-ai@0.13.12
+
 ## 0.13.7
 
 ### Patch Changes

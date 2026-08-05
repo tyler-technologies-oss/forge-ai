@@ -1,5 +1,12 @@
 # @tylertech/forge-ai
 
+## 0.13.12
+
+### Patch Changes
+
+- 8662d53: fix(thinking-indicator): show thinking indicator during between-step server turns
+- 07d435f: feat(conversations-panel): add loading indicator for recent chats
+
 ## 0.13.11
 
 ### Patch Changes
