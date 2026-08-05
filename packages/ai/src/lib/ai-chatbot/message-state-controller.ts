@@ -86,8 +86,27 @@ export class MessageStateController implements ReactiveController {
     return response;
   }
 
+  public markResponseThinking(): void {
+    if (!this._activeResponse || this._activeResponse.isThinking) {
+      return;
+    }
+    this._activeResponse.isThinking = true;
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
+  }
+
+  public clearResponseThinking(): void {
+    if (!this._activeResponse || !this._activeResponse.isThinking) {
+      return;
+    }
+    this._activeResponse.isThinking = false;
+    this.#updateResponseInItems();
+    this.#notifyStateChange();
+  }
+
   public addTextToResponse(messageId: string, content: string, event?: MessageStartEvent): void {
     const response = this._activeResponse ?? this.startResponse();
+    response.isThinking = false;
 
     const lastChild = response.children[response.children.length - 1];
     if (lastChild?.type === 'text' && lastChild.messageId === messageId) {
@@ -112,6 +131,7 @@ export class MessageStateController implements ReactiveController {
 
   public appendTextDelta(messageId: string, delta: string, event?: MessageDeltaEvent): void {
     const response = this._activeResponse ?? this.startResponse();
+    response.isThinking = false;
 
     const lastChild = response.children[response.children.length - 1];
     if (lastChild?.type === 'text' && lastChild.messageId === messageId) {
@@ -161,6 +181,7 @@ export class MessageStateController implements ReactiveController {
 
   public addToolCallToResponse(toolCall: ToolCall, event?: ToolCallStartEvent): void {
     const response = this._activeResponse ?? this.startResponse();
+    response.isThinking = false;
 
     const toolCallWithTimestamp = { ...toolCall, startTimestamp: Date.now() };
     this._toolCalls.set(toolCall.id, toolCallWithTimestamp);

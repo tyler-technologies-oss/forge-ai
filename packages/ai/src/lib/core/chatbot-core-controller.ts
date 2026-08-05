@@ -6,6 +6,8 @@ import {
   type MessageDeltaEvent,
   type MessageEndEvent,
   type MessageStartEvent,
+  type StepFinishedAgentEvent,
+  type StepStartedAgentEvent,
   type ToolCallArgsEvent,
   type ToolCallEndEvent,
   type ToolCallEvent,
@@ -136,6 +138,8 @@ export class ChatbotCoreController implements ReactiveController {
       this.#adapter.onToolCallEnd(this.#handleToolCallEnd.bind(this)),
       this.#adapter.onToolCall(this.#handleToolCall.bind(this)),
       this.#adapter.onToolCallResult(this.#handleToolCallResult.bind(this)),
+      this.#adapter.onStepStarted(this.#handleStepStarted.bind(this)),
+      this.#adapter.onStepFinished(this.#handleStepFinished.bind(this)),
       this.#adapter.onRunFinished(this.#handleRunFinished.bind(this)),
       this.#adapter.onRunAborted(this.#handleRunAborted.bind(this)),
       this.#adapter.onError(this.#handleError.bind(this)),
@@ -160,6 +164,15 @@ export class ChatbotCoreController implements ReactiveController {
 
   #handleMessageEnd(event: MessageEndEvent): void {
     this.#messageStateController.markTextComplete(event.messageId, event);
+  }
+
+  #handleStepStarted(_event: StepStartedAgentEvent): void {
+    this.#messageStateController.clearResponseThinking();
+  }
+
+  #handleStepFinished(_event: StepFinishedAgentEvent): void {
+    this.#messageStateController.markResponseThinking();
+    this.#callbacks.onScrollToBottom();
   }
 
   #handleRunFinished(): void {

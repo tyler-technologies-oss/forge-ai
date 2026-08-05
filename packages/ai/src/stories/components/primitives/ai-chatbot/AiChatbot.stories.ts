@@ -466,7 +466,8 @@ export const MixedResponses: Story = {
       { text: 'Multiple text chunks', value: 'multiple-text' },
       { text: 'Text then gap', value: 'text-then-gap' },
       { text: 'Tool then gap then tool', value: 'tool-gap-tool' },
-      { text: 'Tool then gap then text', value: 'tool-gap-text' }
+      { text: 'Tool then gap then text', value: 'tool-gap-text' },
+      { text: 'Step gap (thinking between steps)', value: 'step-gap' }
     ] as Suggestion[];
 
     return html`
@@ -524,6 +525,8 @@ class MixedResponseAdapter extends MockAdapter {
       this.#toolGapTool();
     } else if (content.includes('tool-gap-text') || content === 'tool then gap then text') {
       this.#toolGapText();
+    } else if (content.includes('step-gap') || content === 'step gap (thinking between steps)') {
+      this.#stepGap();
     }
   }
 
@@ -922,6 +925,28 @@ class MixedResponseAdapter extends MockAdapter {
           this._emitMessageStart(msg2);
           this.#streamText(msg2, 'And here is more after the gap.', () => {
             this._emitMessageEnd(msg2);
+            this._updateState({ isRunning: false });
+            this._emitRunFinished();
+          });
+        }, gapDelay);
+      });
+    }, this.#initialDelay);
+  }
+
+  // Reproduces a real multi-step agent turn: one message id is reused for the whole run and
+  // no messageEnd is emitted between steps, so the text child stays 'streaming'. During the
+  // inter-step gap only step-finish/step-start fire — no text — which must show the thinking indicator.
+  #stepGap(): void {
+    const gapDelay = 3000;
+    const messageId = this.#id();
+    setTimeout(() => {
+      this._emitMessageStart(messageId);
+      this.#streamText(messageId, 'Let me look into that for you.', () => {
+        this._emitStepFinished('step-0');
+        setTimeout(() => {
+          this._emitStepStarted('step-1');
+          this.#streamText(messageId, ' Based on what I found, here is the answer.', () => {
+            this._emitMessageEnd(messageId);
             this._updateState({ isRunning: false });
             this._emitRunFinished();
           });

@@ -205,12 +205,18 @@ export class AiAssistantResponseComponent extends LitElement {
       return nothing;
     }
 
+    // When the agent is thinking between steps the text child stays 'streaming' with stale
+    // content, so skip the streaming-text hide and show the indicator to signal the gap.
+    const isThinking = this.response.status === 'streaming' && this.response.isThinking === true;
+
     // Hide while text is actively streaming — the streaming text itself signals activity.
-    const lastChild = this.response.children[this.response.children.length - 1];
-    if (lastChild?.type === 'text' && lastChild.status === 'streaming') {
-      const content = typeof lastChild.content === 'string' ? lastChild.content : '';
-      if (content.trim().length > 0) {
-        return nothing;
+    if (!isThinking) {
+      const lastChild = this.response.children[this.response.children.length - 1];
+      if (lastChild?.type === 'text' && lastChild.status === 'streaming') {
+        const content = typeof lastChild.content === 'string' ? lastChild.content : '';
+        if (content.trim().length > 0) {
+          return nothing;
+        }
       }
     }
 
