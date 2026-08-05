@@ -143,6 +143,7 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @property {FeatureToggle} clearOption - Controls the clear-conversation header action. `'on'` (default) shows it when messages exist; `'off'` hides it entirely.
  * @property {FeatureToggle} exportOption - Controls the export-conversation header action. `'on'` (default) shows it when messages exist; `'off'` hides it entirely.
  * @property {string | null} selectedThreadId - The id of the currently selected conversation thread. Set this to highlight a thread in the conversations panel (e.g. when restoring a conversation loaded from the backend). Updated internally when a thread is selected or a new chat starts.
+ * @property {boolean} threadsLoading - When true, shows a loading indicator in the conversations panel's recent chats list while threads are loading (default: false)
  *
  * @cssproperty --forge-ai-chatbot-icon-color - The fill color for the AI icon. Defaults to `tertiary`.
  * @cssproperty --forge-ai-chatbot-suggestion-background - The background color for suggestion buttons. Defaults to `tertiary-container`.
@@ -205,6 +206,9 @@ export class AiChatbotComponent extends AiChatbotBase {
 
   @property({ type: String, attribute: 'selected-thread-id' })
   public selectedThreadId: string | null = null;
+
+  @property({ type: Boolean, attribute: 'threads-loading' })
+  public threadsLoading = false;
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   protected override _messageThreadRef = createRef<AiMessageThreadComponent>();
@@ -531,6 +535,7 @@ export class AiChatbotComponent extends AiChatbotBase {
                 ${ref(this.#conversationsPanelRef)}
                 .recentThreads=${this.recentThreads}
                 .selectedThreadId=${this.selectedThreadId}
+                ?loading=${this.threadsLoading}
                 ?show-back-button=${true}
                 ?show-conversation-rename=${this.showConversationRename}
                 ?show-conversation-delete=${this.showConversationDelete}

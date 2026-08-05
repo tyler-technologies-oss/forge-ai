@@ -7,6 +7,7 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
   const {
     showConversationRename,
     showConversationDelete,
+    loading,
     recentThreads,
     totalChats,
     selectedThreadId,
@@ -77,6 +78,7 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
       "show-conversation-delete": props.showConversationDelete
         ? true
         : undefined,
+      loading: props.loading ? true : undefined,
       style: { ...props.style },
     },
     props.children,

@@ -25,6 +25,9 @@ export interface ForgeAiConversationsPanelProps extends Pick<
   showConversationDelete?: boolean;
 
   /** undefined */
+  loading?: boolean;
+
+  /** undefined */
   recentThreads?: ForgeAiConversationsPanelElement["recentThreads"];
 
   /** Total number of threads available. When set to a positive number and fewer threads

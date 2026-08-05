@@ -82,6 +82,10 @@ const meta = {
       control: 'boolean',
       description: 'Show delete option in conversations panel'
     },
+    threadsLoading: {
+      control: 'boolean',
+      description: 'Show a loading indicator in the conversations panel while recent chats are loading'
+    },
     enableReactions: {
       control: 'boolean',
       description: 'Enable thumbs up/down reaction buttons'
@@ -114,6 +118,7 @@ const meta = {
     showConversationsButton: false,
     showConversationRename: true,
     showConversationDelete: true,
+    threadsLoading: false,
     enableReactions: false,
     disclaimerText: 'AI can make mistakes. Always verify responses.',
     contextItems: []
@@ -165,6 +170,7 @@ const meta = {
           ?show-conversations-button=${args.showConversationsButton}
           ?show-conversation-rename=${args.showConversationRename}
           ?show-conversation-delete=${args.showConversationDelete}
+          ?threads-loading=${args.threadsLoading}
           ?expanded=${args.expanded}
           ?enable-reactions=${args.enableReactions}
           .minimizeIcon=${args.minimizeIcon}
@@ -1575,6 +1581,43 @@ export const WithEmptyConversationHistory: Story = {
           @forge-ai-chatbot-conversations-close=${onConversationsClose}
           @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
           @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const WithLoadingConversationHistory: Story = {
+  args: {
+    threadsLoading: true
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
+    const onConversationsClose = action('forge-ai-chatbot-conversations-close');
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .recentThreads=${[]}
+          ?show-conversations-button=${true}
+          ?threads-loading=${args.threadsLoading}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with Loading History"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-conversations-open=${onConversationsOpen}
+          @forge-ai-chatbot-conversations-close=${onConversationsClose}>
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>

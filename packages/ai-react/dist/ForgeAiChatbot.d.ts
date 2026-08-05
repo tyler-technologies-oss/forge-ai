@@ -39,6 +39,9 @@ export interface ForgeAiChatbotProps extends Pick<
   /** undefined */
   showConversationDelete?: boolean;
 
+  /** When true, shows a loading indicator in the conversations panel's recent chats list while threads are loading (default: false) */
+  threadsLoading?: boolean;
+
   /** undefined */
   enableReactions?: boolean;
 

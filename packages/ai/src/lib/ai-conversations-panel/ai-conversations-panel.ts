@@ -98,6 +98,9 @@ export class AiConversationsPanelComponent extends LitElement {
   @property({ type: Boolean, attribute: 'show-conversation-delete' })
   public showConversationDelete = false;
 
+  @property({ type: Boolean, reflect: true })
+  public loading = false;
+
   @state()
   private _viewState: 'main' | 'search' = 'main';
 
@@ -525,8 +528,7 @@ export class AiConversationsPanelComponent extends LitElement {
   }
 
   get #emptyState(): TemplateResult {
-    const message =
-      this._viewState === 'search' && this._searchQuery.trim() ? 'No conversations found' : 'No conversations yet';
+    const message = this._viewState === 'search' && this._searchQuery.trim() ? 'No chats found' : 'No chats yet';
     return html`
       <div class="empty-state">
         <p>${message}</p>
@@ -548,10 +550,19 @@ export class AiConversationsPanelComponent extends LitElement {
     `;
   }
 
+  readonly #loadingIndicator = html`
+    <div class="loading-indicator">
+      <forge-ai-spinner size="small"></forge-ai-spinner>
+    </div>
+  `;
+
   get #threadList(): TemplateResult | typeof nothing {
     const threads = this.#displayedThreads;
 
     if (threads.length === 0) {
+      if (this.loading && this._viewState === 'main') {
+        return this.#loadingIndicator;
+      }
       return this.#emptyState;
     }
 
