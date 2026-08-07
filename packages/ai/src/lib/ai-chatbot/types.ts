@@ -102,6 +102,13 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
   renderer?: ToolRenderer;
   /** If true, renderer shows immediately on tool call start (default: false). */
   renderOnStart?: boolean;
+  /**
+   * Opt-in marker declaring this tool is backed by an MCP-app UI resource. Presence
+   * signals the core controller to resolve + stamp a {@link McpAppUiResource} when the
+   * tool is called. `resourceUri` is informational; the resolved URI arrives on the
+   * `mcp-ui-resource` event.
+   */
+  mcpApp?: { resourceUri?: string };
   /** Called when tool call starts (before args stream). */
   onStart?: (context: ToolStartContext) => void;
   /** Called during streaming with partial args. */
@@ -155,6 +162,108 @@ export interface ToolResultEvent {
   toolCallId: string;
   result: unknown;
   message: ChatMessage;
+  /**
+   * Companion structured payload delivered 1:1 with the tool result. Fed to an MCP-app
+   * widget alongside the result; stripped from the LLM-facing context.
+   */
+  structuredContent?: unknown;
+}
+
+/**
+ * Content-Security-Policy domain allow-lists for an MCP-app resource, mirroring the
+ * spec's `_meta.ui.csp` shape (2026-01-26). The sandbox proxy composes these into the
+ * enforced CSP; when omitted a restrictive default block applies.
+ *
+ * Local type — intentionally NOT aliased from `@modelcontextprotocol/ext-apps` so the
+ * type layer stays bridge-agnostic.
+ */
+export interface McpAppResourceCsp {
+  /** Domains the widget may `connect-src` to (fetch/XHR/WebSocket). */
+  connectDomains?: string[];
+  /** Domains the widget may load passive resources from (img/media/etc.). */
+  resourceDomains?: string[];
+  /** Domains allowed in `frame-src`; absent → `frame-src 'none'`. */
+  frameDomains?: string[];
+  /** Domains allowed in `base-uri`; absent → `base-uri 'self'`. */
+  baseUriDomains?: string[];
+}
+
+/**
+ * Iframe permission policy for an MCP-app resource. Either a list of raw
+ * Permissions-Policy feature tokens or a map of boolean flags the sandbox proxy
+ * translates into the inner-iframe `allow` attribute.
+ *
+ * Local type — not aliased from ext-apps.
+ */
+export type McpAppResourcePermissions =
+  | string[]
+  | {
+      camera?: boolean;
+      microphone?: boolean;
+      geolocation?: boolean;
+      clipboardRead?: boolean;
+      clipboardWrite?: boolean;
+      displayCapture?: boolean;
+      fullscreen?: boolean;
+    };
+
+/**
+ * The resolved UI resource stamped onto a {@link ToolCall} once a `mcp-ui-resource`
+ * event arrives. Presence of this on a tool call is the single render discriminator for
+ * mounting `<forge-ai-mcp-app>`.
+ *
+ * Local type — not aliased from ext-apps.
+ */
+export interface McpAppUiResource {
+  /** The complete standalone app HTML document, resolved server-side. */
+  html: string;
+  /** CSP domain allow-lists to enforce in the sandbox. */
+  csp?: McpAppResourceCsp;
+  /** Iframe permission policy for the sandbox inner frame. */
+  permissions?: McpAppResourcePermissions;
+  /** The concrete resolved `ui://` resource URI (never a template). */
+  resourceUri?: string;
+  /**
+   * Whether the widget prefers the host to draw a border/background around it.
+   * `true` → visible chrome, `false` → none, omitted → renderer default.
+   */
+  prefersBorder?: boolean;
+}
+
+/** Display modes an MCP-app widget can be presented in (spec 2026-01-26). */
+export type McpAppDisplayMode = 'inline' | 'fullscreen' | 'pip';
+
+/**
+ * Host context projected into an MCP-app widget. Deliberately narrow for the MVP:
+ * `theme` light/dark is the whole theming surface — the ~80 standardized CSS variables
+ * and font declarations are NOT propagated, so widgets fall back to their own defaults.
+ *
+ * Local type — not aliased from ext-apps.
+ */
+export interface McpAppHostContext {
+  theme: 'light' | 'dark';
+  /** Container dimensions available to the widget, in CSS pixels. */
+  container?: {
+    width: number;
+    height: number;
+  };
+  /** Display modes the host is able to present. */
+  availableDisplayModes?: McpAppDisplayMode[];
+}
+
+/**
+ * Host capability advertisement returned to the widget in `McpUiInitializeResult`.
+ * Spec-compliant widgets gate `ui/open-link` / `tools/call` / `resources/read` on these,
+ * so they must be declared, not left implicit.
+ *
+ * Local type — not aliased from ext-apps.
+ */
+export interface McpAppHostCapabilities {
+  openLinks?: Record<string, never>;
+  serverTools?: { listChanged?: boolean };
+  serverResources?: { listChanged?: boolean };
+  logging?: Record<string, never>;
+  sandbox?: Record<string, unknown>;
 }
 
 export type StreamEvent =
@@ -192,6 +301,14 @@ export interface ToolCall<TArgs = Record<string, unknown>> {
   eventStream?: StreamEvent[];
   startTimestamp?: number;
   endTimestamp?: number;
+  /**
+   * The resolved MCP-app UI resource. When present, this tool call renders as a
+   * sandboxed `<forge-ai-mcp-app>` widget instead of the standard tool-call UI. Its
+   * presence is the single render discriminator.
+   */
+  uiResource?: McpAppUiResource;
+  /** Companion structured payload for the widget, stripped from LLM context. */
+  structuredContent?: unknown;
 }
 
 export type ResponseItem =

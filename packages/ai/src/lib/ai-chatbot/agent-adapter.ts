@@ -1,4 +1,11 @@
-import type { ChatMessage, FileUploadCallbacks, ToolDefinition } from './types.js';
+import type {
+  ChatMessage,
+  FileUploadCallbacks,
+  McpAppResourceCsp,
+  McpAppResourcePermissions,
+  McpAppUiResource,
+  ToolDefinition
+} from './types.js';
 import { EventEmitter, type Subscription } from './event-emitter.js';
 
 export interface MessageStartEvent {
@@ -53,7 +60,40 @@ export interface ToolResultEvent {
   toolCallId: string;
   result: unknown;
   message: ChatMessage;
+  /** Companion structured payload delivered to an MCP-app widget, stripped from LLM context. */
+  structuredContent?: unknown;
   rawEvent?: unknown;
+}
+
+/**
+ * Emitted when the backend signals that a tool call is backed by an MCP-app UI
+ * resource. Carries the resolved resource URI + policy (never a template); the core
+ * controller resolves the HTML and stamps a {@link McpAppUiResource} onto the tool call.
+ */
+export interface McpUiResourceEvent {
+  toolCallId: string;
+  toolName?: string;
+  /** The concrete resolved `ui://` URI (interpolation done server-side). */
+  resourceUri: string;
+  serverId?: string;
+  mimeType?: string;
+  csp?: McpAppResourceCsp;
+  permissions?: McpAppResourcePermissions;
+  rawEvent?: unknown;
+}
+
+/**
+ * Parameters an MCP-app widget passes when forwarding a `tools/call` to the server.
+ * The library never owns a `Client`; these delegate to the adapter.
+ */
+export interface McpToolCallParams {
+  name: string;
+  arguments?: Record<string, unknown>;
+}
+
+/** Parameters for an MCP-app widget-initiated `resources/read`. */
+export interface McpResourceReadParams {
+  uri: string;
 }
 
 export interface AdapterState {
@@ -141,6 +181,7 @@ export abstract class AgentAdapter {
     toolCallArgs: new EventEmitter<ToolCallArgsEvent>(),
     toolCallEnd: new EventEmitter<ToolCallEndEvent>(),
     toolResult: new EventEmitter<ToolResultEvent>(),
+    mcpUiResource: new EventEmitter<McpUiResourceEvent>(),
     fileUpload: new EventEmitter<FileUploadEvent>(),
     fileRemove: new EventEmitter<FileRemoveEvent>(),
     error: new EventEmitter<ErrorEvent>(),
@@ -166,6 +207,24 @@ export abstract class AgentAdapter {
   public abstract set threadId(value: string);
 
   public clearMemory?(): Promise<void>;
+
+  /**
+   * Resolve the MCP-app UI resource for an already-resolved `resourceUri`. The adapter
+   * fetches the HTML for that concrete URI and passes through the `csp`/`permissions`
+   * from the `mcp-ui-resource` event — it MUST NOT re-derive the URI or the policy
+   * (templated-URI interpolation is server-side only).
+   */
+  public resolveMcpAppResource?(params: {
+    resourceUri: string;
+    csp?: McpAppResourceCsp;
+    permissions?: McpAppResourcePermissions;
+  }): Promise<McpAppUiResource | undefined>;
+
+  /** Forward a widget-initiated `tools/call` to the MCP server. */
+  public callMcpTool?(params: McpToolCallParams): Promise<unknown>;
+
+  /** Forward a widget-initiated `resources/read` to the MCP server. */
+  public readMcpResource?(params: McpResourceReadParams): Promise<unknown>;
 
   public setTools(tools: ToolDefinition[]): void {
     this._tools = tools;
@@ -233,6 +292,10 @@ export abstract class AgentAdapter {
 
   public onToolCallResult(callback: (event: ToolResultEvent) => void): Subscription {
     return this._events.toolResult.subscribe(callback);
+  }
+
+  public onMcpUiResource(callback: (event: McpUiResourceEvent) => void): Subscription {
+    return this._events.mcpUiResource.subscribe(callback);
   }
 
   public onFileUpload(callback: (event: FileUploadEvent) => void): Subscription {
@@ -329,6 +392,10 @@ export abstract class AgentAdapter {
 
   protected _emitToolResult(event: ToolResultEvent, rawEvent?: unknown): void {
     this._events.toolResult.emit({ ...event, rawEvent });
+  }
+
+  protected _emitMcpUiResource(event: McpUiResourceEvent, rawEvent?: unknown): void {
+    this._events.mcpUiResource.emit({ ...event, rawEvent });
   }
 
   public emitFileUpload(file: File, callbacks: FileUploadCallbacks): void {

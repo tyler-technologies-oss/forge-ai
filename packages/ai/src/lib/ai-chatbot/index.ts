@@ -34,7 +34,10 @@ export {
   type StateSnapshotAgentEvent,
   type StateDeltaAgentEvent,
   type ActivitySnapshotAgentEvent,
-  type ActivityDeltaAgentEvent
+  type ActivityDeltaAgentEvent,
+  type McpUiResourceEvent,
+  type McpToolCallParams,
+  type McpResourceReadParams
 } from './agent-adapter.js';
 
 // Chatbot types
@@ -64,7 +67,13 @@ export type {
   ForgeAiChatbotConversationSearchEventData,
   ForgeAiChatbotConversationLoadMoreEventData,
   ForgeAiChatbotConversationRenameEventData,
-  ForgeAiChatbotConversationDeleteEventData
+  ForgeAiChatbotConversationDeleteEventData,
+  McpAppUiResource,
+  McpAppResourceCsp,
+  McpAppResourcePermissions,
+  McpAppHostContext,
+  McpAppHostCapabilities,
+  McpAppDisplayMode
 } from './types.js';
 
 // AG-UI adapter

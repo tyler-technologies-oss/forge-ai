@@ -46,6 +46,7 @@
     "preview": "vite preview",
     "prestorybook": "pnpm run cem",
     "storybook": "storybook dev -p 6016",
+    "sandbox": "node sandbox/server.mjs",
     "prebuild:storybook": "pnpm run cem",
     "build:storybook": "storybook build",
     "lint": "pnpm run lint:lit-analyzer && pnpm run lint:eslint && pnpm run lint:stylelint",
