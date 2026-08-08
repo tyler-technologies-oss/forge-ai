@@ -1,0 +1,23 @@
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+
+:host {
+  display: block;
+}
+
+.artifact {
+  --forge-ai-artifact-content-padding: 0;
+  height: 100%;
+}
+
+iframe {
+  display: block;
+  border: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.error-icon {
+  width: 48px;
+  height: 48px;
+  fill: #{forge-theme.variable(outline)};
+}

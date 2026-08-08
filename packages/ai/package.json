@@ -68,6 +68,8 @@
     "@ag-ui/core": "^0.0.57",
     "@floating-ui/dom": "^1.8.0",
     "@lit/context": "^1.1.6",
+    "@modelcontextprotocol/ext-apps": "^1.7.5",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "dompurify": "^3.4.12",
     "lit": "catalog:",
     "marked": "^18.0.7",
