@@ -2,6 +2,7 @@ import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { keyed } from 'lit/directives/keyed.js';
 import type { AssistantResponse, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-response-message-toolbar';
@@ -10,6 +11,7 @@ import '../ai-response-message-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
 import '../ai-tool-call-indicator';
 import '../ai-thinking-indicator';
+import '../tools/ai-mcp-app/ai-mcp-app.js';
 
 import styles from './ai-assistant-response.scss?inline';
 
@@ -102,7 +104,11 @@ export class AiAssistantResponseComponent extends LitElement {
     return html`<div class="text-chunk">${unsafeHTML(renderedHtml)}</div>`;
   }
 
-  #renderToolCall(toolCall: ToolCall): TemplateResult | typeof nothing {
+  #renderToolCall(toolCall: ToolCall): unknown {
+    if (toolCall.uiResource) {
+      return keyed(toolCall.id, html`<forge-ai-mcp-app .toolCall=${toolCall}></forge-ai-mcp-app>`);
+    }
+
     const toolDefinition = this.tools?.get(toolCall.name);
 
     if (!toolDefinition?.renderer || toolCall.status !== 'complete') {
@@ -114,8 +120,8 @@ export class AiAssistantResponseComponent extends LitElement {
       .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
   }
 
-  get #children(): (TemplateResult | typeof nothing)[] {
-    const results: (TemplateResult | typeof nothing)[] = [];
+  get #children(): unknown[] {
+    const results: unknown[] = [];
     let toolBuffer: ToolCall[] = [];
 
     const flushIndicator = (): void => {

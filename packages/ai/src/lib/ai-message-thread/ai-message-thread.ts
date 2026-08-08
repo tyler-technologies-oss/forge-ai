@@ -2,6 +2,7 @@ import { LitElement, TemplateResult, html, nothing, unsafeCSS, type PropertyValu
 import { customElement, property, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { when } from 'lit/directives/when.js';
+import { keyed } from 'lit/directives/keyed.js';
 import type { MessageItem, ToolDefinition, ToolCall, AssistantResponse } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiAssistantResponseFeedbackEventData } from '../ai-assistant-response';
@@ -15,6 +16,7 @@ import '../ai-thinking-indicator';
 import '../ai-user-message';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
 import '../core/tooltip/tooltip.js';
+import '../tools/ai-mcp-app/ai-mcp-app.js';
 
 import styles from './ai-message-thread.scss?inline';
 
@@ -236,7 +238,11 @@ export class AiMessageThreadComponent extends LitElement {
     });
   }
 
-  #renderToolCall(toolCall: ToolCall): TemplateResult {
+  #renderToolCall(toolCall: ToolCall): unknown {
+    if (toolCall.uiResource) {
+      return keyed(toolCall.id, html`<forge-ai-mcp-app .toolCall=${toolCall}></forge-ai-mcp-app>`);
+    }
+
     const toolDefinition = this.tools?.get(toolCall.name);
     return html`<forge-ai-chatbot-tool-call
       .toolCall=${toolCall}
@@ -303,12 +309,15 @@ export class AiMessageThreadComponent extends LitElement {
     </div>`;
   }
 
-  get #messages(): (TemplateResult | typeof nothing)[] {
+  get #messages(): unknown[] {
     const itemsToRender = this.messageItems.filter(item => {
       if (item.type === 'assistant') {
         return true;
       }
       if (item.type === 'toolCall') {
+        if (item.data.uiResource) {
+          return true;
+        }
         const toolDef = this.tools?.get(item.data.name);
         return !!toolDef?.renderer;
       }

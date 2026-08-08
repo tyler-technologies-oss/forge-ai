@@ -53,8 +53,27 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return this.toolCall?.uiResource;
   }
 
+  /**
+   * The sandbox needs an explicit `csp` + `permissions` policy to set the CSP header and
+   * the iframe `allow` attribute. On rehydration these come from persistence, not a fresh
+   * `mcp-ui-resource` event — a dropped policy must fail visibly rather than run the
+   * widget under an empty/wrong policy. Presence (not truthiness) is the gate: an explicit
+   * empty policy is valid.
+   */
+  get #hasPolicy(): boolean {
+    const resource = this.#uiResource;
+    return !!resource && resource.csp !== undefined && resource.permissions !== undefined;
+  }
+
   get #canRender(): boolean {
-    return !!this.#uiResource?.html && !!this.host?.sandboxUrl;
+    return !!this.#uiResource?.html && !!this.host?.sandboxUrl && this.#hasPolicy;
+  }
+
+  get #errorBody(): string {
+    if (!this.host?.sandboxUrl) {
+      return "This interactive app can't be shown because no secure sandbox is configured.";
+    }
+    return "This interactive app can't be shown because its security policy is missing.";
   }
 
   get #handlers(): McpAppHandlers {
@@ -143,18 +162,20 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
 
   readonly #iframe = html`<iframe title="MCP application" sandbox="allow-scripts allow-same-origin"></iframe>`;
 
-  readonly #errorArtifact = html`
-    <forge-ai-artifact class="artifact">
-      <forge-ai-empty-state>
-        <svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="error-icon" aria-hidden="true">
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 15h-2v-2h2zm0-4h-2V7h2z" />
-        </svg>
-        <h3 slot="heading">Unable to display app</h3>
-        <p slot="body">This interactive app can't be shown because no secure sandbox is configured.</p>
-      </forge-ai-empty-state>
-    </forge-ai-artifact>
-  `;
+  get #errorArtifact(): TemplateResult {
+    return html`
+      <forge-ai-artifact class="artifact">
+        <forge-ai-empty-state>
+          <svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="error-icon" aria-hidden="true">
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 15h-2v-2h2zm0-4h-2V7h2z" />
+          </svg>
+          <h3 slot="heading">Unable to display app</h3>
+          <p slot="body">${this.#errorBody}</p>
+        </forge-ai-empty-state>
+      </forge-ai-artifact>
+    `;
+  }
 
   public override render(): TemplateResult {
     if (!this.#canRender) {

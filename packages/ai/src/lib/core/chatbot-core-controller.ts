@@ -5,6 +5,7 @@ import {
   type ErrorEvent,
   type MessageDeltaEvent,
   type MessageEndEvent,
+  type McpUiResourceEvent,
   type MessageStartEvent,
   type StepFinishedAgentEvent,
   type StepStartedAgentEvent,
@@ -138,6 +139,7 @@ export class ChatbotCoreController implements ReactiveController {
       this.#adapter.onToolCallEnd(this.#handleToolCallEnd.bind(this)),
       this.#adapter.onToolCall(this.#handleToolCall.bind(this)),
       this.#adapter.onToolCallResult(this.#handleToolCallResult.bind(this)),
+      this.#adapter.onMcpUiResource(this.#handleMcpUiResource.bind(this)),
       this.#adapter.onStepStarted(this.#handleStepStarted.bind(this)),
       this.#adapter.onStepFinished(this.#handleStepFinished.bind(this)),
       this.#adapter.onRunFinished(this.#handleRunFinished.bind(this)),
@@ -289,7 +291,7 @@ export class ChatbotCoreController implements ReactiveController {
       } else {
         this.#sendToolResult(event.id, this.#createToolResponse(event.name));
       }
-    } else {
+    } else if (!toolCall.uiResource) {
       this.#messageStateController.updateToolCallInResponse(event.id, { status: 'complete' });
     }
   }
@@ -371,6 +373,24 @@ export class ChatbotCoreController implements ReactiveController {
 
   #handleToolCallResult(event: ToolResultEvent): void {
     this.#messageStateController.completeToolCallInResponse(event.toolCallId, event.result, event);
+  }
+
+  async #handleMcpUiResource(event: McpUiResourceEvent): Promise<void> {
+    if (!this.#adapter?.resolveMcpAppResource) {
+      return;
+    }
+
+    const uiResource = await this.#adapter.resolveMcpAppResource({
+      resourceUri: event.resourceUri,
+      csp: event.csp,
+      permissions: event.permissions
+    });
+
+    if (!uiResource) {
+      return;
+    }
+
+    this.#messageStateController.updateToolCallInResponse(event.toolCallId, { uiResource });
   }
 
   async #sendToolResult(toolCallId: string, result: unknown): Promise<void> {
