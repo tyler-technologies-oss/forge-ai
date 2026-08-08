@@ -70,7 +70,7 @@ class SandboxProxy {
     this.#verifyIsolation();
     this.#resolveHostOrigin();
     window.addEventListener('message', this.#handleMessage);
-    this.#post(this.#host, { jsonrpc: '2.0', method: PROXY_READY });
+    this.#post(this.#host, { jsonrpc: '2.0', method: PROXY_READY, params: {} });
   }
 
   /**

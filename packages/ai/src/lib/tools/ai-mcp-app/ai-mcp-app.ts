@@ -1,13 +1,12 @@
 import { consume } from '@lit/context';
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
-import { when } from 'lit/directives/when.js';
+import { classMap } from 'lit/directives/class-map.js';
 import type { IToolRenderer, McpAppHostContext, ToolCall } from '../../ai-chatbot';
 import { ExtAppsBridge } from './app-bridge.js';
 import { mcpAppHostContext, type McpAppHost } from './mcp-app-context.js';
 import { McpAppBridgeController, type McpAppHandlers } from './mcp-app-bridge-controller.js';
 
-import '../../ai-artifact/ai-artifact.js';
 import '../../ai-empty-state/ai-empty-state.js';
 
 import styles from './ai-mcp-app.scss?inline';
@@ -131,7 +130,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       return;
     }
 
-    const controller = new McpAppBridgeController(new ExtAppsBridge(HOST_INFO, {}));
+    const controller = new McpAppBridgeController(new ExtAppsBridge(HOST_INFO, host.hostCapabilities ?? {}));
     this.#controller = controller;
     this.#lastHostContext = host.hostContext;
 
@@ -162,9 +161,13 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
 
   readonly #iframe = html`<iframe title="MCP application" sandbox="allow-scripts allow-same-origin"></iframe>`;
 
+  get #bordered(): boolean {
+    return this.#uiResource?.prefersBorder !== false;
+  }
+
   get #errorArtifact(): TemplateResult {
     return html`
-      <forge-ai-artifact class="artifact">
+      <div class="container bordered">
         <forge-ai-empty-state>
           <svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="error-icon" aria-hidden="true">
             <path fill="none" d="M0 0h24v24H0z" />
@@ -173,7 +176,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
           <h3 slot="heading">Unable to display app</h3>
           <p slot="body">${this.#errorBody}</p>
         </forge-ai-empty-state>
-      </forge-ai-artifact>
+      </div>
     `;
   }
 
@@ -182,10 +185,6 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       return this.#errorArtifact;
     }
 
-    return when(
-      this.#uiResource?.prefersBorder === false,
-      () => this.#iframe,
-      () => html`<forge-ai-artifact class="artifact">${this.#iframe}</forge-ai-artifact>`
-    );
+    return html`<div class=${classMap({ container: true, bordered: this.#bordered })}>${this.#iframe}</div>`;
   }
 }

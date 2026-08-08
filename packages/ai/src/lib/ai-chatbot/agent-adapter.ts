@@ -234,6 +234,15 @@ export abstract class AgentAdapter {
     return [...this._tools];
   }
 
+  /**
+   * Tools to forward to the backend agent, excluding MCP-app tools (`ToolDefinition.mcpApp`).
+   * MCP-app tools are a host-internal mechanism for streaming a UI resource into an existing
+   * tool call — the model never calls them directly, so they must never reach the agent.
+   */
+  public getModelFacingTools(): ToolDefinition[] {
+    return this._tools.filter(tool => tool.mcpApp === undefined);
+  }
+
   public getState(): AdapterState {
     return { ...this._state };
   }

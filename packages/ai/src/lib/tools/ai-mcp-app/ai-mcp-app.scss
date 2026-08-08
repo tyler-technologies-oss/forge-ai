@@ -1,12 +1,18 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
 
 :host {
   display: block;
 }
 
-.artifact {
-  --forge-ai-artifact-content-padding: 0;
+.container {
   height: 100%;
+
+  &.bordered {
+    border: 1px solid #{forge-theme.variable(outline)};
+    border-radius: #{forge-shape.variable(large)};
+    overflow: hidden;
+  }
 }
 
 iframe {

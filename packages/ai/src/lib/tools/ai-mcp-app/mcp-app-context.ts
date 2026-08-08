@@ -1,5 +1,10 @@
 import { createContext } from '@lit/context';
-import type { McpAppHostContext, McpResourceReadParams, McpToolCallParams } from '../../ai-chatbot';
+import type {
+  McpAppHostCapabilities,
+  McpAppHostContext,
+  McpResourceReadParams,
+  McpToolCallParams
+} from '../../ai-chatbot';
 
 /**
  * Host surface an `<forge-ai-mcp-app>` consumes to service widget→host calls and to read
@@ -15,6 +20,8 @@ export interface McpAppHost {
   hostContext: McpAppHostContext;
   /** Cross-origin sandbox proxy URL. Absent → the element renders an error artifact. */
   sandboxUrl?: string;
+  /** Advertised to the widget in `McpUiInitializeResult`; gates `serverTools`/`serverResources`/`openLinks`/`logging`. */
+  hostCapabilities: McpAppHostCapabilities;
 }
 
 export const mcpAppHostContext = createContext<McpAppHost>(Symbol('forge-mcp-app-host'));

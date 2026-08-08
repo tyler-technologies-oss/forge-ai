@@ -1,0 +1,46 @@
+import { Meta, Title, Canvas } from '@storybook/addon-docs/blocks';
+import * as AiChatbotMcpAppStories from './AiChatbotMcpApp.stories';
+
+<Meta of={AiChatbotMcpAppStories} />
+
+<Title />
+
+Demonstrates an MCP-app widget rendered inline in `forge-ai-chatbot` as a sandboxed,
+cross-origin iframe. Send any message to trigger the mock adapter's `renderMcpApp` tool
+call — args stream live, then the widget mounts and receives the tool result.
+
+## Manual test setup
+
+The widget's sandbox requires a separate-origin proxy running locally, in a second
+terminal alongside Storybook:
+
+```bash
+pnpm --filter=@tylertech/forge-ai sandbox   # proxy on :6017
+pnpm storybook                              # Storybook on :6016
+```
+
+Different ports are different origins, so this exercises real same-origin-policy
+isolation — the same as production.
+
+## Two widget variants
+
+- **`HandRolledWidget`** — a minimal inline `<script>` speaking the `ui/*` JSON-RPC
+  protocol directly, no SDK. Fastest to iterate on.
+- **`RealAppSdkWidget`** — imports the real `@modelcontextprotocol/ext-apps` guest `App`
+  class (via a pre-bundled, dependency-free build) and speaks the full spec handshake.
+
+<Canvas of={AiChatbotMcpAppStories.HandRolledWidget} />
+<Canvas of={AiChatbotMcpAppStories.RealAppSdkWidget} />
+
+## What to look for
+
+- The iframe mounts **once** — no flicker or remount as tool args stream in.
+- Clicking "Refresh via app tool call" round-trips an app-initiated `tools/call` to
+  `refreshWidgetData` (a `visibility:["app"]`-style tool: callable from the widget, but
+  never exposed to the model's tool list).
+- Auto-resize: the iframe's height tracks the widget's content with no feedback loop.
+- Theme propagation: **the Storybook dark-mode toolbar button does not drive this** — it
+  toggles a class on `document.body`, unrelated to `prefers-color-scheme`. To see the
+  widget's theme change, use your browser devtools' rendering pane to emulate
+  `prefers-color-scheme: dark` (Chrome DevTools → Rendering → "Emulate CSS media feature
+  prefers-color-scheme").
