@@ -29,6 +29,10 @@ isolation — the same as production.
 - **`RealAppSdkWidget`** — imports the real `@modelcontextprotocol/ext-apps` guest `App`
   class (via a pre-bundled, dependency-free build) and speaks the full spec handshake.
 
+Both stories run against the same host-side bridge — a hand-rolled, zero-dependency
+`McpAppBridge` implementation (`app-bridge.ts`). There's no config surface for swapping
+bridge impls; the library only ships this one.
+
 <Canvas of={AiChatbotMcpAppStories.HandRolledWidget} />
 <Canvas of={AiChatbotMcpAppStories.RealAppSdkWidget} />
 

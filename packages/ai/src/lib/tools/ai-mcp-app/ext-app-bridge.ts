@@ -1,30 +1,31 @@
 import { AppBridge, PostMessageTransport } from '@modelcontextprotocol/ext-apps/app-bridge';
 import type { McpAppHostCapabilities, McpAppHostContext } from '../../ai-chatbot';
-import type { McpAppBridge, McpAppBridgeConnectConfig } from './mcp-app-bridge.js';
+import type { IMcpAppBridge, McpAppBridgeConnectConfig } from './mcp-app-bridge-types.js';
 
 /**
- * Bridge implementation A — wraps the standard MCP `@modelcontextprotocol/ext-apps`
- * `AppBridge`. This is the ONLY file in the library that imports ext-apps (+ its SDK/zod
- * dependency), so it and its deps drop cleanly if the hand-rolled impl B (Step 5) wins.
+ * Orphaned: not wired into `ai-mcp-app.ts`. Kept for reference in case
+ * `@modelcontextprotocol/ext-apps` is revisited later — the hand-rolled `app-bridge.ts`
+ * is what ships. See `docs/plans/mcp-apps-bridge-comparison.md` for why.
  *
- * The controller owns the outer sandbox iframe DOM; this bridge owns the AppBridge
- * lifecycle: it scopes its transport to the given `sandboxWindow`, drives the
- * `sandboxready` → `sendSandboxResourceReady` → `initialized` handshake, and maps the
- * ext-apps handler surface onto the bridge-agnostic {@link McpAppBridge} interface.
+ * Wraps the standard MCP `@modelcontextprotocol/ext-apps` `AppBridge`. The controller
+ * owns the outer sandbox iframe DOM; this bridge owns the AppBridge lifecycle: it scopes
+ * its transport to the given `sandboxWindow`, drives the `sandboxready` →
+ * `sendSandboxResourceReady` → `initialized` handshake, and maps the ext-apps handler
+ * surface onto the bridge-agnostic {@link IMcpAppBridge} interface.
  */
-export class ExtAppsBridge implements McpAppBridge {
+export class ExtAppsBridge implements IMcpAppBridge {
   readonly #hostInfo: { name: string; version: string };
   readonly #capabilities: McpAppHostCapabilities;
   #bridge: AppBridge | null = null;
 
-  public oncalltool?: McpAppBridge['oncalltool'];
-  public onreadresource?: McpAppBridge['onreadresource'];
-  public onopenlink?: McpAppBridge['onopenlink'];
-  public onmessage?: McpAppBridge['onmessage'];
-  public onloggingmessage?: McpAppBridge['onloggingmessage'];
-  public onsizechange?: McpAppBridge['onsizechange'];
-  public onrequestdisplaymode?: McpAppBridge['onrequestdisplaymode'];
-  public onupdatemodelcontext?: McpAppBridge['onupdatemodelcontext'];
+  public oncalltool?: IMcpAppBridge['oncalltool'];
+  public onreadresource?: IMcpAppBridge['onreadresource'];
+  public onopenlink?: IMcpAppBridge['onopenlink'];
+  public onmessage?: IMcpAppBridge['onmessage'];
+  public onloggingmessage?: IMcpAppBridge['onloggingmessage'];
+  public onsizechange?: IMcpAppBridge['onsizechange'];
+  public onrequestdisplaymode?: IMcpAppBridge['onrequestdisplaymode'];
+  public onupdatemodelcontext?: IMcpAppBridge['onupdatemodelcontext'];
 
   constructor(hostInfo: { name: string; version: string }, capabilities: McpAppHostCapabilities) {
     this.#hostInfo = hostInfo;

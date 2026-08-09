@@ -1,126 +1,288 @@
-import type {
-  McpAppDisplayMode,
-  McpAppHostContext,
-  McpAppResourcePermissions,
-  McpToolCallParams,
-  McpResourceReadParams
-} from '../../ai-chatbot';
+import type { McpAppDisplayMode, McpAppHostCapabilities, McpAppHostContext } from '../../ai-chatbot';
+import type { IMcpAppBridge, McpAppBridgeConnectConfig } from './mcp-app-bridge-types.js';
 
-/**
- * The common host-side bridge surface both implementations satisfy — impl A
- * (`app-bridge.ts`, wraps `@modelcontextprotocol/ext-apps`) and impl B
- * (`app-bridge2.ts`, hand-rolled, zero-dep). The element + controller depend on this
- * interface ONLY, so either impl is interchangeable behind a config/build switch.
- *
- * Bridge-agnostic on purpose: no ext-apps types leak through this surface.
- */
+const PROTOCOL_VERSION = '2026-01-26';
+const TEARDOWN_TIMEOUT_MS = 5000;
 
-/** Parameters a widget passes to `ui/open-link`. */
-export interface McpAppOpenLinkParams {
-  url: string;
+type JsonRpcId = number | string;
+
+interface JsonRpcPayload {
+  jsonrpc: '2.0';
+  id?: JsonRpcId;
+  method?: string;
+  params?: unknown;
+  result?: unknown;
+  error?: { code: number; message: string };
 }
 
-/** Parameters a widget passes to `ui/message`. */
-export interface McpAppMessageParams {
-  content: string;
-  role?: 'user' | 'assistant';
-}
-
-/** Parameters a widget passes to `ui/update-model-context`. */
-export interface McpAppUpdateModelContextParams {
-  content: unknown;
-}
-
-/** Parameters a widget passes to `ui/request-display-mode`. */
-export interface McpAppRequestDisplayModeParams {
-  mode: McpAppDisplayMode;
-}
-
-/** Result the host returns for a display-mode request — echoes the mode actually set. */
-export interface McpAppRequestDisplayModeResult {
-  mode: McpAppDisplayMode;
-}
-
-/** Payload for a widget `notifications/message` (logging). */
-export interface McpAppLoggingMessage {
-  level: string;
-  data?: unknown;
-  logger?: string;
-}
-
-/** Payload for a widget `size-changed` notification. */
-export interface McpAppSizeChange {
-  width?: number;
-  height: number;
+function asJsonRpc(data: unknown): JsonRpcPayload | null {
+  if (!data || typeof data !== 'object') {
+    return null;
+  }
+  const payload = data as JsonRpcPayload;
+  return payload.jsonrpc === '2.0' ? payload : null;
 }
 
 /**
- * Config for the `ui/initialize` handshake and injecting the resource into the sandbox.
+ * Hand-rolled, zero-dependency {@link IMcpAppBridge}. A `postMessage` listener speaking
+ * JSON-RPC 2.0 directly: no SDK, no zod, no schema validation. The cross-origin sandbox
+ * iframe is the security boundary here, not message-schema checking — every inbound
+ * field is narrowed defensively before use.
  *
- * The controller owns the outer sandbox iframe DOM (setting `src` with the `?csp=` query
- * param + the outer `allow` attribute); it hands the bridge the loaded iframe's
- * `contentWindow` so the bridge can scope its transport to that window and drive the
- * `sandbox-proxy-ready` → `sandbox-resource-ready` → `initialized` handshake. All fields
- * are bridge-agnostic (no ext-apps types leak through this surface).
+ * Drives the handshake against the sandbox proxy (`packages/ai/sandbox/sandbox.js`):
+ * `sandbox-proxy-ready` -> `sandbox-resource-ready` -> `ui/initialize` ->
+ * `ui/notifications/initialized`, then streaming `ui/notifications/*`. Forwards
+ * non-`ui/` methods (`tools/call`, `resources/read`) to the same handler slots the
+ * interface defines.
  */
-export interface McpAppBridgeConnectConfig {
-  /** The loaded outer sandbox proxy iframe's window; the bridge scopes its transport here. */
-  sandboxWindow: Window;
-  /** The complete standalone app HTML to inject into the inner sandboxed frame. */
-  html: string;
-  /** Initial host context sent to the widget on `ui/initialize`. */
-  hostContext: McpAppHostContext;
-  /** Iframe permission policy forwarded to the inner frame via `sandbox-resource-ready`. */
-  permissions?: McpAppResourcePermissions;
-  /** Optional override for the inner iframe's `sandbox` attribute. */
-  sandbox?: string;
-}
+export class McpAppBridge implements IMcpAppBridge {
+  readonly #hostInfo: { name: string; version: string };
+  readonly #capabilities: McpAppHostCapabilities;
 
-export interface McpAppBridge {
-  /**
-   * Connect to the loaded sandbox proxy: perform the `ui/initialize` handshake and send
-   * the resource in via `sandbox-resource-ready`. Resolves once the widget has sent
-   * `initialized`. The host MUST NOT send tool input before this resolves.
-   */
-  connect(config: McpAppBridgeConnectConfig): Promise<void>;
+  #sandboxWindow: Window | null = null;
+  #sandboxOrigin: string | null = null;
+  #hostContext: McpAppHostContext = { theme: 'light' };
+  #nextId = 1;
+  readonly #pending = new Map<JsonRpcId, { resolve: (value: unknown) => void; reject: (reason: Error) => void }>();
+  #resolveProxyReady?: () => void;
+  #initialized: Promise<void> | null = null;
+  #resolveInitialized?: () => void;
 
-  /** Streaming partial tool arguments (each args delta). */
-  sendToolInputPartial(args: Record<string, unknown>): void;
+  public oncalltool?: IMcpAppBridge['oncalltool'];
+  public onreadresource?: IMcpAppBridge['onreadresource'];
+  public onopenlink?: IMcpAppBridge['onopenlink'];
+  public onmessage?: IMcpAppBridge['onmessage'];
+  public onloggingmessage?: IMcpAppBridge['onloggingmessage'];
+  public onsizechange?: IMcpAppBridge['onsizechange'];
+  public onrequestdisplaymode?: IMcpAppBridge['onrequestdisplaymode'];
+  public onupdatemodelcontext?: IMcpAppBridge['onupdatemodelcontext'];
 
-  /** Final, complete tool arguments (args complete). */
-  sendToolInput(args: Record<string, unknown>): void;
+  constructor(hostInfo: { name: string; version: string }, capabilities: McpAppHostCapabilities) {
+    this.#hostInfo = hostInfo;
+    this.#capabilities = capabilities;
+  }
 
-  /** The final tool result (+ optional companion structured content). */
-  sendToolResult(result: unknown, structuredContent?: unknown): void;
+  public connect(config: McpAppBridgeConnectConfig): Promise<void> {
+    if (this.#sandboxWindow) {
+      throw new Error('Bridge is already connected. Call sendTeardown() before connecting again.');
+    }
 
-  /** Notify the widget its tool call was cancelled. */
-  sendToolCancelled(reason?: string): void;
+    this.#hostContext = config.hostContext;
+    this.#sandboxWindow = config.sandboxWindow;
+    window.addEventListener('message', this.#handleMessage);
 
-  /** Push an updated host context (e.g. theme or container-size change). */
-  sendHostContextChange(hostContext: McpAppHostContext): void;
+    const proxyReady = new Promise<void>(resolve => {
+      this.#resolveProxyReady = resolve;
+    });
+    this.#initialized = new Promise<void>(resolve => {
+      this.#resolveInitialized = resolve;
+    });
 
-  /**
-   * Request the widget tear down. Returns a promise the caller awaits before removing
-   * the iframe — the spec SHOULD wait for the widget's ack to prevent data loss.
-   */
-  sendTeardown(): Promise<void>;
+    return proxyReady
+      .then(() =>
+        this.#sendNotification('ui/notifications/sandbox-resource-ready', {
+          html: config.html,
+          permissions: config.permissions,
+          sandbox: config.sandbox
+        })
+      )
+      .then(() => this.#initialized as Promise<void>);
+  }
 
-  // --- View→host handler slots (assigned by the controller) ---
+  public sendToolInputPartial(args: Record<string, unknown>): void {
+    this.#sendNotification('ui/notifications/tool-input-partial', { arguments: args });
+  }
 
-  /** Widget forwarded a `tools/call` to the server. */
-  oncalltool?: (params: McpToolCallParams) => Promise<unknown>;
-  /** Widget forwarded a `resources/read` to the server. */
-  onreadresource?: (params: McpResourceReadParams) => Promise<unknown>;
-  /** Widget requested opening an external link. */
-  onopenlink?: (params: McpAppOpenLinkParams) => void;
-  /** Widget sent a chat message (`ui/message`). Resolves once accepted/queued. */
-  onmessage?: (params: McpAppMessageParams) => Promise<void>;
-  /** Widget emitted a logging message (`notifications/message`). */
-  onloggingmessage?: (params: McpAppLoggingMessage) => void;
-  /** Widget reported a size change. */
-  onsizechange?: (params: McpAppSizeChange) => void;
-  /** Widget requested a display-mode change; the host echoes the resulting mode. */
-  onrequestdisplaymode?: (params: McpAppRequestDisplayModeParams) => Promise<McpAppRequestDisplayModeResult>;
-  /** Widget requested a silent model-context update. */
-  onupdatemodelcontext?: (params: McpAppUpdateModelContextParams) => Promise<void>;
+  public sendToolInput(args: Record<string, unknown>): void {
+    this.#sendNotification('ui/notifications/tool-input', { arguments: args });
+  }
+
+  public sendToolResult(result: unknown, structuredContent?: unknown): void {
+    const base = (result && typeof result === 'object' ? result : { content: [] }) as Record<string, unknown>;
+    const params = structuredContent !== undefined ? { ...base, structuredContent } : base;
+    this.#sendNotification('ui/notifications/tool-result', params);
+  }
+
+  public sendToolCancelled(reason?: string): void {
+    this.#sendNotification('ui/notifications/tool-cancelled', { reason: reason ?? 'cancelled' });
+  }
+
+  public sendHostContextChange(hostContext: McpAppHostContext): void {
+    this.#hostContext = hostContext;
+    this.#sendNotification('ui/notifications/host-context-changed', this.#toWireHostContext(hostContext));
+  }
+
+  public sendTeardown(): Promise<void> {
+    const ack = this.#sendRequest('ui/resource-teardown', {}).catch(() => undefined);
+    const timeout = new Promise<void>(resolve => setTimeout(resolve, TEARDOWN_TIMEOUT_MS));
+    return Promise.race([ack, timeout]).then(() => this.#dispose());
+  }
+
+  /** Release the `message` listener + reject any in-flight requests. Idempotent. */
+  #dispose(): void {
+    window.removeEventListener('message', this.#handleMessage);
+    for (const pending of this.#pending.values()) {
+      pending.reject(new Error('Bridge disposed'));
+    }
+    this.#pending.clear();
+    this.#sandboxWindow = null;
+  }
+
+  readonly #handleMessage = (event: MessageEvent): void => {
+    if (event.source !== this.#sandboxWindow) {
+      return;
+    }
+    if (this.#sandboxOrigin === null) {
+      this.#sandboxOrigin = event.origin;
+    } else if (event.origin !== this.#sandboxOrigin) {
+      return;
+    }
+
+    const payload = asJsonRpc(event.data);
+    if (!payload || typeof payload.method !== 'string') {
+      if (payload && payload.id !== undefined) {
+        this.#handleResponse(payload);
+      } else if (payload) {
+        console.warn('[forge-ai-mcp-app] Ignoring malformed JSON-RPC message', event.data);
+      }
+      return;
+    }
+
+    if (payload.id !== undefined) {
+      void this.#handleRequest(payload.method, payload.params, payload.id);
+    } else {
+      this.#handleNotification(payload.method, payload.params);
+    }
+  };
+
+  #handleResponse(payload: JsonRpcPayload): void {
+    const id = payload.id as JsonRpcId;
+    const pending = this.#pending.get(id);
+    if (!pending) {
+      return;
+    }
+    this.#pending.delete(id);
+    if (payload.error) {
+      pending.reject(new Error(payload.error.message));
+    } else {
+      pending.resolve(payload.result);
+    }
+  }
+
+  async #handleRequest(method: string, params: unknown, id: JsonRpcId): Promise<void> {
+    try {
+      const result = await this.#dispatchRequest(method, params);
+      this.#post({ jsonrpc: '2.0', id, result });
+    } catch (error) {
+      this.#post({
+        jsonrpc: '2.0',
+        id,
+        error: { code: -32000, message: error instanceof Error ? error.message : 'Request failed' }
+      });
+    }
+  }
+
+  async #dispatchRequest(method: string, params: unknown): Promise<unknown> {
+    const p = (params ?? {}) as Record<string, unknown>;
+    switch (method) {
+      case 'ui/initialize':
+        return {
+          protocolVersion: PROTOCOL_VERSION,
+          hostInfo: this.#hostInfo,
+          hostCapabilities: this.#capabilities,
+          hostContext: this.#toWireHostContext(this.#hostContext)
+        };
+      case 'ui/open-link':
+        this.onopenlink?.({ url: typeof p.url === 'string' ? p.url : '' });
+        return {};
+      case 'ui/message': {
+        const content = Array.isArray(p.content) ? p.content : [];
+        const text = content
+          .filter((block): block is { type: 'text'; text: string } => !!block && block.type === 'text')
+          .map(block => block.text)
+          .join('');
+        // Spec types widget->host `ui/message.role` as the literal "user" — never trust a
+        // widget-supplied role, or a malicious/buggy widget could spoof an assistant message.
+        await this.onmessage?.({ content: text, role: 'user' });
+        return {};
+      }
+      case 'ui/update-model-context':
+        await this.onupdatemodelcontext?.({ content: p.content ?? p.structuredContent });
+        return {};
+      case 'ui/request-display-mode': {
+        const mode = (typeof p.mode === 'string' ? p.mode : 'inline') as McpAppDisplayMode;
+        const result = await this.onrequestdisplaymode?.({ mode });
+        return { mode: result?.mode ?? mode };
+      }
+      case 'ui/resource-teardown':
+      case 'ping':
+        return {};
+      case 'tools/call':
+        return (
+          (await this.oncalltool?.({
+            name: typeof p.name === 'string' ? p.name : '',
+            arguments: (p.arguments as Record<string, unknown>) ?? {}
+          })) ?? { content: [] }
+        );
+      case 'resources/read':
+        return (await this.onreadresource?.({ uri: typeof p.uri === 'string' ? p.uri : '' })) ?? { contents: [] };
+      default:
+        console.warn(`[forge-ai-mcp-app] Unhandled request method: ${method}`);
+        throw new Error(`Unhandled request method: ${method}`);
+    }
+  }
+
+  #handleNotification(method: string, params: unknown): void {
+    const p = (params ?? {}) as Record<string, unknown>;
+    switch (method) {
+      case 'ui/notifications/sandbox-proxy-ready':
+        this.#resolveProxyReady?.();
+        return;
+      case 'ui/notifications/initialized':
+        this.#resolveInitialized?.();
+        return;
+      case 'ui/notifications/size-changed':
+        this.onsizechange?.({
+          width: typeof p.width === 'number' ? p.width : undefined,
+          height: typeof p.height === 'number' ? p.height : 0
+        });
+        return;
+      case 'notifications/message':
+        this.onloggingmessage?.({
+          level: typeof p.level === 'string' ? p.level : 'info',
+          logger: typeof p.logger === 'string' ? p.logger : undefined,
+          data: p.data
+        });
+        return;
+      default:
+        console.warn(`[forge-ai-mcp-app] Unhandled notification method: ${method}`);
+        return;
+    }
+  }
+
+  #sendNotification(method: string, params: unknown): void {
+    this.#post({ jsonrpc: '2.0', method, params });
+  }
+
+  #sendRequest(method: string, params: unknown): Promise<unknown> {
+    const id = this.#nextId++;
+    return new Promise((resolve, reject) => {
+      this.#pending.set(id, { resolve, reject });
+      this.#post({ jsonrpc: '2.0', id, method, params });
+    });
+  }
+
+  #post(data: unknown): void {
+    this.#sandboxWindow?.postMessage(data, '*');
+  }
+
+  #toWireHostContext(hostContext: McpAppHostContext): Record<string, unknown> {
+    return {
+      theme: hostContext.theme,
+      availableDisplayModes: hostContext.availableDisplayModes,
+      ...(hostContext.container
+        ? { containerDimensions: { width: hostContext.container.width, height: hostContext.container.height } }
+        : {})
+    };
+  }
 }

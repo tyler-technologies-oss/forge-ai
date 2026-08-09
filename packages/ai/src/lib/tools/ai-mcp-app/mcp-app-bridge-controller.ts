@@ -1,13 +1,13 @@
 import { buildAllowAttribute } from '@modelcontextprotocol/ext-apps/app-bridge';
 import type { McpAppHostContext, McpAppResourceCsp, McpAppResourcePermissions, ToolCall } from '../../ai-chatbot';
-import type { McpAppBridge } from './mcp-app-bridge.js';
+import type { IMcpAppBridge } from './mcp-app-bridge-types.js';
 
 /**
  * The view→host handler slots the element supplies; registered on the bridge BEFORE
  * `connect()` so they are live for the very first widget request.
  */
 export type McpAppHandlers = Pick<
-  McpAppBridge,
+  IMcpAppBridge,
   | 'oncalltool'
   | 'onreadresource'
   | 'onopenlink'
@@ -63,22 +63,21 @@ export function buildCspHeader(csp?: McpAppResourceCsp): string {
 }
 
 /**
- * Drives an {@link McpAppBridge} through the sandbox handshake and the streaming
- * tool-call lifecycle. Bridge-agnostic — talks to the interface only, so impl A or B
- * swap in behind it.
+ * Drives an {@link IMcpAppBridge} through the sandbox handshake and the streaming
+ * tool-call lifecycle. Bridge-agnostic — talks to the interface only.
  *
  * The controller owns the OUTER sandbox iframe DOM (its `src` with the `?csp=` param and
  * its `allow` attribute); the bridge owns the AppBridge/postMessage lifecycle.
  */
 export class McpAppBridgeController {
-  readonly #bridge: McpAppBridge;
+  readonly #bridge: IMcpAppBridge;
   #connected: Promise<void> | null = null;
   #lastArgsSent: string | null = null;
   #inputSent = false;
   #resultSent = false;
   #cancelled = false;
 
-  constructor(bridge: McpAppBridge) {
+  constructor(bridge: IMcpAppBridge) {
     this.#bridge = bridge;
   }
 

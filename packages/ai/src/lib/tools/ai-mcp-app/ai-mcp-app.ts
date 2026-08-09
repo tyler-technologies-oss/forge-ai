@@ -3,7 +3,7 @@ import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import type { IToolRenderer, McpAppHostContext, ToolCall } from '../../ai-chatbot';
-import { ExtAppsBridge } from './app-bridge.js';
+import { McpAppBridge } from './mcp-app-bridge.js';
 import { mcpAppHostContext, type McpAppHost } from './mcp-app-context.js';
 import { McpAppBridgeController, type McpAppHandlers } from './mcp-app-bridge-controller.js';
 
@@ -130,7 +130,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       return;
     }
 
-    const controller = new McpAppBridgeController(new ExtAppsBridge(HOST_INFO, host.hostCapabilities ?? {}));
+    const controller = new McpAppBridgeController(new McpAppBridge(HOST_INFO, host.hostCapabilities ?? {}));
     this.#controller = controller;
     this.#lastHostContext = host.hostContext;
 
