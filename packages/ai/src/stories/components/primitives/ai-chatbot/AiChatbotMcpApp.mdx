@@ -30,11 +30,37 @@ isolation — the same as production.
   class (via a pre-bundled, dependency-free build) and speaks the full spec handshake.
 
 Both stories run against the same host-side bridge — a hand-rolled, zero-dependency
-`McpAppBridge` implementation (`app-bridge.ts`). There's no config surface for swapping
-bridge impls; the library only ships this one.
+`McpAppBridge` implementation (`mcp-app-bridge.ts`). There's no config surface for
+swapping bridge impls; the library only ships this one.
 
 <Canvas of={AiChatbotMcpAppStories.HandRolledWidget} />
 <Canvas of={AiChatbotMcpAppStories.RealAppSdkWidget} />
+
+## Feature demos
+
+Three additional stories, each grounded in a realistic use case and each exercising a
+different slice of the app-to-host surface:
+
+- **`WeatherCard`** — a read-only widget. No app-initiated calls at all; it renders
+  purely from streamed tool args and the final `structuredContent` (temperature,
+  condition, high/low, humidity, wind). Proves a widget can be pure display with zero
+  interactivity.
+- **`TripDetailsForm`** — an interactive widget. The form collects destination + date
+  from the user and forwards them as an app-initiated `tools/call`
+  (`submitTripDetails`, a `visibility:["app"]`-style tool never exposed to the model's
+  tool list), then renders the server's response inline. Exercises `oncalltool`.
+- **`StoreLocator`** — exercises `ui/request-display-mode` (the "Expand" button
+  promotes the widget to fullscreen via the Popover API — same DOM node, no iframe
+  reload) and `ui/open-link` (the "Directions" button opens a host-validated link in a
+  new tab; the host's `handleOpenLink` allowlists `http`/`https` before calling
+  `window.open`, since the URL comes from an untrusted widget). Also exercises
+  `ui/message` — "Ask about hours" re-enters the normal chat stream with a
+  widget-authored user message, which the mock adapter answers as a natural follow-up
+  rather than re-running the tool call.
+
+<Canvas of={AiChatbotMcpAppStories.WeatherCard} />
+<Canvas of={AiChatbotMcpAppStories.TripDetailsForm} />
+<Canvas of={AiChatbotMcpAppStories.StoreLocator} />
 
 ## What to look for
 

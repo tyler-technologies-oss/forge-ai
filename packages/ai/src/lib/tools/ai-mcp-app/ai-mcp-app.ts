@@ -1,8 +1,8 @@
 import { consume } from '@lit/context';
-import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { LitElement, PropertyValues, TemplateResult, html, unsafeCSS } from 'lit';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
-import type { IToolRenderer, McpAppHostContext, ToolCall } from '../../ai-chatbot';
+import type { IToolRenderer, McpAppDisplayMode, McpAppHostContext, ToolCall } from '../../ai-chatbot';
 import { McpAppBridge } from './mcp-app-bridge.js';
 import { mcpAppHostContext, type McpAppHost } from './mcp-app-context.js';
 import { McpAppBridgeController, type McpAppHandlers } from './mcp-app-bridge-controller.js';
@@ -44,6 +44,12 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
 
   @query('iframe')
   private _iframe!: HTMLIFrameElement | null;
+
+  @query('.container')
+  private _container!: HTMLElement | null;
+
+  @state()
+  private _displayMode: McpAppDisplayMode = 'inline';
 
   #controller: McpAppBridgeController | null = null;
   #lastHostContext: McpAppHostContext | null = null;
@@ -90,8 +96,9 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
         }
       },
       onrequestdisplaymode: async ({ mode }) => {
-        this.#dispatch('request-display-mode', { mode });
-        return { mode };
+        const resultMode = this.#setDisplayMode(mode);
+        this.#dispatch('request-display-mode', { mode: resultMode });
+        return { mode: resultMode };
       },
       onupdatemodelcontext: async ({ content }) => {
         this.#dispatch('update-model-context', { content });
@@ -103,19 +110,51 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     this.#connect();
   }
 
-  public override updated(): void {
+  public override updated(changedProperties: PropertyValues): void {
     if (!this.#controller) {
       this.#connect();
       return;
     }
     this.#controller.syncToolCall(this.toolCall);
     this.#syncHostContext();
+
+    if (changedProperties.has('_displayMode')) {
+      this.#applyDisplayMode();
+    }
   }
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
     void this.#controller?.teardown();
     this.#controller = null;
+  }
+
+  /**
+   * Only promote to a mode the widget declared support for in its `ui/initialize`
+   * handshake (`hostContext.availableDisplayModes`) — echoes back the mode actually
+   * applied, per spec. Uses the native Popover API (`popover` attribute +
+   * `showPopover()`) rather than CSS `position`/`z-index` or DOM re-parenting: it
+   * promotes the container to the top layer in place, so the iframe never moves and the
+   * bridge/widget state survive the mode change.
+   */
+  #setDisplayMode(requested: McpAppDisplayMode): McpAppDisplayMode {
+    const available = this.host?.hostContext.availableDisplayModes ?? [];
+    this._displayMode = requested === 'inline' || available.includes(requested) ? requested : 'inline';
+    return this._displayMode;
+  }
+
+  #applyDisplayMode(): void {
+    const container = this._container;
+    if (!container) {
+      return;
+    }
+    if (this._displayMode === 'inline') {
+      if (container.matches(':popover-open')) {
+        container.hidePopover();
+      }
+    } else if (!container.matches(':popover-open')) {
+      container.showPopover();
+    }
   }
 
   #connect(): void {
@@ -185,6 +224,17 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       return this.#errorArtifact;
     }
 
-    return html`<div class=${classMap({ container: true, bordered: this.#bordered })}>${this.#iframe}</div>`;
+    return html`
+      <div
+        class=${classMap({
+          container: true,
+          bordered: this.#bordered,
+          fullscreen: this._displayMode === 'fullscreen',
+          pip: this._displayMode === 'pip'
+        })}
+        popover="manual">
+        ${this.#iframe}
+      </div>
+    `;
   }
 }
