@@ -69,8 +69,16 @@ different slice of the app-to-host surface:
   `refreshWidgetData` (a `visibility:["app"]`-style tool: callable from the widget, but
   never exposed to the model's tool list).
 - Auto-resize: the iframe's height tracks the widget's content with no feedback loop.
-- Theme propagation: **the Storybook dark-mode toolbar button does not drive this** — it
-  toggles a class on `document.body`, unrelated to `prefers-color-scheme`. To see the
-  widget's theme change, use your browser devtools' rendering pane to emulate
-  `prefers-color-scheme: dark` (Chrome DevTools → Rendering → "Emulate CSS media feature
-  prefers-color-scheme").
+- Theme propagation: use the **`theme` control** (`auto` / `light` / `dark`) on any
+  story to feed an explicit theme into the widget's `hostContext.theme` — the spec
+  (2026-01-26) defines only `'light' | 'dark'`, no `'system'`/`'auto'`. This control
+  does **not** change the chatbot's own appearance (that's Forge design tokens,
+  unrelated) — it only demonstrates the widget-facing signal a real consumer would set
+  via `<forge-ai-chatbot theme="dark">`. With `theme` set to `light` or `dark`, that
+  value wins outright. With `theme` left on **`auto`**, the widget instead tracks
+  **Storybook's own dark-mode toolbar icon** (the sun/moon button, top toolbar) live —
+  toggling it flips `hostContext.theme` without a page reload, since both this control
+  and Forge's own dark theme listen to the same `@vueless/storybook-dark-mode` `DARK_MODE`
+  channel event. Watch the console (widgets log every
+  `ui/notifications/host-context-changed` they receive) or the widget's own background
+  color, which flips via `body[data-theme]` in all three feature demos.
