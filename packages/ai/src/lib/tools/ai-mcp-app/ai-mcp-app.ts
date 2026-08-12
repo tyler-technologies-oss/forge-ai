@@ -15,6 +15,14 @@ declare global {
   interface HTMLElementTagNameMap {
     'forge-ai-mcp-app': McpAppToolElement;
   }
+
+  interface HTMLElementEventMap {
+    'forge-ai-mcp-app-open-link': CustomEvent<{ url: string }>;
+    'forge-ai-mcp-app-message': CustomEvent<{ content: unknown; role: string }>;
+    'forge-ai-mcp-app-logging-message': CustomEvent<unknown>;
+    'forge-ai-mcp-app-request-display-mode': CustomEvent<{ mode: McpAppDisplayMode }>;
+    'forge-ai-mcp-app-update-model-context': CustomEvent<{ content: unknown }>;
+  }
 }
 
 const HOST_INFO = { name: 'forge-ai', version: '1.0.0' } as const;
@@ -30,6 +38,12 @@ const HOST_INFO = { name: 'forge-ai', version: '1.0.0' } as const;
  *
  * @tag forge-ai-mcp-app
  * @internal
+ *
+ * @event {CustomEvent<{ url: string }>} forge-ai-mcp-app-open-link - Fired when the app requests to open a link
+ * @event {CustomEvent<{ content: unknown; role: string }>} forge-ai-mcp-app-message - Fired when the app sends a message
+ * @event {CustomEvent<unknown>} forge-ai-mcp-app-logging-message - Fired when the app sends a logging message
+ * @event {CustomEvent<{ mode: McpAppDisplayMode }>} forge-ai-mcp-app-request-display-mode - Fired when the app's display mode changes
+ * @event {CustomEvent<{ content: unknown }>} forge-ai-mcp-app-update-model-context - Fired when the app updates model context
  */
 @customElement('forge-ai-mcp-app')
 export class McpAppToolElement extends LitElement implements IToolRenderer {
@@ -85,11 +99,11 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return {
       oncalltool: params => this.host?.callTool(params) ?? Promise.resolve({ content: [] }),
       onreadresource: params => this.host?.readResource(params) ?? Promise.resolve({ contents: [] }),
-      onopenlink: ({ url }) => this.#dispatch('open-link', { url }),
+      onopenlink: ({ url }) => this.#dispatchOpenLink(url),
       onmessage: async ({ content, role }) => {
-        this.#dispatch('message', { content, role });
+        this.#dispatchMessage(content, role);
       },
-      onloggingmessage: message => this.#dispatch('logging-message', message),
+      onloggingmessage: message => this.#dispatchLoggingMessage(message),
       onsizechange: ({ height }) => {
         if (height) {
           this.style.height = `${height}px`;
@@ -97,11 +111,11 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       },
       onrequestdisplaymode: async ({ mode }) => {
         const resultMode = this.#setDisplayMode(mode);
-        this.#dispatch('request-display-mode', { mode: resultMode });
+        this.#dispatchRequestDisplayMode(resultMode);
         return { mode: resultMode };
       },
       onupdatemodelcontext: async ({ content }) => {
-        this.#dispatch('update-model-context', { content });
+        this.#dispatchUpdateModelContext(content);
       }
     };
   }
@@ -194,8 +208,34 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     }
   }
 
-  #dispatch(name: string, detail: unknown): void {
-    this.dispatchEvent(new CustomEvent(`forge-ai-mcp-app-${name}`, { detail, bubbles: true, composed: true }));
+  #dispatchOpenLink(url: string): void {
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-mcp-app-open-link', { detail: { url }, bubbles: true, composed: true })
+    );
+  }
+
+  #dispatchMessage(content: unknown, role: string): void {
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-mcp-app-message', { detail: { content, role }, bubbles: true, composed: true })
+    );
+  }
+
+  #dispatchLoggingMessage(message: unknown): void {
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-mcp-app-logging-message', { detail: message, bubbles: true, composed: true })
+    );
+  }
+
+  #dispatchRequestDisplayMode(mode: McpAppDisplayMode): void {
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-mcp-app-request-display-mode', { detail: { mode }, bubbles: true, composed: true })
+    );
+  }
+
+  #dispatchUpdateModelContext(content: unknown): void {
+    this.dispatchEvent(
+      new CustomEvent('forge-ai-mcp-app-update-model-context', { detail: { content }, bubbles: true, composed: true })
+    );
   }
 
   readonly #iframe = html`<iframe title="MCP application" sandbox="allow-scripts allow-same-origin"></iframe>`;
