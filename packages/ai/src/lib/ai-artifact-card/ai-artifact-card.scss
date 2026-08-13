@@ -1,0 +1,114 @@
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/core/styles/elevation' as forge-elevation;
+
+:host {
+  display: block;
+}
+
+.artifact-card {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--forge-ai-artifact-card-gap, #{forge-spacing.variable(small)});
+  padding: var(--forge-ai-artifact-card-padding, #{forge-spacing.variable(small)});
+  border: 1px solid #{forge-theme.variable(outline)};
+  border-radius: var(--forge-ai-artifact-card-border-radius, #{forge-shape.variable(large)});
+  background: var(--forge-ai-artifact-card-background, #{forge-theme.variable(surface)});
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    box-shadow 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.artifact-card:hover {
+  background: #{forge-theme.variable(surface-container-minimum)};
+  box-shadow: #{forge-elevation.value(2)};
+  transform: translateY(-1px);
+}
+
+.artifact-card:focus-visible {
+  outline: 2px solid var(--forge-ai-artifact-card-accent-color, #{forge-theme.variable(primary)});
+  outline-offset: -2px;
+}
+
+.artifact-card:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.artifact-card:disabled:hover {
+  background: var(--forge-ai-artifact-card-background, #{forge-theme.variable(surface)});
+  box-shadow: none;
+  transform: none;
+}
+
+:host([active]) .artifact-card {
+  box-shadow: inset 0 0 0 1px var(--forge-ai-artifact-card-accent-color, #{forge-theme.variable(primary)});
+}
+
+:host([active]) .artifact-card:hover {
+  box-shadow:
+    inset 0 0 0 1px var(--forge-ai-artifact-card-accent-color, #{forge-theme.variable(primary)}),
+    #{forge-elevation.value(2)};
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: var(--forge-ai-artifact-card-accent-color, #{forge-theme.variable(primary)});
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  @include forge-typography.style(body1);
+  @include forge-typography.ellipse;
+
+  font-weight: 500;
+  color: #{forge-theme.variable(text-high)};
+}
+
+.subtitle {
+  @include forge-typography.style(label1);
+  @include forge-typography.ellipse;
+
+  color: #{forge-theme.variable(text-medium)};
+}
+
+.action {
+  @include forge-typography.style(label2);
+
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: #{forge-spacing.variable(xxsmall)};
+  color: var(--forge-ai-artifact-card-accent-color, #{forge-theme.variable(primary)});
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artifact-card {
+    transition:
+      box-shadow 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .artifact-card:hover {
+    transform: none;
+  }
+}
