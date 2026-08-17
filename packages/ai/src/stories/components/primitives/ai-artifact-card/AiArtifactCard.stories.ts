@@ -1,37 +1,24 @@
 import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
 import { action } from 'storybook/actions';
+import { defineIconComponent, IconRegistry } from '@tylertech/forge';
+import { tylIconArrowTopRightThin, tylIconBarChart, tylIconEye, tylIconTable } from '@tylertech/tyler-icons';
 
 import '$lib/ai-artifact-card';
 
+IconRegistry.define([tylIconArrowTopRightThin, tylIconBarChart, tylIconEye, tylIconTable]);
+defineIconComponent();
+
 const component = 'forge-ai-artifact-card';
 
-const tableIcon = html`
-  <svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-    <path
-      d="M10 10.02h5V21h-5zM17 21h3c1.1 0 2-.9 2-2v-9h-5v11zm3-18H5c-1.1 0-2 .9-2 2v3h19V5c0-1.1-.9-2-2-2zM3 19c0 1.1.9 2 2 2h3V10H3v9z" />
-  </svg>
-`;
-
-const chartIcon = html`
-  <svg slot="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z" />
-  </svg>
-`;
-
-const openInNewIcon = html`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-    <path
-      d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
-  </svg>
-`;
-
-const eyeIcon = html`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-    <path
-      d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-  </svg>
-`;
+const tableIcon = html`<forge-icon slot="icon" name="table"></forge-icon>`;
+const chartIcon = html`<forge-icon slot="icon" name="bar_chart"></forge-icon>`;
+/*
+ * forge-icon falls back to 24px rather than inheriting the label's font-size, so the
+ * trailing icons are sized down to sit with the 13px action label.
+ */
+const openIcon = html`<forge-icon name="arrow_top_right_thin" style="--forge-icon-size: 16px;"></forge-icon>`;
+const eyeIcon = html`<forge-icon name="eye" style="--forge-icon-size: 16px;"></forge-icon>`;
 
 const meta = {
   title: 'AI Components/Primitives/Artifact Card',
@@ -46,7 +33,7 @@ const meta = {
         @forge-ai-artifact-card-open=${action('forge-ai-artifact-card-open')}>
         ${tableIcon}
         <span slot="action">
-          ${args.active ? 'Viewing results' : 'Open results'} ${args.active ? eyeIcon : openInNewIcon}
+          ${args.active ? 'Viewing results' : 'Open results'} ${args.active ? eyeIcon : openIcon}
         </span>
       </forge-ai-artifact-card>
     `;
@@ -117,7 +104,7 @@ export const CustomAccent: Story = {
       style="--forge-ai-artifact-card-accent-color: var(--forge-theme-tertiary);"
       @forge-ai-artifact-card-open=${action('forge-ai-artifact-card-open')}>
       ${chartIcon}
-      <span slot="action">Open report ${openInNewIcon}</span>
+      <span slot="action">Open report ${openIcon}</span>
     </forge-ai-artifact-card>
   `
 };
@@ -141,7 +128,7 @@ export const InTranscript: Story = {
         style="--forge-ai-artifact-card-accent-color: var(--forge-theme-tertiary);"
         @forge-ai-artifact-card-open=${action('forge-ai-artifact-card-open')}>
         ${chartIcon}
-        <span slot="action">Open report ${openInNewIcon}</span>
+        <span slot="action">Open report ${openIcon}</span>
       </forge-ai-artifact-card>
     </div>
   `

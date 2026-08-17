@@ -66,7 +66,16 @@
   flex-shrink: 0;
   width: 24px;
   height: 24px;
+  /* forge-icon derives --forge-icon-size from the font-size of its context */
+  font-size: 24px;
   color: var(--forge-ai-artifact-card-accent-color, #{forge-theme.variable(primary)});
+}
+
+/* Scoped to svg so it doesn't fight forge-icon, which sizes itself from font-size */
+.icon ::slotted(svg) {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .text {
@@ -97,8 +106,20 @@
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  gap: #{forge-spacing.variable(xxsmall)};
   color: var(--forge-ai-artifact-card-accent-color, #{forge-theme.variable(primary)});
+}
+
+/*
+ * The gap and centering live on the slotted wrapper, not on .action. Slotted
+ * content is a single node from .action's perspective, so a gap here would never
+ * apply, and an inline icon inside that node would sit on the text baseline and
+ * ride high. Making the wrapper a centered flex row aligns label and icon
+ * without the consumer having to style anything.
+ */
+.action ::slotted(*) {
+  display: inline-flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
 }
 
 @media (prefers-reduced-motion: reduce) {
