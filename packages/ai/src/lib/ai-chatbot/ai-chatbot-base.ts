@@ -1,3 +1,4 @@
+import { provide } from '@lit/context';
 import { LitElement, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import type { Ref } from 'lit/directives/ref.js';
@@ -9,6 +10,7 @@ import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData 
 import type { AiPromptComponent, ForgeAiPromptCommandEventData, ForgeAiPromptSendEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData, Suggestion } from '../ai-suggestions';
 import type { ForgeAiVoiceInputResultEvent } from '../ai-voice-input';
+import { mcpAppHostContext, type McpAppHost } from '../tools/ai-mcp-app/mcp-app-context.js';
 import { AgentAdapter } from './agent-adapter.js';
 import { ChatbotCoreController } from '../core/chatbot-core-controller.js';
 import type {
@@ -30,6 +32,13 @@ import {
   generateId
 } from './utils.js';
 import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
+
+const MCP_APP_HOST_CAPABILITIES = {
+  openLinks: {},
+  serverTools: {},
+  serverResources: {},
+  logging: {}
+} as const;
 
 export type FeatureToggle = 'on' | 'off';
 
@@ -94,6 +103,44 @@ export abstract class AiChatbotBase extends LitElement {
   @property({ attribute: false })
   public contextItems: ContextItem[] = [];
 
+  @property({ attribute: 'mcp-app-sandbox-url' })
+  public mcpAppSandboxUrl?: string;
+
+  /**
+   * Theme fed into an MCP-app widget's `hostContext.theme`. The chatbot's own visible
+   * appearance is controlled entirely by Forge design tokens and is unaffected by this
+   * property — it exists solely so a consumer that already knows its own light/dark
+   * state can pass it through to widgets, rather than widgets guessing from
+   * `prefers-color-scheme`. Absent → falls back to the OS media query, matching prior
+   * behavior.
+   */
+  @property({ attribute: 'theme' })
+  public theme?: 'light' | 'dark';
+
+  readonly #themeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  get #effectiveTheme(): 'light' | 'dark' {
+    return this.theme ?? (this.#themeMediaQuery.matches ? 'dark' : 'light');
+  }
+
+  @provide({ context: mcpAppHostContext })
+  @property({ attribute: false })
+  private _mcpAppHost: McpAppHost = {
+    callTool: params => this._coreController?.adapter?.callMcpTool?.(params) ?? Promise.resolve({ content: [] }),
+    readResource: params =>
+      this._coreController?.adapter?.readMcpResource?.(params) ?? Promise.resolve({ contents: [] }),
+    hostContext: { theme: this.#effectiveTheme, availableDisplayModes: ['fullscreen'] },
+    sandboxUrl: undefined,
+    hostCapabilities: MCP_APP_HOST_CAPABILITIES
+  };
+
+  #handleThemeChange = (): void => {
+    this._mcpAppHost = {
+      ...this._mcpAppHost,
+      hostContext: { ...this._mcpAppHost.hostContext, theme: this.#effectiveTheme }
+    };
+  };
+
   protected _coreController!: ChatbotCoreController;
 
   protected get _isStreaming(): boolean {
@@ -141,12 +188,30 @@ export abstract class AiChatbotBase extends LitElement {
       this._coreController.adapter = this.adapter;
     }
 
+    this.#themeMediaQuery.addEventListener('change', this.#handleThemeChange);
+
     this._onConnected();
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#themeMediaQuery.removeEventListener('change', this.#handleThemeChange);
   }
 
   public override willUpdate(changedProperties: PropertyValues<this>): void {
     if (changedProperties.has('adapter') && this._coreController) {
       this._coreController.adapter = this.adapter;
+    }
+
+    if (changedProperties.has('mcpAppSandboxUrl')) {
+      this._mcpAppHost = { ...this._mcpAppHost, sandboxUrl: this.mcpAppSandboxUrl };
+    }
+
+    if (changedProperties.has('theme')) {
+      this._mcpAppHost = {
+        ...this._mcpAppHost,
+        hostContext: { ...this._mcpAppHost.hostContext, theme: this.#effectiveTheme }
+      };
     }
   }
 

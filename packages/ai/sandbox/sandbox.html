@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MCP App Sandbox Proxy</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        background: transparent;
+      }
+
+      #app-frame {
+        display: block;
+        border: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      The spec's "sandbox proxy". This document is deliberately hosted on an origin
+      DISTINCT from the chatbot host so the browser's Same-Origin Policy walls the
+      untrusted app off from the host. It loads first, announces readiness, receives the
+      app HTML string over postMessage, writes it into an inner iframe, and relays every
+      subsequent message between host and app.
+    -->
+    <script type="module" src="./sandbox.js"></script>
+  </body>
+</html>

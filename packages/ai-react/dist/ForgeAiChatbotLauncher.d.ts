@@ -72,6 +72,17 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   /** undefined */
   selectedAgentId?: ForgeAiChatbotLauncherElement["selectedAgentId"];
 
+  /** undefined */
+  mcpAppSandboxUrl?: ForgeAiChatbotLauncherElement["mcpAppSandboxUrl"];
+
+  /** Theme fed into an MCP-app widget's `hostContext.theme`. The chatbot's own visible
+appearance is controlled entirely by Forge design tokens and is unaffected by this
+property — it exists solely so a consumer that already knows its own light/dark
+state can pass it through to widgets, rather than widgets guessing from
+`prefers-color-scheme`. Absent → falls back to the OS media query, matching prior
+behavior. */
+  theme?: ForgeAiChatbotLauncherElement["theme"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 

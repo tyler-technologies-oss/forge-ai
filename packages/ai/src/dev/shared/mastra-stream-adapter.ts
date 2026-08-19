@@ -146,7 +146,7 @@ export class MastraStreamAdapter extends AgentAdapter {
       })),
       threadId: this.#threadId,
       context: this.#context,
-      ...(this.getTools().length ? { tools: this.getTools() } : {})
+      ...(this.getModelFacingTools().length ? { tools: this.getModelFacingTools() } : {})
     });
 
     const response = await fetch(this.#url, {
