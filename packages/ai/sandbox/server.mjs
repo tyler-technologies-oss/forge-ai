@@ -3,8 +3,7 @@
  *
  * Serves `sandbox.html` + `sandbox.js` on a SEPARATE origin/port (default 6017) from
  * Storybook (6016) so the browser's Same-Origin Policy provides real isolation in dev —
- * the browser treats different ports as different origins. Production infra (MCPA-2)
- * stands up an equivalent on a real distinct domain.
+ * the browser treats different ports as different origins.
  *
  * CSP is applied as a real HTTP `Content-Security-Policy` response header on the proxy
  * document, read from the `?csp=` query param the host appends to `sandboxUrl`. This is

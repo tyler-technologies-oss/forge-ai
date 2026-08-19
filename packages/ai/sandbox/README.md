@@ -1,9 +1,8 @@
 # MCP App sandbox proxy (local dev)
 
 Untrusted MCP-App widget HTML must run on an origin **distinct** from the chatbot host,
-or the `<iframe sandbox>` provides no isolation (see `docs/plans/mcp-apps-epic.html` §5).
-This directory is a local, spec-faithful stand-in for the production sandbox origin
-(MCPA-2, owned by backend/infra).
+or the `<iframe sandbox>` provides no isolation. This directory is a local, spec-faithful
+stand-in for the production sandbox origin.
 
 ## Run it
 

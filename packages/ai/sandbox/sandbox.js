@@ -2,7 +2,7 @@
  * MCP App sandbox proxy relay.
  *
  * Ported from `ext-apps/examples/basic-host/src/sandbox.ts` and made spec-faithful to
- * the MCP Apps 2026-01-26 sandbox model (see docs/plans/mcp-apps-epic.html §5-6):
+ * the MCP Apps 2026-01-26 sandbox model:
  *
  *   1. Load first, then announce `ui/notifications/sandbox-proxy-ready` to the host.
  *   2. Receive the app HTML + CSP + permissions from the host via
