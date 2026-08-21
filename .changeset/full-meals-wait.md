@@ -1,6 +1,6 @@
 ---
-'@tylertech/forge-ai-react': minor
-'@tylertech/forge-ai': minor
+'@tylertech/forge-ai-react': patch
+'@tylertech/forge-ai': patch
 ---
 
 feat(launcher): add support for chat history
