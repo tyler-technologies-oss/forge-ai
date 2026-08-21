@@ -34,10 +34,10 @@ export interface ForgeAiChatbotProps extends Pick<
   conversationsOpen?: boolean;
 
   /** undefined */
-  showConversationRename?: boolean;
+  showThreadRename?: boolean;
 
   /** undefined */
-  showConversationDelete?: boolean;
+  showThreadDelete?: boolean;
 
   /** When true, shows a loading indicator in the conversations panel's recent chats list while threads are loading (default: false) */
   threadsLoading?: boolean;
@@ -51,7 +51,7 @@ export interface ForgeAiChatbotProps extends Pick<
   /** undefined */
   minimizeIcon?: ForgeAiChatbotElement["minimizeIcon"];
 
-  /** The id of the currently selected conversation thread. Set this to highlight a thread in the conversations panel (e.g. when restoring a conversation loaded from the backend). Updated internally when a thread is selected or a new chat starts. */
+  /** The id of the currently selected thread. Set this to highlight a thread in the conversations panel (e.g. when restoring a conversation loaded from the backend). Updated internally when a thread is selected or a new chat starts. */
   selectedThreadId?: ForgeAiChatbotElement["selectedThreadId"];
 
   /** undefined */
@@ -188,34 +188,32 @@ export interface ForgeAiChatbotProps extends Pick<
     event: CustomEvent<CustomEvent<void>>,
   ) => void;
 
-  /** Fired when user selects a conversation thread */
-  onForgeAiChatbotConversationSelect?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationSelectEventData>>,
+  /** Fired when user selects a thread */
+  onForgeAiChatbotThreadSelect?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadSelectEventData>>,
   ) => void;
 
   /** Fired when user clicks new chat button (cancelable) */
   onForgeAiChatbotNewChat?: (event: CustomEvent<CustomEvent<void>>) => void;
 
   /** Fired when search query changes in conversations panel (debounced, cancelable) */
-  onForgeAiChatbotConversationSearch?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationSearchEventData>>,
+  onForgeAiChatbotThreadSearch?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadSearchEventData>>,
   ) => void;
 
   /** Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts. */
-  onForgeAiChatbotConversationLoadMore?: (
-    event: CustomEvent<
-      CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>
-    >,
+  onForgeAiChatbotThreadLoadMore?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadLoadMoreEventData>>,
   ) => void;
 
-  /** Fired when user renames a conversation thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. */
-  onForgeAiChatbotConversationRename?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationRenameEventData>>,
+  /** Fired when user renames a thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. */
+  onForgeAiChatbotThreadRename?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadRenameEventData>>,
   ) => void;
 
-  /** Fired when user deletes a conversation thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed. */
-  onForgeAiChatbotConversationDelete?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationDeleteEventData>>,
+  /** Fired when user deletes a thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed. */
+  onForgeAiChatbotThreadDelete?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadDeleteEventData>>,
   ) => void;
 }
 
@@ -241,12 +239,12 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **forge-ai-chatbot-thread-state-change** - Fired when there is a change to the thread state (messages, files, selected agent, etc). Use this to capture the latest thread state for persistence.
  * - **forge-ai-chatbot-conversations-open** - Fired when conversations panel opens
  * - **forge-ai-chatbot-conversations-close** - Fired when conversations panel closes
- * - **forge-ai-chatbot-conversation-select** - Fired when user selects a conversation thread
+ * - **forge-ai-chatbot-thread-select** - Fired when user selects a thread
  * - **forge-ai-chatbot-new-chat** - Fired when user clicks new chat button (cancelable)
- * - **forge-ai-chatbot-conversation-search** - Fired when search query changes in conversations panel (debounced, cancelable)
- * - **forge-ai-chatbot-conversation-load-more** - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts.
- * - **forge-ai-chatbot-conversation-rename** - Fired when user renames a conversation thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
- * - **forge-ai-chatbot-conversation-delete** - Fired when user deletes a conversation thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
+ * - **forge-ai-chatbot-thread-search** - Fired when search query changes in conversations panel (debounced, cancelable)
+ * - **forge-ai-chatbot-thread-load-more** - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts.
+ * - **forge-ai-chatbot-thread-rename** - Fired when user renames a thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
+ * - **forge-ai-chatbot-thread-delete** - Fired when user deletes a thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
  *
  * ### **Methods:**
  *  - **startNewChat(): _void_** - Starts a new chat conversation by clearing messages and resetting conversation state.

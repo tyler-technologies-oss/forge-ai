@@ -115,12 +115,12 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @property {Agent[]} agents - List of available agents for selector
  * @property {string} selectedAgentId - Currently selected agent ID
  * @property {string} threadName - The name of the current thread (shown in conversation view breadcrumb)
- * @property {boolean} showConversationRename - Whether to show the rename option in thread actions menu
- * @property {boolean} showConversationDelete - Whether to show the delete option in thread actions menu
+ * @property {boolean} showThreadRename - Whether to show the rename option in thread actions menu
+ * @property {boolean} showThreadDelete - Whether to show the delete option in thread actions menu
  * @property {Thread[]} threads - The list of chats shown in the history popover and full history view
  * @property {number} totalThreads - Total number of chats available. When greater than the number of loaded threads, infinite scroll is enabled (0 disables it)
  * @property {boolean} threadsLoading - Whether chats are currently loading, used to gate the history button and its disabled state
- * @property {string | null} selectedThreadId - The id of the currently selected conversation thread, highlighted in the history popover/view. Updated internally when a thread is selected or a new chat starts.
+ * @property {string | null} selectedThreadId - The id of the currently selected thread, highlighted in the history popover/view. Updated internally when a thread is selected or a new chat starts.
  *
  * @cssproperty --forge-ai-chatbot-launcher-icon-color - The fill color for the AI icon.
  *
@@ -152,11 +152,11 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   @property({ attribute: 'thread-name' })
   public threadName?: string;
 
-  @property({ type: Boolean, attribute: 'show-conversation-rename' })
-  public showConversationRename = false;
+  @property({ type: Boolean, attribute: 'show-thread-rename' })
+  public showThreadRename = false;
 
-  @property({ type: Boolean, attribute: 'show-conversation-delete' })
-  public showConversationDelete = false;
+  @property({ type: Boolean, attribute: 'show-thread-delete' })
+  public showThreadDelete = false;
 
   @property({ type: Array, attribute: false })
   public threads: Thread[] = [];
@@ -563,7 +563,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   }
 
   get #threadName(): TemplateResult {
-    const showActions = this.showConversationRename || this.showConversationDelete;
+    const showActions = this.showThreadRename || this.showThreadDelete;
     const threadId = this.agentInfo?.threadId || '';
     const isEditing = this._editingThreadId === threadId;
 
@@ -590,7 +590,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           `,
           () => html`
             ${when(
-              this.showConversationRename,
+              this.showThreadRename,
               () => html`
                 <button
                   class="forge-button forge-button--dense thread-name__button"
@@ -623,8 +623,8 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     return html`
       <forge-ai-thread-actions-menu
         .thread=${thread}
-        ?show-rename=${this.showConversationRename}
-        ?show-delete=${this.showConversationDelete}
+        ?show-rename=${this.showThreadRename}
+        ?show-delete=${this.showThreadDelete}
         @forge-ai-thread-actions-menu-rename=${this.#handleThreadRename}
         @forge-ai-thread-actions-menu-delete-click=${this.#handleThreadDelete}>
         <svg
@@ -691,8 +691,8 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           .threads=${this.threads}
           .totalChats=${this.totalThreads}
           .selectedThreadId=${this.selectedThreadId}
-          ?show-thread-rename=${this.showConversationRename}
-          ?show-thread-delete=${this.showConversationDelete}
+          ?show-thread-rename=${this.showThreadRename}
+          ?show-thread-delete=${this.showThreadDelete}
           @forge-ai-threads-search-back=${this.#handleHistoryBack}
           @forge-ai-threads-search-query=${this.#handleThreadsSearchQuery}
           @forge-ai-threads-search-load-more=${this.#handleThreadsSearchLoadMore}
@@ -775,8 +775,8 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
             .threads=${this.threads}
             .totalChats=${this.totalThreads}
             .selectedThreadId=${this.selectedThreadId}
-            ?show-thread-rename=${this.showConversationRename}
-            ?show-thread-delete=${this.showConversationDelete}
+            ?show-thread-rename=${this.showThreadRename}
+            ?show-thread-delete=${this.showThreadDelete}
             @forge-ai-threads-search-query=${this.#handleThreadsSearchQuery}
             @forge-ai-threads-search-load-more=${this.#handleThreadsSearchLoadMore}
             @forge-ai-threads-search-select=${this.#handleThreadsSearchSelect}

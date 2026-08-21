@@ -5,8 +5,8 @@ import { useEventListener, useProperties } from "./react-utils.js";
 export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
   const {
-    showConversationRename,
-    showConversationDelete,
+    showThreadRename,
+    showThreadDelete,
     threadsLoading,
     enableReactions,
     debugMode,
@@ -141,12 +141,8 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      "show-conversation-rename": props.showConversationRename
-        ? true
-        : undefined,
-      "show-conversation-delete": props.showConversationDelete
-        ? true
-        : undefined,
+      "show-thread-rename": props.showThreadRename ? true : undefined,
+      "show-thread-delete": props.showThreadDelete ? true : undefined,
       "threads-loading": props.threadsLoading ? true : undefined,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,

@@ -19,10 +19,10 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   | "onBlur"
 > {
   /** Whether to show the rename option in thread actions menu */
-  showConversationRename?: boolean;
+  showThreadRename?: boolean;
 
   /** Whether to show the delete option in thread actions menu */
-  showConversationDelete?: boolean;
+  showThreadDelete?: boolean;
 
   /** Whether chats are currently loading, used to gate the history button and its disabled state */
   threadsLoading?: boolean;
@@ -42,7 +42,7 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   /** Total number of chats available. When greater than the number of loaded threads, infinite scroll is enabled (0 disables it) */
   totalThreads?: ForgeAiChatbotLauncherElement["totalThreads"];
 
-  /** The id of the currently selected conversation thread, highlighted in the history popover/view. Updated internally when a thread is selected or a new chat starts. */
+  /** The id of the currently selected thread, highlighted in the history popover/view. Updated internally when a thread is selected or a new chat starts. */
   selectedThreadId?: ForgeAiChatbotLauncherElement["selectedThreadId"];
 
   /** undefined */

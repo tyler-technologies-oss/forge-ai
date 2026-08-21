@@ -99,7 +99,7 @@ const meta = {
   title: 'AI Components/Primitives/Conversations Panel',
   component,
   argTypes: {
-    recentThreads: {
+    threads: {
       control: 'object',
       description: 'Array of recent conversation threads to display'
     },
@@ -111,11 +111,11 @@ const meta = {
       control: 'text',
       description: 'ID of the currently selected thread'
     },
-    showConversationRename: {
+    showThreadRename: {
       control: 'boolean',
       description: 'Show rename option in conversations panel'
     },
-    showConversationDelete: {
+    showThreadDelete: {
       control: 'boolean',
       description: 'Show delete option in conversations panel'
     },
@@ -125,22 +125,22 @@ const meta = {
     }
   },
   args: {
-    recentThreads: sampleThreads,
+    threads: sampleThreads,
     totalChats: 0,
     selectedThreadId: null,
-    showConversationRename: true,
-    showConversationDelete: true,
+    showThreadRename: true,
+    showThreadDelete: true,
     loading: false
   },
   render: args => {
     return html`
       <div style="width: 400px; height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-conversations-panel
-          .recentThreads=${args.recentThreads}
+          .threads=${args.threads}
           total-chats=${args.totalChats}
           .selectedThreadId=${args.selectedThreadId}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           ?loading=${args.loading}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
@@ -174,29 +174,29 @@ export const WithSelectedThread: Story = {
 
 export const EmptyState: Story = {
   args: {
-    recentThreads: []
+    threads: []
   }
 };
 
 export const Loading: Story = {
   args: {
-    recentThreads: [],
+    threads: [],
     loading: true
   }
 };
 
 export const WithLocalSearch: Story = {
   args: {
-    recentThreads: sampleThreads
+    threads: sampleThreads
   },
   render: args => {
     return html`
       <div style="width: 400px; height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-conversations-panel
-          .recentThreads=${args.recentThreads}
+          .threads=${args.threads}
           .selectedThreadId=${args.selectedThreadId}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
@@ -220,7 +220,7 @@ export const WithLocalSearch: Story = {
 
 export const WithAsyncSearch: Story = {
   args: {
-    recentThreads: sampleThreads
+    threads: sampleThreads
   },
   render: args => {
     const allThreads: Thread[] = [
@@ -267,10 +267,10 @@ export const WithAsyncSearch: Story = {
     return html`
       <div style="width: 400px; height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-conversations-panel
-          .recentThreads=${args.recentThreads}
+          .threads=${args.threads}
           .selectedThreadId=${args.selectedThreadId}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
@@ -297,7 +297,7 @@ export const WithAsyncSearch: Story = {
 
 export const WithNoRecentThreads: Story = {
   args: {
-    recentThreads: []
+    threads: []
   },
   render: args => {
     const searchableThreads: Thread[] = [
@@ -331,10 +331,10 @@ export const WithNoRecentThreads: Story = {
     return html`
       <div style="width: 400px; height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-conversations-panel
-          .recentThreads=${args.recentThreads}
+          .threads=${args.threads}
           .selectedThreadId=${args.selectedThreadId}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
@@ -356,7 +356,7 @@ export const WithNoRecentThreads: Story = {
 
 export const WithInfiniteScroll: Story = {
   args: {
-    recentThreads: generateThreads(20)
+    threads: generateThreads(20)
   },
   render: args => {
     const TOTAL_THREADS = 120;
@@ -404,11 +404,11 @@ export const WithInfiniteScroll: Story = {
     return html`
       <div style="width: 400px; height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-conversations-panel
-          .recentThreads=${args.recentThreads}
+          .threads=${args.threads}
           total-chats=${TOTAL_THREADS}
           .selectedThreadId=${args.selectedThreadId}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}

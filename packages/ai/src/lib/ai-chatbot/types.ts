@@ -279,22 +279,22 @@ export interface ThreadState {
   selectedAgentId?: string;
 }
 
-export interface ForgeAiChatbotConversationSelectEventData {
+export interface ForgeAiChatbotThreadSelectEventData {
   id: string;
   title: string;
 }
 
-export interface ForgeAiChatbotConversationSearchEventData {
+export interface ForgeAiChatbotThreadSearchEventData {
   query: string;
   setResults: (results: Thread[]) => void;
 }
 
-export interface ForgeAiChatbotConversationLoadMoreEventData {
+export interface ForgeAiChatbotThreadLoadMoreEventData {
   query: string;
   appendResults: (results: Thread[]) => void;
 }
 
-export interface ForgeAiChatbotConversationRenameEventData {
+export interface ForgeAiChatbotThreadRenameEventData {
   id: string;
   oldTitle: string;
   newTitle: string;
@@ -302,7 +302,7 @@ export interface ForgeAiChatbotConversationRenameEventData {
   onError: (error?: string) => void;
 }
 
-export interface ForgeAiChatbotConversationDeleteEventData {
+export interface ForgeAiChatbotThreadDeleteEventData {
   id: string;
   thread: Thread;
   onSuccess: () => void;

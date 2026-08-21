@@ -58,11 +58,11 @@ const meta = {
       control: 'text',
       description: 'Thread name displayed in conversation view breadcrumb'
     },
-    showConversationRename: {
+    showThreadRename: {
       control: 'boolean',
       description: 'Show rename option in thread actions menu'
     },
-    showConversationDelete: {
+    showThreadDelete: {
       control: 'boolean',
       description: 'Show delete option in thread actions menu'
     },
@@ -143,8 +143,8 @@ export const Demo: Story = {};
 export const WithThreadName: Story = {
   args: {
     threadName: 'Discussion about project requirements and timeline',
-    showConversationRename: true,
-    showConversationDelete: true
+    showThreadRename: true,
+    showThreadDelete: true
   },
   render: (args: any) => {
     const adapter = new MockAdapter({
@@ -175,8 +175,8 @@ export const WithThreadName: Story = {
           ?enable-reactions=${args.enableReactions}
           .disclaimerText=${args.disclaimerText}
           thread-name=${args.threadName}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           @forge-ai-chatbot-launcher-thread-rename=${(evt: CustomEvent) => {
             onThreadRename(evt.detail);
             const launcher = evt.target as any;
@@ -365,8 +365,8 @@ const createMockMessagesForThread = (thread: Thread): ChatMessage[] => {
 
 export const WithHistory: Story = {
   args: {
-    showConversationRename: true,
-    showConversationDelete: true,
+    showThreadRename: true,
+    showThreadDelete: true,
     totalThreads: 24,
     threadsLoading: false
   },
@@ -403,8 +403,8 @@ export const WithHistory: Story = {
           total-threads=${args.totalThreads}
           ?threads-loading=${args.threadsLoading}
           selected-thread-id="thread-3"
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}
           @forge-ai-chatbot-launcher-thread-select=${async (evt: CustomEvent) => {
             action('forge-ai-chatbot-launcher-thread-select')(evt.detail);

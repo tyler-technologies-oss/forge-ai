@@ -10,8 +10,8 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     expanded,
     showConversationsButton,
     conversationsOpen,
-    showConversationRename,
-    showConversationDelete,
+    showThreadRename,
+    showThreadDelete,
     threadsLoading,
     enableReactions,
     debugMode,
@@ -106,8 +106,8 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-select",
-    props.onForgeAiChatbotConversationSelect,
+    "forge-ai-chatbot-thread-select",
+    props.onForgeAiChatbotThreadSelect,
   );
   useEventListener(
     ref,
@@ -116,23 +116,23 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-search",
-    props.onForgeAiChatbotConversationSearch,
+    "forge-ai-chatbot-thread-search",
+    props.onForgeAiChatbotThreadSearch,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-load-more",
-    props.onForgeAiChatbotConversationLoadMore,
+    "forge-ai-chatbot-thread-load-more",
+    props.onForgeAiChatbotThreadLoadMore,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-rename",
-    props.onForgeAiChatbotConversationRename,
+    "forge-ai-chatbot-thread-rename",
+    props.onForgeAiChatbotThreadRename,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-delete",
-    props.onForgeAiChatbotConversationDelete,
+    "forge-ai-chatbot-thread-delete",
+    props.onForgeAiChatbotThreadDelete,
   );
 
   /** Properties - run whenever a property has changed */
@@ -180,12 +180,8 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
         ? true
         : undefined,
       "conversations-open": props.conversationsOpen ? true : undefined,
-      "show-conversation-rename": props.showConversationRename
-        ? true
-        : undefined,
-      "show-conversation-delete": props.showConversationDelete
-        ? true
-        : undefined,
+      "show-thread-rename": props.showThreadRename ? true : undefined,
+      "show-thread-delete": props.showThreadDelete ? true : undefined,
       "threads-loading": props.threadsLoading ? true : undefined,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,
