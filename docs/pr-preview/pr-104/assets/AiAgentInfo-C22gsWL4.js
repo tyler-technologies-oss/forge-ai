@@ -1,6 +1,0 @@
-import{j as o,M as s,T as r,C as a}from"./blocks-9S32BcJG.js";import{useMDXComponents as i}from"./index-CG9gGviY.js";import{C as p}from"./CustomArgTypes-C1euCFcY.js";import{A as m,D as d}from"./AiAgentInfo.stories-Jcsg4vC7.js";import"./preload-helper-PPVm8Dsz.js";import"./_commonjsHelpers-CqkleIqs.js";import"./iframe-Bkoayrxb.js";import"./utils-Ci4bjnpZ.js";import"./ai-agent-info-SE6FB0_S.js";import"./custom-element-UsVr97OX.js";import"./property-Bz1TbDJl.js";import"./when-CI7b_ccM.js";import"./utils-BGBq21po.js";import"./tooltip-CQhDneT-.js";import"./class-map-Cl4y5wz2.js";import"./overlay-Cn9Dlzg7.js";import"./floating-ui.dom-alButkyJ.js";function e(n){const t={code:"code",h2:"h2",p:"p",...i(),...n.components};return o.jsxs(o.Fragment,{children:[o.jsx(s,{of:m}),`
-`,o.jsx(r,{}),`
-`,o.jsxs(t.p,{children:["Displays agent metadata including agent name, version, agent ID, and session ID. The agent ID and session ID fields include copy-to-clipboard functionality. Provide an ",o.jsx(t.code,{children:"AgentInfo"})," object via the ",o.jsx(t.code,{children:"agentInfo"})," property. Only populated fields will be displayed."]}),`
-`,o.jsx(a,{of:d}),`
-`,o.jsx(t.h2,{id:"api",children:"API"}),`
-`,o.jsx(p,{})]})}function X(n={}){const{wrapper:t}={...i(),...n.components};return t?o.jsx(t,{...n,children:o.jsx(e,{...n})}):e(n)}export{X as default};
