@@ -267,6 +267,7 @@ export class AiToolCallIndicatorComponent extends LitElement {
   #renderCard(toolCall: ToolCall): TemplateResult {
     const expanded = this.#isRowExpanded(toolCall.id);
     const regionId = `detail-${toolCall.id}`;
+    const name = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
 
     return html`
       <div class="code-card">
@@ -276,7 +277,7 @@ export class AiToolCallIndicatorComponent extends LitElement {
           aria-expanded=${expanded}
           aria-controls=${regionId}
           @click=${() => this.#toggleRow(toolCall.id)}>
-          <span class="code-card__title">${this.#codeIcon}<span class="code-card__name">${toolCall.name}</span></span>
+          <span class="code-card__title">${this.#codeIcon}<span class="code-card__name">${name}</span></span>
           ${this.#statusBadge(toolCall)} ${this.#chevronIcon}
           <span class="focus-indicator"></span>
         </button>
