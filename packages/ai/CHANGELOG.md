@@ -1,5 +1,16 @@
 # @tylertech/forge-ai
 
+## 0.13.12
+
+### Patch Changes
+
+- 5062920: feat(ai-chatbot): add addClientMessage/removeClientMessage API
+- 8662d53: fix(thinking-indicator): show thinking indicator during between-step server turns
+- 090fd8e: feat(tool-calls): surface error status and friendly names in native disclosure
+- 07d435f: feat(conversations-panel): add loading indicator for recent chats
+- b04422e: feat(markdown): forbid additional inputs when sanitizing
+- e834a24: revert(data-table): stop freezing height at first paint
+
 ## 0.13.11
 
 ### Patch Changes

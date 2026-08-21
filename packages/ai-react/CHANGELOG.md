@@ -1,5 +1,19 @@
 # @tylertech/forge-ai-react
 
+## 0.13.8
+
+### Patch Changes
+
+- 5062920: feat(ai-chatbot): add addClientMessage/removeClientMessage API
+- 07d435f: feat(conversations-panel): add loading indicator for recent chats
+- Updated dependencies [5062920]
+- Updated dependencies [8662d53]
+- Updated dependencies [090fd8e]
+- Updated dependencies [07d435f]
+- Updated dependencies [b04422e]
+- Updated dependencies [e834a24]
+  - @tylertech/forge-ai@0.13.12
+
 ## 0.13.7
 
 ### Patch Changes
