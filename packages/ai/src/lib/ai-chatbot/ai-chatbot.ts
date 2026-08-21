@@ -24,6 +24,7 @@ import type {
   ForgeAiChatbotContextRemoveEventData,
   Thread
 } from './types.js';
+import { forwardCancelableEvent } from '../utils.js';
 
 import '../ai-attachment';
 import '../ai-chat-header';
@@ -353,15 +354,7 @@ export class AiChatbotComponent extends AiChatbotBase {
   }
 
   #handleConversationSearch = (e: CustomEvent<ForgeAiConversationsPanelSearchEventData>): void => {
-    const event = new CustomEvent<ForgeAiChatbotConversationSearchEventData>('forge-ai-chatbot-conversation-search', {
-      detail: e.detail,
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    });
-    if (!this.dispatchEvent(event)) {
-      e.preventDefault();
-    }
+    forwardCancelableEvent(this, e, 'forge-ai-chatbot-conversation-search');
   };
 
   #handleConversationLoadMore = (e: CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>): void => {
@@ -377,29 +370,11 @@ export class AiChatbotComponent extends AiChatbotBase {
   };
 
   #handleConversationRename = (e: CustomEvent<ForgeAiConversationsPanelRenameEventData>): void => {
-    const event = new CustomEvent<ForgeAiChatbotConversationRenameEventData>('forge-ai-chatbot-conversation-rename', {
-      detail: e.detail,
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    });
-    const dispatched = this.dispatchEvent(event);
-    if (!dispatched) {
-      e.preventDefault();
-    }
+    forwardCancelableEvent(this, e, 'forge-ai-chatbot-conversation-rename');
   };
 
   #handleConversationDelete = (e: CustomEvent<ForgeAiConversationsPanelDeleteEventData>): void => {
-    const event = new CustomEvent<ForgeAiChatbotConversationDeleteEventData>('forge-ai-chatbot-conversation-delete', {
-      detail: e.detail,
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    });
-    const dispatched = this.dispatchEvent(event);
-    if (!dispatched) {
-      e.preventDefault();
-    }
+    forwardCancelableEvent(this, e, 'forge-ai-chatbot-conversation-delete');
   };
 
   get #promptSlot(): TemplateResult {

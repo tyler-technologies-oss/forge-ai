@@ -33,6 +33,9 @@ export type PopoverOffset = OverlayOffset;
  * including animations, shadows, and rounded corners.
  *
  * @slot - The default slot for popover content.
+ *
+ * @cssproperty --ai-overlay-available-width - Set on the popover when `autoSize` is enabled; the width available in the chosen placement direction.
+ * @cssproperty --ai-overlay-available-height - Set on the popover when `autoSize` is enabled; the height available in the chosen placement direction.
  */
 @customElement('forge-ai-popover')
 export class ForgeAiPopoverComponent extends LitElement {
@@ -61,6 +64,15 @@ export class ForgeAiPopoverComponent extends LitElement {
    */
   @property({ type: Boolean })
   public shift = false;
+
+  /**
+   * Whether the popover should constrain its own size to the space available in the chosen
+   * placement direction, exposed as the `--ai-overlay-available-width`/`--ai-overlay-available-height`
+   * CSS custom properties so slotted content can shrink (and scroll internally) instead of being
+   * clipped by the viewport.
+   */
+  @property({ type: Boolean, attribute: 'auto-size' })
+  public autoSize = false;
 
   /**
    * Whether the popover is open.
@@ -112,6 +124,7 @@ export class ForgeAiPopoverComponent extends LitElement {
         .placement=${this.placement}
         .flip=${this.flip}
         .shift=${this.shift}
+        .autoSize=${this.autoSize}
         .offset=${this.offset}
         .open=${this.open}
         .arrowElement=${this.arrow ? this._arrowElement : null}
