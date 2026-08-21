@@ -8,6 +8,7 @@ import type { ForgeAiAssistantResponseFeedbackEventData } from '../ai-assistant-
 import type { FeatureToggle } from '../ai-chatbot/ai-chatbot.js';
 
 import '../ai-assistant-response';
+import '../ai-client-message';
 import '../ai-empty-state';
 import '../ai-error-message';
 import '../ai-response-message';
@@ -347,7 +348,14 @@ export class AiMessageThreadComponent extends LitElement {
           </forge-ai-user-message>
         `;
       } else if (msg.role === 'system') {
-        return html`<div class="system-message">${content}</div>`;
+        return html`
+          <forge-ai-client-message
+            kind=${msg.kind ?? 'text'}
+            .header=${msg.header}
+            .content=${content}
+            .actions=${msg.actions ?? []}>
+          </forge-ai-client-message>
+        `;
       } else if (msg.status === 'error') {
         const renderedHtml = this.#markdownController.getCachedHtml(msg.id, content);
         return html`

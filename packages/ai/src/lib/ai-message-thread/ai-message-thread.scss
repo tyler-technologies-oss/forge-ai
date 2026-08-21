@@ -48,13 +48,6 @@ forge-ai-empty-state {
   margin-block: auto;
 }
 
-.system-message {
-  @include forge-typography.style(subheading2);
-  color: #{forge-theme.variable(text-medium)};
-  padding-block: #{forge-spacing.variable(small)};
-  font-style: italic;
-}
-
 .scroll-to-bottom-button {
   --forge-fab-size: 40px;
   --forge-fab-background: #{forge-theme.variable(surface-bright)};

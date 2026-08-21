@@ -14,6 +14,7 @@ import { ChatbotCoreController } from '../core/chatbot-core-controller.js';
 import type {
   Agent,
   ChatMessage,
+  ClientMessageInput,
   ContextItem,
   HeadingLevel,
   MessageItem,
@@ -213,15 +214,8 @@ export abstract class AiChatbotBase extends LitElement {
 
       if (this._hasMessages) {
         const agentName = agent?.name ?? this.titleText;
-        const systemMessage: ChatMessage = {
-          id: generateId(),
-          role: 'system',
-          content: `Switched to ${agentName}`,
-          timestamp: Date.now(),
-          status: 'complete',
-          clientOnly: true
-        };
-        this._coreController.addMessage(systemMessage);
+        this._coreController.finalizeActiveResponse();
+        this._coreController.addClientMessage({ content: `Switched to ${agentName}` });
       }
     }
   }
@@ -530,6 +524,34 @@ export abstract class AiChatbotBase extends LitElement {
 
   public setMessages(messages: ChatMessage[]): void {
     this._coreController.setMessages(messages);
+  }
+
+  /**
+   * Inserts or upserts a client-only status message into the thread - never sent to
+   * the agent adapter and never included in the conversation history the adapter sees.
+   * Use this for host-driven UI feedback (e.g. "Your session expired", upload progress)
+   * instead of splicing {@link getMessages}/{@link setMessages} directly.
+   *
+   * Safe to call at any time, including while a response is streaming - it never
+   * finalizes or otherwise touches the in-progress response.
+   *
+   * @param message - Content and optional kind ('text' | 'info' | 'warning' | 'error' | 'success'),
+   * header, and actions. Pass the same `id` on a later call to upsert (replace) a
+   * previously added message.
+   * @returns The message id (generated if not provided).
+   */
+  public addClientMessage(message: ClientMessageInput): string {
+    return this._coreController.addClientMessage(message);
+  }
+
+  /**
+   * Removes a client-only message previously added via {@link addClientMessage}.
+   * No-ops if no message with that id exists. Safe to call at any time, including
+   * while a response is streaming. Removal is never automatic - call this when your
+   * host logic determines the message is no longer relevant.
+   */
+  public removeClientMessage(id: string): void {
+    this._coreController.removeClientMessage(id);
   }
 
   public async sendMessage(content: string, files?: File[]): Promise<void> {
