@@ -178,6 +178,34 @@ export interface ChatMessage {
   feedback?: ResponseFeedback;
   children?: ResponseItem[];
   clientOnly?: boolean;
+  kind?: ClientMessageKind;
+  header?: string;
+  actions?: ClientMessageAction[];
+}
+
+/**
+ * Visual treatment for a client-only message. `text` matches the plain,
+ * italic system-message style; the others render as a Forge inline-message
+ * banner with a matching icon.
+ */
+export type ClientMessageKind = 'text' | 'info' | 'warning' | 'error' | 'success';
+
+export interface ClientMessageAction {
+  id: string;
+  label: string;
+  onClick: () => void;
+}
+
+/**
+ * Input to {@link AiChatbotBase.addClientMessage}. Pass the same `id` on a
+ * later call to upsert (replace) a previously added client message.
+ */
+export interface ClientMessageInput {
+  id?: string;
+  content: string;
+  kind?: ClientMessageKind;
+  header?: string;
+  actions?: ClientMessageAction[];
 }
 
 export interface ToolCall<TArgs = Record<string, unknown>> {

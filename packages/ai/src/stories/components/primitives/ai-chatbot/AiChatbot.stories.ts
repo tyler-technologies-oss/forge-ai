@@ -1983,3 +1983,97 @@ export const Branded: Story = {
     `;
   }
 };
+
+export const ClientMessages: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 150,
+      responseDelay: 800
+    });
+
+    const withChatbot = (fn: (chatbot: any) => void): void => {
+      const chatbot = document.querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        fn(chatbot);
+      }
+    };
+
+    return html`
+      <div>
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Client Messages Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Send a message, then click a button below while the reply is streaming - client messages never touch the
+            live response, so the reply keeps streaming normally underneath. Session Expired includes a "Refresh" action
+            button.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() =>
+                withChatbot(chatbot =>
+                  chatbot.addClientMessage({
+                    id: 'session-expired',
+                    kind: 'error',
+                    header: 'Session expired',
+                    content: 'Your session expired. Please refresh the page to re-authenticate.',
+                    actions: [{ id: 'refresh', label: 'Refresh', onClick: () => action('refresh-clicked')() }]
+                  })
+                )}>
+              Show session expired
+            </button>
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() => withChatbot(chatbot => chatbot.removeClientMessage('session-expired'))}>
+              Dismiss session expired
+            </button>
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() =>
+                withChatbot(chatbot =>
+                  chatbot.addClientMessage({
+                    id: 'indexing',
+                    kind: 'info',
+                    header: 'Indexing',
+                    content: 'Indexing 3 uploaded documents...'
+                  })
+                )}>
+              Show indexing (info)
+            </button>
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() =>
+                withChatbot(chatbot =>
+                  chatbot.addClientMessage({
+                    id: 'indexing',
+                    kind: 'success',
+                    content: 'Finished indexing 3 documents.'
+                  })
+                )}>
+              Show indexing done (success, upsert)
+            </button>
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() =>
+                withChatbot(chatbot => chatbot.addClientMessage({ content: 'Switched to Research Assistant' }))}>
+              Show agent switch (text)
+            </button>
+          </div>
+        </div>
+        <forge-ai-chatbot
+          style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;"
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
