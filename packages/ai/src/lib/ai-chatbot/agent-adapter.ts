@@ -53,6 +53,7 @@ export interface ToolResultEvent {
   toolCallId: string;
   result: unknown;
   message: ChatMessage;
+  isError?: boolean;
   rawEvent?: unknown;
 }
 

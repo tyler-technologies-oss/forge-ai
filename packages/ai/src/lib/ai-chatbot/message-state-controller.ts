@@ -264,7 +264,7 @@ export class MessageStateController implements ReactiveController {
   public completeToolCallInResponse(toolCallId: string, result: unknown, event?: ToolResultEvent): void {
     this.updateToolCallInResponse(toolCallId, {
       result,
-      status: 'complete'
+      status: event?.isError === true ? 'error' : 'complete'
     });
 
     if (event) {

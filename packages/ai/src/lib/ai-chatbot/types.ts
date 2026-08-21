@@ -155,6 +155,7 @@ export interface ToolResultEvent {
   toolCallId: string;
   result: unknown;
   message: ChatMessage;
+  isError?: boolean;
 }
 
 export type StreamEvent =
