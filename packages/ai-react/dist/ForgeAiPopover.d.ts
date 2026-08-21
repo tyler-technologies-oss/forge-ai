@@ -24,6 +24,12 @@ export interface ForgeAiPopoverProps extends Pick<
   /** Whether the popover should shift to stay in view. */
   shift?: boolean;
 
+  /** Whether the popover should constrain its own size to the space available in the chosen
+placement direction, exposed as the `--ai-overlay-available-width`/`--ai-overlay-available-height`
+CSS custom properties so slotted content can shrink (and scroll internally) instead of being
+clipped by the viewport. */
+  autoSize?: boolean;
+
   /** Whether the popover is open. */
   open?: boolean;
 
@@ -74,5 +80,9 @@ Can be a number (main axis offset) or an object with mainAxis, crossAxis, and al
  *
  * ### **Slots:**
  *  - _default_ - The default slot for popover content.
+ *
+ * ### **CSS Properties:**
+ *  - **--ai-overlay-available-width** - Set on the popover when `autoSize` is enabled; the width available in the chosen placement direction. _(default: undefined)_
+ * - **--ai-overlay-available-height** - Set on the popover when `autoSize` is enabled; the height available in the chosen placement direction. _(default: undefined)_
  */
 export const ForgeAiPopover: React.ForwardRefExoticComponent<ForgeAiPopoverProps>;
