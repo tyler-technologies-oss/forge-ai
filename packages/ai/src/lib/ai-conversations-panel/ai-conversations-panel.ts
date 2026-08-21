@@ -79,7 +79,7 @@ export class AiConversationsPanelComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   @property({ type: Array })
-  public recentThreads: Thread[] = [];
+  public threads: Thread[] = [];
 
   /**
    * Total number of threads available. When set to a positive number and fewer threads
@@ -92,11 +92,11 @@ export class AiConversationsPanelComponent extends LitElement {
   @property({ type: String, attribute: 'selected-thread-id' })
   public selectedThreadId: string | null = null;
 
-  @property({ type: Boolean, attribute: 'show-conversation-rename' })
-  public showConversationRename = false;
+  @property({ type: Boolean, attribute: 'show-thread-rename' })
+  public showThreadRename = false;
 
-  @property({ type: Boolean, attribute: 'show-conversation-delete' })
-  public showConversationDelete = false;
+  @property({ type: Boolean, attribute: 'show-thread-delete' })
+  public showThreadDelete = false;
 
   @property({ type: Boolean, reflect: true })
   public loading = false;
@@ -166,7 +166,7 @@ export class AiConversationsPanelComponent extends LitElement {
     if (this.totalChats <= 0) {
       return false;
     }
-    const displayedCount = this.recentThreads.filter(t => !this._hiddenThreadIds.has(t.id)).length;
+    const displayedCount = this.threads.filter(t => !this._hiddenThreadIds.has(t.id)).length;
     return displayedCount < this.totalChats;
   }
 
@@ -190,7 +190,7 @@ export class AiConversationsPanelComponent extends LitElement {
   public override connectedCallback(): void {
     super.connectedCallback();
     this.updateComplete.then(() => {
-      if (this._viewState === 'main' && this.recentThreads.length) {
+      if (this._viewState === 'main' && this.threads.length) {
         this._searchInputMain?.focus();
       } else if (this._viewState === 'search') {
         this._searchInputSearch?.focus();
@@ -210,10 +210,10 @@ export class AiConversationsPanelComponent extends LitElement {
   public override updated(changedProperties: Map<string, unknown>): void {
     if (
       changedProperties.has('_viewState') ||
-      changedProperties.has('recentThreads') ||
+      changedProperties.has('threads') ||
       changedProperties.has('totalChats')
     ) {
-      if (changedProperties.has('recentThreads') || changedProperties.has('totalChats')) {
+      if (changedProperties.has('threads') || changedProperties.has('totalChats')) {
         this.#recentChatsScrollController.reset();
         this.#searchChatsScrollController.reset();
       }
@@ -242,7 +242,7 @@ export class AiConversationsPanelComponent extends LitElement {
   }
 
   get #displayedThreads(): Thread[] {
-    const threads = this._viewState === 'search' ? this._searchResults : this.recentThreads;
+    const threads = this._viewState === 'search' ? this._searchResults : this.threads;
     return threads.filter(thread => !this._hiddenThreadIds.has(thread.id));
   }
 
@@ -266,7 +266,7 @@ export class AiConversationsPanelComponent extends LitElement {
       this._isSearching = true;
     } else {
       this._isSearching = false;
-      this._searchResults = this.recentThreads.filter(thread =>
+      this._searchResults = this.threads.filter(thread =>
         thread.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
@@ -279,7 +279,7 @@ export class AiConversationsPanelComponent extends LitElement {
 
     if (!searchQuery.trim()) {
       this._searchQuery = '';
-      this._searchResults = this.recentThreads;
+      this._searchResults = this.threads;
       this._isSearching = false;
       return;
     }
@@ -294,7 +294,7 @@ export class AiConversationsPanelComponent extends LitElement {
       if (results.length === 0) {
         this.#recentChatsScrollController.setHasMore(false);
       } else {
-        this.recentThreads = [...this.recentThreads, ...results];
+        this.threads = [...this.threads, ...results];
       }
       this.#recentChatsScrollController.setLoadingState(false);
     };
@@ -339,7 +339,7 @@ export class AiConversationsPanelComponent extends LitElement {
     }
     this._viewState = 'search';
     this._searchQuery = '';
-    this._searchResults = this.recentThreads;
+    this._searchResults = this.threads;
     this._isSearching = false;
     this._editingThreadId = null;
     this.#recentChatsScrollController.reset();
@@ -594,13 +594,13 @@ export class AiConversationsPanelComponent extends LitElement {
                     <span>${thread.title}</span>
                   </button>
                   ${when(
-                    this.showConversationRename || this.showConversationDelete,
+                    this.showThreadRename || this.showThreadDelete,
                     () => html`
-                      <div class="conversation-item-actions">
+                      <div class="thread-item-actions">
                         <forge-ai-thread-actions-menu
                           .thread=${thread}
-                          ?show-rename=${this.showConversationRename}
-                          ?show-delete=${this.showConversationDelete}
+                          ?show-rename=${this.showThreadRename}
+                          ?show-delete=${this.showThreadDelete}
                           @forge-ai-thread-actions-menu-rename=${this.#handleMenuRename}
                           @forge-ai-thread-actions-menu-delete-click=${this.#handleMenuDeleteClick}
                           @forge-ai-thread-actions-menu-open=${this.#handleMenuOpen}

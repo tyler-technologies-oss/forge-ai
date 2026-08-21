@@ -5,6 +5,7 @@ export const ForgeAiOverlay = forwardRef((props, forwardedRef) => {
   const {
     flip,
     shift,
+    autoSize,
     open,
     anchor,
     placement,
@@ -30,6 +31,7 @@ export const ForgeAiOverlay = forwardRef((props, forwardedRef) => {
       tabindex: props.tabIndex,
       flip: props.flip ? true : undefined,
       shift: props.shift ? true : undefined,
+      "auto-size": props.autoSize ? true : undefined,
       open: props.open ? true : undefined,
       style: { ...props.style },
     },

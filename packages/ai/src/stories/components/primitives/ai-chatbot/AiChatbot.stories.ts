@@ -74,11 +74,11 @@ const meta = {
       control: 'boolean',
       description: 'Show conversations button in header'
     },
-    showConversationRename: {
+    showThreadRename: {
       control: 'boolean',
       description: 'Show rename option in conversations panel'
     },
-    showConversationDelete: {
+    showThreadDelete: {
       control: 'boolean',
       description: 'Show delete option in conversations panel'
     },
@@ -116,8 +116,8 @@ const meta = {
     expanded: false,
     minimizeIcon: 'default',
     showConversationsButton: false,
-    showConversationRename: true,
-    showConversationDelete: true,
+    showThreadRename: true,
+    showThreadDelete: true,
     threadsLoading: false,
     enableReactions: false,
     disclaimerText: 'AI can make mistakes. Always verify responses.',
@@ -168,8 +168,8 @@ const meta = {
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?show-conversations-button=${args.showConversationsButton}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           ?threads-loading=${args.threadsLoading}
           ?expanded=${args.expanded}
           ?enable-reactions=${args.enableReactions}
@@ -1537,32 +1537,32 @@ export const WithConversationHistory: Story = {
       }
     ];
 
-    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onThreadSelect = action('forge-ai-chatbot-thread-select');
     const onNewChat = action('forge-ai-chatbot-new-chat');
     const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
     const onConversationsClose = action('forge-ai-chatbot-conversations-close');
-    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
-    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
+    const onThreadRename = action('forge-ai-chatbot-thread-rename');
+    const onThreadDelete = action('forge-ai-chatbot-thread-delete');
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
         <forge-ai-chatbot
           .adapter=${adapter}
-          .recentThreads=${threads}
+          .threads=${threads}
           ?show-conversations-button=${true}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           placeholder=${args.placeholder}
           title-text="AI Assistant with History"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
-          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-thread-select=${(e: CustomEvent) => onThreadSelect(e.detail)}
           @forge-ai-chatbot-new-chat=${onNewChat}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
           @forge-ai-chatbot-conversations-close=${onConversationsClose}
-          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
-          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+          @forge-ai-chatbot-thread-rename=${(e: CustomEvent) => onThreadRename(e.detail)}
+          @forge-ai-chatbot-thread-delete=${(e: CustomEvent) => onThreadDelete(e.detail)}>
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
@@ -1580,32 +1580,32 @@ export const WithEmptyConversationHistory: Story = {
       responseDelay: 500
     });
 
-    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onThreadSelect = action('forge-ai-chatbot-thread-select');
     const onNewChat = action('forge-ai-chatbot-new-chat');
     const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
     const onConversationsClose = action('forge-ai-chatbot-conversations-close');
-    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
-    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
+    const onThreadRename = action('forge-ai-chatbot-thread-rename');
+    const onThreadDelete = action('forge-ai-chatbot-thread-delete');
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
         <forge-ai-chatbot
           .adapter=${adapter}
-          .recentThreads=${[]}
+          .threads=${[]}
           ?show-conversations-button=${true}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           placeholder=${args.placeholder}
           title-text="AI Assistant with Empty History"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
-          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-thread-select=${(e: CustomEvent) => onThreadSelect(e.detail)}
           @forge-ai-chatbot-new-chat=${onNewChat}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
           @forge-ai-chatbot-conversations-close=${onConversationsClose}
-          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
-          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+          @forge-ai-chatbot-thread-rename=${(e: CustomEvent) => onThreadRename(e.detail)}
+          @forge-ai-chatbot-thread-delete=${(e: CustomEvent) => onThreadDelete(e.detail)}>
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
@@ -1633,7 +1633,7 @@ export const WithLoadingConversationHistory: Story = {
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
         <forge-ai-chatbot
           .adapter=${adapter}
-          .recentThreads=${[]}
+          .threads=${[]}
           ?show-conversations-button=${true}
           ?threads-loading=${args.threadsLoading}
           placeholder=${args.placeholder}

@@ -116,7 +116,7 @@ export class AiThreadActionsMenuComponent extends LitElement {
         density="small"
         selection-mode="none"
         popover-placement="bottom-start"
-        trigger-label="Conversation options"
+        trigger-label="Thread options"
         @keydown=${this.#handleMenuKeyDown}
         @forge-ai-dropdown-menu-open=${this.#handleMenuOpen}
         @forge-ai-dropdown-menu-close=${this.#handleMenuClose}

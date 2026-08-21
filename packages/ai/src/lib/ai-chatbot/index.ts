@@ -60,11 +60,11 @@ export type {
   ResponseFeedback,
   MessageItem,
   ForgeAiChatbotContextRemoveEventData,
-  ForgeAiChatbotConversationSelectEventData,
-  ForgeAiChatbotConversationSearchEventData,
-  ForgeAiChatbotConversationLoadMoreEventData,
-  ForgeAiChatbotConversationRenameEventData,
-  ForgeAiChatbotConversationDeleteEventData
+  ForgeAiChatbotThreadSelectEventData,
+  ForgeAiChatbotThreadSearchEventData,
+  ForgeAiChatbotThreadLoadMoreEventData,
+  ForgeAiChatbotThreadRenameEventData,
+  ForgeAiChatbotThreadDeleteEventData
 } from './types.js';
 
 // AG-UI adapter

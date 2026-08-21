@@ -24,6 +24,9 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   /** Whether to show the delete option in thread actions menu */
   showThreadDelete?: boolean;
 
+  /** Whether chats are currently loading, used to gate the history button and its disabled state */
+  threadsLoading?: boolean;
+
   /** undefined */
   enableReactions?: boolean;
 
@@ -35,6 +38,12 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
 
   /** The name of the current thread (shown in conversation view breadcrumb) */
   threadName?: ForgeAiChatbotLauncherElement["threadName"];
+
+  /** Total number of chats available. When greater than the number of loaded threads, infinite scroll is enabled (0 disables it) */
+  totalThreads?: ForgeAiChatbotLauncherElement["totalThreads"];
+
+  /** The id of the currently selected thread, highlighted in the history popover/view. Updated internally when a thread is selected or a new chat starts. */
+  selectedThreadId?: ForgeAiChatbotLauncherElement["selectedThreadId"];
 
   /** undefined */
   fileUpload?: ForgeAiChatbotLauncherElement["fileUpload"];
@@ -92,6 +101,9 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
 
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
+
+  /** The list of chats shown in the history popover and full history view */
+  threads?: ForgeAiChatbotLauncherElement["threads"];
 
   /** Agent metadata for info dialog */
   agentInfo?: ForgeAiChatbotLauncherElement["agentInfo"];
@@ -153,6 +165,32 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
       CustomEvent<ForgeAiChatbotLauncherThreadDeleteEventData>
     >,
   ) => void;
+
+  /** Fired when a thread is selected from the history popover or full history view */
+  onForgeAiChatbotLauncherThreadSelect?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotLauncherThreadSelectEventData>
+    >,
+  ) => void;
+
+  /** Fired when the history search query changes (debounced). Cancelable - call setResults() with the results */
+  onForgeAiChatbotLauncherThreadSearch?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotLauncherThreadSearchEventData>
+    >,
+  ) => void;
+
+  /** Fired when scrolling near the bottom of the history list for pagination. Call appendResults() with the next page (empty array signals no more results) */
+  onForgeAiChatbotLauncherThreadLoadMore?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotLauncherThreadLoadMoreEventData>
+    >,
+  ) => void;
+
+  /** Fired when "New chat" is clicked from the full history view. Cancelable - prevents startNewChat() from being called */
+  onForgeAiChatbotLauncherNewChat?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
 }
 
 /**
@@ -172,9 +210,14 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
  * - **forge-ai-chatbot-agent-change** - Fired when agent selection changes
  * - **forge-ai-chatbot-launcher-thread-rename** - Fired when thread rename is saved. Parent should update threadName property and call onSuccess() or onError()
  * - **forge-ai-chatbot-launcher-thread-delete** - Fired when thread deletion is confirmed. Parent should delete thread and call onSuccess() or onError()
+ * - **forge-ai-chatbot-launcher-thread-select** - Fired when a thread is selected from the history popover or full history view
+ * - **forge-ai-chatbot-launcher-thread-search** - Fired when the history search query changes (debounced). Cancelable - call setResults() with the results
+ * - **forge-ai-chatbot-launcher-thread-load-more** - Fired when scrolling near the bottom of the history list for pagination. Call appendResults() with the next page (empty array signals no more results)
+ * - **forge-ai-chatbot-launcher-new-chat** - Fired when "New chat" is clicked from the full history view. Cancelable - prevents startNewChat() from being called
  *
  * ### **Methods:**
- *  - **clearMessages(): _boolean_** - Clears all messages from the chat.
+ *  - **showHistory(): _void_** - Navigates directly to the full history view (not the history popover).
+ * - **clearMessages(): _boolean_** - Clears all messages from the chat.
  *
  * This is a lower-level operation that removes message history without
  * the semantic meaning of "starting a new conversation". For user-facing
