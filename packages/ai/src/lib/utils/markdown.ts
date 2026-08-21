@@ -20,7 +20,7 @@ export interface RenderMarkdownOptions {
 const COMPLETE_CONTENT_REMEND_OPTIONS: RemendOptions = { links: false, images: false };
 
 const DOMPURIFY_CONFIG: Config = {
-  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
+  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'select', 'textarea', 'button'],
   FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
   ADD_ATTR: ['target', 'rel']
 };
