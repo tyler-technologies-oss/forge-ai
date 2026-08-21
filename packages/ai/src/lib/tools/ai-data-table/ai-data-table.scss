@@ -113,6 +113,12 @@ td a {
   @include forge-typography.style(body2);
 }
 
+forge-ai-empty-state {
+  display: block;
+  padding: #{forge-spacing.variable(large)};
+  --ai-empty-state-icon-size: 48px;
+}
+
 .empty-state-icon {
   width: 48px;
   height: 48px;
