@@ -185,7 +185,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   protected override _messageThreadRef = createRef<AiMessageThreadComponent>();
   protected override _promptRef = createRef<AiPromptComponent>();
   #headerRef = createRef<AiChatHeaderComponent>();
-  #historyButtonRef = createRef<HTMLButtonElement>();
   #gradientContainerRef = createRef<HTMLElement>();
   #internals!: ElementInternals;
   #pendingThreadDeleteSource: AiThreadsSearchComponent | null = null;
@@ -725,7 +724,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
     return html`
       <button
-        ${ref(this.#historyButtonRef)}
         id="history-button"
         slot="actions-start"
         type="button"
