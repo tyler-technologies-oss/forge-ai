@@ -59,28 +59,45 @@ export class AiChatbotToolCallComponent extends LitElement {
   public override updated(changedProperties: PropertyValues<this>): void {
     super.updated(changedProperties);
 
-    if (changedProperties.has('toolCall') || changedProperties.has('toolDefinition')) {
-      const renderer = this.toolDefinition?.renderer;
-      const container = this.#customRendererRef.value;
-
-      if (container && this.#shouldRenderCustom) {
-        if (this.#renderedElement && container.contains(this.#renderedElement as Node)) {
-          container.removeChild(this.#renderedElement as Node);
-        }
-
-        if (renderer?.elementTag) {
-          const element = document.createElement(renderer.elementTag) as HTMLElement & { toolCall: ToolCall };
-          element.toolCall = this.toolCall;
-          this.#renderedElement = element;
-          container.appendChild(element);
-          this.#dispatchScrollRequest();
-        } else if (renderer?.render) {
-          this.#renderedElement = renderer.render(this.toolCall);
-          container.appendChild(this.#renderedElement as Node);
-          this.#dispatchScrollRequest();
-        }
-      }
+    if (!changedProperties.has('toolCall') && !changedProperties.has('toolDefinition')) {
+      return;
     }
+
+    const container = this.#customRendererRef.value;
+    if (!container || !this.#shouldRenderCustom) {
+      return;
+    }
+
+    const renderer = this.toolDefinition?.renderer;
+
+    if (renderer?.elementTag) {
+      // Update the existing element in place rather than tearing it down and recreating it on
+      // every args/status change: a live renderer (e.g. one awaiting user confirmation) may treat
+      // disconnection as abandonment, so churning it while the tool call is still in flight can
+      // reject work the renderer is actively waiting on.
+      if (
+        this.#renderedElement instanceof HTMLElement &&
+        this.#renderedElement.tagName.toLowerCase() === renderer.elementTag
+      ) {
+        (this.#renderedElement as HTMLElement & { toolCall: ToolCall }).toolCall = this.toolCall;
+        return;
+      }
+
+      const element = document.createElement(renderer.elementTag) as HTMLElement & { toolCall: ToolCall };
+      element.toolCall = this.toolCall;
+      this.#replaceRenderedElement(container, element);
+    } else if (renderer?.render) {
+      this.#replaceRenderedElement(container, renderer.render(this.toolCall));
+    }
+  }
+
+  #replaceRenderedElement(container: HTMLDivElement, element: HTMLElement | DocumentFragment): void {
+    if (this.#renderedElement && container.contains(this.#renderedElement as Node)) {
+      container.removeChild(this.#renderedElement as Node);
+    }
+    this.#renderedElement = element;
+    container.appendChild(element);
+    this.#dispatchScrollRequest();
   }
 
   public override render(): TemplateResult | typeof nothing {
