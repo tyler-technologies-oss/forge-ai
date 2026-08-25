@@ -2,6 +2,7 @@ import { LitElement, html, unsafeCSS, type TemplateResult, nothing, type Propert
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import type { ToolCall, ToolDefinition } from './types.js';
+import { shouldShowToolRenderer } from './utils.js';
 
 import styles from './ai-chatbot-tool-call.scss?inline';
 
@@ -30,14 +31,7 @@ export class AiChatbotToolCallComponent extends LitElement {
   #renderedElement?: HTMLElement | DocumentFragment;
 
   get #shouldRenderCustom(): boolean {
-    const status = this.toolCall?.status;
-    if (status === 'complete') {
-      return true;
-    }
-    if (this.toolDefinition?.renderOnStart && (status === 'parsing' || status === 'executing')) {
-      return true;
-    }
-    return false;
+    return shouldShowToolRenderer(this.toolCall, this.toolDefinition);
   }
 
   #dispatchScrollRequest(): void {

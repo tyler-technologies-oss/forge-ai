@@ -105,7 +105,7 @@ export class AiAssistantResponseComponent extends LitElement {
   #renderToolCall(toolCall: ToolCall): TemplateResult | typeof nothing {
     const toolDefinition = this.tools?.get(toolCall.name);
 
-    if (!toolDefinition?.renderer || toolCall.status !== 'complete') {
+    if (!toolDefinition?.renderer) {
       return nothing;
     }
 
@@ -205,22 +205,25 @@ export class AiAssistantResponseComponent extends LitElement {
       return nothing;
     }
 
+    const lastChild = this.response.children[this.response.children.length - 1];
+
     // When the agent is thinking between steps the text child stays 'streaming' with stale
     // content, so skip the streaming-text hide and show the indicator to signal the gap.
     const isThinking = this.response.status === 'streaming' && this.response.isThinking === true;
 
     // Hide while text is actively streaming — the streaming text itself signals activity.
-    if (!isThinking) {
-      const lastChild = this.response.children[this.response.children.length - 1];
-      if (lastChild?.type === 'text' && lastChild.status === 'streaming') {
-        const content = typeof lastChild.content === 'string' ? lastChild.content : '';
-        if (content.trim().length > 0) {
-          return nothing;
-        }
+    if (!isThinking && lastChild?.type === 'text' && lastChild.status === 'streaming') {
+      const content = typeof lastChild.content === 'string' ? lastChild.content : '';
+      if (content.trim().length > 0) {
+        return nothing;
       }
     }
 
-    // Hide while a tool call is active — the tool-call indicator already shows a spinner.
+    // Hide while a tool call is still genuinely unresolved — its own indicator (or renderer,
+    // for renderOnStart tools) already shows activity, so a generic spinner would be redundant.
+    // This is intentionally based on the tool call's real status, not on whether its renderer
+    // has mounted: a renderOnStart tool awaiting user input should keep this hidden, while a
+    // truly settled tool call should let the indicator reappear to signal a gap before the next step.
     const hasActiveToolCall = this.response.children.some(child => {
       if (child.type !== 'toolCall') {
         return false;
