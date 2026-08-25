@@ -1,5 +1,11 @@
 # @tylertech/forge-ai
 
+## 0.13.13
+
+### Patch Changes
+
+- f82249d: fix(tool-calls): mount renderOnStart renderers before tool completion
+
 ## 0.13.12
 
 ### Patch Changes
