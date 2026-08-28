@@ -1,0 +1,7 @@
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(small)};
+}
