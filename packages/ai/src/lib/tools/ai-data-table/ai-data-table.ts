@@ -123,20 +123,6 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Ta
     this._currentPage = 1;
   }
 
-  #setHeightFromContent(): void {
-    requestAnimationFrame(() => {
-      const artifact = this.shadowRoot?.querySelector('.artifact') as HTMLElement | null;
-      if (artifact) {
-        const height = artifact.scrollHeight;
-        this.style.height = `${height}px`;
-      }
-    });
-  }
-
-  public override firstUpdated(): void {
-    this.#setHeightFromContent();
-  }
-
   #handleExport(): void {
     const data = this.#tableData;
     if (!data || !data.headers || !data.rows) {

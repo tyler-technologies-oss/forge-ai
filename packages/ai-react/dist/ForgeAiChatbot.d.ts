@@ -261,6 +261,17 @@ export interface ForgeAiChatbotProps extends Pick<
  * the semantic meaning of "starting a new conversation". For user-facing
  * "new chat" actions, prefer startNewChat which provides
  * conversation-level cleanup.
+ * - **addClientMessage(message: _ClientMessageInput_): __** - Inserts or upserts a client-only status message into the thread - never sent to
+ * the agent adapter and never included in the conversation history the adapter sees.
+ * Use this for host-driven UI feedback (e.g. "Your session expired", upload progress)
+ * instead of splicing getMessages/setMessages directly.
+ *
+ * Safe to call at any time, including while a response is streaming - it never
+ * finalizes or otherwise touches the in-progress response.
+ * - **removeClientMessage(id: _string_): _void_** - Removes a client-only message previously added via addClientMessage.
+ * No-ops if no message with that id exists. Safe to call at any time, including
+ * while a response is streaming. Removal is never automatic - call this when your
+ * host logic determines the message is no longer relevant.
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content

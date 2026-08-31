@@ -10,6 +10,12 @@ The message thread component is a core building block for AI chat interfaces, re
 
 <Canvas of={AiMessageThreadStories.Demo} />
 
+Client-only messages - status updates that never go to the agent adapter, like session-expiry
+notices, upload progress, or agent-switch banners - render with a `kind` of `text`, `info`,
+`warning`, `error`, or `success`, and can carry an optional `header` and `actions`:
+
+<Canvas of={AiMessageThreadStories.WithClientMessages} />
+
 ## API
 
 <CustomArgTypes />

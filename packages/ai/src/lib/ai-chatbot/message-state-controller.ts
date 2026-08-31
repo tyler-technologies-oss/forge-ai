@@ -1,6 +1,7 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import type {
   ChatMessage,
+  ClientMessageInput,
   MessageItem,
   ToolCall,
   StreamEvent,
@@ -263,7 +264,7 @@ export class MessageStateController implements ReactiveController {
   public completeToolCallInResponse(toolCallId: string, result: unknown, event?: ToolResultEvent): void {
     this.updateToolCallInResponse(toolCallId, {
       result,
-      status: 'complete'
+      status: event?.isError === true ? 'error' : 'complete'
     });
 
     if (event) {
@@ -367,6 +368,43 @@ export class MessageStateController implements ReactiveController {
   public getMessage(id: string): ChatMessage | undefined {
     const item = this._messageItems.find(i => i.type === 'message' && i.data.id === id);
     return item?.type === 'message' ? item.data : undefined;
+  }
+
+  /**
+   * Inserts or upserts a client-only message, never touching `_activeResponse`.
+   * Unlike {@link addMessage}, this never finalizes an in-progress response -
+   * safe to call while a real reply is streaming.
+   */
+  public addClientMessage(message: ClientMessageInput): string {
+    const id = message.id ?? generateId();
+    const chatMessage: ChatMessage = {
+      id,
+      role: 'system',
+      content: message.content,
+      timestamp: Date.now(),
+      status: 'complete',
+      clientOnly: true,
+      kind: message.kind,
+      header: message.header,
+      actions: message.actions
+    };
+
+    this._messageItems = [
+      ...this._messageItems.filter(item => !(item.type === 'message' && item.data.id === id)),
+      { type: 'message', data: chatMessage }
+    ];
+    this.#notifyStateChange();
+    return id;
+  }
+
+  /** Removes a client message by id. No-ops if not found. Safe to call at any time. */
+  public removeClientMessage(id: string): void {
+    const hasMessage = this._messageItems.some(item => item.type === 'message' && item.data.id === id);
+    if (!hasMessage) {
+      return;
+    }
+    this._messageItems = this._messageItems.filter(item => !(item.type === 'message' && item.data.id === id));
+    this.#notifyStateChange();
   }
 
   public updateMessageStatus(id: string, status: ChatMessage['status'], event?: MessageEndEvent): void {

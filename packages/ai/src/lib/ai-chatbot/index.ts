@@ -41,6 +41,9 @@ export {
 export type {
   Agent,
   ChatMessage,
+  ClientMessageAction,
+  ClientMessageInput,
+  ClientMessageKind,
   ContextItem,
   ToolDefinition,
   ToolCall,

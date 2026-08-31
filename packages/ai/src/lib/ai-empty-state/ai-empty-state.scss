@@ -6,6 +6,7 @@
 :host {
   display: block;
   --_ai-empty-state-max-width: 420px;
+  --_ai-empty-state-icon-size: 200px;
 }
 
 .empty-state-container {
@@ -42,6 +43,6 @@
 }
 
 ::slotted([slot='icon']) {
-  height: 200px;
-  width: 200px;
+  height: var(--ai-empty-state-icon-size, var(--_ai-empty-state-icon-size));
+  width: var(--ai-empty-state-icon-size, var(--_ai-empty-state-icon-size));
 }

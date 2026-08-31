@@ -129,6 +129,35 @@ const adapter = new CustomAdapter();
 - `emitError(message: string)`: Signal error occurred
 - `updateState(updates: Partial<AdapterState>)`: Update connection/running state
 
+## Client Messages
+
+Use `addClientMessage()` / `removeClientMessage()` to show host-driven status messages (session
+expiry, upload progress, agent-switch banners) in the thread without touching the conversation the
+adapter sees. They're safe to call at any time, including while a response is streaming.
+
+```typescript
+const id = chatbot.addClientMessage({
+  kind: 'error',
+  header: 'Session expired',
+  content: 'Your session expired. Please refresh the page to re-authenticate.',
+  actions: [{ id: 'refresh', label: 'Refresh', onClick: () => location.reload() }]
+});
+
+// Later, once your own logic determines it's no longer relevant:
+chatbot.removeClientMessage(id);
+
+// Pass the same id again to upsert (replace) rather than stack a new message:
+chatbot.addClientMessage({ id: 'upload-status', kind: 'info', content: 'Uploading...' });
+chatbot.addClientMessage({ id: 'upload-status', kind: 'success', content: 'Upload complete.' });
+```
+
+`kind` is one of `'text' | 'info' | 'warning' | 'error' | 'success'` (default `'text'`, matching the
+plain italic system-message style). Removal is never automatic - forge-ai has no way to know when a
+host-specific condition (e.g. "session recovered") has been satisfied, so call `removeClientMessage`
+from your own event handling.
+
+<Canvas of={AiChatbotStories.ClientMessages} />
+
 ## Keyboard Shortcuts
 
 - **Escape**: Abort the current streaming response

@@ -19,6 +19,7 @@ import { FileUploadManager } from '../ai-chatbot/file-upload-manager.js';
 import { MessageStateController } from '../ai-chatbot/message-state-controller.js';
 import type {
   ChatMessage,
+  ClientMessageInput,
   FileAttachment,
   FileUploadCallbacks,
   HandlerContext,
@@ -352,17 +353,15 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   #handleRunAborted(): void {
-    const abortMessage: ChatMessage = {
-      id: generateId(),
-      role: 'system',
-      content: 'Run cancelled',
-      timestamp: Date.now(),
-      status: 'complete',
-      clientOnly: true
-    };
-
-    this.#messageStateController.addMessage(abortMessage);
-    this.#callbacks.onDispatchEvent('forge-ai-chatbot-message-received', { message: abortMessage });
+    // Explicit finalize (rather than addMessage's implicit one) so the abort
+    // banner can go through the client-message path, which never touches
+    // `_activeResponse` on its own.
+    this.#messageStateController.tryFinalizeResponse();
+    const id = this.#messageStateController.addClientMessage({ content: 'Run cancelled' });
+    const abortMessage = this.#messageStateController.getMessage(id);
+    if (abortMessage) {
+      this.#callbacks.onDispatchEvent('forge-ai-chatbot-message-received', { message: abortMessage });
+    }
   }
 
   #handleStateChange(_state: AdapterState): void {
@@ -511,6 +510,19 @@ export class ChatbotCoreController implements ReactiveController {
 
   public addMessage(message: ChatMessage): void {
     this.#messageStateController.addMessage(message);
+  }
+
+  public addClientMessage(message: ClientMessageInput): string {
+    return this.#messageStateController.addClientMessage(message);
+  }
+
+  public removeClientMessage(id: string): void {
+    this.#messageStateController.removeClientMessage(id);
+  }
+
+  /** Finalizes the in-progress response (if any) so a client message inserted right after it doesn't trail a live bubble. */
+  public finalizeActiveResponse(): void {
+    this.#messageStateController.tryFinalizeResponse();
   }
 
   public getThreadState(): ThreadState {
