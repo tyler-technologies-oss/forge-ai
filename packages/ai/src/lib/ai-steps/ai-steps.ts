@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-type StepActions = "FILTERED" | "JOINED" | "SEPARATED" | "CALLED" |  "SEARCHED" | "QUERIED" | "GROUPED" |  "SORTED"
+type StepActions = 'FILTERED' | 'JOINED' | 'SEPARATED' | 'CALLED' | 'SEARCHED' | 'QUERIED' | 'GROUPED' | 'SORTED';
 
 export const AiStepsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-steps';
 
@@ -60,6 +60,8 @@ export class AiStepsComponent extends LitElement {
     </svg>
   `;
 
+  readonly #rowMarker: TemplateResult = html`<span class="row-marker"></span>`;
+
   get #count(): number {
     return this.stepCalls.length;
   }
@@ -68,34 +70,14 @@ export class AiStepsComponent extends LitElement {
     return this.stepCalls.some(tc => !isStepCallSettled(tc, this.steps?.get(tc.name)));
   }
 
-  get #elapsedMs(): number | undefined {
-    if (this.#isRunning) {
-      return undefined;
-    }
-    const starts = this.stepCalls.map(tc => tc.startTimestamp ?? 0).filter(t => t > 0);
-    const ends = this.stepCalls.map(tc => tc.endTimestamp ?? 0).filter(t => t > 0);
-    if (!starts.length || !ends.length) {
-      return undefined;
-    }
-    return Math.max(...ends) - Math.min(...starts);
-  }
-
-  get #formattedElapsed(): string {
-    const ms = this.#elapsedMs ?? 0;
-    if (ms < 1000) {
-      return `${ms}ms`;
-    }
-    return `${Math.round(ms / 1000)}s`;
-  }
-
   get #summaryLabel(): string {
     if (this.#isRunning) {
       return 'Running steps...';
     }
-    const stepLabels = this.stepCalls.map((stepCall) => {
+    const stepLabels = this.stepCalls.map(stepCall => {
       const displayName = this.steps?.get(stepCall.name)?.displayName ?? stepCall.name;
       return `${displayName} ${stepCall.args.name} ${stepCall.args.type}`;
-    })
+    });
     const visibleLabels = stepLabels.slice(0, 2);
     const remaining = stepLabels.length - visibleLabels.length;
     return remaining > 0 ? `${visibleLabels.join(', ')} +${remaining} more` : visibleLabels.join(', ');
@@ -103,20 +85,6 @@ export class AiStepsComponent extends LitElement {
 
   #toggle(): void {
     this._expanded = !this._expanded;
-  }
-
-  #toggleRow(id: string): void {
-    const next = new Set(this._expandedRows);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
-    this._expandedRows = next;
-  }
-
-  #isRowExpanded(id: string): boolean {
-    return this._expandedRows.has(id);
   }
 
   #hasDetail(toolCall: ToolCall): boolean {
@@ -135,59 +103,18 @@ export class AiStepsComponent extends LitElement {
     return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
   }
 
-  #formatValue(value: unknown): string {
-    let text: string;
-    try {
-      text = JSON.stringify(value, null, 2);
-    } catch {
-      text = String(value);
+  #formatValue(value: unknown): TemplateResult {
+    if (!value || typeof value !== 'object') {
+      return html`${String(value)}`;
     }
-    if (text === undefined) {
-      text = String(value);
-    }
-    if (text.length > MAX_DETAIL_LENGTH) {
-      return `${text.slice(0, MAX_DETAIL_LENGTH)}… (truncated)`;
-    }
-    return text;
-  }
 
-  #highlightJson(value: unknown): TemplateResult {
-    const escaped = this.#formatValue(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const highlighted = escaped.replace(
-      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
-      match => {
-        let cls = 'token-number';
-        if (/^"/.test(match)) {
-          cls = /:$/.test(match) ? 'token-key' : 'token-string';
-        } else if (/true|false/.test(match)) {
-          cls = 'token-boolean';
-        } else if (/null/.test(match)) {
-          cls = 'token-null';
-        }
-        return `<span class="${cls}">${match}</span>`;
-      }
-    );
-    return html`${unsafeHTML(highlighted)}`;
-  }
-
-  #detailPayload(toolCall: ToolCall): Record<string, unknown> {
-    // prettier-ignore
-    const payload: Record<string, unknown> = {
-      'tool_name': toolCall.name,
-      'tool_call_id': toolCall.id,
-      'status': toolCall.status
-    };
-    const duration = this.#rowDuration(toolCall);
-    if (duration) {
-      payload.duration = duration;
-    }
-    if (toolCall.args && Object.keys(toolCall.args).length > 0) {
-      payload.input = toolCall.args;
-    }
-    if (toolCall.result !== undefined) {
-      payload.output = toolCall.result;
-    }
-    return payload;
+    return html`${Object.entries(value).map(([key, propertyValue]) => {
+      const text = String(propertyValue);
+      const truncated = text.length > MAX_DETAIL_LENGTH ? `${text.slice(0, MAX_DETAIL_LENGTH)}… (truncated)` : text;
+      return html`<div class="detail-c">
+        <span class="detail-key">${key}</span> <span class="detail-value">${truncated}</span>
+      </div>`;
+    })}`;
   }
 
   #statusBadge(toolCall: ToolCall): TemplateResult | typeof nothing {
@@ -199,29 +126,13 @@ export class AiStepsComponent extends LitElement {
   }
 
   #renderCard(toolCall: ToolCall): TemplateResult {
-    const expanded = this.#isRowExpanded(toolCall.id);
-    const regionId = `detail-${toolCall.id}`;
-    const name = this.steps?.get(toolCall.name)?.displayName ?? toolCall.name;
-
+    const displayName = this.steps?.get(toolCall.name)?.displayName ?? toolCall.name;
     return html`
-      <div class="code-card">
-        <button
-          class="code-card__header row-button"
-          type="button"
-          aria-expanded=${expanded}
-          aria-controls=${regionId}
-          @click=${() => this.#toggleRow(toolCall.id)}>
-          ${this.#chevronIcon}
-          <span class="focus-indicator"></span>
-        </button>
-        ${when(
-          expanded,
-          () => html`
-            <div id=${regionId} class="code-card__body" role="region">
-              <pre class="code-card__code">${this.#highlightJson(this.#detailPayload(toolCall))}</pre>
-            </div>
-          `
-        )}
+      <div class="step-card">
+        <span class="step-card-title">${displayName} <code>${toolCall.args.name} ${toolCall.args.type}</code></span>
+        <div class="step-card-body">
+          <div class="step-card-result">${this.#formatValue(toolCall.result)}</div>
+        </div>
       </div>
     `;
   }
@@ -230,7 +141,7 @@ export class AiStepsComponent extends LitElement {
     if (this.#hasDetail(toolCall)) {
       return html`
         <div class="timeline-row" data-status=${toolCall.status}>
-          <div class="row-header">${this.#renderCard(toolCall)}</div>
+          <div class="row-header">${this.#rowMarker}${this.#renderCard(toolCall)}</div>
         </div>
       `;
     }
@@ -241,6 +152,7 @@ export class AiStepsComponent extends LitElement {
     return html`
       <div class="timeline-row" data-status=${toolCall.status}>
         <div class="row-header">
+          ${this.#rowMarker}
           <span class="row-label">
             <span class="row-name">${name}${this.#statusBadge(toolCall)}</span>
           </span>
@@ -260,11 +172,9 @@ export class AiStepsComponent extends LitElement {
   public override render(): TemplateResult | typeof nothing {
     return html`
       <div class="steps">
-        <div class="steps-count">
-          ${this.steps?.size || 0} STEPS
-        </div>
+        <div class="steps-count">${this.steps?.size || 0} STEPS</div>
         <button class="summary" type="button" aria-expanded=${this._expanded} @click=${this.#toggle}>
-          ${this.#chevronIcon}  
+          ${this.#chevronIcon}
           <span class="status-text">${this.#summaryLabel}</span>
           <span class="focus-indicator"></span>
         </button>

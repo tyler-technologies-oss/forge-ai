@@ -3,6 +3,8 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 
+$marker-size: 20px;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -36,8 +38,119 @@
   display: flex;
   flex-direction: column;
   gap: #{forge-spacing.variable(xsmall)};
-  &-count{
+  &-count {
     color: #{forge-theme.variable(text-medium)};
     font-weight: 700;
+  }
+}
+
+.timeline {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-out;
+
+  &.expanded {
+    grid-template-rows: 1fr;
+  }
+}
+
+.timeline-content {
+  overflow: hidden;
+  min-height: 0;
+  padding-inline-start: #{forge-spacing.variable(small)};
+}
+
+.timeline-row {
+  position: relative;
+  padding-inline-start: #{forge-spacing.variable(large)};
+  padding-block-end: #{forge-spacing.variable(medium)};
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block-start: calc(#{$marker-size} + -5px);
+    inset-block-end: -8px;
+    inset-inline-start: 10px;
+    width: 1px;
+    background-color: #{forge-theme.variable(outline)};
+  }
+
+  &:last-child::before {
+    display: none;
+  }
+}
+
+.row-header {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(small)};
+  width: 100%;
+  min-height: $marker-size;
+  margin-inline-start: calc(-1 * #{forge-spacing.variable(large)});
+}
+
+.row-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: $marker-size;
+  height: $marker-size;
+  border-radius: 50%;
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+    position: absolute;
+    top: 7px;
+  }
+}
+
+.row-label {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: #{forge-spacing.variable(xxxsmall)};
+}
+
+.row-name {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xsmall)};
+  line-height: normal;
+  font-weight: 500;
+  color: #{forge-theme.variable(text-high)};
+}
+
+.step-card {
+  width: 100%;
+  &-title {
+    font-weight: 700;
+    font-size: 14px;
+    code {
+      background: #e0e0e0;
+      border-radius: 4px;
+      padding: 4px;
+    }
+  }
+
+  &-result {
+    font-size: 14px;
+  }
+}
+
+.detail {
+  &-key {
+    font-weight: 500;
+    opacity: 60%;
+  }
+  &-value {
+    font-weight: normal;
+    opacity: 60%;
+    margin-left: 32px;
   }
 }
