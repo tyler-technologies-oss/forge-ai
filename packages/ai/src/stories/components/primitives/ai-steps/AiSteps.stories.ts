@@ -36,7 +36,7 @@ const toolCalls: ToolCall[] = [
     messageId: 'message-1',
     name: 'filtered',
     args: { name: 'Coffee', type: 'Grounds' },
-    result: { message: 'Case not found' },
+    result: { method: 'Manual', size: '10kg' },
     status: 'error',
     type: 'agent',
     startTimestamp: 1500,
