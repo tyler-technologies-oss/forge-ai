@@ -1,7 +1,43 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 
 :host {
   display: flex;
   flex-direction: column;
   gap: #{forge-spacing.variable(small)};
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xsmall)};
+  padding-block: #{forge-spacing.variable(xxsmall)};
+  padding-inline: #{forge-spacing.variable(xsmall)};
+  border: none;
+  background-color: #{forge-theme.variable(surface-container-minimum)};
+  border-radius: #{forge-shape.variable(large)};
+  cursor: pointer;
+  text-align: start;
+  position: relative;
+}
+
+.chevron {
+  flex-shrink: 0;
+  transition: transform #{forge-animation.variable(duration-short4)} #{forge-animation.variable(easing-standard)};
+}
+
+.summary[aria-expanded='true'] .chevron {
+  transform: rotate(-90deg);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: #{forge-spacing.variable(xsmall)};
+  &-count{
+    color: #{forge-theme.variable(text-medium)};
+    font-weight: 700;
+  }
 }

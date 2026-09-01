@@ -3,9 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import type { ToolCall, ToolDefinition } from '../ai-chatbot/types.js';
-import { isToolCallSettled } from '../ai-chatbot/utils.js';
-
-import '../ai-spinner/ai-spinner.js';
+import { isToolCallSettled as isStepCallSettled } from '../ai-chatbot/utils.js';
 
 import styles from './ai-steps.scss?inline';
 
@@ -14,6 +12,8 @@ declare global {
     'forge-ai-steps': AiStepsComponent;
   }
 }
+
+type StepActions = "FILTERED" | "JOINED" | "SEPARATED" | "CALLED" |  "SEARCHED" | "QUERIED" | "GROUPED" |  "SORTED"
 
 export const AiStepsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-steps';
 
@@ -25,7 +25,7 @@ const MAX_DETAIL_LENGTH = 2000;
  * @summary Expandable timeline summarizing the tool calls made during an assistant response.
  *
  * @description
- * Collapsed, it shows an activity summary ("Running tools…" or "Used N tools · Xs"). When
+ * Collapsed, it shows an activity summary ("Running steps…" or "Used N steps · Xs"). When
  * expanded, it lists each tool call with its status. In debug mode the expanded view also
  * shows each tool's arguments and result.
  */
@@ -36,13 +36,10 @@ export class AiStepsComponent extends LitElement {
   readonly #internals = this.attachInternals();
 
   @property({ attribute: false })
-  public toolCalls: ToolCall[] = [];
+  public stepCalls: ToolCall[] = [];
 
   @property({ attribute: false })
-  public tools?: Map<string, ToolDefinition>;
-
-  @property({ type: Boolean, reflect: true, attribute: 'debug-mode' })
-  public debugMode = false;
+  public steps?: Map<string, ToolDefinition>;
 
   @state()
   private _expanded = false;
@@ -64,19 +61,19 @@ export class AiStepsComponent extends LitElement {
   `;
 
   get #count(): number {
-    return this.toolCalls.length;
+    return this.stepCalls.length;
   }
 
   get #isRunning(): boolean {
-    return this.toolCalls.some(tc => !isToolCallSettled(tc, this.tools?.get(tc.name)));
+    return this.stepCalls.some(tc => !isStepCallSettled(tc, this.steps?.get(tc.name)));
   }
 
   get #elapsedMs(): number | undefined {
     if (this.#isRunning) {
       return undefined;
     }
-    const starts = this.toolCalls.map(tc => tc.startTimestamp ?? 0).filter(t => t > 0);
-    const ends = this.toolCalls.map(tc => tc.endTimestamp ?? 0).filter(t => t > 0);
+    const starts = this.stepCalls.map(tc => tc.startTimestamp ?? 0).filter(t => t > 0);
+    const ends = this.stepCalls.map(tc => tc.endTimestamp ?? 0).filter(t => t > 0);
     if (!starts.length || !ends.length) {
       return undefined;
     }
@@ -93,17 +90,15 @@ export class AiStepsComponent extends LitElement {
 
   get #summaryLabel(): string {
     if (this.#isRunning) {
-      return 'Running tools...';
+      return 'Running steps...';
     }
-    const elapsed = this.#elapsedMs;
-    const base = `Used ${this.#count} ${this.#count === 1 ? 'tool' : 'tools'}`;
-    return elapsed === undefined ? base : `${base} · ${this.#formattedElapsed}`;
-  }
-
-  public override willUpdate(changedProperties: PropertyValues<this>): void {
-    if (changedProperties.has('debugMode')) {
-      this.#internals.states[this.debugMode ? 'add' : 'delete']('debug-mode');
-    }
+    const stepLabels = this.stepCalls.map((stepCall) => {
+      const displayName = this.steps?.get(stepCall.name)?.displayName ?? stepCall.name;
+      return `${displayName} ${stepCall.args.name} ${stepCall.args.type}`;
+    })
+    const visibleLabels = stepLabels.slice(0, 2);
+    const remaining = stepLabels.length - visibleLabels.length;
+    return remaining > 0 ? `${visibleLabels.join(', ')} +${remaining} more` : visibleLabels.join(', ');
   }
 
   #toggle(): void {
@@ -125,9 +120,6 @@ export class AiStepsComponent extends LitElement {
   }
 
   #hasDetail(toolCall: ToolCall): boolean {
-    if (!this.debugMode) {
-      return false;
-    }
     const hasArgs = !!toolCall.args && Object.keys(toolCall.args).length > 0;
     const showResult = toolCall.status === 'complete' && toolCall.result !== undefined;
     const showError = toolCall.status === 'error';
@@ -209,7 +201,7 @@ export class AiStepsComponent extends LitElement {
   #renderCard(toolCall: ToolCall): TemplateResult {
     const expanded = this.#isRowExpanded(toolCall.id);
     const regionId = `detail-${toolCall.id}`;
-    const name = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
+    const name = this.steps?.get(toolCall.name)?.displayName ?? toolCall.name;
 
     return html`
       <div class="code-card">
@@ -219,8 +211,7 @@ export class AiStepsComponent extends LitElement {
           aria-expanded=${expanded}
           aria-controls=${regionId}
           @click=${() => this.#toggleRow(toolCall.id)}>
-          <!-- <span class="code-card__title"><span class="code-card__name">${name}</span></span> -->
-          ${this.#statusBadge(toolCall)} ${this.#chevronIcon}
+          ${this.#chevronIcon}
           <span class="focus-indicator"></span>
         </button>
         ${when(
@@ -244,7 +235,7 @@ export class AiStepsComponent extends LitElement {
       `;
     }
 
-    const definition = this.tools?.get(toolCall.name);
+    const definition = this.steps?.get(toolCall.name);
     const name = definition?.displayName ?? toolCall.name;
 
     return html`
@@ -261,22 +252,24 @@ export class AiStepsComponent extends LitElement {
   get #timeline(): TemplateResult {
     return html`
       <div class="timeline ${this._expanded ? 'expanded' : ''}">
-        <div class="timeline-content">${this.toolCalls.map(tc => this.#renderRow(tc))}</div>
+        <div class="timeline-content">${this.stepCalls.map(tc => this.#renderRow(tc))}</div>
       </div>
     `;
   }
 
   public override render(): TemplateResult | typeof nothing {
-    const icon = html`<forge-ai-spinner size="small"></forge-ai-spinner>`;
-
     return html`
-      <button class="summary" type="button" aria-expanded=${this._expanded} @click=${this.#toggle}>
-        ${icon}
-        <span class="status-text">${this.#summaryLabel}</span>
-        ${this.#chevronIcon}
-        <span class="focus-indicator"></span>
-      </button>
-      ${this.#timeline}
+      <div class="steps">
+        <div class="steps-count">
+          ${this.steps?.size || 0} STEPS
+        </div>
+        <button class="summary" type="button" aria-expanded=${this._expanded} @click=${this.#toggle}>
+          ${this.#chevronIcon}  
+          <span class="status-text">${this.#summaryLabel}</span>
+          <span class="focus-indicator"></span>
+        </button>
+        ${this.#timeline}
+      </div>
     `;
   }
 }

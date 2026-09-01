@@ -11,7 +11,7 @@ const component = 'forge-ai-tool-call-indicator';
 
 const tools = new Map<string, ToolDefinition>([
   ['getCurrentWeather', { name: 'getCurrentWeather', displayName: 'Get current weather' }],
-  ['lookup_case', { name: 'lookup_case', displayName: 'Case lookup' }]
+  ['lookup_case', { name: 'lookup_case', displayName: 'Case lookup' }],
 ]);
 
 const toolCalls: ToolCall[] = [
@@ -25,6 +25,17 @@ const toolCalls: ToolCall[] = [
     type: 'agent',
     startTimestamp: 1000,
     endTimestamp: 1420
+  },
+  {
+    id: 'tool-3',
+    messageId: 'message-3',
+    name: 'getCurrentWeather',
+    args: { location: 'San Franciscos' },
+    result: { temperature: 68, condition: 'Sunny' },
+    status: 'complete',
+    type: 'agent',
+    startTimestamp: 10000,
+    endTimestamp: 14200
   },
   {
     id: 'tool-2',
