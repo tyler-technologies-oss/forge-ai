@@ -9,6 +9,7 @@ import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-respo
 import '../ai-response-message-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
 import '../ai-tool-call-indicator';
+import '../ai-steps';
 import '../ai-thinking-indicator';
 
 import styles from './ai-assistant-response.scss?inline';
@@ -114,9 +115,14 @@ export class AiAssistantResponseComponent extends LitElement {
       .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
   }
 
+  #displayModeFor(toolCall: ToolCall): 'toolCall' | 'steps' {
+    return this.tools?.get(toolCall.name)?.displayAs ?? 'toolCall';
+  }
+
   get #children(): (TemplateResult | typeof nothing)[] {
     const results: (TemplateResult | typeof nothing)[] = [];
     let toolBuffer: ToolCall[] = [];
+    let bufferMode: 'toolCall' | 'steps' = 'toolCall';
 
     const flushIndicator = (): void => {
       if (toolBuffer.length === 0) {
@@ -127,24 +133,32 @@ export class AiAssistantResponseComponent extends LitElement {
       toolBuffer = [];
 
       results.push(
-        html`<forge-ai-tool-call-indicator
-          .toolCalls=${flushed}
-          .tools=${this.tools}
-          ?debug-mode=${this.debugMode}></forge-ai-tool-call-indicator>`
+        bufferMode === 'steps'
+          ? html`<forge-ai-steps .toolCalls=${flushed} .tools=${this.tools}></forge-ai-steps>`
+          : html`<forge-ai-tool-call-indicator
+              .toolCalls=${flushed}
+              .tools=${this.tools}
+              ?debug-mode=${this.debugMode}></forge-ai-tool-call-indicator>`
       );
 
       for (const toolCall of flushed) {
         results.push(this.#renderToolCall(toolCall));
       }
     };
-
+    
     for (const child of this.response.children) {
       if (child.type === 'text') {
         flushIndicator();
         results.push(this.#renderTextChunk(child));
-      } else {
-        toolBuffer.push(child.data);
+        continue;
       }
+
+      const mode = this.#displayModeFor(child.data);
+      if (toolBuffer.length > 0 && mode !== bufferMode) {
+        flushIndicator();
+      }
+      bufferMode = mode;
+      toolBuffer.push(child.data);
     }
 
     flushIndicator();

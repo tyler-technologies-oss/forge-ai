@@ -13,8 +13,6 @@ declare global {
   }
 }
 
-type StepActions = 'FILTERED' | 'JOINED' | 'SEPARATED' | 'CALLED' | 'SEARCHED' | 'QUERIED' | 'GROUPED' | 'SORTED';
-
 export const AiStepsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-steps';
 
 const MAX_DETAIL_LENGTH = 2000;
@@ -36,10 +34,10 @@ export class AiStepsComponent extends LitElement {
   readonly #internals = this.attachInternals();
 
   @property({ attribute: false })
-  public stepCalls: ToolCall[] = [];
+  public toolCalls: ToolCall[] = [];
 
   @property({ attribute: false })
-  public steps?: Map<string, ToolDefinition>;
+  public tools?: Map<string, ToolDefinition>;
 
   @state()
   private _expanded = false;
@@ -63,25 +61,24 @@ export class AiStepsComponent extends LitElement {
   readonly #rowMarker: TemplateResult = html`<span class="row-marker"></span>`;
 
   get #count(): number {
-    return this.stepCalls.length;
+    return this.toolCalls.length;
   }
 
   get #isRunning(): boolean {
-    return this.stepCalls.some(tc => !isStepCallSettled(tc, this.steps?.get(tc.name)));
+    return this.toolCalls.some(tc => !isStepCallSettled(tc, this.tools?.get(tc.name)));
   }
 
   get #summaryLabel(): TemplateResult {
     if (this.#isRunning) {
       return html`<span>Running steps...</span>`;
     }
-    const stepLabels = this.stepCalls.map((stepCall, index) => {
-      const displayName = this.steps?.get(stepCall.name)?.displayName ?? stepCall.name;
-      const separator = index === 0 ? ', ' : ' '
-      return html`<span>${displayName} <code>${stepCall.args.name} ${stepCall.args.type}</code></span>${separator}`;
+    const stepLabels = this.toolCalls.map(toolCall => {
+      const displayName = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
+      return html`<span>${displayName}</span>`;
     });
     const visibleLabels = stepLabels.slice(0, 2);
     const remaining = stepLabels.length - visibleLabels.length;
-    return remaining > 0 ? html`${visibleLabels} +${remaining} more` : html`${visibleLabels.join(', ')}`;
+    return remaining > 0 ? html`${visibleLabels} +${remaining} more` : html`${visibleLabels}`;
   }
 
   #toggle(): void {
@@ -127,10 +124,10 @@ export class AiStepsComponent extends LitElement {
   }
 
   #renderCard(toolCall: ToolCall): TemplateResult {
-    const displayName = this.steps?.get(toolCall.name)?.displayName ?? toolCall.name;
+    const displayName = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
     return html`
       <div class="step-card">
-        <span class="step-card-title">${displayName} <code>${toolCall.args.name} ${toolCall.args.type}</code></span>
+        <span class="step-card-title">${displayName}</span>
         <div class="step-card-body">
           <div class="step-card-result">${this.#formatValue(toolCall.result)}</div>
         </div>
@@ -147,7 +144,7 @@ export class AiStepsComponent extends LitElement {
       `;
     }
 
-    const definition = this.steps?.get(toolCall.name);
+    const definition = this.tools?.get(toolCall.name);
     const name = definition?.displayName ?? toolCall.name;
 
     return html`
@@ -165,7 +162,7 @@ export class AiStepsComponent extends LitElement {
   get #timeline(): TemplateResult {
     return html`
       <div class="timeline ${this._expanded ? 'expanded' : ''}">
-        <div class="timeline-content">${this.stepCalls.map(tc => this.#renderRow(tc))}</div>
+        <div class="timeline-content">${this.toolCalls.map(tc => this.#renderRow(tc))}</div>
       </div>
     `;
   }
@@ -173,7 +170,7 @@ export class AiStepsComponent extends LitElement {
   public override render(): TemplateResult | typeof nothing {
     return html`
       <div class="steps">
-        <div class="steps-count">${this.steps?.size || 0} STEPS</div>
+        <div class="steps-count">${this.#count} STEPS</div>
         <button class="summary" type="button" aria-expanded=${this._expanded} @click=${this.#toggle}>
           ${this.#chevronIcon}
           <span class="status-text">${this.#summaryLabel}</span>
