@@ -70,17 +70,18 @@ export class AiStepsComponent extends LitElement {
     return this.stepCalls.some(tc => !isStepCallSettled(tc, this.steps?.get(tc.name)));
   }
 
-  get #summaryLabel(): string {
+  get #summaryLabel(): TemplateResult {
     if (this.#isRunning) {
-      return 'Running steps...';
+      return html`<span>Running steps...</span>`;
     }
-    const stepLabels = this.stepCalls.map(stepCall => {
+    const stepLabels = this.stepCalls.map((stepCall, index) => {
       const displayName = this.steps?.get(stepCall.name)?.displayName ?? stepCall.name;
-      return `${displayName} ${stepCall.args.name} ${stepCall.args.type}`;
+      const separator = index === 0 ? ', ' : ' '
+      return html`<span>${displayName} <code>${stepCall.args.name} ${stepCall.args.type}</code></span>${separator}`;
     });
     const visibleLabels = stepLabels.slice(0, 2);
     const remaining = stepLabels.length - visibleLabels.length;
-    return remaining > 0 ? `${visibleLabels.join(', ')} +${remaining} more` : visibleLabels.join(', ');
+    return remaining > 0 ? html`${visibleLabels} +${remaining} more` : html`${visibleLabels.join(', ')}`;
   }
 
   #toggle(): void {

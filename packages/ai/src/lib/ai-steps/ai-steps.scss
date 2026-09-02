@@ -42,6 +42,13 @@ $marker-size: 20px;
     color: #{forge-theme.variable(text-medium)};
     font-weight: 700;
   }
+
+  code {
+    background: #e0e0e0;
+    border-radius: 4px;
+    padding: 4px;
+    margin-right: 4px;
+  }
 }
 
 .timeline {
@@ -131,11 +138,6 @@ $marker-size: 20px;
   &-title {
     font-weight: 700;
     font-size: 14px;
-    code {
-      background: #e0e0e0;
-      border-radius: 4px;
-      padding: 4px;
-    }
   }
 
   &-result {
