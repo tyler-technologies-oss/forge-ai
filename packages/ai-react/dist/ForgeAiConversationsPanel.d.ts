@@ -19,16 +19,16 @@ export interface ForgeAiConversationsPanelProps extends Pick<
   | "onBlur"
 > {
   /** undefined */
-  showConversationRename?: boolean;
+  showThreadRename?: boolean;
 
   /** undefined */
-  showConversationDelete?: boolean;
+  showThreadDelete?: boolean;
 
   /** undefined */
   loading?: boolean;
 
   /** undefined */
-  recentThreads?: ForgeAiConversationsPanelElement["recentThreads"];
+  threads?: ForgeAiConversationsPanelElement["threads"];
 
   /** Total number of threads available. When set to a positive number and fewer threads
 are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to disable

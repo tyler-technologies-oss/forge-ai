@@ -38,9 +38,21 @@ const meta = {
       control: { type: 'number' },
       description: 'Total number of chats available for pagination. Set to 0 to disable infinite scroll.'
     },
-    showNewChat: {
+    headerTitle: {
+      control: 'text',
+      description: 'Title text shown in the header'
+    },
+    showNewChatButton: {
       control: 'boolean',
       description: 'Show "New chat" button in header'
+    },
+    showBackButton: {
+      control: 'boolean',
+      description: 'Show a back button before the header title'
+    },
+    showSearch: {
+      control: 'boolean',
+      description: 'Show the search field'
     },
     showThreadRename: {
       control: 'boolean',
@@ -62,7 +74,10 @@ const meta = {
   args: {
     threads: generateThreads(10),
     totalChats: 0,
-    showNewChat: true,
+    headerTitle: 'All chats',
+    showNewChatButton: true,
+    showBackButton: false,
+    showSearch: true,
     placeholder: 'Search conversations...',
     emptyMessage: 'No conversations found'
   },
@@ -72,7 +87,10 @@ const meta = {
         <forge-ai-threads-search
           .threads=${args.threads}
           total-chats=${args.totalChats}
-          ?show-new-chat=${args.showNewChat}
+          header-title=${args.headerTitle}
+          .showNewChatButton=${args.showNewChatButton}
+          ?show-back-button=${args.showBackButton}
+          .showSearch=${args.showSearch}
           ?show-thread-rename=${args.showThreadRename}
           ?show-thread-delete=${args.showThreadDelete}
           placeholder=${args.placeholder}
@@ -87,7 +105,8 @@ const meta = {
           @forge-ai-threads-search-select=${action('forge-ai-threads-search-select')}
           @forge-ai-threads-search-new-chat=${action('forge-ai-threads-search-new-chat')}
           @forge-ai-threads-search-rename=${action('forge-ai-threads-search-rename')}
-          @forge-ai-threads-search-delete=${action('forge-ai-threads-search-delete')}>
+          @forge-ai-threads-search-delete=${action('forge-ai-threads-search-delete')}
+          @forge-ai-threads-search-back=${action('forge-ai-threads-search-back')}>
         </forge-ai-threads-search>
       </div>
     `;
@@ -103,14 +122,14 @@ export const Demo: Story = {};
 export const WithLocalSearch: Story = {
   args: {
     threads: generateThreads(30),
-    showNewChat: true
+    showNewChatButton: true
   }
 };
 
 export const WithAsyncSearch: Story = {
   args: {
     threads: [],
-    showNewChat: true
+    showNewChatButton: true
   },
   render: (args: any) => {
     const allThreads = generateThreads(50);
@@ -131,7 +150,7 @@ export const WithAsyncSearch: Story = {
       <div style="height: 600px; border: 1px solid var(--forge-theme-outline);">
         <forge-ai-threads-search
           .threads=${args.threads}
-          ?show-new-chat=${args.showNewChat}
+          .showNewChatButton=${args.showNewChatButton}
           @forge-ai-threads-search-query=${handleSearch}
           @forge-ai-threads-search-load-more=${action('forge-ai-threads-search-load-more')}
           @forge-ai-threads-search-select=${action('forge-ai-threads-search-select')}
@@ -145,7 +164,7 @@ export const WithAsyncSearch: Story = {
 export const WithInfiniteScroll: Story = {
   args: {
     threads: generateThreads(20),
-    showNewChat: true
+    showNewChatButton: true
   },
   render: (args: any) => {
     const allThreads = generateThreads(120);
@@ -184,7 +203,7 @@ export const WithInfiniteScroll: Story = {
         <forge-ai-threads-search
           .threads=${args.threads}
           total-chats=${120}
-          ?show-new-chat=${args.showNewChat}
+          .showNewChatButton=${args.showNewChatButton}
           @forge-ai-threads-search-query=${handleSearch}
           @forge-ai-threads-search-load-more=${handleLoadMore}
           @forge-ai-threads-search-select=${action('forge-ai-threads-search-select')}
@@ -195,10 +214,20 @@ export const WithInfiniteScroll: Story = {
   }
 };
 
+export const WithCustomHeader: Story = {
+  args: {
+    threads: generateThreads(3),
+    headerTitle: 'Chat history',
+    showNewChatButton: false,
+    showBackButton: true,
+    showSearch: false
+  }
+};
+
 export const EmptyState: Story = {
   args: {
     threads: [],
-    showNewChat: true,
+    showNewChatButton: true,
     emptyMessage: 'No chats available, start a new conversation!'
   }
 };
@@ -206,14 +235,14 @@ export const EmptyState: Story = {
 export const WithoutNewChatButton: Story = {
   args: {
     threads: generateThreads(10),
-    showNewChat: false
+    showNewChatButton: false
   }
 };
 
 export const InThreadsContext: Story = {
   args: {
     threads: generateThreads(10),
-    showNewChat: true
+    showNewChatButton: true
   },
   render: (args: any) => {
     return html`
@@ -225,7 +254,7 @@ export const InThreadsContext: Story = {
           @forge-ai-threads-clear-history=${action('forge-ai-threads-clear-history')}>
           <forge-ai-threads-search
             .threads=${args.threads}
-            ?show-new-chat=${args.showNewChat}
+            .showNewChatButton=${args.showNewChatButton}
             @forge-ai-threads-search-query=${action('forge-ai-threads-search-query')}
             @forge-ai-threads-search-load-more=${action('forge-ai-threads-search-load-more')}
             @forge-ai-threads-search-select=${action('forge-ai-threads-search-select')}
@@ -240,7 +269,7 @@ export const InThreadsContext: Story = {
 export const WithRenameAndDelete: Story = {
   args: {
     threads: generateThreads(10),
-    showNewChat: true,
+    showNewChatButton: true,
     showThreadRename: true,
     showThreadDelete: true
   }
@@ -249,7 +278,7 @@ export const WithRenameAndDelete: Story = {
 export const WithRenameOnly: Story = {
   args: {
     threads: generateThreads(10),
-    showNewChat: true,
+    showNewChatButton: true,
     showThreadRename: true,
     showThreadDelete: false
   }
@@ -258,7 +287,7 @@ export const WithRenameOnly: Story = {
 export const WithDeleteOnly: Story = {
   args: {
     threads: generateThreads(10),
-    showNewChat: true,
+    showNewChatButton: true,
     showThreadRename: false,
     showThreadDelete: true
   }

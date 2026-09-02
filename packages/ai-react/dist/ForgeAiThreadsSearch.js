@@ -5,12 +5,17 @@ import { useEventListener } from "./react-utils.js";
 export const ForgeAiThreadsSearch = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
   const {
+    showNewChatButton,
+    showBackButton,
+    showSearch,
     showThreadRename,
     showThreadDelete,
     threads,
+    headerTitle,
     totalChats,
     placeholder,
     emptyMessage,
+    selectedThreadId,
     ...filteredProps
   } = props;
 
@@ -45,6 +50,16 @@ export const ForgeAiThreadsSearch = forwardRef((props, forwardedRef) => {
     "forge-ai-threads-search-delete",
     props.onForgeAiThreadsSearchDelete,
   );
+  useEventListener(
+    ref,
+    "forge-ai-threads-search-delete-confirm",
+    props.onForgeAiThreadsSearchDeleteConfirm,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-threads-search-back",
+    props.onForgeAiThreadsSearchBack,
+  );
 
   return React.createElement(
     "forge-ai-threads-search",
@@ -59,14 +74,20 @@ export const ForgeAiThreadsSearch = forwardRef((props, forwardedRef) => {
       },
       ...filteredProps,
       threads: props.threads,
+      "header-title": props.headerTitle || props["header-title"],
       "total-chats": props.totalChats || props["total-chats"],
       placeholder: props.placeholder,
       "empty-message": props.emptyMessage || props["empty-message"],
+      "selected-thread-id":
+        props.selectedThreadId || props["selected-thread-id"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
+      "show-new-chat-button": props.showNewChatButton ? true : undefined,
+      "show-back-button": props.showBackButton ? true : undefined,
+      "show-search": props.showSearch ? true : undefined,
       "show-thread-rename": props.showThreadRename ? true : undefined,
       "show-thread-delete": props.showThreadDelete ? true : undefined,
       style: { ...props.style },

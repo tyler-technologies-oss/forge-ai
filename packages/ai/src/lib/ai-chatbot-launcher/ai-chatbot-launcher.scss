@@ -5,6 +5,7 @@
 @use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 @use '@tylertech/forge/sass/core/styles/scrollbar' as forge-scrollbar;
 @use '@tylertech/forge/dist/icon/forge-icon';
+@use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/button/forge-button';
 
 $_max-content-width: 768px;
@@ -112,6 +113,39 @@ $_max-content-width: 768px;
   animation: fade-in #{forge-animation.variable(duration-medium2)} #{forge-animation.variable(easing-decelerate)};
 }
 
+.ai-icon-button,
+.ai-icon-button > svg {
+  fill: #{forge-theme.variable(text-medium)};
+}
+
+.history {
+  display: none;
+  flex-direction: column;
+}
+
+.history-popover {
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  min-height: 200px;
+  max-height: min(400px, var(--ai-overlay-available-height, 400px));
+
+  forge-ai-threads-search {
+    display: grid;
+    flex: 1;
+    min-height: 0;
+  }
+
+  &__view-all {
+    flex-shrink: 0;
+    color: var(--forge-theme-text-medium);
+    font-size: 0.75rem;
+    margin-inline-end: calc(#{forge-spacing.variable(xsmall)} * -1);
+    --forge-icon-font-size: 0.75rem;
+    --forge-focus-indicator-outward-offset: 0px;
+  }
+}
+
 .thread-name {
   margin-inline-start: -8px;
   display: flex;
@@ -209,6 +243,10 @@ $_max-content-width: 768px;
     display: none;
   }
 
+  .history {
+    display: none;
+  }
+
   .prompt-section {
     max-inline-size: #{$_max-content-width};
     width: 100%;
@@ -233,6 +271,10 @@ $_max-content-width: 768px;
     display: flex;
   }
 
+  .history {
+    display: none;
+  }
+
   .prompt-section {
     padding: #{forge-spacing.variable(medium)} #{forge-spacing.variable(medium)} #{forge-spacing.variable(xsmall)};
     max-inline-size: #{$_max-content-width};
@@ -253,9 +295,31 @@ $_max-content-width: 768px;
   }
 }
 
+:host(:state(history)) {
+  .welcome {
+    display: none;
+  }
+
+  .conversation {
+    display: none;
+  }
+
+  .history {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    animation: fade-in #{forge-animation.variable(duration-medium2)} #{forge-animation.variable(easing-decelerate)};
+  }
+
+  .prompt-section {
+    display: none;
+  }
+}
+
 .launcher.skip-animation {
   .welcome,
   .conversation forge-ai-message-thread,
+  .history,
   .prompt-section {
     animation: none;
   }

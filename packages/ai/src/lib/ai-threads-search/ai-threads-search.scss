@@ -19,11 +19,11 @@ $_max-content-width: 768px;
 }
 
 .threads-search-container {
-  display: grid;
-  grid-template-rows: auto auto 1fr;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 0;
-  padding: #{forge-spacing.variable(medium)};
+  padding-block-start: #{forge-spacing.variable(small)};
   background-color: #{forge-theme.variable(surface)};
   box-sizing: border-box;
 }
@@ -33,7 +33,26 @@ $_max-content-width: 768px;
   justify-content: space-between;
   align-items: center;
   gap: #{forge-spacing.variable(small)};
+  padding-inline: #{forge-spacing.variable(medium)};
   margin-block-end: #{forge-spacing.variable(small)};
+}
+
+.header-end {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
+  flex-shrink: 0;
+}
+
+.header-start {
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xxsmall)};
+  min-width: 0;
+}
+
+.back-button {
+  flex-shrink: 0;
 }
 
 .header-title {
@@ -42,7 +61,7 @@ $_max-content-width: 768px;
   gap: #{forge-spacing.variable(xxsmall)};
 
   .title {
-    @include forge-typography.style(heading4);
+    @include forge-typography.style(heading1);
     margin: 0;
   }
 }
@@ -53,6 +72,7 @@ $_max-content-width: 768px;
 
 .search-field {
   position: relative;
+  margin-inline: #{forge-spacing.variable(medium)};
   margin-block-end: #{forge-spacing.variable(small)};
   padding-inline: 8px;
 
@@ -67,11 +87,12 @@ $_max-content-width: 768px;
 
 .results-container {
   @include forge-scrollbar.base;
+  flex: 1;
   overflow-y: auto;
   min-height: 0;
 
   .forge-list-item {
-    margin: 0 #{forge-spacing.variable(xxsmall)};
+    margin: 0 #{forge-spacing.variable(xsmall)};
     font-weight: normal;
   }
 
@@ -103,16 +124,29 @@ $_max-content-width: 768px;
   }
 
   .thread-item-actions {
-    display: flex;
+    display: none;
     align-items: center;
     gap: #{forge-spacing.variable(xxsmall)};
     flex-shrink: 0;
+  }
+
+  &:hover:has(.thread-item-actions),
+  &:focus-within:has(.thread-item-actions),
+  &.forge-list-item--menu-open {
+    .thread-time {
+      display: none;
+    }
+
+    .thread-item-actions {
+      display: flex;
+    }
   }
 }
 
 .empty-state {
   display: flex;
   color: #{forge-theme.variable(text-medium)};
+  padding-inline: #{forge-spacing.variable(medium)};
   margin-block-start: #{forge-spacing.variable(xsmall)};
 
   p {

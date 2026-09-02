@@ -152,7 +152,7 @@
     min-width: 0;
   }
 
-  .conversation-item-actions {
+  .thread-item-actions {
     display: none;
     align-items: center;
     gap: #{forge-spacing.variable(xxsmall)};
@@ -161,7 +161,7 @@
   &:hover,
   &:focus-within,
   &.forge-list-item--menu-open {
-    .conversation-item-actions {
+    .thread-item-actions {
       display: flex;
     }
   }

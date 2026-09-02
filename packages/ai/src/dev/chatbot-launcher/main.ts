@@ -177,6 +177,18 @@ launcher.addEventListener('forge-ai-chatbot-clear', evt => {
   landingContent.classList.remove('content-hidden');
   mainEl.classList.remove('conversation-active');
 });
+launcher.addEventListener('forge-ai-chatbot-launcher-history-open', evt => {
+  logEvent(evt);
+  landingContent.classList.add('content-hidden');
+  mainEl.classList.add('conversation-active');
+});
+launcher.addEventListener('forge-ai-chatbot-launcher-history-close', evt => {
+  logEvent(evt);
+  if (launcher.viewState === 'welcome') {
+    landingContent.classList.remove('content-hidden');
+    mainEl.classList.remove('conversation-active');
+  }
+});
 launcher.addEventListener('forge-ai-chatbot-launcher-thread-state-change', logEvent);
 launcher.addEventListener('forge-ai-chatbot-launcher-info', logEvent);
 launcher.addEventListener('forge-ai-chatbot-launcher-agent-change', logEvent);
