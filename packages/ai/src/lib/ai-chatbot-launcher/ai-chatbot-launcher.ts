@@ -81,6 +81,8 @@ declare global {
 
   interface HTMLElementEventMap {
     'forge-ai-chatbot-launcher-conversation-start': CustomEvent<void>;
+    'forge-ai-chatbot-launcher-history-open': CustomEvent<void>;
+    'forge-ai-chatbot-launcher-history-close': CustomEvent<void>;
     'forge-ai-chatbot-launcher-thread-rename': CustomEvent<ForgeAiChatbotLauncherThreadRenameEventData>;
     'forge-ai-chatbot-launcher-thread-delete': CustomEvent<ForgeAiChatbotLauncherThreadDeleteEventData>;
     'forge-ai-chatbot-launcher-thread-select': CustomEvent<ForgeAiChatbotLauncherThreadSelectEventData>;
@@ -130,6 +132,8 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @event {CustomEvent<ForgeAiChatbotToolCallEventData>} forge-ai-chatbot-tool-call - Fired when a tool needs to be executed
  * @event {CustomEvent<ForgeAiChatbotErrorEventData>} forge-ai-chatbot-error - Fired when an error occurs
  * @event {CustomEvent<void>} forge-ai-chatbot-launcher-conversation-start - Fired when transitioning from welcome to conversation view
+ * @event {CustomEvent<void>} forge-ai-chatbot-launcher-history-open - Fired when transitioning to the full-height history view
+ * @event {CustomEvent<void>} forge-ai-chatbot-launcher-history-close - Fired when leaving the full-height history view
  * @event {CustomEvent<ForgeAiChatbotResponseFeedbackEventData>} forge-ai-chatbot-response-feedback - Fired when user provides feedback on a response
  * @event {CustomEvent<void>} forge-ai-chatbot-info - Fired when header info option is selected
  * @event {CustomEvent<ForgeAiChatbotAgentChangeEventData>} forge-ai-chatbot-agent-change - Fired when agent selection changes
@@ -239,9 +243,16 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     if (this._viewState === next) {
       return;
     }
-    toggleState(this.#internals, this._viewState, false);
+    const previous = this._viewState;
+    toggleState(this.#internals, previous, false);
     toggleState(this.#internals, next, true);
     this._viewState = next;
+
+    if (next === 'history') {
+      this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-history-open' });
+    } else if (previous === 'history') {
+      this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-history-close' });
+    }
   }
 
   #transitionToConversation(): void {

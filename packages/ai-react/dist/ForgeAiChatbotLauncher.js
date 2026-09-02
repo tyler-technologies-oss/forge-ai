@@ -61,6 +61,16 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
+    "forge-ai-chatbot-launcher-history-open",
+    props.onForgeAiChatbotLauncherHistoryOpen,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-history-close",
+    props.onForgeAiChatbotLauncherHistoryClose,
+  );
+  useEventListener(
+    ref,
     "forge-ai-chatbot-response-feedback",
     props.onForgeAiChatbotResponseFeedback,
   );

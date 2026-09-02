@@ -139,6 +139,16 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
     event: CustomEvent<CustomEvent<void>>,
   ) => void;
 
+  /** Fired when transitioning to the full-height history view */
+  onForgeAiChatbotLauncherHistoryOpen?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
+  /** Fired when leaving the full-height history view */
+  onForgeAiChatbotLauncherHistoryClose?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
   /** Fired when user provides feedback on a response */
   onForgeAiChatbotResponseFeedback?: (
     event: CustomEvent<CustomEvent<ForgeAiChatbotResponseFeedbackEventData>>,
@@ -205,6 +215,8 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
  * - **forge-ai-chatbot-tool-call** - Fired when a tool needs to be executed
  * - **forge-ai-chatbot-error** - Fired when an error occurs
  * - **forge-ai-chatbot-launcher-conversation-start** - Fired when transitioning from welcome to conversation view
+ * - **forge-ai-chatbot-launcher-history-open** - Fired when transitioning to the full-height history view
+ * - **forge-ai-chatbot-launcher-history-close** - Fired when leaving the full-height history view
  * - **forge-ai-chatbot-response-feedback** - Fired when user provides feedback on a response
  * - **forge-ai-chatbot-info** - Fired when header info option is selected
  * - **forge-ai-chatbot-agent-change** - Fired when agent selection changes
