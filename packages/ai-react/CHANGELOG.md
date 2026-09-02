@@ -1,5 +1,25 @@
 # @tylertech/forge-ai-react
 
+## 0.14.0
+
+### Minor Changes
+
+- 8834b49: feat(launcher): add support for chat history
+  
+  BREAKING: renamed thread-list API on `forge-ai-chatbot`/`forge-ai-conversations-panel` to match `forge-ai-chatbot-launcher`/`forge-ai-threads-search` vocabulary:
+  - `recentThreads` -> `threads`
+  - `showConversationRename`/`show-conversation-rename` -> `showThreadRename`/`show-thread-rename`
+  - `showConversationDelete`/`show-conversation-delete` -> `showThreadDelete`/`show-thread-delete`
+  - events `forge-ai-chatbot-conversation-{select,search,load-more,rename,delete}` -> `forge-ai-chatbot-thread-{select,search,load-more,rename,delete}`
+  - types `ForgeAiChatbotConversation*EventData` -> `ForgeAiChatbotThread*EventData`
+  
+  `conversationsOpen`/`showConversations()`/`hideConversations()`/`toggleConversations()` are unchanged - they refer to the panel itself, not thread data.
+
+### Patch Changes
+
+- Updated dependencies [8834b49]
+  - @tylertech/forge-ai@0.14.0
+
 ## 0.13.8
 
 ### Patch Changes
