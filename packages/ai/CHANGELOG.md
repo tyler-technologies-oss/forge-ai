@@ -1,5 +1,12 @@
 # @tylertech/forge-ai
 
+## 0.14.1
+
+### Patch Changes
+
+- 9f4bf82: fix(chatbot): stop sending stream event logs in request body
+- 4515491: fix: normalize icon button density to medium across chat header
+
 ## 0.14.0
 
 ### Minor Changes
