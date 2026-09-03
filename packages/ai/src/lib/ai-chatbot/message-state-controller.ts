@@ -4,20 +4,11 @@ import type {
   ClientMessageInput,
   MessageItem,
   ToolCall,
-  StreamEvent,
   AssistantResponse,
   ResponseItem,
   ResponseFeedback
 } from './types.js';
-import type {
-  MessageStartEvent,
-  MessageDeltaEvent,
-  MessageEndEvent,
-  ToolCallStartEvent,
-  ToolCallArgsEvent,
-  ToolCallEndEvent,
-  ToolResultEvent
-} from './agent-adapter.js';
+import type { ToolResultEvent } from './agent-adapter.js';
 import { generateId } from './utils.js';
 
 export interface MessageStateControllerConfig {
@@ -105,7 +96,7 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
-  public addTextToResponse(messageId: string, content: string, event?: MessageStartEvent): void {
+  public addTextToResponse(messageId: string, content: string): void {
     const response = this._activeResponse ?? this.startResponse();
     response.isThinking = false;
 
@@ -117,20 +108,11 @@ export class MessageStateController implements ReactiveController {
       response.children.push({ type: 'text', messageId, content, status: 'streaming' });
     }
 
-    if (event) {
-      this.#appendEventToResponse({
-        type: 'message-start',
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      });
-    }
-
     this.#updateResponseInItems();
     this.#notifyStateChange();
   }
 
-  public appendTextDelta(messageId: string, delta: string, event?: MessageDeltaEvent): void {
+  public appendTextDelta(messageId: string, delta: string): void {
     const response = this._activeResponse ?? this.startResponse();
     response.isThinking = false;
 
@@ -141,20 +123,11 @@ export class MessageStateController implements ReactiveController {
       response.children.push({ type: 'text', messageId, content: delta, status: 'streaming' });
     }
 
-    if (event) {
-      this.#appendEventToResponse({
-        type: 'message-delta',
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      });
-    }
-
     this.#updateResponseInItems();
     this.#notifyStateChange();
   }
 
-  public markTextComplete(messageId: string, event?: MessageEndEvent): void {
+  public markTextComplete(messageId: string): void {
     if (!this._activeResponse) {
       return;
     }
@@ -167,20 +140,11 @@ export class MessageStateController implements ReactiveController {
       textChild.status = 'complete';
     }
 
-    if (event) {
-      this.#appendEventToResponse({
-        type: 'message-end',
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      });
-    }
-
     this.#updateResponseInItems();
     this.#notifyStateChange();
   }
 
-  public addToolCallToResponse(toolCall: ToolCall, event?: ToolCallStartEvent): void {
+  public addToolCallToResponse(toolCall: ToolCall): void {
     const response = this._activeResponse ?? this.startResponse();
     response.isThinking = false;
 
@@ -188,29 +152,11 @@ export class MessageStateController implements ReactiveController {
     this._toolCalls.set(toolCall.id, toolCallWithTimestamp);
     response.children.push({ type: 'toolCall', data: toolCallWithTimestamp });
 
-    if (event) {
-      const streamEvent = {
-        type: 'tool-call-start' as const,
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      };
-      this.#appendEventToResponse(streamEvent);
-      this.#appendEventToToolCallInResponse(toolCall.id, streamEvent);
-    }
-
     this.#updateResponseInItems();
     this.#notifyStateChange();
   }
 
-  public updateToolCallInResponse(
-    toolCallId: string,
-    updates: Partial<ToolCall>,
-    eventData?: {
-      eventType: 'tool-call-args' | 'tool-call-end';
-      event: ToolCallArgsEvent | ToolCallEndEvent;
-    }
-  ): void {
+  public updateToolCallInResponse(toolCallId: string, updates: Partial<ToolCall>): void {
     const toolCall = this._toolCalls.get(toolCallId);
     if (!toolCall) {
       return;
@@ -233,30 +179,6 @@ export class MessageStateController implements ReactiveController {
       }
     }
 
-    if (eventData) {
-      if (eventData.eventType === 'tool-call-args') {
-        const argsEvent = eventData.event as ToolCallArgsEvent;
-        const streamEvent = {
-          type: 'tool-call-args' as const,
-          timestamp: Date.now(),
-          data: argsEvent,
-          rawEvent: argsEvent.rawEvent
-        };
-        this.#appendEventToResponse(streamEvent);
-        this.#appendEventToToolCallInResponse(toolCallId, streamEvent);
-      } else {
-        const endEvent = eventData.event as ToolCallEndEvent;
-        const streamEvent = {
-          type: 'tool-call-end' as const,
-          timestamp: Date.now(),
-          data: endEvent,
-          rawEvent: endEvent.rawEvent
-        };
-        this.#appendEventToResponse(streamEvent);
-        this.#appendEventToToolCallInResponse(toolCallId, streamEvent);
-      }
-    }
-
     this.#updateResponseInItems();
     this.#notifyStateChange();
   }
@@ -266,17 +188,6 @@ export class MessageStateController implements ReactiveController {
       result,
       status: event?.isError === true ? 'error' : 'complete'
     });
-
-    if (event) {
-      const streamEvent = {
-        type: 'tool-result' as const,
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      };
-      this.#appendEventToResponse(streamEvent);
-      this.#appendEventToToolCallInResponse(toolCallId, streamEvent);
-    }
   }
 
   public tryFinalizeResponse(): void {
@@ -305,34 +216,6 @@ export class MessageStateController implements ReactiveController {
     });
   }
 
-  #appendEventToResponse(event: StreamEvent): void {
-    if (!this._activeResponse) {
-      return;
-    }
-
-    this._activeResponse.eventStream = [...(this._activeResponse.eventStream || []), event];
-  }
-
-  #appendEventToToolCallInResponse(toolCallId: string, event: StreamEvent): void {
-    const toolCall = this._toolCalls.get(toolCallId);
-    if (!toolCall) {
-      return;
-    }
-
-    const eventStream = [...(toolCall.eventStream || []), event];
-    const updated = { ...toolCall, eventStream };
-    this._toolCalls.set(toolCallId, updated);
-
-    if (this._activeResponse) {
-      for (const child of this._activeResponse.children) {
-        if (child.type === 'toolCall' && child.data.id === toolCallId) {
-          child.data = updated;
-          break;
-        }
-      }
-    }
-  }
-
   #notifyStateChange(): void {
     this._host.requestUpdate();
   }
@@ -342,7 +225,7 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
-  public addMessage(message: ChatMessage, event?: MessageStartEvent): void {
+  public addMessage(message: ChatMessage): void {
     this.tryFinalizeResponse();
 
     const existing = this.getMessage(message.id);
@@ -350,15 +233,6 @@ export class MessageStateController implements ReactiveController {
       return;
     }
     this.addMessageItem({ type: 'message', data: message });
-
-    if (event) {
-      this.#appendEventToMessage(message.id, {
-        type: 'message-start',
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      });
-    }
 
     if (message.status === 'complete' || message.status === 'error') {
       this._config.onThreadSettled?.();
@@ -407,22 +281,13 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
-  public updateMessageStatus(id: string, status: ChatMessage['status'], event?: MessageEndEvent): void {
+  public updateMessageStatus(id: string, status: ChatMessage['status']): void {
     this._messageItems = this._messageItems.map(item => {
       if (item.type === 'message' && item.data.id === id) {
         return { ...item, data: { ...item.data, status } };
       }
       return item;
     });
-
-    if (event) {
-      this.#appendEventToMessage(id, {
-        type: 'message-end',
-        timestamp: Date.now(),
-        data: event,
-        rawEvent: event.rawEvent
-      });
-    }
 
     this.#notifyStateChange();
 
@@ -488,7 +353,6 @@ export class MessageStateController implements ReactiveController {
           timestamp: response.timestamp,
           status: response.status === 'streaming' ? 'streaming' : response.status === 'error' ? 'error' : 'complete',
           toolCalls: toolCalls.length ? toolCalls : undefined,
-          eventStream: response.eventStream,
           feedback: response.feedback,
           children: response.children
         };
@@ -539,7 +403,6 @@ export class MessageStateController implements ReactiveController {
           children,
           status: msg.status === 'streaming' ? 'streaming' : 'complete',
           timestamp: msg.timestamp,
-          eventStream: msg.eventStream,
           feedback: msg.feedback
         };
 
@@ -559,21 +422,5 @@ export class MessageStateController implements ReactiveController {
       item.data.feedback = feedback;
       this.#notifyStateChange();
     }
-  }
-
-  #appendEventToMessage(id: string, event: StreamEvent): void {
-    const messageExists = this._messageItems.some(item => item.type === 'message' && item.data.id === id);
-    if (!messageExists) {
-      return;
-    }
-
-    this._messageItems = this._messageItems.map(item => {
-      if (item.type === 'message' && item.data.id === id) {
-        const eventStream = [...(item.data.eventStream || []), event];
-        return { ...item, data: { ...item.data, eventStream } };
-      }
-      return item;
-    });
-    this.#notifyStateChange();
   }
 }
