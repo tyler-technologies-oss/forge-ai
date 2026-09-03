@@ -1,4 +1,4 @@
-import { AgentAdapter, type ChatMessage, type ToolDefinition } from '../../lib/ai-chatbot';
+import { AgentAdapter, generateId, type ChatMessage, type ToolDefinition } from '../../lib/ai-chatbot';
 
 export interface MastraStreamAdapterConfig {
   url: string;
@@ -63,7 +63,7 @@ export class MastraStreamAdapter extends AgentAdapter {
     this.#url = config.url;
     this.#headers = config.headers ?? {};
     this.#context = config.context ?? {};
-    this.#threadId = threadId ?? crypto.randomUUID();
+    this.#threadId = threadId ?? generateId();
     if (config.tools) {
       this.setTools(config.tools);
     }
@@ -118,7 +118,7 @@ export class MastraStreamAdapter extends AgentAdapter {
 
   public sendToolResult(toolCallId: string, result: unknown, messages: ChatMessage[]): void {
     const toolResultMessage: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       role: 'tool',
       content: typeof result === 'string' ? result : JSON.stringify(result),
       toolCallId,
@@ -130,7 +130,7 @@ export class MastraStreamAdapter extends AgentAdapter {
 
   async #streamRequest(messages: ChatMessage[]): Promise<void> {
     this.#abortController = new AbortController();
-    this.#currentMessageId = crypto.randomUUID();
+    this.#currentMessageId = generateId();
     this.#toolCallArgsBuffers.clear();
 
     this._updateState({ isRunning: true });
@@ -290,7 +290,7 @@ export class MastraStreamAdapter extends AgentAdapter {
             toolCallId: payload?.toolCallId ?? '',
             result: payload?.result,
             message: {
-              id: crypto.randomUUID(),
+              id: generateId(),
               role: 'tool',
               content: typeof payload?.result === 'string' ? payload.result : JSON.stringify(payload?.result ?? ''),
               toolCallId: payload?.toolCallId,
