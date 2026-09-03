@@ -155,16 +155,16 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   #handleMessageStart(event: MessageStartEvent): void {
-    this.#messageStateController.addTextToResponse(event.messageId, '', event);
+    this.#messageStateController.addTextToResponse(event.messageId, '');
   }
 
   #handleMessageDelta(event: MessageDeltaEvent): void {
-    this.#messageStateController.appendTextDelta(event.messageId, event.delta, event);
+    this.#messageStateController.appendTextDelta(event.messageId, event.delta);
     this.#callbacks.onScrollToBottom();
   }
 
   #handleMessageEnd(event: MessageEndEvent): void {
-    this.#messageStateController.markTextComplete(event.messageId, event);
+    this.#messageStateController.markTextComplete(event.messageId);
   }
 
   #handleStepStarted(_event: StepStartedAgentEvent): void {
@@ -203,7 +203,7 @@ export class ChatbotCoreController implements ReactiveController {
       type: this.tools.has(event.name) ? 'client' : 'agent'
     };
 
-    this.#messageStateController.addToolCallToResponse(toolCall, event);
+    this.#messageStateController.addToolCallToResponse(toolCall);
 
     const toolDef = this.tools.get(event.name);
     toolDef?.onStart?.({
@@ -217,8 +217,7 @@ export class ChatbotCoreController implements ReactiveController {
       argsBuffer: event.argsBuffer,
       args: event.partialArgs ?? {}
     };
-    const rawEvent = { eventType: 'tool-call-args', event } as const;
-    this.#messageStateController.updateToolCallInResponse(event.id, updates, rawEvent);
+    this.#messageStateController.updateToolCallInResponse(event.id, updates);
     this.#callbacks.onScrollToBottom();
 
     const toolDef = this.tools.get(event.name);
@@ -236,8 +235,7 @@ export class ChatbotCoreController implements ReactiveController {
       argsBuffer: undefined,
       status: 'executing'
     };
-    const rawEvent = { eventType: 'tool-call-end', event } as const;
-    this.#messageStateController.updateToolCallInResponse(event.id, updates, rawEvent);
+    this.#messageStateController.updateToolCallInResponse(event.id, updates);
 
     const toolDef = this.tools.get(event.name);
     toolDef?.onEnd?.({

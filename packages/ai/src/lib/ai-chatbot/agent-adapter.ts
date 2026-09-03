@@ -36,6 +36,7 @@ export interface ToolCallArgsEvent {
   id: string;
   messageId: string;
   name: string;
+  /** Args text accumulated so far across this tool call's delta events. */
   argsBuffer: string;
   partialArgs?: Record<string, unknown>;
   rawEvent?: unknown;

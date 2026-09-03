@@ -88,5 +88,13 @@ export { MessageStateController, type MessageStateControllerConfig } from './mes
 export { FileUploadManager, type FileUploadManagerConfig } from './file-upload-manager.js';
 export { MarkdownStreamController } from './markdown-stream-controller.js';
 
+// Request serialization
+export {
+  toRequestMessages,
+  toRequestToolCall,
+  type RequestMessage,
+  type RequestToolCall
+} from './request-serialization.js';
+
 // Utilities
 export { generateId, renderMarkdown, renderInlineMarkdown } from './utils.js';

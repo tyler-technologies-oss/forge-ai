@@ -1,4 +1,10 @@
-import { AgentAdapter, generateId, type ChatMessage, type ToolDefinition } from '../../lib/ai-chatbot';
+import {
+  AgentAdapter,
+  generateId,
+  toRequestMessages,
+  type ChatMessage,
+  type ToolDefinition
+} from '../../lib/ai-chatbot';
 
 export interface MastraStreamAdapterConfig {
   url: string;
@@ -108,8 +114,7 @@ export class MastraStreamAdapter extends AgentAdapter {
       throw new Error('Adapter not connected. Call connect() first.');
     }
 
-    const filteredMessages = this.#filterMessages(messages);
-    this.#streamRequest(filteredMessages).catch(err => {
+    this.#streamRequest(messages).catch(err => {
       console.error('[MastraStreamAdapter] sendMessage error:', err);
       this._emitError(err.message ?? 'Unknown error');
       this._updateState({ isRunning: false });
@@ -138,12 +143,7 @@ export class MastraStreamAdapter extends AgentAdapter {
     this._emitMessageStart(this.#currentMessageId);
 
     const body = JSON.stringify({
-      messages: messages.map(m => ({
-        role: m.role,
-        content: m.content,
-        ...(m.toolCallId ? { toolCallId: m.toolCallId } : {}),
-        ...(m.toolCalls?.length ? { toolCalls: m.toolCalls } : {})
-      })),
+      messages: toRequestMessages(messages),
       threadId: this.#threadId,
       context: this.#context,
       ...(this.getTools().length ? { tools: this.getTools() } : {})
@@ -264,7 +264,7 @@ export class MastraStreamAdapter extends AgentAdapter {
             id: toolCallId,
             messageId: this.#currentMessageId,
             name: payload?.toolName ?? '',
-            argsBuffer
+            argsBuffer,
           },
           chunk
         );
@@ -353,16 +353,5 @@ export class MastraStreamAdapter extends AgentAdapter {
     } catch {
       return {};
     }
-  }
-
-  #filterMessages(messages: ChatMessage[]): ChatMessage[] {
-    return messages
-      .filter(msg => !msg.clientOnly)
-      .filter(msg => {
-        if (msg.role === 'assistant') {
-          return msg.content.trim().length > 0 || (msg.toolCalls && msg.toolCalls.length > 0);
-        }
-        return true;
-      });
   }
 }
