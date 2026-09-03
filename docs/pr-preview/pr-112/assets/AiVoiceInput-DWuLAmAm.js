@@ -1,0 +1,6 @@
+import{j as o,M as e,T as m,C as p}from"./blocks-2xU0dCkE.js";import{useMDXComponents as n}from"./index-B52_wQbQ.js";import{C as s}from"./CustomArgTypes-D35Tmwkl.js";import{A as c,D as a}from"./AiVoiceInput.stories-BReacfBP.js";import"./preload-helper-PPVm8Dsz.js";import"./_commonjsHelpers-CqkleIqs.js";import"./iframe-Bi-1nWkR.js";import"./utils-BX4gMDEK.js";import"./scaffold-DVpO2ry8.js";import"./class-map-DveZVzB6.js";import"./property-D-A3RxM9.js";import"./custom-element-UsVr97OX.js";import"./ref-CVnE5sLo.js";import"./floating-ui.dom-CHtvoTQ1.js";import"./split-button-C20Isq5H.js";import"./query-assigned-nodes-DDrXrDde.js";import"./if-defined-bUPqGoPe.js";import"./index-HoJl_Tw6.js";import"./ai-voice-input-2E_JNXdX.js";import"./tooltip-DIYC_qFg.js";import"./overlay-XfBHk16S.js";import"./when-CI7b_ccM.js";function r(t){const i={code:"code",h2:"h2",p:"p",...n(),...t.components};return o.jsxs(o.Fragment,{children:[o.jsx(e,{of:c}),`
+`,o.jsx(m,{}),`
+`,o.jsxs(i.p,{children:["The ",o.jsx(i.code,{children:"forge-ai-voice-input"})," component provides voice input functionality for AI interactions."]}),`
+`,o.jsx(p,{of:a}),`
+`,o.jsx(i.h2,{id:"api",children:"API"}),`
+`,o.jsx(s,{})]})}function P(t={}){const{wrapper:i}={...n(),...t.components};return i?o.jsx(i,{...t,children:o.jsx(r,{...t})}):r(t)}export{P as default};
