@@ -130,10 +130,10 @@ export const WithHeaderActions: Story = {
         @forge-ai-chat-header-minimize=${minimizeAction}
         @forge-ai-chat-header-clear=${clearChatAction}
         @forge-ai-chat-header-info=${infoAction}>
-        <forge-icon-button slot="header-actions" aria-label="History">
+        <forge-icon-button slot="header-actions" density="medium" aria-label="History">
           <forge-icon name="history"></forge-icon>
         </forge-icon-button>
-        <forge-icon-button slot="header-actions" aria-label="Settings">
+        <forge-icon-button slot="header-actions" density="medium" aria-label="Settings">
           <forge-icon name="settings"></forge-icon>
         </forge-icon-button>
       </forge-ai-chat-header>

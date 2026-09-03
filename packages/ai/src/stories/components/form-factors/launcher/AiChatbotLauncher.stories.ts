@@ -468,10 +468,10 @@ export const WithHeaderActions: Story = {
           ?enable-reactions=${args.enableReactions}
           .disclaimerText=${args.disclaimerText}
           @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
-          <forge-icon-button slot="header-actions" aria-label="History">
+          <forge-icon-button slot="header-actions" density="medium" aria-label="History">
             <forge-icon name="history"></forge-icon>
           </forge-icon-button>
-          <forge-icon-button slot="header-actions" aria-label="Settings">
+          <forge-icon-button slot="header-actions" density="medium" aria-label="Settings">
             <forge-icon name="settings"></forge-icon>
           </forge-icon-button>
         </forge-ai-chatbot-launcher>

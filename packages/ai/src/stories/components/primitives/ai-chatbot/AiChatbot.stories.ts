@@ -1283,10 +1283,10 @@ export const WithHeaderActions: Story = {
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}>
-          <forge-icon-button slot="header-actions" aria-label="History">
+          <forge-icon-button slot="header-actions" density="medium" aria-label="History">
             <forge-icon name="history"></forge-icon>
           </forge-icon-button>
-          <forge-icon-button slot="header-actions" aria-label="Settings">
+          <forge-icon-button slot="header-actions" density="medium" aria-label="Settings">
             <forge-icon name="settings"></forge-icon>
           </forge-icon-button>
           <span slot="empty-state-heading">How can I help you today?</span>
