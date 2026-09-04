@@ -12,7 +12,7 @@ const meta = {
   component,
   render: args => {
     return html`
-      <forge-ai-fab .disabled=${args.disabled} .extended=${args.extended} @click=${clickAction}>
+      <forge-ai-fab .disabled=${args.disabled} .extended=${args.extended} .label=${args.label} @click=${clickAction}>
         ${args.content}
       </forge-ai-fab>
     `;
@@ -29,12 +29,17 @@ const meta = {
     content: {
       control: 'text',
       description: 'The text content of the button'
+    },
+    label: {
+      control: 'text',
+      description: 'Accessible label for the button, announced by screen readers'
     }
   },
   args: {
     disabled: false,
     extended: false,
-    content: 'AI Assistant'
+    content: 'AI Assistant',
+    label: 'Launch chatbot'
   }
 } satisfies Meta;
 

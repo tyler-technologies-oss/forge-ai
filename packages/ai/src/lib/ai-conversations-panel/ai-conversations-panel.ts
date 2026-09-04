@@ -515,8 +515,9 @@ export class AiConversationsPanelComponent extends LitElement {
         <input
           type="text"
           id="search-input-search"
+          aria-label="Search"
+          placeholder="Find a chat"
           autocomplete="off"
-          placeholder="Search chats..."
           .value=${this._searchQuery}
           @input=${this.#handleSearchInput} />
         ${when(
@@ -590,7 +591,9 @@ export class AiConversationsPanelComponent extends LitElement {
                   </forge-ai-edit-thread>
                 `,
                 () => html`
-                  <button @click=${() => this.#handleThreadSelect(thread)} aria-selected=${isSelected}>
+                  <button
+                    @click=${() => this.#handleThreadSelect(thread)}
+                    aria-current=${isSelected ? 'true' : nothing}>
                     <span>${thread.title}</span>
                   </button>
                   ${when(

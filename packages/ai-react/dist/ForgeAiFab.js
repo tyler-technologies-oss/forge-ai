@@ -2,12 +2,13 @@ import React, { forwardRef } from "react";
 import "@tylertech/forge-ai/ai-fab";
 
 export const ForgeAiFab = forwardRef((props, forwardedRef) => {
-  const { disabled, extended, ...filteredProps } = props;
+  const { disabled, extended, label, ...filteredProps } = props;
 
   return React.createElement(
     "forge-ai-fab",
     {
       ...filteredProps,
+      label: props.label,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
