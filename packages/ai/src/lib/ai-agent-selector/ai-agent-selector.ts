@@ -417,7 +417,7 @@ export class AiAgentSelectorComponent extends LitElement {
         </span>
         <span class="agent-name">${this.#effectiveTitleText} (default)</span>
       </div>
-      <div class="agent-list-separator" role="separator"></div>
+      <div class="agent-list-separator" aria-hidden="true"></div>
     `;
   }
 
