@@ -376,9 +376,9 @@ export class AiMessageThreadComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="message-thread" @scroll=${this.autoScroll ? this.#handleScroll : undefined}>
+        ${this.#scrollToBottomButton}
         <div class="message-thread-content">${this.#emptyState} ${this.#messages} ${this.#thinkingIndicator}</div>
       </div>
-      ${this.#scrollToBottomButton}
     `;
   }
 
