@@ -120,7 +120,7 @@ export class AiSidebarComponent extends LitElement {
               <div
                 ${ref(this.#resizeHandleRef)}
                 class=${classMap(handleClasses)}
-                role="separator"
+                role="slider"
                 aria-orientation="vertical"
                 aria-label="Resize chatbot panel, use left and right arrow keys"
                 aria-valuemin="${MIN_WIDTH}"
