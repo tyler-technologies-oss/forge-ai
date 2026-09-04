@@ -507,6 +507,7 @@ export class AiConversationsPanelComponent extends LitElement {
   get #searchFieldSearch(): TemplateResult {
     return html`
       <div class="forge-field forge-field--small search-field">
+        <label for="search-input-search" class="sr-only">Search chats</label>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
           <path fill="none" d="M0 0h24v24H0z" />
           <path
@@ -590,7 +591,9 @@ export class AiConversationsPanelComponent extends LitElement {
                   </forge-ai-edit-thread>
                 `,
                 () => html`
-                  <button @click=${() => this.#handleThreadSelect(thread)} aria-selected=${isSelected}>
+                  <button
+                    @click=${() => this.#handleThreadSelect(thread)}
+                    aria-current=${isSelected ? 'true' : nothing}>
                     <span>${thread.title}</span>
                   </button>
                   ${when(

@@ -7,6 +7,7 @@
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/list/forge-list';
 @use '@tylertech/forge/dist/button/forge-button';
+@use '../mixins' as mixins;
 
 $_max-content-width: 768px;
 
@@ -16,6 +17,10 @@ $_max-content-width: 768px;
   max-inline-size: $_max-content-width;
   margin-inline: auto;
   width: 100%;
+}
+
+.sr-only {
+  @include mixins.sr-only;
 }
 
 .threads-search-container {
