@@ -240,7 +240,6 @@ export class AiChatHeaderComponent extends LitElement {
                 id="minimize-button"
                 @click=${this.#handleMinimizeClick}
                 aria-label="Minimize chat window"
-                aria-describedby="minimize-tooltip"
                 class="forge-icon-button forge-icon-button--medium ai-icon-button">
                 ${when(
                   this.minimizeIcon === 'default',
@@ -284,7 +283,6 @@ export class AiChatHeaderComponent extends LitElement {
                 id="expand-button"
                 @click=${this.#handleExpandClick}
                 aria-label=${this.expanded ? 'Collapse chat window' : 'Expand chat window'}
-                aria-describedby="expand-tooltip"
                 class="forge-icon-button forge-icon-button--medium ai-icon-button">
                 ${when(
                   this.expanded,
