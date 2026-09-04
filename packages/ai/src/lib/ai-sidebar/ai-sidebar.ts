@@ -122,7 +122,7 @@ export class AiSidebarComponent extends LitElement {
                 class=${classMap(handleClasses)}
                 role="separator"
                 aria-orientation="vertical"
-                aria-label="Resize sidebar"
+                aria-label="Resize chatbot panel, use left and right arrow keys"
                 aria-valuemin="${MIN_WIDTH}"
                 aria-valuemax="${MAX_WIDTH}"
                 aria-valuenow=${this._width}
