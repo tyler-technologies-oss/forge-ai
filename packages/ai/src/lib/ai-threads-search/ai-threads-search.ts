@@ -124,8 +124,12 @@ export class AiThreadsSearchComponent extends LitElement {
   @property({ type: Number, attribute: 'total-chats' })
   public totalChats = 0;
 
+  /**
+   * Placeholder text for the search input. The input's aria-label is "Search" - avoid reusing
+   * that word here so screen readers don't announce the same word twice.
+   */
   @property({ type: String })
-  public placeholder = 'Search chats...';
+  public placeholder = 'Find a chat';
 
   @property({ type: String, attribute: 'empty-message' })
   public emptyMessage = 'No chats found';
@@ -451,7 +455,6 @@ export class AiThreadsSearchComponent extends LitElement {
   get #searchField(): TemplateResult {
     return html`
       <div class="forge-field forge-field--small search-field">
-        <label for="threads-search-input" class="sr-only">Search chats</label>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
           <path fill="none" d="M0 0h24v24H0z" />
           <path
@@ -461,8 +464,9 @@ export class AiThreadsSearchComponent extends LitElement {
           id="threads-search-input"
           type="text"
           autocomplete="off"
-          .value=${this._searchQuery}
+          aria-label="Search"
           placeholder=${this.placeholder}
+          .value=${this._searchQuery}
           @input=${this.#handleSearchInput} />
         ${when(this._isSearching, () => html`<forge-ai-spinner size="extra-small"></forge-ai-spinner>`)}
         ${when(

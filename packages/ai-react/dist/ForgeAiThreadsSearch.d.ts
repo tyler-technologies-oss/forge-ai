@@ -47,7 +47,8 @@ are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to d
 infinite scroll entirely. Useful when all data is loaded upfront. */
   totalChats?: ForgeAiThreadsSearchElement["totalChats"];
 
-  /** undefined */
+  /** Placeholder text for the search input. The input's aria-label is "Search" - avoid reusing
+that word here so screen readers don't announce the same word twice. */
   placeholder?: ForgeAiThreadsSearchElement["placeholder"];
 
   /** undefined */
