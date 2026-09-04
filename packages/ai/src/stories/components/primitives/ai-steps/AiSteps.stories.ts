@@ -5,7 +5,7 @@ import '$lib/ai-steps';
 import '$lib/ai-chatbot';
 import { AgentAdapter } from '$lib/ai-chatbot/agent-adapter.js';
 import { generateId } from '$lib/ai-chatbot/utils.js';
-import { ToolDefinition, ToolCall, ChatMessage } from '$lib';
+import { ToolCall, ChatMessage } from '$lib';
 
 const component = 'forge-ai-steps';
 
@@ -15,17 +15,11 @@ const meta = {
   tags: ['autodocs']
 } satisfies Meta;
 
-const tools = new Map<string, ToolDefinition>([
-  ['searched', { name: 'searched', displayName: 'Searched', displayAs: 'steps' }],
-  ['filtered', { name: 'filtered', displayName: 'Filtered', displayAs: 'steps' }],
-  ['deleted', { name: 'deleted', displayName: 'Deleted', displayAs: 'steps' }]
-]);
-
 const toolCalls: ToolCall[] = [
   {
     id: 'tool-1',
     messageId: 'message-1',
-    name: 'searched',
+    name: 'searched.orders_table',
     args: { name: 'Ergonomic', type: 'Table' },
     result: { temperature: 68, condition: 'Sunny' },
     status: 'complete',
@@ -36,7 +30,7 @@ const toolCalls: ToolCall[] = [
   {
     id: 'tool-2',
     messageId: 'message-1',
-    name: 'filtered',
+    name: 'filtered.region',
     args: { name: 'Coffee', type: 'Grounds' },
     result: { method: 'Manual', size: '10kg' },
     status: 'error',
@@ -47,7 +41,7 @@ const toolCalls: ToolCall[] = [
   {
     id: 'tool-2',
     messageId: 'message-1',
-    name: 'deleted',
+    name: 'loaded.product_catalog',
     args: { name: 'Duplicate', type: 'Documents' },
     result: { message: 'Case not found' },
     status: 'error',
@@ -162,7 +156,7 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {
-  render: () => html`<forge-ai-steps .tools=${tools} .toolCalls=${toolCalls}></forge-ai-steps>`
+  render: () => html`<forge-ai-steps .toolCalls=${toolCalls}></forge-ai-steps>`
 };
 
 export const WithChatbot: Story = {

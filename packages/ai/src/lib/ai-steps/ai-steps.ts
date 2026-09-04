@@ -1,7 +1,6 @@
-import { LitElement, html, nothing, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
+import { LitElement, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import type { ToolCall, ToolDefinition } from '../ai-chatbot/types.js';
 import { isToolCallSettled as isStepCallSettled } from '../ai-chatbot/utils.js';
 
@@ -14,6 +13,18 @@ declare global {
 }
 
 export const AiStepsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-steps';
+
+/** Maps the action segment of a `toolCall.name` (e.g. `searched` in `searched.customers_table`) to its display label. */
+const ACTION_STEPS: Record<string, string> = {
+  called: 'Called',
+  filtered: 'Filtered by',
+  grouped: 'Grouped',
+  joined: 'Joined',
+  queried: 'Queried',
+  searched: 'Searched',
+  separated: 'Separated',
+  sorted: 'Sorted'
+};
 
 const MAX_DETAIL_LENGTH = 2000;
 
@@ -30,8 +41,6 @@ const MAX_DETAIL_LENGTH = 2000;
 @customElement(AiStepsComponentTagName)
 export class AiStepsComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
-
-  readonly #internals = this.attachInternals();
 
   @property({ attribute: false })
   public toolCalls: ToolCall[] = [];
@@ -68,14 +77,18 @@ export class AiStepsComponent extends LitElement {
     return this.toolCalls.some(tc => !isStepCallSettled(tc, this.tools?.get(tc.name)));
   }
 
+  #actionDisplayName(toolCall: ToolCall): string {
+    const [action] = toolCall.name.split('.');
+    return ACTION_STEPS[action] ?? action;
+  }
+
+  #stepLabel(toolCall: ToolCall): TemplateResult {
+    const toolDisplayName = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
+    return html`${this.#actionDisplayName(toolCall)} <code>${toolDisplayName}</code>`;
+  }
+
   get #summaryLabel(): TemplateResult {
-    if (this.#isRunning) {
-      return html`<span>Running steps...</span>`;
-    }
-    const stepLabels = this.toolCalls.map(toolCall => {
-      const displayName = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
-      return html`<span>${displayName}</span>`;
-    });
+    const stepLabels = this.toolCalls.map(toolCall => html`<span>${this.#stepLabel(toolCall)}</span>`);
     const visibleLabels = stepLabels.slice(0, 2);
     const remaining = stepLabels.length - visibleLabels.length;
     return remaining > 0 ? html`${visibleLabels} +${remaining} more` : html`${visibleLabels}`;
@@ -124,10 +137,9 @@ export class AiStepsComponent extends LitElement {
   }
 
   #renderCard(toolCall: ToolCall): TemplateResult {
-    const displayName = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
     return html`
       <div class="step-card">
-        <span class="step-card-title">${displayName}</span>
+        <span class="step-card-title">${this.#stepLabel(toolCall)}</span>
         <div class="step-card-body">
           <div class="step-card-result">${this.#formatValue(toolCall.result)}</div>
         </div>
@@ -167,16 +179,24 @@ export class AiStepsComponent extends LitElement {
     `;
   }
 
-  public override render(): TemplateResult | typeof nothing {
-    return html`
-      <div class="steps">
-        <div class="steps-count">${this.#count} STEPS</div>
+  get #summaryButton(): TemplateResult | typeof nothing {
+    return when(
+      !this.#isRunning,
+      () => html`
         <button class="summary" type="button" aria-expanded=${this._expanded} @click=${this.#toggle}>
           ${this.#chevronIcon}
           <span class="status-text">${this.#summaryLabel}</span>
           <span class="focus-indicator"></span>
         </button>
-        ${this.#timeline}
+      `
+    );
+  }
+
+  public override render(): TemplateResult | typeof nothing {
+    return html`
+      <div class="steps">
+        <div class="steps-count">${this.#count} STEPS</div>
+        ${this.#summaryButton} ${this.#timeline}
       </div>
     `;
   }
