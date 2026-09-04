@@ -469,7 +469,6 @@ export abstract class AiChatbotBase extends LitElement {
   protected async _handleSuggestionSelect(evt: CustomEvent<ForgeAiSuggestionsEventData>): Promise<void> {
     this._promptRef.value?.addToHistory(evt.detail.text);
     await this.sendMessage(evt.detail.text);
-    this._promptRef.value?.focus();
   }
 
   protected _handleVoiceInputResult(evt: CustomEvent<ForgeAiVoiceInputResultEvent>): void {
