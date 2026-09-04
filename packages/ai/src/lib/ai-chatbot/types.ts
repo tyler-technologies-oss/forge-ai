@@ -301,6 +301,7 @@ export interface ForgeAiChatbotFileSelectEventData {
 export type MessageItem =
   | { type: 'message'; data: ChatMessage }
   | { type: 'toolCall'; data: ToolCall }
+  | { type: 'steps'; data: ToolCall }
   | { type: 'assistant'; data: AssistantResponse };
 
 export interface ThreadState {
