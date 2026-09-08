@@ -80,7 +80,8 @@ const meta = {
     showNewChatButton: true,
     showBackButton: false,
     showSearch: true,
-    placeholder: 'Search conversations...'
+    placeholder: 'Find a chat by title',
+    emptyMessage: 'No conversations found'
   },
   render: (args: any) => {
     return html`

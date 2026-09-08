@@ -127,8 +127,12 @@ export class AiThreadsSearchComponent extends LitElement {
   @property({ type: Number, attribute: 'total-chats' })
   public totalChats = 0;
 
+  /**
+   * Placeholder text for the search input. The input's aria-label is "Search" - avoid reusing
+   * that word here so screen readers don't announce the same word twice.
+   */
   @property({ type: String })
-  public placeholder = 'Search chats...';
+  public placeholder = 'Find a chat';
 
   /**
    * Message describing a failed thread load. When no threads are loaded, an error banner with a
@@ -474,10 +478,12 @@ export class AiThreadsSearchComponent extends LitElement {
             d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14" />
         </svg>
         <input
+          id="threads-search-input"
           type="text"
           autocomplete="off"
-          .value=${this._searchQuery}
+          aria-label="Search"
           placeholder=${this.placeholder}
+          .value=${this._searchQuery}
           @input=${this.#handleSearchInput} />
         ${when(this._isSearching, () => html`<forge-ai-spinner size="extra-small"></forge-ai-spinner>`)}
         ${when(
@@ -517,7 +523,10 @@ export class AiThreadsSearchComponent extends LitElement {
             </forge-ai-edit-thread>
           `,
           () => html`
-            <button type="button" aria-selected=${isSelected} @click=${() => this.#handleThreadSelect(thread)}>
+            <button
+              type="button"
+              aria-current=${isSelected ? 'true' : nothing}
+              @click=${() => this.#handleThreadSelect(thread)}>
               ${thread.title}
             </button>
             <span class="thread-time">${formatRelativeTime(thread.createdAt)}</span>
