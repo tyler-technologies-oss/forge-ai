@@ -1,5 +1,20 @@
 # @tylertech/forge-ai-react
 
+## 0.15.0
+
+### Minor Changes
+
+- a140e7b: feat(thread-history): make thread selection cancelable and add a failed-load state
+
+### Patch Changes
+
+- df678f4: fix(a11y): resolve chatbot accessibility audit findings
+- Updated dependencies [df678f4]
+- Updated dependencies [9f4bf82]
+- Updated dependencies [a140e7b]
+- Updated dependencies [4515491]
+  - @tylertech/forge-ai@0.15.0
+
 ## 0.14.0
 
 ### Minor Changes
