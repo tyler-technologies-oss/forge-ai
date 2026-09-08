@@ -10,6 +10,12 @@ The AI Chat Header provides a consistent header interface for AI chat applicatio
 
 <Canvas of={AiChatHeaderStories.Demo} />
 
+## Conversations Button
+
+Set `showConversationsButton` to show the hamburger menu that toggles a conversations panel. Set `hasConversationsError` alongside it when the panel's thread load has failed — the button picks up an error badge so the failure remains visible while the panel is closed. `<forge-ai-chatbot>` wires this from its own `threadsError` automatically.
+
+<Canvas of={AiChatHeaderStories.ConversationsError} />
+
 ## API
 
 <CustomArgTypes />

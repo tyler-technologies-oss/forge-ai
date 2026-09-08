@@ -2,10 +2,13 @@ import React, { forwardRef } from "react";
 import "@tylertech/forge-ai/ai-error-message";
 
 export const ForgeAiErrorMessage = forwardRef((props, forwardedRef) => {
+  const { density, ...filteredProps } = props;
+
   return React.createElement(
     "forge-ai-error-message",
     {
-      ...props,
+      ...filteredProps,
+      density: props.density,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

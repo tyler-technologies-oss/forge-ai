@@ -1,4 +1,4 @@
-import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
+import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 
@@ -7,6 +7,7 @@ import { DeleteThreadController } from '../utils/delete-thread-controller';
 import { InfiniteScrollController } from '../utils/infinite-scroll-controller';
 import '../ai-thread-actions-menu';
 import '../ai-edit-thread';
+import '../ai-error-message';
 import '../ai-spinner';
 import '../ai-modal/ai-modal';
 
@@ -28,6 +29,7 @@ declare global {
     'forge-ai-threads-search-delete': CustomEvent<ForgeAiThreadsSearchDeleteEventData>;
     'forge-ai-threads-search-delete-confirm': CustomEvent<ForgeAiThreadsSearchDeleteConfirmEventData>;
     'forge-ai-threads-search-back': CustomEvent<void>;
+    'forge-ai-threads-search-retry': CustomEvent<void>;
   }
 }
 
@@ -80,6 +82,7 @@ export const AiThreadsSearchComponentTagName: keyof HTMLElementTagNameMap = 'for
  * @event {CustomEvent<ForgeAiThreadsSearchDeleteEventData>} forge-ai-threads-search-delete - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert.
  * @event {CustomEvent<ForgeAiThreadsSearchDeleteConfirmEventData>} forge-ai-threads-search-delete-confirm - Fired before showing the built-in delete confirmation. Cancelable - if prevented, this component shows no confirmation UI; the host must show its own and call confirmThreadDelete() once accepted.
  * @event {CustomEvent<void>} forge-ai-threads-search-back - Fired when the back button (shown via showBackButton) is clicked.
+ * @event {CustomEvent<void>} forge-ai-threads-search-retry - Fired when the retry button in the error state is clicked. The host should re-request the threads and clear errorMessage once the load succeeds.
  *
  * @description A standalone search component for conversations/threads. Can be slotted into forge-ai-threads
  * or used independently. Supports both local and external/async search patterns via event callbacks.
@@ -127,8 +130,14 @@ export class AiThreadsSearchComponent extends LitElement {
   @property({ type: String })
   public placeholder = 'Search chats...';
 
-  @property({ type: String, attribute: 'empty-message' })
-  public emptyMessage = 'No chats found';
+  /**
+   * Message describing a failed thread load. When no threads are loaded, an error banner with a
+   * retry button replaces the empty state. When threads are already on screen the list stays visible
+   * and the message shows as a compact single line with a retry - at the bottom of the list if a page
+   * was in flight, otherwise above it. The host owns this value and should clear it once a load succeeds.
+   */
+  @property({ type: String, attribute: 'error-message' })
+  public errorMessage?: string;
 
   @property({ type: Boolean, attribute: 'show-thread-rename' })
   public showThreadRename = false;
@@ -277,6 +286,14 @@ export class AiThreadsSearchComponent extends LitElement {
 
   #handleBackClick(): void {
     const event = new CustomEvent<void>('forge-ai-threads-search-back', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  #handleRetryClick(): void {
+    const event = new CustomEvent<void>('forge-ai-threads-search-retry', {
       bubbles: true,
       composed: true
     });
@@ -526,32 +543,92 @@ export class AiThreadsSearchComponent extends LitElement {
     `;
   }
 
+  get #errorState(): TemplateResult {
+    return html`
+      <div class="error-state">
+        <forge-ai-error-message density="small">
+          <span slot="title">Error</span>
+          <p class="error-state__message">${this.errorMessage}</p>
+          <button
+            class="forge-button forge-button--outlined forge-button--dense error-state__retry"
+            type="button"
+            @click=${this.#handleRetryClick}>
+            Retry
+          </button>
+        </forge-ai-error-message>
+      </div>
+    `;
+  }
+
+  /** The single-line variant, used when threads are already on screen and the list stays visible. */
+  get #compactError(): TemplateResult {
+    return html`
+      <forge-ai-error-message class="compact-error" density="small">
+        <div class="compact-error__body">
+          <span>${this.errorMessage}</span>
+          <button
+            class="forge-button forge-button--outlined forge-button--dense compact-error__retry"
+            type="button"
+            @click=${this.#handleRetryClick}>
+            Retry
+          </button>
+        </div>
+      </forge-ai-error-message>
+    `;
+  }
+
+  /**
+   * A failure that arrives while a page is in flight is a pagination failure, so it reads at the
+   * bottom of the list where the load-more spinner would have been. Any other failure - a rejected
+   * thread selection, for instance - is not tied to the end of the list, so it sits above it.
+   */
+  get #errorPlacement(): 'above-list' | 'list-footer' | 'none' {
+    // With no threads on screen the full banner replaces the empty state instead.
+    if (!this.errorMessage || this.#displayedThreads.length === 0) {
+      return 'none';
+    }
+
+    return this.#infiniteScrollController.isLoadingMore ? 'list-footer' : 'above-list';
+  }
+
+  get #emptyState(): TemplateResult {
+    const message = this._searchQuery.trim() ? 'No chats found' : 'No chats yet';
+    return html`
+      <div class="empty-state">
+        <p>${message}</p>
+      </div>
+    `;
+  }
+
+  get #listFooter(): TemplateResult | typeof nothing {
+    if (this.#errorPlacement === 'list-footer') {
+      return this.#compactError;
+    }
+
+    if (!this.#infiniteScrollController.isLoadingMore) {
+      return nothing;
+    }
+
+    return html`
+      <div class="loading-more-indicator">
+        <forge-ai-spinner></forge-ai-spinner>
+      </div>
+    `;
+  }
+
   get #resultsList(): TemplateResult {
     const displayThreads = this.#displayedThreads;
 
+    if (displayThreads.length === 0) {
+      return html`<div class="results-container">${this.errorMessage ? this.#errorState : this.#emptyState}</div>`;
+    }
+
     return html`
       <div class="results-container">
-        ${when(
-          displayThreads.length === 0,
-          () => html`
-            <div class="empty-state">
-              <p>${this.emptyMessage}</p>
-            </div>
-          `,
-          () => html`
-            <ul class="forge-list forge-list--dense forge-list--navlist" role="list">
-              ${displayThreads.map(thread => this.#renderThreadItem(thread))}
-            </ul>
-            ${when(
-              this.#infiniteScrollController.isLoadingMore,
-              () => html`
-                <div class="loading-more-indicator">
-                  <forge-ai-spinner></forge-ai-spinner>
-                </div>
-              `
-            )}
-          `
-        )}
+        <ul class="forge-list forge-list--dense forge-list--navlist" role="list">
+          ${displayThreads.map(thread => this.#renderThreadItem(thread))}
+        </ul>
+        ${this.#listFooter}
       </div>
     `;
   }
@@ -559,7 +636,8 @@ export class AiThreadsSearchComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <div class="threads-search-container">
-        ${this.#header} ${when(this.showSearch, () => this.#searchField)} ${this.#resultsList}
+        ${this.#header} ${when(this.showSearch, () => this.#searchField)}
+        ${when(this.#errorPlacement === 'above-list', () => this.#compactError)} ${this.#resultsList}
       </div>
       ${this.#deleteThreadController.template}
     `;

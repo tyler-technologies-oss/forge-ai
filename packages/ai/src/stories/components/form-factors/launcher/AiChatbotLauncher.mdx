@@ -42,11 +42,79 @@ After sending the first message, transitions to a full chat interface with:
 
 ### Chat History
 
-Set `threads` (and optionally `totalThreads`/`threadsLoading`) to show a history button in the prompt bar's bottom-left. Clicking it opens a "Chat history" popover with a preview of recent chats; a search field appears once there are more than 5 chats. "View all" transitions into a full-height history view (a new `history` state alongside `welcome`/`conversation`) built on `<forge-ai-threads-search>`, with a back button returning to the conversation (if one exists) or welcome view.
+Set `showHistoryButton` to put a history button in the prompt bar's bottom-left, and `threads` (plus optionally `totalThreads`/`threadsLoading`) to populate it. Clicking it opens a "Chat history" popover with a preview of recent chats; a search field appears once there are more than 5 chats. "View all" transitions into a full-height history view (a new `history` state alongside `welcome`/`conversation`) built on `<forge-ai-threads-search>`, with a back button returning to the conversation (if one exists) or welcome view.
+
+Visibility is yours to decide, matching `showConversationsButton` on `<forge-ai-chatbot>` — the component never infers it from whether chats are loaded. An empty `threads` shows "No chats yet" in the popover rather than removing the entry point, so a user with no history still sees where their history will live.
 
 Search and pagination are backed by `forge-ai-chatbot-launcher-thread-search` and `forge-ai-chatbot-launcher-thread-load-more` (same shape in both the popover and the full view), thread selection by `forge-ai-chatbot-launcher-thread-select`, and rename/delete reuse the existing `forge-ai-chatbot-launcher-thread-rename`/`-thread-delete` events. See the `WithHistory` story below for a full mock-backend wiring example.
 
 <Canvas of={AiChatbotLauncherStories.WithHistory} />
+
+With no chats the popover shows "No chats yet", and a search with no matches shows "No chats found".
+
+<Canvas of={AiChatbotLauncherStories.NoChats} />
+
+### Owning Thread Selection
+
+`forge-ai-chatbot-launcher-thread-select` is cancelable. By default the component commits the selection itself — it sets `selectedThreadId` and moves to the conversation view as soon as the thread is clicked. That is fine when a thread is always available locally, but if you load threads from a server the load can fail, and the component will already be showing a thread it never opened.
+
+Call `preventDefault()` to take ownership of both commitments. The component then changes nothing, and you commit once your load resolves:
+
+```ts
+launcher.addEventListener('forge-ai-chatbot-launcher-thread-select', async evt => {
+  evt.preventDefault();
+  launcher.threadsError = undefined;
+  launcher.threadsLoading = true;
+
+  try {
+    const messages = await api.loadThread(evt.detail.id);
+    launcher.selectedThreadId = evt.detail.id;
+    // setThreadState transitions to the conversation view on its own once it has messages.
+    await launcher.setThreadState({ threadId: evt.detail.id, messages }, { skipAnimation: true });
+  } catch (error) {
+    // Nothing to undo - selectedThreadId and the view state were never touched.
+    launcher.threadsError = error.message || 'Could not open that chat.';
+  } finally {
+    launcher.threadsLoading = false;
+  }
+});
+```
+
+Do **not** call `startConversation()` before the load. Transitioning up front means a failed load has to walk the user back to the welcome view, which reads as a flicker. Let `setThreadState()` perform the transition when it succeeds, and surface the failure in place — the history button's error badge and the popover's retry are already wired to `threadsError`.
+
+<Canvas of={AiChatbotLauncherStories.ThreadSelectRejection} />
+
+### Handling a Failed History Load
+
+An empty `threads` array on its own reads as "no chats yet", so a failed load would otherwise be indistinguishable from a user with no history. Set `threadsError` to a message: the history button picks up an error badge so the failure is visible with the popover closed, and the popover and full history view show the message with a **Retry** button in place of the empty state.
+
+If chats are already loaded the list stays visible, and the message renders as a compact single line with a **Retry** instead of the banner. Where it sits depends on what failed: a failure that arrives while a page is in flight is a pagination failure, so it reads at the bottom of the list where the load-more spinner would have appeared. Any other failure — a rejected thread selection, for instance — is not tied to the end of the list, so it sits above it.
+
+Retry dispatches `forge-ai-chatbot-launcher-thread-retry`. It is a plain notification — re-request the chats, and clear `threadsError` once the load succeeds. An error supersedes `threadsLoading`, so the two never render together.
+
+```ts
+launcher.threadsError = 'Could not load your chat history.';
+
+launcher.addEventListener('forge-ai-chatbot-launcher-thread-retry', async () => {
+  launcher.threadsError = undefined;
+  launcher.threadsLoading = true;
+  try {
+    launcher.threads = await api.loadThreads();
+  } catch (error) {
+    launcher.threadsError = error.message || 'Could not load your chat history.';
+  } finally {
+    launcher.threadsLoading = false;
+  }
+});
+```
+
+Always fall back to your own copy rather than assigning `error.message` directly — an empty message reads as "no error" and hides the badge along with the retry.
+
+<Canvas of={AiChatbotLauncherStories.ThreadHistoryError} />
+
+### Moving Between Views
+
+`viewState` is read-only; each view has a method that navigates to it. `startConversation()` and `showHistory()` move to the conversation and full history views, and `showWelcome()` returns to the welcome view. All three change only the view — use `startNewChat()` when the conversation itself should be reset, since it also clears messages, nulls `selectedThreadId`, and resets the adapter's thread.
 
 ## Customization
 

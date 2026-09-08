@@ -7,6 +7,8 @@
 @use '@tylertech/forge/dist/icon/forge-icon';
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
 @use '@tylertech/forge/dist/button/forge-button';
+@use '@tylertech/forge/dist/badge/forge-badge';
+@use '../utils/error-badge' as error-badge;
 
 $_max-content-width: 768px;
 
@@ -116,6 +118,14 @@ $_max-content-width: 768px;
 .ai-icon-button,
 .ai-icon-button > svg {
   fill: #{forge-theme.variable(text-medium)};
+}
+
+.history-button {
+  @include error-badge.error-badge-anchor;
+
+  &__error-badge {
+    @include error-badge.error-badge;
+  }
 }
 
 .history {
