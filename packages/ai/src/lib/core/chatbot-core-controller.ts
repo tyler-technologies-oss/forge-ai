@@ -20,6 +20,7 @@ import { FileUploadManager } from '../ai-chatbot/file-upload-manager.js';
 import { MessageStateController } from '../ai-chatbot/message-state-controller.js';
 import type {
   ChatMessage,
+  ClientMessageInput,
   FileAttachment,
   FileUploadCallbacks,
   HandlerContext,
@@ -156,16 +157,16 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   #handleMessageStart(event: MessageStartEvent): void {
-    this.#messageStateController.addTextToResponse(event.messageId, '', event);
+    this.#messageStateController.addTextToResponse(event.messageId, '');
   }
 
   #handleMessageDelta(event: MessageDeltaEvent): void {
-    this.#messageStateController.appendTextDelta(event.messageId, event.delta, event);
+    this.#messageStateController.appendTextDelta(event.messageId, event.delta);
     this.#callbacks.onScrollToBottom();
   }
 
   #handleMessageEnd(event: MessageEndEvent): void {
-    this.#messageStateController.markTextComplete(event.messageId, event);
+    this.#messageStateController.markTextComplete(event.messageId);
   }
 
   #handleStepStarted(_event: StepStartedAgentEvent): void {
@@ -204,7 +205,7 @@ export class ChatbotCoreController implements ReactiveController {
       type: this.tools.has(event.name) ? 'client' : 'agent'
     };
 
-    this.#messageStateController.addToolCallToResponse(toolCall, event);
+    this.#messageStateController.addToolCallToResponse(toolCall);
 
     const toolDef = this.tools.get(event.name);
     toolDef?.onStart?.({
@@ -218,8 +219,7 @@ export class ChatbotCoreController implements ReactiveController {
       argsBuffer: event.argsBuffer,
       args: event.partialArgs ?? {}
     };
-    const rawEvent = { eventType: 'tool-call-args', event } as const;
-    this.#messageStateController.updateToolCallInResponse(event.id, updates, rawEvent);
+    this.#messageStateController.updateToolCallInResponse(event.id, updates);
     this.#callbacks.onScrollToBottom();
 
     const toolDef = this.tools.get(event.name);
@@ -237,8 +237,7 @@ export class ChatbotCoreController implements ReactiveController {
       argsBuffer: undefined,
       status: 'executing'
     };
-    const rawEvent = { eventType: 'tool-call-end', event } as const;
-    this.#messageStateController.updateToolCallInResponse(event.id, updates, rawEvent);
+    this.#messageStateController.updateToolCallInResponse(event.id, updates);
 
     const toolDef = this.tools.get(event.name);
     toolDef?.onEnd?.({
@@ -354,17 +353,15 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   #handleRunAborted(): void {
-    const abortMessage: ChatMessage = {
-      id: generateId(),
-      role: 'system',
-      content: 'Run cancelled',
-      timestamp: Date.now(),
-      status: 'complete',
-      clientOnly: true
-    };
-
-    this.#messageStateController.addMessage(abortMessage);
-    this.#callbacks.onDispatchEvent('forge-ai-chatbot-message-received', { message: abortMessage });
+    // Explicit finalize (rather than addMessage's implicit one) so the abort
+    // banner can go through the client-message path, which never touches
+    // `_activeResponse` on its own.
+    this.#messageStateController.tryFinalizeResponse();
+    const id = this.#messageStateController.addClientMessage({ content: 'Run cancelled' });
+    const abortMessage = this.#messageStateController.getMessage(id);
+    if (abortMessage) {
+      this.#callbacks.onDispatchEvent('forge-ai-chatbot-message-received', { message: abortMessage });
+    }
   }
 
   #handleStateChange(_state: AdapterState): void {
@@ -531,6 +528,19 @@ export class ChatbotCoreController implements ReactiveController {
 
   public addMessage(message: ChatMessage): void {
     this.#messageStateController.addMessage(message);
+  }
+
+  public addClientMessage(message: ClientMessageInput): string {
+    return this.#messageStateController.addClientMessage(message);
+  }
+
+  public removeClientMessage(id: string): void {
+    this.#messageStateController.removeClientMessage(id);
+  }
+
+  /** Finalizes the in-progress response (if any) so a client message inserted right after it doesn't trail a live bubble. */
+  public finalizeActiveResponse(): void {
+    this.#messageStateController.tryFinalizeResponse();
   }
 
   public getThreadState(): ThreadState {

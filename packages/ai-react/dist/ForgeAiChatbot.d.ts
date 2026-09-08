@@ -34,10 +34,10 @@ export interface ForgeAiChatbotProps extends Pick<
   conversationsOpen?: boolean;
 
   /** undefined */
-  showConversationRename?: boolean;
+  showThreadRename?: boolean;
 
   /** undefined */
-  showConversationDelete?: boolean;
+  showThreadDelete?: boolean;
 
   /** When true, shows a loading indicator in the conversations panel's recent chats list while threads are loading (default: false) */
   threadsLoading?: boolean;
@@ -51,8 +51,11 @@ export interface ForgeAiChatbotProps extends Pick<
   /** undefined */
   minimizeIcon?: ForgeAiChatbotElement["minimizeIcon"];
 
-  /** The id of the currently selected conversation thread. Set this to highlight a thread in the conversations panel (e.g. when restoring a conversation loaded from the backend). Updated internally when a thread is selected or a new chat starts. */
+  /** The id of the currently selected thread. Set this to highlight a thread in the conversations panel (e.g. when restoring a conversation loaded from the backend). Updated internally when a thread is selected or a new chat starts. */
   selectedThreadId?: ForgeAiChatbotElement["selectedThreadId"];
+
+  /** Message describing a failed thread load. When set, the conversations panel shows the message with a retry button instead of its empty state or loading indicator. The conversations button also shows an error badge so the failure is visible with the panel closed. If threads are already loaded the list stays visible and the message renders as a compact single line with a retry - at the bottom of the list when a page was in flight, otherwise above it. Clear it once a load succeeds. */
+  threadsError?: ForgeAiChatbotElement["threadsError"];
 
   /** undefined */
   fileUpload?: ForgeAiChatbotElement["fileUpload"];
@@ -199,35 +202,36 @@ behavior. */
     event: CustomEvent<CustomEvent<void>>,
   ) => void;
 
-  /** Fired when user selects a conversation thread */
-  onForgeAiChatbotConversationSelect?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationSelectEventData>>,
+  /** Fired when user selects a thread. Cancelable - prevents selectedThreadId from being set, leaving the host to commit it once its own load resolves */
+  onForgeAiChatbotThreadSelect?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadSelectEventData>>,
   ) => void;
 
   /** Fired when user clicks new chat button (cancelable) */
   onForgeAiChatbotNewChat?: (event: CustomEvent<CustomEvent<void>>) => void;
 
   /** Fired when search query changes in conversations panel (debounced, cancelable) */
-  onForgeAiChatbotConversationSearch?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationSearchEventData>>,
+  onForgeAiChatbotThreadSearch?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadSearchEventData>>,
   ) => void;
 
   /** Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts. */
-  onForgeAiChatbotConversationLoadMore?: (
-    event: CustomEvent<
-      CustomEvent<ForgeAiChatbotConversationLoadMoreEventData>
-    >,
+  onForgeAiChatbotThreadLoadMore?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadLoadMoreEventData>>,
   ) => void;
 
-  /** Fired when user renames a conversation thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. */
-  onForgeAiChatbotConversationRename?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationRenameEventData>>,
+  /** Fired when user renames a thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. */
+  onForgeAiChatbotThreadRename?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadRenameEventData>>,
   ) => void;
 
-  /** Fired when user deletes a conversation thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed. */
-  onForgeAiChatbotConversationDelete?: (
-    event: CustomEvent<CustomEvent<ForgeAiChatbotConversationDeleteEventData>>,
+  /** Fired when user deletes a thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed. */
+  onForgeAiChatbotThreadDelete?: (
+    event: CustomEvent<CustomEvent<ForgeAiChatbotThreadDeleteEventData>>,
   ) => void;
+
+  /** Fired when the retry button in the conversations panel's error state is clicked. Re-request the threads and clear threadsError once the load succeeds */
+  onForgeAiChatbotThreadRetry?: (event: CustomEvent<CustomEvent<void>>) => void;
 }
 
 /**
@@ -252,12 +256,13 @@ behavior. */
  * - **forge-ai-chatbot-thread-state-change** - Fired when there is a change to the thread state (messages, files, selected agent, etc). Use this to capture the latest thread state for persistence.
  * - **forge-ai-chatbot-conversations-open** - Fired when conversations panel opens
  * - **forge-ai-chatbot-conversations-close** - Fired when conversations panel closes
- * - **forge-ai-chatbot-conversation-select** - Fired when user selects a conversation thread
+ * - **forge-ai-chatbot-thread-select** - Fired when user selects a thread. Cancelable - prevents selectedThreadId from being set, leaving the host to commit it once its own load resolves
  * - **forge-ai-chatbot-new-chat** - Fired when user clicks new chat button (cancelable)
- * - **forge-ai-chatbot-conversation-search** - Fired when search query changes in conversations panel (debounced, cancelable)
- * - **forge-ai-chatbot-conversation-load-more** - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts.
- * - **forge-ai-chatbot-conversation-rename** - Fired when user renames a conversation thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
- * - **forge-ai-chatbot-conversation-delete** - Fired when user deletes a conversation thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
+ * - **forge-ai-chatbot-thread-search** - Fired when search query changes in conversations panel (debounced, cancelable)
+ * - **forge-ai-chatbot-thread-load-more** - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts.
+ * - **forge-ai-chatbot-thread-rename** - Fired when user renames a thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
+ * - **forge-ai-chatbot-thread-delete** - Fired when user deletes a thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
+ * - **forge-ai-chatbot-thread-retry** - Fired when the retry button in the conversations panel's error state is clicked. Re-request the threads and clear threadsError once the load succeeds
  *
  * ### **Methods:**
  *  - **startNewChat(): _void_** - Starts a new chat conversation by clearing messages and resetting conversation state.
@@ -274,6 +279,17 @@ behavior. */
  * the semantic meaning of "starting a new conversation". For user-facing
  * "new chat" actions, prefer startNewChat which provides
  * conversation-level cleanup.
+ * - **addClientMessage(message: _ClientMessageInput_): __** - Inserts or upserts a client-only status message into the thread - never sent to
+ * the agent adapter and never included in the conversation history the adapter sees.
+ * Use this for host-driven UI feedback (e.g. "Your session expired", upload progress)
+ * instead of splicing getMessages/setMessages directly.
+ *
+ * Safe to call at any time, including while a response is streaming - it never
+ * finalizes or otherwise touches the in-progress response.
+ * - **removeClientMessage(id: _string_): _void_** - Removes a client-only message previously added via addClientMessage.
+ * No-ops if no message with that id exists. Safe to call at any time, including
+ * while a response is streaming. Removal is never automatic - call this when your
+ * host logic determines the message is no longer relevant.
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content

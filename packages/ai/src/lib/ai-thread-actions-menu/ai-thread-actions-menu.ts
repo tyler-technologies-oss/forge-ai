@@ -3,6 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 
 import type { Thread } from '../ai-threads';
+import type { DropdownMenuDensity } from '../ai-dropdown-menu';
 import '../ai-dropdown-menu/ai-dropdown-menu.js';
 import '../ai-dropdown-menu/ai-dropdown-menu-item.js';
 
@@ -61,6 +62,12 @@ export class AiThreadActionsMenuComponent extends LitElement {
   @property({ type: Boolean, attribute: 'show-delete' })
   public showDelete = false;
 
+  /**
+   * The density of the trigger button
+   */
+  @property()
+  public density: DropdownMenuDensity = 'small';
+
   #handleMenuOpen(): void {
     const event = new CustomEvent<ForgeAiThreadActionsMenuOpenEventData>('forge-ai-thread-actions-menu-open', {
       detail: { id: this.thread.id },
@@ -113,10 +120,10 @@ export class AiThreadActionsMenuComponent extends LitElement {
     return html`
       <forge-ai-dropdown-menu
         variant="icon-button-squared"
-        density="small"
+        density=${this.density}
         selection-mode="none"
         popover-placement="bottom-start"
-        trigger-label="Conversation options"
+        trigger-label="More actions for ${this.thread.title}"
         @keydown=${this.#handleMenuKeyDown}
         @forge-ai-dropdown-menu-open=${this.#handleMenuOpen}
         @forge-ai-dropdown-menu-close=${this.#handleMenuClose}

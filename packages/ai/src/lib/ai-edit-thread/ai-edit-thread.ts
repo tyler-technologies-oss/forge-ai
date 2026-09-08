@@ -1,7 +1,10 @@
 import { LitElement, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
 
 import type { Thread } from '../ai-threads';
+
+export type EditThreadDensity = 'small' | 'medium';
 
 import styles from './ai-edit-thread.scss?inline';
 
@@ -41,6 +44,12 @@ export class AiEditThreadComponent extends LitElement {
 
   @property({ type: String })
   public value = '';
+
+  /**
+   * The density of the cancel/save buttons
+   */
+  @property()
+  public density: EditThreadDensity = 'small';
 
   @query('.edit-input')
   private _inputElement?: HTMLInputElement;
@@ -103,6 +112,14 @@ export class AiEditThreadComponent extends LitElement {
     this.dispatchEvent(event);
   }
 
+  get #buttonClasses(): Record<string, boolean> {
+    return {
+      'forge-icon-button': true,
+      'forge-icon-button--squared': true,
+      'forge-icon-button--small': this.density === 'small'
+    };
+  }
+
   public override render(): TemplateResult {
     return html`
       <div class="edit-thread-field" @focusout=${this.#handleFocusOut}>
@@ -115,19 +132,13 @@ export class AiEditThreadComponent extends LitElement {
             @keydown=${this.#handleKeyDown} />
         </div>
         <div class="edit-thread-actions">
-          <button
-            class="forge-icon-button forge-icon-button--squared forge-icon-button--small"
-            @click=${this.#handleCancel}
-            aria-label="Cancel">
+          <button class=${classMap(this.#buttonClasses)} @click=${this.#handleCancel} aria-label="Cancel">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
               <path
                 d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
             </svg>
           </button>
-          <button
-            class="forge-icon-button forge-icon-button--squared forge-icon-button--small"
-            @click=${this.#handleSave}
-            aria-label="Save">
+          <button class=${classMap(this.#buttonClasses)} @click=${this.#handleSave} aria-label="Save">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
               <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
             </svg>

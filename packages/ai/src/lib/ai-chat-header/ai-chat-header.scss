@@ -7,6 +7,8 @@
 @use '@tylertech/forge/dist/scaffold/forge-scaffold';
 @use '@tylertech/forge/dist/toolbar/forge-toolbar';
 @use '@tylertech/forge/dist/button/forge-button';
+@use '@tylertech/forge/dist/badge/forge-badge';
+@use '../utils/error-badge' as error-badge;
 
 :host {
   display: block;
@@ -40,7 +42,13 @@
   }
 
   .conversations-button {
+    @include error-badge.error-badge-anchor;
+
     margin-inline: calc(#{forge-spacing.variable(xxsmall)} * -1) calc(#{forge-spacing.variable(small)} * -1);
+
+    &__error-badge {
+      @include error-badge.error-badge;
+    }
   }
 
   .title {

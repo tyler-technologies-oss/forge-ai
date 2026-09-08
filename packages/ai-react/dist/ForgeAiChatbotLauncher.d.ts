@@ -18,11 +18,17 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
+  /** Controls the prompt bar's chat history button and its popover (default: false). Visibility is yours to decide - the component never infers it from whether chats are loaded, so an empty `threads` shows "No chats yet" rather than removing the entry point */
+  showHistoryButton?: boolean;
+
   /** Whether to show the rename option in thread actions menu */
   showThreadRename?: boolean;
 
   /** Whether to show the delete option in thread actions menu */
   showThreadDelete?: boolean;
+
+  /** Whether chats are currently loading, used to show a spinner on the history button and disable it */
+  threadsLoading?: boolean;
 
   /** undefined */
   enableReactions?: boolean;
@@ -35,6 +41,15 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
 
   /** The name of the current thread (shown in conversation view breadcrumb) */
   threadName?: ForgeAiChatbotLauncherElement["threadName"];
+
+  /** Total number of chats available. When greater than the number of loaded threads, infinite scroll is enabled (0 disables it) */
+  totalThreads?: ForgeAiChatbotLauncherElement["totalThreads"];
+
+  /** Message describing a failed chat history load. When set, the history popover/view shows the message with a retry button instead of the empty state, and the history button shows an error badge so the failure is visible with the popover closed. If chats are already loaded the list stays visible and the message renders as a compact single line with a retry - at the bottom of the list when a page was in flight, otherwise above it. Clear it once a load succeeds. */
+  threadsError?: ForgeAiChatbotLauncherElement["threadsError"];
+
+  /** The id of the currently selected thread, highlighted in the history popover/view. Updated internally when a thread is selected or a new chat starts. */
+  selectedThreadId?: ForgeAiChatbotLauncherElement["selectedThreadId"];
 
   /** undefined */
   fileUpload?: ForgeAiChatbotLauncherElement["fileUpload"];
@@ -104,6 +119,9 @@ behavior. */
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
+  /** The list of chats shown in the history popover and full history view */
+  threads?: ForgeAiChatbotLauncherElement["threads"];
+
   /** Agent metadata for info dialog */
   agentInfo?: ForgeAiChatbotLauncherElement["agentInfo"];
 
@@ -138,6 +156,16 @@ behavior. */
     event: CustomEvent<CustomEvent<void>>,
   ) => void;
 
+  /** Fired when transitioning to the full-height history view */
+  onForgeAiChatbotLauncherHistoryOpen?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
+  /** Fired when leaving the full-height history view */
+  onForgeAiChatbotLauncherHistoryClose?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
   /** Fired when user provides feedback on a response */
   onForgeAiChatbotResponseFeedback?: (
     event: CustomEvent<CustomEvent<ForgeAiChatbotResponseFeedbackEventData>>,
@@ -164,6 +192,37 @@ behavior. */
       CustomEvent<ForgeAiChatbotLauncherThreadDeleteEventData>
     >,
   ) => void;
+
+  /** Fired when a thread is selected from the history popover or full history view. Cancelable - prevents selectedThreadId from being set and the transition to the conversation view, leaving the host to commit both once its own load resolves */
+  onForgeAiChatbotLauncherThreadSelect?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotLauncherThreadSelectEventData>
+    >,
+  ) => void;
+
+  /** Fired when the history search query changes (debounced). Cancelable - call setResults() with the results */
+  onForgeAiChatbotLauncherThreadSearch?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotLauncherThreadSearchEventData>
+    >,
+  ) => void;
+
+  /** Fired when scrolling near the bottom of the history list for pagination. Call appendResults() with the next page (empty array signals no more results) */
+  onForgeAiChatbotLauncherThreadLoadMore?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotLauncherThreadLoadMoreEventData>
+    >,
+  ) => void;
+
+  /** Fired when "New chat" is clicked from the full history view. Cancelable - prevents startNewChat() from being called */
+  onForgeAiChatbotLauncherNewChat?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
+
+  /** Fired when the retry button in the history error state is clicked. Re-request the chats and clear threadsError once the load succeeds */
+  onForgeAiChatbotLauncherThreadRetry?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
 }
 
 /**
@@ -178,14 +237,25 @@ behavior. */
  * - **forge-ai-chatbot-tool-call** - Fired when a tool needs to be executed
  * - **forge-ai-chatbot-error** - Fired when an error occurs
  * - **forge-ai-chatbot-launcher-conversation-start** - Fired when transitioning from welcome to conversation view
+ * - **forge-ai-chatbot-launcher-history-open** - Fired when transitioning to the full-height history view
+ * - **forge-ai-chatbot-launcher-history-close** - Fired when leaving the full-height history view
  * - **forge-ai-chatbot-response-feedback** - Fired when user provides feedback on a response
  * - **forge-ai-chatbot-info** - Fired when header info option is selected
  * - **forge-ai-chatbot-agent-change** - Fired when agent selection changes
  * - **forge-ai-chatbot-launcher-thread-rename** - Fired when thread rename is saved. Parent should update threadName property and call onSuccess() or onError()
  * - **forge-ai-chatbot-launcher-thread-delete** - Fired when thread deletion is confirmed. Parent should delete thread and call onSuccess() or onError()
+ * - **forge-ai-chatbot-launcher-thread-select** - Fired when a thread is selected from the history popover or full history view. Cancelable - prevents selectedThreadId from being set and the transition to the conversation view, leaving the host to commit both once its own load resolves
+ * - **forge-ai-chatbot-launcher-thread-search** - Fired when the history search query changes (debounced). Cancelable - call setResults() with the results
+ * - **forge-ai-chatbot-launcher-thread-load-more** - Fired when scrolling near the bottom of the history list for pagination. Call appendResults() with the next page (empty array signals no more results)
+ * - **forge-ai-chatbot-launcher-new-chat** - Fired when "New chat" is clicked from the full history view. Cancelable - prevents startNewChat() from being called
+ * - **forge-ai-chatbot-launcher-thread-retry** - Fired when the retry button in the history error state is clicked. Re-request the chats and clear threadsError once the load succeeds
  *
  * ### **Methods:**
- *  - **clearMessages(): _boolean_** - Clears all messages from the chat.
+ *  - **showWelcome(): _void_** - Returns to the welcome view without touching conversation state. Unlike `startNewChat()`, this
+ * leaves messages, `selectedThreadId`, and the adapter's thread untouched, so an abandoned thread
+ * selection can be undone without discarding the conversation the user was already in.
+ * - **showHistory(): _void_** - Navigates directly to the full history view (not the history popover).
+ * - **clearMessages(): _boolean_** - Clears all messages from the chat.
  *
  * This is a lower-level operation that removes message history without
  * the semantic meaning of "starting a new conversation". For user-facing
@@ -202,6 +272,17 @@ behavior. */
  *
  * Subclasses may override this to add conversation-specific cleanup like
  * resetting thread IDs or closing panels.
+ * - **addClientMessage(message: _ClientMessageInput_): __** - Inserts or upserts a client-only status message into the thread - never sent to
+ * the agent adapter and never included in the conversation history the adapter sees.
+ * Use this for host-driven UI feedback (e.g. "Your session expired", upload progress)
+ * instead of splicing getMessages/setMessages directly.
+ *
+ * Safe to call at any time, including while a response is streaming - it never
+ * finalizes or otherwise touches the in-progress response.
+ * - **removeClientMessage(id: _string_): _void_** - Removes a client-only message previously added via addClientMessage.
+ * No-ops if no message with that id exists. Safe to call at any time, including
+ * while a response is streaming. Removal is never automatic - call this when your
+ * host logic determines the message is no longer relevant.
  *
  * ### **Slots:**
  *  - **icon** - Slot for custom icon (used in both welcome view and conversation header)

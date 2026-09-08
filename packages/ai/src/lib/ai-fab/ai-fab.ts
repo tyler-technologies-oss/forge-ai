@@ -36,6 +36,10 @@ export class AiFabComponent extends LitElement {
   @property({ type: Boolean, reflect: true })
   public extended = false;
 
+  /** Accessible label for the button, announced by screen readers. */
+  @property({ type: String })
+  public label = 'Launch chatbot';
+
   readonly #internals: ElementInternals;
 
   constructor() {
@@ -59,7 +63,7 @@ export class AiFabComponent extends LitElement {
     return html`
       <forge-ai-gradient-container variant=${this.disabled ? 'disabled' : 'high'}>
         <button
-          aria-label="Floating Action Button Demo"
+          aria-label=${this.label}
           class="forge-fab ai-fab ${this.extended ? 'forge-fab--small forge-fab--extended' : ''}"
           .disabled=${this.disabled}>
           <slot name="icon">

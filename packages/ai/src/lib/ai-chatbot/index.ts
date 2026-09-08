@@ -44,6 +44,9 @@ export {
 export type {
   Agent,
   ChatMessage,
+  ClientMessageAction,
+  ClientMessageInput,
+  ClientMessageKind,
   ContextItem,
   ToolDefinition,
   ToolCall,
@@ -63,11 +66,11 @@ export type {
   ResponseFeedback,
   MessageItem,
   ForgeAiChatbotContextRemoveEventData,
-  ForgeAiChatbotConversationSelectEventData,
-  ForgeAiChatbotConversationSearchEventData,
-  ForgeAiChatbotConversationLoadMoreEventData,
-  ForgeAiChatbotConversationRenameEventData,
-  ForgeAiChatbotConversationDeleteEventData,
+  ForgeAiChatbotThreadSelectEventData,
+  ForgeAiChatbotThreadSearchEventData,
+  ForgeAiChatbotThreadLoadMoreEventData,
+  ForgeAiChatbotThreadRenameEventData,
+  ForgeAiChatbotThreadDeleteEventData,
   McpAppUiResource,
   McpAppResourceCsp,
   McpAppResourcePermissions,
@@ -93,6 +96,14 @@ export * from './create-tool-renderer.js';
 export { MessageStateController, type MessageStateControllerConfig } from './message-state-controller.js';
 export { FileUploadManager, type FileUploadManagerConfig } from './file-upload-manager.js';
 export { MarkdownStreamController } from './markdown-stream-controller.js';
+
+// Request serialization
+export {
+  toRequestMessages,
+  toRequestToolCall,
+  type RequestMessage,
+  type RequestToolCall
+} from './request-serialization.js';
 
 // Utilities
 export { generateId, renderMarkdown, renderInlineMarkdown } from './utils.js';

@@ -5,6 +5,7 @@ import {
   flip,
   offset,
   shift,
+  size,
   type ComputePositionReturn,
   type Middleware,
   type Placement
@@ -36,6 +37,9 @@ export type OverlayOffset = number | { mainAxis?: number; crossAxis?: number; al
  * @summary A low-level overlay component for internal use within AI components.
  *
  * @slot - The default slot for overlay content.
+ *
+ * @cssproperty --ai-overlay-available-width - Set on the overlay when `autoSize` is enabled; the width available in the chosen placement direction. Consumers can use this to constrain slotted content instead of being clipped by the viewport.
+ * @cssproperty --ai-overlay-available-height - Set on the overlay when `autoSize` is enabled; the height available in the chosen placement direction.
  */
 @customElement('forge-ai-overlay')
 export class ForgeAiOverlayComponent extends LitElement {
@@ -64,6 +68,15 @@ export class ForgeAiOverlayComponent extends LitElement {
    */
   @property({ type: Boolean })
   public shift = false;
+
+  /**
+   * Whether the overlay should constrain its own size to the space available in the chosen
+   * placement direction, exposed as the `--ai-overlay-available-width`/`--ai-overlay-available-height`
+   * CSS custom properties on the overlay so slotted content can shrink (and scroll internally)
+   * instead of being clipped by the viewport.
+   */
+  @property({ type: Boolean, attribute: 'auto-size' })
+  public autoSize = false;
 
   /**
    * Whether the overlay is open.
@@ -110,6 +123,7 @@ export class ForgeAiOverlayComponent extends LitElement {
       changedProperties.has('placement') ||
       changedProperties.has('flip') ||
       changedProperties.has('shift') ||
+      changedProperties.has('autoSize') ||
       changedProperties.has('offset') ||
       changedProperties.has('arrowElement')
     ) {
@@ -158,6 +172,17 @@ export class ForgeAiOverlayComponent extends LitElement {
       ...(this.offset !== undefined ? [offset(this.offset)] : []),
       ...(this.flip ? [flip()] : []),
       ...(this.shift ? [shift({ padding: 8 })] : []),
+      ...(this.autoSize
+        ? [
+            size({
+              padding: 8,
+              apply: ({ availableWidth, availableHeight, elements }) => {
+                elements.floating.style.setProperty('--ai-overlay-available-width', `${availableWidth}px`);
+                elements.floating.style.setProperty('--ai-overlay-available-height', `${availableHeight}px`);
+              }
+            })
+          ]
+        : []),
       ...(this.arrowElement ? [arrow({ element: this.arrowElement, padding: 8 })] : [])
     ];
 

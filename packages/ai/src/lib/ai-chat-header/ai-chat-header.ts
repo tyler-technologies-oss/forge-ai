@@ -70,6 +70,7 @@ export interface AgentInfo {
  *
  * @property {HeadingLevel} headingLevel - Controls the heading level for the title content (default: 2)
  * @property {string} titleText - The title text to display in the header (default: 'AI Assistant')
+ * @property {boolean} hasConversationsError - Shows an error badge on the conversations button, indicating a failure inside the conversations panel (default: false)
  *
  * @cssproperty --forge-ai-chat-header-title-color - The color of the title text. Defaults to `currentColor`.
  *
@@ -166,6 +167,12 @@ export class AiChatHeaderComponent extends LitElement {
   @property({ type: Boolean, attribute: 'show-conversations-button' })
   public showConversationsButton = false;
 
+  /**
+   * Shows an error badge on the conversations button, indicating a failure inside the conversations panel
+   */
+  @property({ type: Boolean, attribute: 'has-conversations-error' })
+  public hasConversationsError = false;
+
   #agentInfoModalRef: Ref<AiModalComponent> = createRef();
 
   @state()
@@ -220,11 +227,19 @@ export class AiChatHeaderComponent extends LitElement {
               <button
                 id="conversations-button"
                 @click=${this.#handleConversationsToggle}
-                aria-label="Toggle conversations panel"
+                aria-label=${
+                  this.hasConversationsError
+                    ? 'Toggle conversations panel - Failed to load'
+                    : 'Toggle conversations panel'
+                }
                 class="conversations-button forge-icon-button forge-icon-button--medium ai-icon-button">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z" />
                 </svg>
+                ${when(
+                  this.hasConversationsError,
+                  () => html`<span class="forge-badge forge-badge--dot conversations-button__error-badge"></span>`
+                )}
               </button>
             `
           )}
@@ -240,7 +255,6 @@ export class AiChatHeaderComponent extends LitElement {
                 id="minimize-button"
                 @click=${this.#handleMinimizeClick}
                 aria-label="Minimize chat window"
-                aria-describedby="minimize-tooltip"
                 class="forge-icon-button forge-icon-button--medium ai-icon-button">
                 ${when(
                   this.minimizeIcon === 'default',
@@ -284,7 +298,6 @@ export class AiChatHeaderComponent extends LitElement {
                 id="expand-button"
                 @click=${this.#handleExpandClick}
                 aria-label=${this.expanded ? 'Collapse chat window' : 'Expand chat window'}
-                aria-describedby="expand-tooltip"
                 class="forge-icon-button forge-icon-button--medium ai-icon-button">
                 ${when(
                   this.expanded,

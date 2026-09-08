@@ -49,6 +49,15 @@ const meta = {
       options: ['default', 'emoji', 'custom-svg'],
       description: 'Choose icon type to display'
     },
+    showConversationsButton: {
+      control: 'boolean',
+      description: 'Controls whether the conversations button (hamburger menu) is visible'
+    },
+    hasConversationsError: {
+      control: 'boolean',
+      description:
+        'Shows an error badge on the conversations button, indicating a failure inside the conversations panel'
+    },
     useLongTitle: {
       control: 'boolean',
       description: 'Toggle to test with a long Lorem Ipsum title for styling'
@@ -61,6 +70,8 @@ const meta = {
     expanded: false,
     minimizeIcon: 'default',
     customIcon: 'default',
+    showConversationsButton: false,
+    hasConversationsError: false,
     useLongTitle: false
   },
   render: (args: any) => {
@@ -91,6 +102,8 @@ const meta = {
         .showMinimizeButton=${args.showMinimizeButton}
         .expanded=${args.expanded}
         .minimizeIcon=${args.minimizeIcon}
+        ?show-conversations-button=${args.showConversationsButton}
+        ?has-conversations-error=${args.hasConversationsError}
         heading-level="2"
         @forge-ai-chat-header-expand=${expandAction}
         @forge-ai-chat-header-minimize=${minimizeAction}
@@ -107,6 +120,17 @@ export default meta;
 type Story = StoryObj;
 
 export const Demo: Story = {};
+
+/**
+ * `hasConversationsError` badges the conversations button so a failed thread load stays visible while
+ * the conversations panel is closed.
+ */
+export const ConversationsError: Story = {
+  args: {
+    showConversationsButton: true,
+    hasConversationsError: true
+  }
+};
 
 export const WithHeaderActions: Story = {
   args: {
@@ -130,10 +154,10 @@ export const WithHeaderActions: Story = {
         @forge-ai-chat-header-minimize=${minimizeAction}
         @forge-ai-chat-header-clear=${clearChatAction}
         @forge-ai-chat-header-info=${infoAction}>
-        <forge-icon-button slot="header-actions" aria-label="History">
+        <forge-icon-button slot="header-actions" density="medium" aria-label="History">
           <forge-icon name="history"></forge-icon>
         </forge-icon-button>
-        <forge-icon-button slot="header-actions" aria-label="Settings">
+        <forge-icon-button slot="header-actions" density="medium" aria-label="Settings">
           <forge-icon name="settings"></forge-icon>
         </forge-icon-button>
       </forge-ai-chat-header>

@@ -1,5 +1,54 @@
 # @tylertech/forge-ai-react
 
+## 0.15.0
+
+### Minor Changes
+
+- a140e7b: feat(thread-history): make thread selection cancelable and add a failed-load state
+
+### Patch Changes
+
+- df678f4: fix(a11y): resolve chatbot accessibility audit findings
+- Updated dependencies [df678f4]
+- Updated dependencies [9f4bf82]
+- Updated dependencies [a140e7b]
+- Updated dependencies [4515491]
+  - @tylertech/forge-ai@0.15.0
+
+## 0.14.0
+
+### Minor Changes
+
+- 8834b49: feat(launcher): add support for chat history
+  
+  BREAKING: renamed thread-list API on `forge-ai-chatbot`/`forge-ai-conversations-panel` to match `forge-ai-chatbot-launcher`/`forge-ai-threads-search` vocabulary:
+  - `recentThreads` -> `threads`
+  - `showConversationRename`/`show-conversation-rename` -> `showThreadRename`/`show-thread-rename`
+  - `showConversationDelete`/`show-conversation-delete` -> `showThreadDelete`/`show-thread-delete`
+  - events `forge-ai-chatbot-conversation-{select,search,load-more,rename,delete}` -> `forge-ai-chatbot-thread-{select,search,load-more,rename,delete}`
+  - types `ForgeAiChatbotConversation*EventData` -> `ForgeAiChatbotThread*EventData`
+  
+  `conversationsOpen`/`showConversations()`/`hideConversations()`/`toggleConversations()` are unchanged - they refer to the panel itself, not thread data.
+
+### Patch Changes
+
+- Updated dependencies [8834b49]
+  - @tylertech/forge-ai@0.14.0
+
+## 0.13.8
+
+### Patch Changes
+
+- 5062920: feat(ai-chatbot): add addClientMessage/removeClientMessage API
+- 07d435f: feat(conversations-panel): add loading indicator for recent chats
+- Updated dependencies [5062920]
+- Updated dependencies [8662d53]
+- Updated dependencies [090fd8e]
+- Updated dependencies [07d435f]
+- Updated dependencies [b04422e]
+- Updated dependencies [e834a24]
+  - @tylertech/forge-ai@0.13.12
+
 ## 0.13.7
 
 ### Patch Changes

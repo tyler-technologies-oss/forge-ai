@@ -10,13 +10,14 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     expanded,
     showConversationsButton,
     conversationsOpen,
-    showConversationRename,
-    showConversationDelete,
+    showThreadRename,
+    showThreadDelete,
     threadsLoading,
     enableReactions,
     debugMode,
     minimizeIcon,
     selectedThreadId,
+    threadsError,
     fileUpload,
     maxFileSize,
     acceptedFileTypes,
@@ -108,8 +109,8 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-select",
-    props.onForgeAiChatbotConversationSelect,
+    "forge-ai-chatbot-thread-select",
+    props.onForgeAiChatbotThreadSelect,
   );
   useEventListener(
     ref,
@@ -118,23 +119,28 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-search",
-    props.onForgeAiChatbotConversationSearch,
+    "forge-ai-chatbot-thread-search",
+    props.onForgeAiChatbotThreadSearch,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-load-more",
-    props.onForgeAiChatbotConversationLoadMore,
+    "forge-ai-chatbot-thread-load-more",
+    props.onForgeAiChatbotThreadLoadMore,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-rename",
-    props.onForgeAiChatbotConversationRename,
+    "forge-ai-chatbot-thread-rename",
+    props.onForgeAiChatbotThreadRename,
   );
   useEventListener(
     ref,
-    "forge-ai-chatbot-conversation-delete",
-    props.onForgeAiChatbotConversationDelete,
+    "forge-ai-chatbot-thread-delete",
+    props.onForgeAiChatbotThreadDelete,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-thread-retry",
+    props.onForgeAiChatbotThreadRetry,
   );
 
   /** Properties - run whenever a property has changed */
@@ -157,6 +163,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       "minimize-icon": props.minimizeIcon || props["minimize-icon"],
       "selected-thread-id":
         props.selectedThreadId || props["selected-thread-id"],
+      "threads-error": props.threadsError || props["threads-error"],
       "file-upload": props.fileUpload || props["file-upload"],
       "max-file-size": props.maxFileSize || props["max-file-size"],
       "accepted-file-types":
@@ -185,12 +192,8 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
         ? true
         : undefined,
       "conversations-open": props.conversationsOpen ? true : undefined,
-      "show-conversation-rename": props.showConversationRename
-        ? true
-        : undefined,
-      "show-conversation-delete": props.showConversationDelete
-        ? true
-        : undefined,
+      "show-thread-rename": props.showThreadRename ? true : undefined,
+      "show-thread-delete": props.showThreadDelete ? true : undefined,
       "threads-loading": props.threadsLoading ? true : undefined,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,

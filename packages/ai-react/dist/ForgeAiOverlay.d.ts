@@ -24,6 +24,12 @@ export interface ForgeAiOverlayProps extends Pick<
   /** Whether the overlay should shift to stay in view. */
   shift?: boolean;
 
+  /** Whether the overlay should constrain its own size to the space available in the chosen
+placement direction, exposed as the `--ai-overlay-available-width`/`--ai-overlay-available-height`
+CSS custom properties on the overlay so slotted content can shrink (and scroll internally)
+instead of being clipped by the viewport. */
+  autoSize?: boolean;
+
   /** Whether the overlay is open. */
   open?: boolean;
 
@@ -74,5 +80,9 @@ Can be a number (main axis offset) or an object with mainAxis, crossAxis, and al
  *
  * ### **Slots:**
  *  - _default_ - The default slot for overlay content.
+ *
+ * ### **CSS Properties:**
+ *  - **--ai-overlay-available-width** - Set on the overlay when `autoSize` is enabled; the width available in the chosen placement direction. Consumers can use this to constrain slotted content instead of being clipped by the viewport. _(default: undefined)_
+ * - **--ai-overlay-available-height** - Set on the overlay when `autoSize` is enabled; the height available in the chosen placement direction. _(default: undefined)_
  */
 export const ForgeAiOverlay: React.ForwardRefExoticComponent<ForgeAiOverlayProps>;

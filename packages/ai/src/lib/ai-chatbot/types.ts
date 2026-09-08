@@ -124,51 +124,6 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
   ) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void;
 }
 
-export interface MessageStartEvent {
-  messageId: string;
-}
-
-export interface MessageDeltaEvent {
-  messageId: string;
-  delta: string;
-}
-
-export interface MessageEndEvent {
-  messageId: string;
-}
-
-export interface ToolCallStartEvent {
-  id: string;
-  messageId: string;
-  name: string;
-}
-
-export interface ToolCallArgsEvent {
-  id: string;
-  messageId: string;
-  name: string;
-  argsBuffer: string;
-  partialArgs?: Record<string, unknown>;
-}
-
-export interface ToolCallEndEvent {
-  id: string;
-  messageId: string;
-  name: string;
-  args: Record<string, unknown>;
-}
-
-export interface ToolResultEvent {
-  toolCallId: string;
-  result: unknown;
-  message: ChatMessage;
-  /**
-   * Companion structured payload delivered 1:1 with the tool result. Fed to an MCP-app
-   * widget alongside the result; stripped from the LLM-facing context.
-   */
-  structuredContent?: unknown;
-}
-
 /**
  * Content-Security-Policy domain allow-lists for an MCP-app resource, mirroring the
  * spec's `_meta.ui.csp` shape (2026-01-26). The sandbox proxy composes these into the
@@ -266,15 +221,6 @@ export interface McpAppHostCapabilities {
   sandbox?: Record<string, unknown>;
 }
 
-export type StreamEvent =
-  | { type: 'message-start'; timestamp: number; data: MessageStartEvent; rawEvent?: unknown }
-  | { type: 'message-delta'; timestamp: number; data: MessageDeltaEvent; rawEvent?: unknown }
-  | { type: 'message-end'; timestamp: number; data: MessageEndEvent; rawEvent?: unknown }
-  | { type: 'tool-call-start'; timestamp: number; data: ToolCallStartEvent; rawEvent?: unknown }
-  | { type: 'tool-call-args'; timestamp: number; data: ToolCallArgsEvent; rawEvent?: unknown }
-  | { type: 'tool-call-end'; timestamp: number; data: ToolCallEndEvent; rawEvent?: unknown }
-  | { type: 'tool-result'; timestamp: number; data: ToolResultEvent; rawEvent?: unknown };
-
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system' | 'tool';
@@ -283,10 +229,37 @@ export interface ChatMessage {
   status: 'pending' | 'streaming' | 'complete' | 'error';
   toolCalls?: ToolCall[];
   toolCallId?: string;
-  eventStream?: StreamEvent[];
   feedback?: ResponseFeedback;
   children?: ResponseItem[];
   clientOnly?: boolean;
+  kind?: ClientMessageKind;
+  header?: string;
+  actions?: ClientMessageAction[];
+}
+
+/**
+ * Visual treatment for a client-only message. `text` matches the plain,
+ * italic system-message style; the others render as a Forge inline-message
+ * banner with a matching icon.
+ */
+export type ClientMessageKind = 'text' | 'info' | 'warning' | 'error' | 'success';
+
+export interface ClientMessageAction {
+  id: string;
+  label: string;
+  onClick: () => void;
+}
+
+/**
+ * Input to {@link AiChatbotBase.addClientMessage}. Pass the same `id` on a
+ * later call to upsert (replace) a previously added client message.
+ */
+export interface ClientMessageInput {
+  id?: string;
+  content: string;
+  kind?: ClientMessageKind;
+  header?: string;
+  actions?: ClientMessageAction[];
 }
 
 export interface ToolCall<TArgs = Record<string, unknown>> {
@@ -298,7 +271,6 @@ export interface ToolCall<TArgs = Record<string, unknown>> {
   result?: unknown;
   status: 'pending' | 'parsing' | 'executing' | 'complete' | 'error';
   type: ToolType;
-  eventStream?: StreamEvent[];
   startTimestamp?: number;
   endTimestamp?: number;
   /**
@@ -327,7 +299,6 @@ export interface AssistantResponse {
   children: ResponseItem[];
   status: 'streaming' | 'complete' | 'error';
   timestamp: number;
-  eventStream?: StreamEvent[];
   feedback?: ResponseFeedback;
   isThinking?: boolean;
 }
@@ -396,22 +367,22 @@ export interface ThreadState {
   selectedAgentId?: string;
 }
 
-export interface ForgeAiChatbotConversationSelectEventData {
+export interface ForgeAiChatbotThreadSelectEventData {
   id: string;
   title: string;
 }
 
-export interface ForgeAiChatbotConversationSearchEventData {
+export interface ForgeAiChatbotThreadSearchEventData {
   query: string;
   setResults: (results: Thread[]) => void;
 }
 
-export interface ForgeAiChatbotConversationLoadMoreEventData {
+export interface ForgeAiChatbotThreadLoadMoreEventData {
   query: string;
   appendResults: (results: Thread[]) => void;
 }
 
-export interface ForgeAiChatbotConversationRenameEventData {
+export interface ForgeAiChatbotThreadRenameEventData {
   id: string;
   oldTitle: string;
   newTitle: string;
@@ -419,7 +390,7 @@ export interface ForgeAiChatbotConversationRenameEventData {
   onError: (error?: string) => void;
 }
 
-export interface ForgeAiChatbotConversationDeleteEventData {
+export interface ForgeAiChatbotThreadDeleteEventData {
   id: string;
   thread: Thread;
   onSuccess: () => void;

@@ -357,7 +357,7 @@ export const WithConversationHistory: Story = {
       }
     };
 
-    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onThreadSelect = action('forge-ai-chatbot-thread-select');
     const onNewChat = action('forge-ai-chatbot-new-chat');
     const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
     const onConversationsClose = action('forge-ai-chatbot-conversations-close');
@@ -374,15 +374,15 @@ export const WithConversationHistory: Story = {
         <forge-ai-chatbot
           .adapter=${adapter}
           .agentInfo=${agentInfo}
-          .recentThreads=${threads}
+          .threads=${threads}
           file-upload=${args.fileUpload}
           ?expanded=${args.expanded}
           placeholder=${args.placeholder}
           show-expand-button
           show-minimize-button
           show-conversations-button
-          show-conversation-rename
-          show-conversation-delete
+          show-thread-rename
+          show-thread-delete
           minimize-icon="panel"
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
@@ -392,7 +392,7 @@ export const WithConversationHistory: Story = {
           @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
           @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
           @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}
-          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-thread-select=${(e: CustomEvent) => onThreadSelect(e.detail)}
           @forge-ai-chatbot-new-chat=${onNewChat}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
           @forge-ai-chatbot-conversations-close=${onConversationsClose}>

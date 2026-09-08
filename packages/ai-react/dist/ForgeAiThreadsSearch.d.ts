@@ -21,6 +21,15 @@ export interface ForgeAiThreadsSearchProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
+  /** Whether to show the "New chat" button in the header. */
+  showNewChatButton?: boolean;
+
+  /** Whether to show a back button before the header title. */
+  showBackButton?: boolean;
+
+  /** Whether to show the search field. */
+  showSearch?: boolean;
+
   /** undefined */
   showThreadRename?: boolean;
 
@@ -30,16 +39,26 @@ export interface ForgeAiThreadsSearchProps extends Pick<
   /** undefined */
   threads?: ForgeAiThreadsSearchElement["threads"];
 
+  /** The title text shown in the header. */
+  headerTitle?: ForgeAiThreadsSearchElement["headerTitle"];
+
   /** Total number of threads available. When set to a positive number and fewer threads
 are loaded than the total, infinite scroll is enabled. Leave at 0 (default) to disable
 infinite scroll entirely. Useful when all data is loaded upfront. */
   totalChats?: ForgeAiThreadsSearchElement["totalChats"];
 
-  /** undefined */
+  /** Placeholder text for the search input. The input's aria-label is "Search" - avoid reusing
+that word here so screen readers don't announce the same word twice. */
   placeholder?: ForgeAiThreadsSearchElement["placeholder"];
 
-  /** undefined */
-  emptyMessage?: ForgeAiThreadsSearchElement["emptyMessage"];
+  /** Message describing a failed thread load. When no threads are loaded, an error banner with a
+retry button replaces the empty state. When threads are already on screen the list stays visible
+and the message shows as a compact single line with a retry - at the bottom of the list if a page
+was in flight, otherwise above it. The host owns this value and should clear it once a load succeeds. */
+  errorMessage?: ForgeAiThreadsSearchElement["errorMessage"];
+
+  /** The id of the currently selected/active thread, highlighted in the list. */
+  selectedThreadId?: ForgeAiThreadsSearchElement["selectedThreadId"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -89,6 +108,17 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
   onForgeAiThreadsSearchDelete?: (
     event: CustomEvent<CustomEvent<ForgeAiThreadsSearchDeleteEventData>>,
   ) => void;
+
+  /** Fired before showing the built-in delete confirmation. Cancelable - if prevented, this component shows no confirmation UI; the host must show its own and call confirmThreadDelete() once accepted. */
+  onForgeAiThreadsSearchDeleteConfirm?: (
+    event: CustomEvent<CustomEvent<ForgeAiThreadsSearchDeleteConfirmEventData>>,
+  ) => void;
+
+  /** Fired when the back button (shown via showBackButton) is clicked. */
+  onForgeAiThreadsSearchBack?: (event: CustomEvent<CustomEvent<void>>) => void;
+
+  /** Fired when the retry button in the error state is clicked. The host should re-request the threads and clear errorMessage once the load succeeds. */
+  onForgeAiThreadsSearchRetry?: (event: CustomEvent<CustomEvent<void>>) => void;
 }
 
 /**
@@ -103,5 +133,16 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
  * - **forge-ai-threads-search-new-chat** - Fired when new chat button clicked.
  * - **forge-ai-threads-search-rename** - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
  * - **forge-ai-threads-search-delete** - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert.
+ * - **forge-ai-threads-search-delete-confirm** - Fired before showing the built-in delete confirmation. Cancelable - if prevented, this component shows no confirmation UI; the host must show its own and call confirmThreadDelete() once accepted.
+ * - **forge-ai-threads-search-back** - Fired when the back button (shown via showBackButton) is clicked.
+ * - **forge-ai-threads-search-retry** - Fired when the retry button in the error state is clicked. The host should re-request the threads and clear errorMessage once the load succeeds.
+ *
+ * ### **Methods:**
+ *  - **confirmThreadDelete(thread: _Thread_): _void_** - Completes a delete that a host intercepted via `forge-ai-threads-search-delete-confirm`
+ * (calling preventDefault() to show its own confirmation instead of this component's
+ * built-in one). Call once the host's own confirmation has been accepted.
+ *
+ * ### **Slots:**
+ *  - **header-actions** - Slot for a persistent action pinned to the top-right of the header, alongside the "New chat" button (e.g. a "View all" button).
  */
 export const ForgeAiThreadsSearch: React.ForwardRefExoticComponent<ForgeAiThreadsSearchProps>;

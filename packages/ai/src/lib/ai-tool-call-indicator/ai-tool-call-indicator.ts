@@ -3,6 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import type { ToolCall, ToolDefinition } from '../ai-chatbot/types.js';
+import { isToolCallSettled } from '../ai-chatbot/utils.js';
 
 import '../ai-spinner/ai-spinner.js';
 
@@ -116,7 +117,7 @@ export class AiToolCallIndicatorComponent extends LitElement {
   }
 
   get #isRunning(): boolean {
-    return this.toolCalls.some(tc => tc.status !== 'complete' && tc.status !== 'error');
+    return this.toolCalls.some(tc => !isToolCallSettled(tc, this.tools?.get(tc.name)));
   }
 
   get #elapsedMs(): number | undefined {
@@ -227,11 +228,11 @@ export class AiToolCallIndicatorComponent extends LitElement {
   }
 
   #statusMarker(toolCall: ToolCall): TemplateResult {
-    if (toolCall.status === 'complete') {
-      return html`<span class="row-marker row-marker--complete">${this.#completeIcon}</span>`;
-    }
     if (toolCall.status === 'error') {
       return html`<span class="row-marker row-marker--error">${this.#errorIcon}</span>`;
+    }
+    if (isToolCallSettled(toolCall, this.tools?.get(toolCall.name))) {
+      return html`<span class="row-marker row-marker--complete">${this.#completeIcon}</span>`;
     }
     return html`<span class="row-marker"><forge-ai-spinner size="small"></forge-ai-spinner></span>`;
   }
@@ -267,6 +268,7 @@ export class AiToolCallIndicatorComponent extends LitElement {
   #renderCard(toolCall: ToolCall): TemplateResult {
     const expanded = this.#isRowExpanded(toolCall.id);
     const regionId = `detail-${toolCall.id}`;
+    const name = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
 
     return html`
       <div class="code-card">
@@ -276,7 +278,7 @@ export class AiToolCallIndicatorComponent extends LitElement {
           aria-expanded=${expanded}
           aria-controls=${regionId}
           @click=${() => this.#toggleRow(toolCall.id)}>
-          <span class="code-card__title">${this.#codeIcon}<span class="code-card__name">${toolCall.name}</span></span>
+          <span class="code-card__title">${this.#codeIcon}<span class="code-card__name">${name}</span></span>
           ${this.#statusBadge(toolCall)} ${this.#chevronIcon}
           <span class="focus-indicator"></span>
         </button>

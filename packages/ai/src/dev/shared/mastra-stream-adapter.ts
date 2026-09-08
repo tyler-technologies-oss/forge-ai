@@ -1,4 +1,10 @@
-import { AgentAdapter, type ChatMessage, type ToolDefinition } from '../../lib/ai-chatbot';
+import {
+  AgentAdapter,
+  generateId,
+  toRequestMessages,
+  type ChatMessage,
+  type ToolDefinition
+} from '../../lib/ai-chatbot';
 
 export interface MastraStreamAdapterConfig {
   url: string;
@@ -63,7 +69,7 @@ export class MastraStreamAdapter extends AgentAdapter {
     this.#url = config.url;
     this.#headers = config.headers ?? {};
     this.#context = config.context ?? {};
-    this.#threadId = threadId ?? crypto.randomUUID();
+    this.#threadId = threadId ?? generateId();
     if (config.tools) {
       this.setTools(config.tools);
     }
@@ -108,8 +114,7 @@ export class MastraStreamAdapter extends AgentAdapter {
       throw new Error('Adapter not connected. Call connect() first.');
     }
 
-    const filteredMessages = this.#filterMessages(messages);
-    this.#streamRequest(filteredMessages).catch(err => {
+    this.#streamRequest(messages).catch(err => {
       console.error('[MastraStreamAdapter] sendMessage error:', err);
       this._emitError(err.message ?? 'Unknown error');
       this._updateState({ isRunning: false });
@@ -118,7 +123,7 @@ export class MastraStreamAdapter extends AgentAdapter {
 
   public sendToolResult(toolCallId: string, result: unknown, messages: ChatMessage[]): void {
     const toolResultMessage: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       role: 'tool',
       content: typeof result === 'string' ? result : JSON.stringify(result),
       toolCallId,
@@ -130,7 +135,7 @@ export class MastraStreamAdapter extends AgentAdapter {
 
   async #streamRequest(messages: ChatMessage[]): Promise<void> {
     this.#abortController = new AbortController();
-    this.#currentMessageId = crypto.randomUUID();
+    this.#currentMessageId = generateId();
     this.#toolCallArgsBuffers.clear();
 
     this._updateState({ isRunning: true });
@@ -138,12 +143,7 @@ export class MastraStreamAdapter extends AgentAdapter {
     this._emitMessageStart(this.#currentMessageId);
 
     const body = JSON.stringify({
-      messages: messages.map(m => ({
-        role: m.role,
-        content: m.content,
-        ...(m.toolCallId ? { toolCallId: m.toolCallId } : {}),
-        ...(m.toolCalls?.length ? { toolCalls: m.toolCalls } : {})
-      })),
+      messages: toRequestMessages(messages),
       threadId: this.#threadId,
       context: this.#context,
       ...(this.getModelFacingTools().length ? { tools: this.getModelFacingTools() } : {})
@@ -264,7 +264,7 @@ export class MastraStreamAdapter extends AgentAdapter {
             id: toolCallId,
             messageId: this.#currentMessageId,
             name: payload?.toolName ?? '',
-            argsBuffer
+            argsBuffer,
           },
           chunk
         );
@@ -290,7 +290,7 @@ export class MastraStreamAdapter extends AgentAdapter {
             toolCallId: payload?.toolCallId ?? '',
             result: payload?.result,
             message: {
-              id: crypto.randomUUID(),
+              id: generateId(),
               role: 'tool',
               content: typeof payload?.result === 'string' ? payload.result : JSON.stringify(payload?.result ?? ''),
               toolCallId: payload?.toolCallId,
@@ -353,16 +353,5 @@ export class MastraStreamAdapter extends AgentAdapter {
     } catch {
       return {};
     }
-  }
-
-  #filterMessages(messages: ChatMessage[]): ChatMessage[] {
-    return messages
-      .filter(msg => !msg.clientOnly)
-      .filter(msg => {
-        if (msg.role === 'assistant') {
-          return msg.content.trim().length > 0 || (msg.toolCalls && msg.toolCalls.length > 0);
-        }
-        return true;
-      });
   }
 }
