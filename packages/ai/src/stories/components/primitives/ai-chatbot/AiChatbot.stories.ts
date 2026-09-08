@@ -1,12 +1,20 @@
 import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
+import { ref } from 'lit/directives/ref.js';
 import { action } from 'storybook/actions';
 
 import '$lib/ai-chatbot';
 import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
 import '$lib/ai-voice-input';
-import { type ToolDefinition, type Suggestion, type ChatMessage, type ToolCall, ContextItem } from '$lib/ai-chatbot';
+import {
+  type AiChatbotComponent,
+  type ToolDefinition,
+  type Suggestion,
+  type ChatMessage,
+  type ToolCall,
+  ContextItem
+} from '$lib/ai-chatbot';
 import type { AgentInfo } from '$lib/ai-agent-info';
 import { displayDataTableTool } from '$lib/tools';
 import { MockAdapter } from '../../../utils/mock-adapter';
@@ -85,6 +93,11 @@ const meta = {
     threadsLoading: {
       control: 'boolean',
       description: 'Show a loading indicator in the conversations panel while recent chats are loading'
+    },
+    threadsError: {
+      control: 'text',
+      description:
+        'Message describing a failed thread load. Shown with a retry button in the conversations panel instead of its empty state or loading indicator'
     },
     enableReactions: {
       control: 'boolean',
@@ -1643,6 +1656,170 @@ export const WithLoadingConversationHistory: Story = {
           ?enable-reactions=${args.enableReactions}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
           @forge-ai-chatbot-conversations-close=${onConversationsClose}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+/**
+ * A failed conversations load. The panel shows the error with a retry instead of its "no chats yet"
+ * empty state, so the failure is not mistaken for an empty history. Retry succeeds.
+ */
+export const WithConversationHistoryError: Story = {
+  args: {
+    threadsError: 'Could not load your chats.'
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const threads = [
+      {
+        id: 'thread-1',
+        title: 'TypeScript best practices',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        messageCount: 8
+      },
+      {
+        id: 'thread-2',
+        title: 'Web component architecture',
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        messageCount: 15
+      }
+    ];
+
+    let chatbot: AiChatbotComponent | null = null;
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          ${ref(el => {
+            chatbot = el as AiChatbotComponent;
+          })}
+          .adapter=${adapter}
+          .threads=${[]}
+          .threadsError=${args.threadsError}
+          ?show-conversations-button=${true}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with Failed History"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-thread-retry=${() => {
+            action('forge-ai-chatbot-thread-retry')();
+            if (!chatbot) {
+              return;
+            }
+            chatbot.threadsError = undefined;
+            chatbot.threadsLoading = true;
+            setTimeout(() => {
+              chatbot!.threads = threads;
+              chatbot!.threadsLoading = false;
+              action('retry succeeded')({ threads: threads.length });
+            }, 800);
+          }}
+          @forge-ai-chatbot-thread-select=${(e: CustomEvent) => action('forge-ai-chatbot-thread-select')(e.detail)}
+          @forge-ai-chatbot-conversations-open=${action('forge-ai-chatbot-conversations-open')}
+          @forge-ai-chatbot-conversations-close=${action('forge-ai-chatbot-conversations-close')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+/**
+ * The host rejects the select by calling preventDefault(), then owns the commit. The first thread
+ * clicked always fails to load, so `selectedThreadId` must stay untouched; clicking the same thread
+ * again succeeds and the host commits it.
+ */
+export const ThreadSelectRejection: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const threads = [
+      {
+        id: 'thread-1',
+        title: 'TypeScript best practices',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        messageCount: 8
+      },
+      {
+        id: 'thread-2',
+        title: 'Web component architecture',
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        messageCount: 15
+      },
+      {
+        id: 'thread-3',
+        title: 'How to use localStorage?',
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 3
+      }
+    ];
+
+    const attemptedThreadIds = new Set<string>();
+    let chatbot: AiChatbotComponent | null = null;
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          ${ref(el => {
+            chatbot = el as AiChatbotComponent;
+          })}
+          .adapter=${adapter}
+          .threads=${threads}
+          ?show-conversations-button=${true}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-thread-select=${async (e: CustomEvent) => {
+            action('forge-ai-chatbot-thread-select')(e.detail);
+            e.preventDefault();
+
+            const { id } = e.detail;
+            chatbot!.threadsError = undefined;
+            chatbot!.threadsLoading = true;
+
+            await new Promise(resolve => setTimeout(resolve, 600));
+            chatbot!.threadsLoading = false;
+
+            if (!attemptedThreadIds.has(id)) {
+              attemptedThreadIds.add(id);
+              // Nothing to undo - selectedThreadId was never touched.
+              chatbot!.threadsError = '403 Forbidden - access to this chat was revoked';
+              action('host load failed')({
+                id,
+                error: chatbot!.threadsError,
+                selectedThreadId: chatbot?.selectedThreadId
+              });
+              return;
+            }
+
+            chatbot!.selectedThreadId = id;
+            action('host commit')({ id, selectedThreadId: chatbot?.selectedThreadId });
+          }}
+          @forge-ai-chatbot-thread-retry=${() => {
+            action('forge-ai-chatbot-thread-retry')();
+            chatbot!.threadsError = undefined;
+          }}
+          @forge-ai-chatbot-conversations-open=${action('forge-ai-chatbot-conversations-open')}
+          @forge-ai-chatbot-conversations-close=${action('forge-ai-chatbot-conversations-close')}>
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>

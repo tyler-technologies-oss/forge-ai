@@ -89,6 +89,7 @@ declare global {
     'forge-ai-chatbot-launcher-thread-search': CustomEvent<ForgeAiChatbotLauncherThreadSearchEventData>;
     'forge-ai-chatbot-launcher-thread-load-more': CustomEvent<ForgeAiChatbotLauncherThreadLoadMoreEventData>;
     'forge-ai-chatbot-launcher-new-chat': CustomEvent<void>;
+    'forge-ai-chatbot-launcher-thread-retry': CustomEvent<void>;
   }
 }
 
@@ -117,11 +118,13 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @property {Agent[]} agents - List of available agents for selector
  * @property {string} selectedAgentId - Currently selected agent ID
  * @property {string} threadName - The name of the current thread (shown in conversation view breadcrumb)
+ * @property {boolean} showHistoryButton - Controls the prompt bar's chat history button and its popover (default: false). Visibility is yours to decide - the component never infers it from whether chats are loaded, so an empty `threads` shows "No chats yet" rather than removing the entry point
  * @property {boolean} showThreadRename - Whether to show the rename option in thread actions menu
  * @property {boolean} showThreadDelete - Whether to show the delete option in thread actions menu
  * @property {Thread[]} threads - The list of chats shown in the history popover and full history view
  * @property {number} totalThreads - Total number of chats available. When greater than the number of loaded threads, infinite scroll is enabled (0 disables it)
- * @property {boolean} threadsLoading - Whether chats are currently loading, used to gate the history button and its disabled state
+ * @property {boolean} threadsLoading - Whether chats are currently loading, used to show a spinner on the history button and disable it
+ * @property {string | undefined} threadsError - Message describing a failed chat history load. When set, the history popover/view shows the message with a retry button instead of the empty state, and the history button shows an error badge so the failure is visible with the popover closed. If chats are already loaded the list stays visible and the message renders as a compact single line with a retry - at the bottom of the list when a page was in flight, otherwise above it. Clear it once a load succeeds.
  * @property {string | null} selectedThreadId - The id of the currently selected thread, highlighted in the history popover/view. Updated internally when a thread is selected or a new chat starts.
  *
  * @cssproperty --forge-ai-chatbot-launcher-icon-color - The fill color for the AI icon.
@@ -139,10 +142,11 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @event {CustomEvent<ForgeAiChatbotAgentChangeEventData>} forge-ai-chatbot-agent-change - Fired when agent selection changes
  * @event {CustomEvent<ForgeAiChatbotLauncherThreadRenameEventData>} forge-ai-chatbot-launcher-thread-rename - Fired when thread rename is saved. Parent should update threadName property and call onSuccess() or onError()
  * @event {CustomEvent<ForgeAiChatbotLauncherThreadDeleteEventData>} forge-ai-chatbot-launcher-thread-delete - Fired when thread deletion is confirmed. Parent should delete thread and call onSuccess() or onError()
- * @event {CustomEvent<ForgeAiChatbotLauncherThreadSelectEventData>} forge-ai-chatbot-launcher-thread-select - Fired when a thread is selected from the history popover or full history view
+ * @event {CustomEvent<ForgeAiChatbotLauncherThreadSelectEventData>} forge-ai-chatbot-launcher-thread-select - Fired when a thread is selected from the history popover or full history view. Cancelable - prevents selectedThreadId from being set and the transition to the conversation view, leaving the host to commit both once its own load resolves
  * @event {CustomEvent<ForgeAiChatbotLauncherThreadSearchEventData>} forge-ai-chatbot-launcher-thread-search - Fired when the history search query changes (debounced). Cancelable - call setResults() with the results
  * @event {CustomEvent<ForgeAiChatbotLauncherThreadLoadMoreEventData>} forge-ai-chatbot-launcher-thread-load-more - Fired when scrolling near the bottom of the history list for pagination. Call appendResults() with the next page (empty array signals no more results)
  * @event {CustomEvent<void>} forge-ai-chatbot-launcher-new-chat - Fired when "New chat" is clicked from the full history view. Cancelable - prevents startNewChat() from being called
+ * @event {CustomEvent<void>} forge-ai-chatbot-launcher-thread-retry - Fired when the retry button in the history error state is clicked. Re-request the chats and clear threadsError once the load succeeds
  */
 @customElement(AiChatbotLauncherComponentTagName)
 export class AiChatbotLauncherComponent extends AiChatbotBase {
@@ -155,6 +159,9 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
   @property({ attribute: 'thread-name' })
   public threadName?: string;
+
+  @property({ type: Boolean, attribute: 'show-history-button' })
+  public showHistoryButton = false;
 
   @property({ type: Boolean, attribute: 'show-thread-rename' })
   public showThreadRename = false;
@@ -170,6 +177,9 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
   @property({ type: Boolean, attribute: 'threads-loading' })
   public threadsLoading = false;
+
+  @property({ type: String, attribute: 'threads-error' })
+  public threadsError?: string;
 
   @property({ type: String, attribute: 'selected-thread-id' })
   public selectedThreadId: string | null = null;
@@ -289,6 +299,16 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     this.#setViewState('welcome');
   }
 
+  /**
+   * Returns to the welcome view without touching conversation state. Unlike `startNewChat()`, this
+   * leaves messages, `selectedThreadId`, and the adapter's thread untouched, so an abandoned thread
+   * selection can be undone without discarding the conversation the user was already in.
+   */
+  public showWelcome(): void {
+    this._historyPopoverOpen = false;
+    this.#transitionToWelcome();
+  }
+
   #transitionToHistory(): void {
     this.#setViewState('history');
   }
@@ -392,12 +412,23 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
   #handleThreadsSearchSelect(evt: CustomEvent<ForgeAiThreadsSearchSelectEventData>): void {
     this._historyPopoverOpen = false;
-    this.selectedThreadId = evt.detail.id;
-    this._dispatchHostEvent({
+
+    const event = this._dispatchHostEvent({
       type: 'forge-ai-chatbot-launcher-thread-select',
-      detail: evt.detail
+      detail: evt.detail,
+      cancelable: true
     });
+
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    this.selectedThreadId = evt.detail.id;
     this.#setViewState('conversation');
+  }
+
+  #handleThreadsSearchRetry(): void {
+    this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-thread-retry' });
   }
 
   #handleThreadsSearchNewChat(): void {
@@ -704,6 +735,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           .threads=${this.threads}
           .totalChats=${this.totalThreads}
           .selectedThreadId=${this.selectedThreadId}
+          .errorMessage=${this.threadsError}
           ?show-thread-rename=${this.showThreadRename}
           ?show-thread-delete=${this.showThreadDelete}
           @forge-ai-threads-search-back=${this.#handleHistoryBack}
@@ -713,6 +745,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           @forge-ai-threads-search-new-chat=${this.#handleThreadsSearchNewChat}
           @forge-ai-threads-search-rename=${this.#handleThreadsSearchRename}
           @forge-ai-threads-search-delete=${this.#handleThreadsSearchDelete}
+          @forge-ai-threads-search-retry=${this.#handleThreadsSearchRetry}
           @forge-ai-threads-search-delete-confirm=${this.#handleThreadsSearchDeleteConfirm}>
         </forge-ai-threads-search>
       </div>
@@ -730,8 +763,13 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     }
   }
 
+  /** An error supersedes the loading state, so the retry stays reachable rather than being disabled. */
+  get #showThreadsLoading(): boolean {
+    return this.threadsLoading && !this.threadsError;
+  }
+
   get #historyButtonTemplate(): TemplateResult | typeof nothing {
-    if (this.threads.length === 0 && this.totalThreads === 0 && !this.threadsLoading) {
+    if (!this.showHistoryButton) {
       return nothing;
     }
 
@@ -740,13 +778,13 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
         id="history-button"
         slot="actions-start"
         type="button"
-        class="forge-icon-button forge-icon-button--medium ai-icon-button"
-        aria-label="Chat history"
+        class="forge-icon-button forge-icon-button--medium ai-icon-button history-button"
+        aria-label=${this.threadsError ? 'Chat history - failed to load' : 'Chat history'}
         aria-expanded=${this._historyPopoverOpen}
-        ?disabled=${this.threadsLoading}
+        ?disabled=${this.#showThreadsLoading}
         @click=${this.#handleHistoryButtonClick}>
         ${when(
-          this.threadsLoading,
+          this.#showThreadsLoading,
           () => html`<forge-ai-spinner size="extra-small"></forge-ai-spinner>`,
           () => html`
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
@@ -755,9 +793,13 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
             </svg>
           `
         )}
+        ${when(
+          this.threadsError,
+          () => html`<span class="forge-badge forge-badge--dot history-button__error-badge"></span>`
+        )}
       </button>
       ${when(
-        !this.threadsLoading,
+        !this.#showThreadsLoading,
         () =>
           html`<forge-ai-tooltip slot="actions-start" for="history-button" placement="top"
             >Chat history</forge-ai-tooltip
@@ -788,6 +830,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
             .threads=${this.threads}
             .totalChats=${this.totalThreads}
             .selectedThreadId=${this.selectedThreadId}
+            .errorMessage=${this.threadsError}
             ?show-thread-rename=${this.showThreadRename}
             ?show-thread-delete=${this.showThreadDelete}
             @forge-ai-threads-search-query=${this.#handleThreadsSearchQuery}
@@ -795,6 +838,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
             @forge-ai-threads-search-select=${this.#handleThreadsSearchSelect}
             @forge-ai-threads-search-rename=${this.#handleThreadsSearchRename}
             @forge-ai-threads-search-delete=${this.#handleThreadsSearchDelete}
+            @forge-ai-threads-search-retry=${this.#handleThreadsSearchRetry}
             @forge-ai-threads-search-delete-confirm=${this.#handleThreadsSearchDeleteConfirm}>
             <button
               slot="header-actions"
@@ -834,7 +878,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
         ${this.#mainContentTemplate} ${this.#promptSectionTemplate}
         ${this._viewState === 'welcome' ? this.#welcomeSuggestionsTemplate : nothing}
       </div>
-      ${this.#historyPopoverTemplate} ${this.#deleteThreadController.template}
+      ${when(this.showHistoryButton, () => this.#historyPopoverTemplate)} ${this.#deleteThreadController.template}
     `;
   }
 }

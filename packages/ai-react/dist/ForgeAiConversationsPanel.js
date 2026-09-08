@@ -11,6 +11,7 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
     threads,
     totalChats,
     selectedThreadId,
+    errorMessage,
     ...filteredProps
   } = props;
 
@@ -50,6 +51,11 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
     "forge-ai-conversations-panel-delete",
     props.onForgeAiConversationsPanelDelete,
   );
+  useEventListener(
+    ref,
+    "forge-ai-conversations-panel-retry",
+    props.onForgeAiConversationsPanelRetry,
+  );
 
   return React.createElement(
     "forge-ai-conversations-panel",
@@ -67,6 +73,7 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
       "total-chats": props.totalChats || props["total-chats"],
       "selected-thread-id":
         props.selectedThreadId || props["selected-thread-id"],
+      "error-message": props.errorMessage || props["error-message"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

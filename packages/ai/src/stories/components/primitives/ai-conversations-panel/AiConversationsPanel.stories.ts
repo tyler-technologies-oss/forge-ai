@@ -5,6 +5,7 @@ import { action } from 'storybook/actions';
 import '$lib/ai-conversations-panel';
 import type { Thread } from '$lib/ai-threads';
 import type {
+  AiConversationsPanelComponent,
   ForgeAiConversationsPanelSearchEventData,
   ForgeAiConversationsPanelLoadMoreEventData,
   ForgeAiConversationsPanelRenameEventData,
@@ -122,6 +123,11 @@ const meta = {
     loading: {
       control: 'boolean',
       description: 'Show a loading indicator in the recent chats list while threads are loading'
+    },
+    errorMessage: {
+      control: 'text',
+      description:
+        'Message describing a failed thread load. Replaces the empty state and loading indicator with a retry banner when nothing is loaded. When threads are already on screen the list stays visible and the message shows as a compact single line with a retry - at the bottom of the list if a page was in flight, otherwise above it'
     }
   },
   args: {
@@ -130,7 +136,8 @@ const meta = {
     selectedThreadId: null,
     showThreadRename: true,
     showThreadDelete: true,
-    loading: false
+    loading: false,
+    errorMessage: undefined
   },
   render: args => {
     return html`
@@ -142,6 +149,12 @@ const meta = {
           ?show-thread-rename=${args.showThreadRename}
           ?show-thread-delete=${args.showThreadDelete}
           ?loading=${args.loading}
+          .errorMessage=${args.errorMessage}
+          @forge-ai-conversations-panel-retry=${(e: CustomEvent) => {
+            action('forge-ai-conversations-panel-retry')(e);
+            const panel = e.target as AiConversationsPanelComponent;
+            panel.errorMessage = undefined;
+          }}
           @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
           @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
           @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}
@@ -182,6 +195,74 @@ export const Loading: Story = {
   args: {
     threads: [],
     loading: true
+  }
+};
+
+/** A failed load with nothing to fall back on - the error replaces the empty state. */
+export const ErrorState: Story = {
+  args: {
+    threads: [],
+    errorMessage: 'Could not load your chats.'
+  }
+};
+
+/**
+ * An error supersedes the loading indicator, so a host that leaves `loading` set does not end up
+ * with a spinner hiding the failure.
+ */
+export const ErrorStateWhileLoading: Story = {
+  args: {
+    threads: [],
+    loading: true,
+    errorMessage: 'Could not load your chats.'
+  }
+};
+
+/**
+ * A failure that is not tied to the end of the list - a rejected thread selection, for instance. Threads
+ * stay on screen and the message reads as a compact single line above them.
+ */
+export const ErrorAboveList: Story = {
+  args: {
+    threads: sampleThreads,
+    errorMessage: '403 Forbidden - access to this chat was revoked.'
+  }
+};
+
+/**
+ * A failed "load more" - scroll to the bottom of the list to trigger it. The page was in flight, so the
+ * failure reads at the bottom where the load-more spinner would have been.
+ */
+export const LoadMoreErrorState: Story = {
+  args: {
+    threads: generateThreads(20),
+    totalChats: 120
+  },
+  render: args => {
+    return html`
+      <div style="width: 400px; height: 600px; border: 1px solid var(--forge-theme-outline);">
+        <forge-ai-conversations-panel
+          .threads=${args.threads}
+          total-chats=${args.totalChats}
+          @forge-ai-conversations-panel-retry=${(e: CustomEvent) => {
+            action('forge-ai-conversations-panel-retry')(e);
+            const panel = e.target as AiConversationsPanelComponent;
+            panel.errorMessage = undefined;
+          }}
+          @forge-ai-conversations-panel-load-more=${(e: CustomEvent) => {
+            action('forge-ai-conversations-panel-load-more')(e);
+            const panel = e.target as AiConversationsPanelComponent;
+            // The page never resolves, which is what keeps the failure at the bottom of the list.
+            setTimeout(() => {
+              panel.errorMessage = 'Could not load more chats.';
+            }, 800);
+          }}
+          @forge-ai-conversations-panel-select=${action('forge-ai-conversations-panel-select')}
+          @forge-ai-conversations-panel-new-chat=${action('forge-ai-conversations-panel-new-chat')}
+          @forge-ai-conversations-panel-close=${action('forge-ai-conversations-panel-close')}>
+        </forge-ai-conversations-panel>
+      </div>
+    `;
   }
 };
 

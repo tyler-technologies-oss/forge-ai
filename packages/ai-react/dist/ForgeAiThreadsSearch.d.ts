@@ -50,8 +50,11 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
   /** undefined */
   placeholder?: ForgeAiThreadsSearchElement["placeholder"];
 
-  /** undefined */
-  emptyMessage?: ForgeAiThreadsSearchElement["emptyMessage"];
+  /** Message describing a failed thread load. When no threads are loaded, an error banner with a
+retry button replaces the empty state. When threads are already on screen the list stays visible
+and the message shows as a compact single line with a retry - at the bottom of the list if a page
+was in flight, otherwise above it. The host owns this value and should clear it once a load succeeds. */
+  errorMessage?: ForgeAiThreadsSearchElement["errorMessage"];
 
   /** The id of the currently selected/active thread, highlighted in the list. */
   selectedThreadId?: ForgeAiThreadsSearchElement["selectedThreadId"];
@@ -112,6 +115,9 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
 
   /** Fired when the back button (shown via showBackButton) is clicked. */
   onForgeAiThreadsSearchBack?: (event: CustomEvent<CustomEvent<void>>) => void;
+
+  /** Fired when the retry button in the error state is clicked. The host should re-request the threads and clear errorMessage once the load succeeds. */
+  onForgeAiThreadsSearchRetry?: (event: CustomEvent<CustomEvent<void>>) => void;
 }
 
 /**
@@ -128,6 +134,7 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
  * - **forge-ai-threads-search-delete** - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert.
  * - **forge-ai-threads-search-delete-confirm** - Fired before showing the built-in delete confirmation. Cancelable - if prevented, this component shows no confirmation UI; the host must show its own and call confirmThreadDelete() once accepted.
  * - **forge-ai-threads-search-back** - Fired when the back button (shown via showBackButton) is clicked.
+ * - **forge-ai-threads-search-retry** - Fired when the retry button in the error state is clicked. The host should re-request the threads and clear errorMessage once the load succeeds.
  *
  * ### **Methods:**
  *  - **confirmThreadDelete(thread: _Thread_): _void_** - Completes a delete that a host intercepted via `forge-ai-threads-search-delete-confirm`

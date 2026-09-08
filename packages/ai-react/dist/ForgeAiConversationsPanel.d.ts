@@ -38,6 +38,13 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
   /** undefined */
   selectedThreadId?: ForgeAiConversationsPanelElement["selectedThreadId"];
 
+  /** Message describing a failed thread load. When no threads are loaded, an error banner with a
+retry button replaces the empty state and loading indicator. When threads are already on screen
+the list stays visible and the message shows as a compact single line with a retry - at the bottom
+of the list if a page was in flight, otherwise above it. The host owns this value and should clear
+it once a load succeeds. */
+  errorMessage?: ForgeAiConversationsPanelElement["errorMessage"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -93,6 +100,11 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
   onForgeAiConversationsPanelDelete?: (
     event: CustomEvent<CustomEvent<ForgeAiConversationsPanelDeleteEventData>>,
   ) => void;
+
+  /** Fired when the retry button in the error state is clicked. The host should re-request the threads and clear errorMessage once the load succeeds. */
+  onForgeAiConversationsPanelRetry?: (
+    event: CustomEvent<CustomEvent<void>>,
+  ) => void;
 }
 
 /**
@@ -108,5 +120,6 @@ infinite scroll entirely. Useful when all data is loaded upfront. */
  * - **forge-ai-conversations-panel-load-more** - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts. Always shows loading - call appendResults([]) to signal end.
  * - **forge-ai-conversations-panel-rename** - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. Otherwise optimistically updated.
  * - **forge-ai-conversations-panel-delete** - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
+ * - **forge-ai-conversations-panel-retry** - Fired when the retry button in the error state is clicked. The host should re-request the threads and clear errorMessage once the load succeeds.
  */
 export const ForgeAiConversationsPanel: React.ForwardRefExoticComponent<ForgeAiConversationsPanelProps>;

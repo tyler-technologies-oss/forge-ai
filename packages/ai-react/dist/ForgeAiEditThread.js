@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiEditThread = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { thread, value, ...filteredProps } = props;
+  const { thread, value, density, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -32,6 +32,7 @@ export const ForgeAiEditThread = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       thread: props.thread,
       value: props.value,
+      density: props.density,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

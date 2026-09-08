@@ -36,6 +36,9 @@ export interface ForgeAiChatHeaderProps extends Pick<
   /** Shows the conversations button (hamburger menu) for accessing conversation history */
   showConversationsButton?: boolean;
 
+  /** Shows an error badge on the conversations button, indicating a failure inside the conversations panel (default: false) */
+  hasConversationsError?: boolean;
+
   /** Controls which minimize icon to display */
   minimizeIcon?: ForgeAiChatHeaderElement["minimizeIcon"];
 
