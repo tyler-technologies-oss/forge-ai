@@ -141,6 +141,41 @@
   margin-inline-start: #{forge-spacing.variable(xsmall)};
 }
 
+.error-state {
+  margin-block-start: #{forge-spacing.variable(xsmall)};
+
+  &__message {
+    @include forge-typography.style(body2);
+    margin: 0;
+  }
+
+  &__retry {
+    --forge-button-primary-color: #{forge-theme.variable(error)};
+
+    margin-block-start: #{forge-spacing.variable(xsmall)};
+  }
+}
+
+.compact-error {
+  margin-inline: #{forge-spacing.variable(xsmall)};
+  margin-block: #{forge-spacing.variable(xsmall)};
+
+  &__body {
+    @include forge-typography.style(body1);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: #{forge-spacing.variable(xsmall)};
+  }
+
+  &__retry {
+    --forge-button-primary-color: #{forge-theme.variable(error)};
+
+    flex: none;
+  }
+}
+
 .forge-list-item {
   position: relative;
   display: flex;

@@ -14,7 +14,7 @@ export const ForgeAiThreadsSearch = forwardRef((props, forwardedRef) => {
     headerTitle,
     totalChats,
     placeholder,
-    emptyMessage,
+    errorMessage,
     selectedThreadId,
     ...filteredProps
   } = props;
@@ -60,6 +60,11 @@ export const ForgeAiThreadsSearch = forwardRef((props, forwardedRef) => {
     "forge-ai-threads-search-back",
     props.onForgeAiThreadsSearchBack,
   );
+  useEventListener(
+    ref,
+    "forge-ai-threads-search-retry",
+    props.onForgeAiThreadsSearchRetry,
+  );
 
   return React.createElement(
     "forge-ai-threads-search",
@@ -77,7 +82,7 @@ export const ForgeAiThreadsSearch = forwardRef((props, forwardedRef) => {
       "header-title": props.headerTitle || props["header-title"],
       "total-chats": props.totalChats || props["total-chats"],
       placeholder: props.placeholder,
-      "empty-message": props.emptyMessage || props["empty-message"],
+      "error-message": props.errorMessage || props["error-message"],
       "selected-thread-id":
         props.selectedThreadId || props["selected-thread-id"],
       class: props.className,

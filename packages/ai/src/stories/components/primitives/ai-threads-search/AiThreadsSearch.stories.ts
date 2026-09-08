@@ -2,6 +2,7 @@ import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
 import { action } from 'storybook/actions';
 import type { Thread } from '$lib/ai-threads';
+import type { AiThreadsSearchComponent } from '$lib/ai-threads-search';
 
 import '$lib/ai-threads-search';
 import '$lib/ai-threads';
@@ -66,9 +67,10 @@ const meta = {
       control: 'text',
       description: 'Placeholder text for search input'
     },
-    emptyMessage: {
+    errorMessage: {
       control: 'text',
-      description: 'Message displayed when no results found'
+      description:
+        'Message describing a failed thread load. Replaces the empty state with a retry banner when nothing is loaded. When threads are already on screen the list stays visible and the message shows as a compact single line with a retry - at the bottom of the list if a page was in flight, otherwise above it'
     }
   },
   args: {
@@ -94,7 +96,12 @@ const meta = {
           ?show-thread-rename=${args.showThreadRename}
           ?show-thread-delete=${args.showThreadDelete}
           placeholder=${args.placeholder}
-          empty-message=${args.emptyMessage}
+          .errorMessage=${args.errorMessage}
+          @forge-ai-threads-search-retry=${(e: CustomEvent) => {
+            action('forge-ai-threads-search-retry')(e);
+            const threadsSearch = e.target as AiThreadsSearchComponent;
+            threadsSearch.errorMessage = undefined;
+          }}
           @forge-ai-threads-search-query=${action('forge-ai-threads-search-query')}
           @forge-ai-threads-search-load-more=${(e: CustomEvent) => {
             action('forge-ai-threads-search-load-more')(e);
@@ -224,11 +231,11 @@ export const WithCustomHeader: Story = {
   }
 };
 
+/** With no query entered the list reads "No chats yet"; a search with no matches reads "No chats found". */
 export const EmptyState: Story = {
   args: {
     threads: [],
-    showNewChatButton: true,
-    emptyMessage: 'No chats available, start a new conversation!'
+    showNewChatButton: true
   }
 };
 
@@ -290,5 +297,64 @@ export const WithDeleteOnly: Story = {
     showNewChatButton: true,
     showThreadRename: false,
     showThreadDelete: true
+  }
+};
+
+/** A failed load with nothing to fall back on - the error replaces the empty state. */
+export const ErrorState: Story = {
+  args: {
+    threads: [],
+    errorMessage: 'Could not load your chat history.'
+  }
+};
+
+/**
+ * A failure that is not tied to the end of the list - a rejected thread selection, for instance. Results
+ * stay on screen and the message reads as a compact single line above them.
+ */
+export const ErrorAboveList: Story = {
+  args: {
+    threads: generateThreads(5),
+    errorMessage: '403 Forbidden - access to this chat was revoked.'
+  }
+};
+
+/**
+ * A failed "load more" - scroll to the bottom of the list to trigger it. The page was in flight, so the
+ * failure reads at the bottom where the load-more spinner would have been.
+ */
+export const LoadMoreErrorState: Story = {
+  args: {
+    threads: generateThreads(20),
+    totalChats: 120
+  },
+  render: (args: any) => {
+    return html`
+      <div style="height: 600px; border: 1px solid var(--forge-theme-outline);">
+        <forge-ai-threads-search
+          .threads=${args.threads}
+          total-chats=${args.totalChats}
+          header-title=${args.headerTitle}
+          .showNewChatButton=${args.showNewChatButton}
+          .showSearch=${args.showSearch}
+          placeholder=${args.placeholder}
+          @forge-ai-threads-search-retry=${(e: CustomEvent) => {
+            action('forge-ai-threads-search-retry')(e);
+            const threadsSearch = e.target as AiThreadsSearchComponent;
+            threadsSearch.errorMessage = undefined;
+          }}
+          @forge-ai-threads-search-load-more=${(e: CustomEvent) => {
+            action('forge-ai-threads-search-load-more')(e);
+            const threadsSearch = e.target as AiThreadsSearchComponent;
+            // The page never resolves, which is what keeps the failure at the bottom of the list.
+            setTimeout(() => {
+              threadsSearch.errorMessage = 'Could not load more chats.';
+            }, 800);
+          }}
+          @forge-ai-threads-search-select=${action('forge-ai-threads-search-select')}
+          @forge-ai-threads-search-new-chat=${action('forge-ai-threads-search-new-chat')}>
+        </forge-ai-threads-search>
+      </div>
+    `;
   }
 };

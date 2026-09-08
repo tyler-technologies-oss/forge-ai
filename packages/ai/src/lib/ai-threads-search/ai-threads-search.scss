@@ -155,6 +155,40 @@ $_max-content-width: 768px;
   }
 }
 
+.error-state {
+  padding-inline: #{forge-spacing.variable(medium)};
+  margin-block-start: #{forge-spacing.variable(xsmall)};
+
+  &__message {
+    @include forge-typography.style(body2);
+    margin: 0;
+  }
+
+  &__retry {
+    --forge-button-primary-color: #{forge-theme.variable(error)};
+
+    margin-block-start: #{forge-spacing.variable(xsmall)};
+  }
+}
+
+.compact-error {
+  margin-inline: #{forge-spacing.variable(medium)};
+  margin-block: #{forge-spacing.variable(xsmall)};
+
+  &__body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: #{forge-spacing.variable(xsmall)};
+  }
+
+  &__retry {
+    --forge-button-primary-color: #{forge-theme.variable(error)};
+
+    flex: none;
+  }
+}
+
 .loading-more-indicator {
   display: flex;
   justify-content: center;

@@ -18,6 +18,9 @@ export interface ForgeAiErrorMessageProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
+  /** The density of the banner. `'small'` tightens the padding, gap, and icon for use in compact surfaces like lists and panels (default: 'medium') */
+  density?: ForgeAiErrorMessageElement["density"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 
@@ -46,7 +49,7 @@ export interface ForgeAiErrorMessageProps extends Pick<
  *
  *
  * ### **Slots:**
- *  - **title** - The error title text
+ *  - **title** - The error title text. When empty the banner collapses to a single row alongside the icon.
  * - _default_ - The error message content
  */
 export const ForgeAiErrorMessage: React.ForwardRefExoticComponent<ForgeAiErrorMessageProps>;

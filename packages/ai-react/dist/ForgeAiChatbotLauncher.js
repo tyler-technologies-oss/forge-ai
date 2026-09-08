@@ -5,6 +5,7 @@ import { useEventListener, useProperties } from "./react-utils.js";
 export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
   const {
+    showHistoryButton,
     showThreadRename,
     showThreadDelete,
     threadsLoading,
@@ -13,6 +14,7 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
     descriptionText,
     threadName,
     totalThreads,
+    threadsError,
     selectedThreadId,
     fileUpload,
     maxFileSize,
@@ -110,6 +112,11 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
     "forge-ai-chatbot-launcher-new-chat",
     props.onForgeAiChatbotLauncherNewChat,
   );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-thread-retry",
+    props.onForgeAiChatbotLauncherThreadRetry,
+  );
 
   /** Properties - run whenever a property has changed */
   useProperties(ref, "threads", props.threads);
@@ -131,6 +138,7 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       "description-text": props.descriptionText || props["description-text"],
       "thread-name": props.threadName || props["thread-name"],
       "total-threads": props.totalThreads || props["total-threads"],
+      "threads-error": props.threadsError || props["threads-error"],
       "selected-thread-id":
         props.selectedThreadId || props["selected-thread-id"],
       "file-upload": props.fileUpload || props["file-upload"],
@@ -151,6 +159,7 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
+      "show-history-button": props.showHistoryButton ? true : undefined,
       "show-thread-rename": props.showThreadRename ? true : undefined,
       "show-thread-delete": props.showThreadDelete ? true : undefined,
       "threads-loading": props.threadsLoading ? true : undefined,

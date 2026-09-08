@@ -5,6 +5,7 @@ import { DeleteThreadController } from '../utils/delete-thread-controller';
 import { InfiniteScrollController } from '../utils/infinite-scroll-controller';
 import type { Thread } from '../ai-threads';
 import '../ai-modal/ai-modal';
+import '../ai-error-message';
 import '../ai-icon/ai-icon';
 import '../ai-spinner/ai-spinner';
 import '../ai-thread-actions-menu';
@@ -25,6 +26,7 @@ declare global {
     'forge-ai-conversations-panel-load-more': CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>;
     'forge-ai-conversations-panel-rename': CustomEvent<ForgeAiConversationsPanelRenameEventData>;
     'forge-ai-conversations-panel-delete': CustomEvent<ForgeAiConversationsPanelDeleteEventData>;
+    'forge-ai-conversations-panel-retry': CustomEvent<void>;
   }
 }
 
@@ -70,6 +72,7 @@ export const AiConversationsPanelComponentTagName: keyof HTMLElementTagNameMap =
  * @event {CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>} forge-ai-conversations-panel-load-more - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts. Always shows loading - call appendResults([]) to signal end.
  * @event {CustomEvent<ForgeAiConversationsPanelRenameEventData>} forge-ai-conversations-panel-rename - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. Otherwise optimistically updated.
  * @event {CustomEvent<ForgeAiConversationsPanelDeleteEventData>} forge-ai-conversations-panel-delete - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
+ * @event {CustomEvent<void>} forge-ai-conversations-panel-retry - Fired when the retry button in the error state is clicked. The host should re-request the threads and clear errorMessage once the load succeeds.
  *
  * @description Standalone conversations list panel with header, new chat action, search, and thread list.
  * Used within chatbot components for conversation history navigation.
@@ -100,6 +103,16 @@ export class AiConversationsPanelComponent extends LitElement {
 
   @property({ type: Boolean, reflect: true })
   public loading = false;
+
+  /**
+   * Message describing a failed thread load. When no threads are loaded, an error banner with a
+   * retry button replaces the empty state and loading indicator. When threads are already on screen
+   * the list stays visible and the message shows as a compact single line with a retry - at the bottom
+   * of the list if a page was in flight, otherwise above it. The host owns this value and should clear
+   * it once a load succeeds.
+   */
+  @property({ type: String, attribute: 'error-message' })
+  public errorMessage?: string;
 
   @state()
   private _viewState: 'main' | 'search' = 'main';
@@ -395,6 +408,14 @@ export class AiConversationsPanelComponent extends LitElement {
     this.dispatchEvent(event);
   }
 
+  #handleRetryClick(): void {
+    const event = new CustomEvent<void>('forge-ai-conversations-panel-retry', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
   #handleMenuRename(e: CustomEvent): void {
     this._editingThreadId = e.detail.id;
     this._openMenuThreadId = null;
@@ -537,11 +558,12 @@ export class AiConversationsPanelComponent extends LitElement {
     `;
   }
 
-  get #loadingMoreIndicator(): TemplateResult | typeof nothing {
-    const controller =
-      this._viewState === 'search' ? this.#searchChatsScrollController : this.#recentChatsScrollController;
+  get #activeScrollController(): InfiniteScrollController {
+    return this._viewState === 'search' ? this.#searchChatsScrollController : this.#recentChatsScrollController;
+  }
 
-    if (!controller.isLoadingMore) {
+  get #loadingMoreIndicator(): TemplateResult | typeof nothing {
+    if (!this.#activeScrollController.isLoadingMore) {
       return nothing;
     }
     return html`
@@ -557,15 +579,72 @@ export class AiConversationsPanelComponent extends LitElement {
     </div>
   `;
 
+  get #errorState(): TemplateResult {
+    return html`
+      <div class="error-state">
+        <forge-ai-error-message density="small">
+          <span slot="title">Error</span>
+          <p class="error-state__message">${this.errorMessage}</p>
+          <button
+            class="forge-button forge-button--outlined forge-button--dense error-state__retry"
+            type="button"
+            @click=${this.#handleRetryClick}>
+            Retry
+          </button>
+        </forge-ai-error-message>
+      </div>
+    `;
+  }
+
+  /** The single-line variant, used when threads are already on screen and the list stays visible. */
+  get #compactError(): TemplateResult {
+    return html`
+      <forge-ai-error-message class="compact-error" density="small">
+        <div class="compact-error__body">
+          <span>${this.errorMessage}</span>
+          <button
+            class="forge-button forge-button--outlined forge-button--dense compact-error__retry"
+            type="button"
+            @click=${this.#handleRetryClick}>
+            Retry
+          </button>
+        </div>
+      </forge-ai-error-message>
+    `;
+  }
+
+  /**
+   * A failure that arrives while a page is in flight is a pagination failure, so it reads at the
+   * bottom of the list where the load-more spinner would have been. Any other failure - a rejected
+   * thread selection, for instance - is not tied to the end of the list, so it sits above it.
+   */
+  get #errorPlacement(): 'above-list' | 'list-footer' | 'none' {
+    // With no threads on screen the full banner replaces the empty state instead.
+    if (!this.errorMessage || this.#displayedThreads.length === 0) {
+      return 'none';
+    }
+
+    return this.#activeScrollController.isLoadingMore ? 'list-footer' : 'above-list';
+  }
+
   get #threadList(): TemplateResult | typeof nothing {
     const threads = this.#displayedThreads;
 
     if (threads.length === 0) {
+      if (this.errorMessage) {
+        return this.#errorState;
+      }
       if (this.loading && this._viewState === 'main') {
         return this.#loadingIndicator;
       }
       return this.#emptyState;
     }
+
+    return this.#threadItems;
+  }
+
+  get #threadItems(): TemplateResult {
+    const threads = this.#displayedThreads;
 
     return html`
       <ul class="forge-list forge-list--dense forge-list--navlist" role="list">
@@ -618,7 +697,7 @@ export class AiConversationsPanelComponent extends LitElement {
           `;
         })}
       </ul>
-      ${this.#loadingMoreIndicator}
+      ${this.#errorPlacement === 'list-footer' ? this.#compactError : this.#loadingMoreIndicator}
     `;
   }
 
@@ -657,7 +736,8 @@ export class AiConversationsPanelComponent extends LitElement {
       <aside class="conversations-panel" role="complementary" aria-label="Conversation history">
         ${when(isMainView, () => this.#header)} ${when(isSearchView, () => this.#headerSearch)}
         ${when(isMainView, () => this.#chatActionsList)} ${when(isMainView, () => this.#chatsLabel)}
-        ${when(isSearchView, () => this.#searchFieldSearch)} ${this.#threadListContainer}
+        ${when(isSearchView, () => this.#searchFieldSearch)}
+        ${when(this.#errorPlacement === 'above-list', () => this.#compactError)} ${this.#threadListContainer}
       </aside>
       ${this.#deleteThreadController.template}
     `;

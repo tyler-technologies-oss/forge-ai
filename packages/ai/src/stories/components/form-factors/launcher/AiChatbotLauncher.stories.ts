@@ -58,6 +58,10 @@ const meta = {
       control: 'text',
       description: 'Thread name displayed in conversation view breadcrumb'
     },
+    showHistoryButton: {
+      control: 'boolean',
+      description: "Show the prompt bar's chat history button and its popover"
+    },
     showThreadRename: {
       control: 'boolean',
       description: 'Show rename option in thread actions menu'
@@ -73,7 +77,12 @@ const meta = {
     },
     threadsLoading: {
       control: 'boolean',
-      description: 'Whether chats are loading, used to gate the history button and its disabled state'
+      description: 'Whether chats are loading, used to show a spinner on the history button and disable it'
+    },
+    threadsError: {
+      control: 'text',
+      description:
+        'Message describing a failed chat history load. Badges the history button and shows the message with a retry in the popover/view'
     }
   },
   args: {
@@ -365,6 +374,7 @@ const createMockMessagesForThread = (thread: Thread): ChatMessage[] => {
 
 export const WithHistory: Story = {
   args: {
+    showHistoryButton: true,
     showThreadRename: true,
     showThreadDelete: true,
     totalThreads: 24,
@@ -402,6 +412,7 @@ export const WithHistory: Story = {
           .threads=${allThreads.slice(0, 10)}
           total-threads=${args.totalThreads}
           ?threads-loading=${args.threadsLoading}
+          ?show-history-button=${args.showHistoryButton}
           selected-thread-id="thread-3"
           ?show-thread-rename=${args.showThreadRename}
           ?show-thread-delete=${args.showThreadDelete}
@@ -437,6 +448,203 @@ export const WithHistory: Story = {
             action('forge-ai-chatbot-launcher-thread-delete')(evt.detail);
             setTimeout(() => evt.detail.onSuccess(), 500);
           }}>
+        </forge-ai-chatbot-launcher>
+      </div>
+    `;
+  }
+};
+
+/**
+ * A first-time user with no chats. `showHistoryButton` keeps the entry point in the prompt bar, so the
+ * popover opens on "No chats yet" instead of the button removing itself. "View all" reaches the same
+ * empty state in the full history view, where searching shows "No chats found" — the other empty
+ * message, which the launcher could not reach at all before the button became host-controlled.
+ */
+export const NoChats: Story = {
+  args: {
+    showHistoryButton: true,
+    totalThreads: 0
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    return html`
+      <div
+        style="width: 100%; height: 600px; max-width: 900px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+        <forge-ai-chatbot-launcher
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          .disclaimerText=${args.disclaimerText}
+          .threads=${[]}
+          total-threads=${args.totalThreads}
+          ?show-history-button=${args.showHistoryButton}
+          @forge-ai-chatbot-launcher-thread-search=${(evt: CustomEvent) => {
+            action('forge-ai-chatbot-launcher-thread-search')(evt.detail);
+            evt.detail.setResults([]);
+          }}
+          @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}
+          @forge-ai-chatbot-launcher-new-chat=${action('forge-ai-chatbot-launcher-new-chat')}>
+        </forge-ai-chatbot-launcher>
+      </div>
+    `;
+  }
+};
+
+/**
+ * The host rejects the select by calling preventDefault(), then owns the commit. The first thread
+ * clicked always fails to load, so `selectedThreadId` and the welcome view must stay untouched;
+ * clicking the same thread again succeeds and the host commits both.
+ */
+export const ThreadSelectRejection: Story = {
+  args: {
+    showHistoryButton: true,
+    totalThreads: 10
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const allThreads = generateThreads(10);
+    const threadMessagesMap = new Map<string, ChatMessage[]>(
+      allThreads.map(thread => [thread.id, createMockMessagesForThread(thread)])
+    );
+    const attemptedThreadIds = new Set<string>();
+
+    let launcher: AiChatbotLauncherComponent | null = null;
+
+    const loadThread = async (id: string): Promise<ChatMessage[]> => {
+      await new Promise(resolve => setTimeout(resolve, 600));
+      if (!attemptedThreadIds.has(id)) {
+        attemptedThreadIds.add(id);
+        throw new Error('403 Forbidden - access to this chat was revoked');
+      }
+      return threadMessagesMap.get(id) ?? [];
+    };
+
+    return html`
+      <div
+        style="width: 100%; height: 600px; max-width: 900px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+        <forge-ai-chatbot-launcher
+          ${ref(el => {
+            launcher = el as AiChatbotLauncherComponent;
+          })}
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          .disclaimerText=${args.disclaimerText}
+          .threads=${allThreads}
+          total-threads=${args.totalThreads}
+          ?show-history-button=${args.showHistoryButton}
+          @forge-ai-chatbot-launcher-thread-select=${async (evt: CustomEvent) => {
+            action('forge-ai-chatbot-launcher-thread-select')(evt.detail);
+            evt.preventDefault();
+
+            const { id } = evt.detail;
+            launcher!.threadsError = undefined;
+            launcher!.threadsLoading = true;
+
+            try {
+              const messages = await loadThread(id);
+              launcher!.selectedThreadId = id;
+              // setThreadState transitions to the conversation view on its own once it has messages.
+              await launcher?.setThreadState({ threadId: id, messages }, { skipAnimation: true });
+              action('host commit')({ id, viewState: launcher?.viewState });
+            } catch (error) {
+              // Nothing to undo - the view state and selectedThreadId were never touched.
+              launcher!.threadsError = (error as Error).message;
+              action('host load failed')({
+                id,
+                error: (error as Error).message,
+                selectedThreadId: launcher?.selectedThreadId,
+                viewState: launcher?.viewState
+              });
+            } finally {
+              launcher!.threadsLoading = false;
+            }
+          }}
+          @forge-ai-chatbot-launcher-thread-retry=${() => {
+            action('forge-ai-chatbot-launcher-thread-retry')();
+            launcher!.threadsError = undefined;
+          }}
+          @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}
+          @forge-ai-chatbot-launcher-new-chat=${action('forge-ai-chatbot-launcher-new-chat')}>
+        </forge-ai-chatbot-launcher>
+      </div>
+    `;
+  }
+};
+
+/**
+ * A failed history load with no chats loaded. The history button picks up an error badge, and the
+ * popover shows the error with a retry instead of the "no chats yet" empty state. Retry succeeds.
+ */
+export const ThreadHistoryError: Story = {
+  args: {
+    showHistoryButton: true,
+    threadsError: 'Could not load your chat history.',
+    totalThreads: 0
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const allThreads = generateThreads(10);
+    let launcher: AiChatbotLauncherComponent | null = null;
+
+    return html`
+      <div
+        style="width: 100%; height: 600px; max-width: 900px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+        <forge-ai-chatbot-launcher
+          ${ref(el => {
+            launcher = el as AiChatbotLauncherComponent;
+          })}
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          .disclaimerText=${args.disclaimerText}
+          .threads=${[]}
+          total-threads=${args.totalThreads}
+          ?show-history-button=${args.showHistoryButton}
+          .threadsError=${args.threadsError}
+          @forge-ai-chatbot-launcher-thread-retry=${() => {
+            action('forge-ai-chatbot-launcher-thread-retry')();
+            if (!launcher) {
+              return;
+            }
+            launcher.threadsError = undefined;
+            launcher.threadsLoading = true;
+            setTimeout(() => {
+              launcher!.threads = allThreads;
+              launcher!.totalThreads = allThreads.length;
+              launcher!.threadsLoading = false;
+              action('retry succeeded')({ threads: allThreads.length });
+            }, 800);
+          }}
+          @forge-ai-chatbot-launcher-thread-select=${action('forge-ai-chatbot-launcher-thread-select')}
+          @forge-ai-chatbot-launcher-conversation-start=${action('forge-ai-chatbot-launcher-conversation-start')}>
         </forge-ai-chatbot-launcher>
       </div>
     `;
