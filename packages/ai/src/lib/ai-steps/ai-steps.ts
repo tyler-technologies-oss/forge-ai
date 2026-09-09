@@ -51,9 +51,6 @@ export class AiStepsComponent extends LitElement {
   @state()
   private _expanded = false;
 
-  @state()
-  private _expandedRows = new Set<string>();
-
   readonly #chevronIcon = html`
     <svg
       class="chevron"
@@ -82,8 +79,13 @@ export class AiStepsComponent extends LitElement {
     return ACTION_STEPS[action] ?? action;
   }
 
+  #defaultToolDisplayName(toolCall: ToolCall): string {
+    const [, subject] = toolCall.name.split('.');
+    return (subject ?? toolCall.name).replace(/_/g, ' ');
+  }
+
   #stepLabel(toolCall: ToolCall): TemplateResult {
-    const toolDisplayName = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
+    const toolDisplayName = this.tools?.get(toolCall.name)?.displayName ?? this.#defaultToolDisplayName(toolCall);
     return html`${this.#actionDisplayName(toolCall)} <code>${toolDisplayName}</code>`;
   }
 
@@ -136,12 +138,23 @@ export class AiStepsComponent extends LitElement {
     return html`<span class="code-card__status" data-status=${toolCall.status}>${duration}</span>`;
   }
 
+  #stepDetails(toolCall: ToolCall): Record<string, unknown> {
+    const { result } = toolCall;
+    const resultDetails =
+      result && typeof result === 'object'
+        ? (result as Record<string, unknown>)
+        : result !== undefined
+          ? { result }
+          : {};
+    return { ...toolCall.args, ...resultDetails };
+  }
+
   #renderCard(toolCall: ToolCall): TemplateResult {
     return html`
       <div class="step-card">
         <span class="step-card-title">${this.#stepLabel(toolCall)}</span>
         <div class="step-card-body">
-          <div class="step-card-result">${this.#formatValue(toolCall.result)}</div>
+          <div class="step-card-result">${this.#formatValue(this.#stepDetails(toolCall))}</div>
         </div>
       </div>
     `;

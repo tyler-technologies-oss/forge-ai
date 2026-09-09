@@ -59,15 +59,17 @@ const toolCalls: ToolCall[] = [
  * with `forge-ai-steps` instead of `forge-ai-tool-call-indicator`.
  */
 class StepsDemoAdapter extends AgentAdapter {
+  private static readonly STEPS = [
+    { name: 'searched.open_invoices', args: { query: 'open invoices' }, result: { count: 12 } },
+    { name: 'filtered.overdue_invoices', args: { status: 'overdue' }, result: { count: 4 } },
+    { name: 'joined.orders_+_customers', args: { ids: ['INV-1', 'INV-2'] }, result: { removed: 2 } }
+  ];
+
   #threadId = 'steps-demo-thread';
 
   public constructor() {
     super();
-    this.setTools([
-      { name: 'searched', displayName: 'Searched', displayAs: 'steps' },
-      { name: 'filtered', displayName: 'Filtered', displayAs: 'steps' },
-      { name: 'deleted', displayName: 'Deleted', displayAs: 'steps' }
-    ]);
+    this.setTools(StepsDemoAdapter.STEPS.map(step => ({ name: step.name, displayAs: 'steps' })));
   }
 
   public get threadId(): string {
@@ -90,14 +92,9 @@ class StepsDemoAdapter extends AgentAdapter {
     this._emitRunStarted();
 
     const messageId = generateId();
-    const steps = [
-      { name: 'searched', args: { query: 'open invoices' }, result: { count: 12 } },
-      { name: 'filtered', args: { status: 'overdue' }, result: { count: 4 } },
-      { name: 'deleted', args: { ids: ['INV-1', 'INV-2'] }, result: { removed: 2 } }
-    ];
 
     let delay = 300;
-    for (const step of steps) {
+    for (const step of StepsDemoAdapter.STEPS) {
       const toolCallId = generateId();
       const startDelay = delay;
       const endDelay = startDelay + 500;
