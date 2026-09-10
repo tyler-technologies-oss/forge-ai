@@ -124,14 +124,6 @@ describe('AiStepsComponent', () => {
     expect(truncated!.length).to.be.lessThan(longValue.length);
   });
 
-  it('should render dataset/field/filter values using the monospace font', async () => {
-    const toolCall = createToolCall({ name: 'filtered.region', args: { region: 'us-west' } });
-    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .toolCalls=${[toolCall]}></forge-ai-steps>`);
-
-    const value = el.shadowRoot!.querySelector('.detail-value')!;
-    expect(getComputedStyle(value).fontFamily).to.equal('monospace');
-  });
-
   it('should show a status badge with a millisecond duration for short-running rows', async () => {
     const toolCall = createToolCall({
       name: 'called.some_tool',

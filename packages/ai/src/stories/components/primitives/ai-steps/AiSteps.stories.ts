@@ -5,7 +5,7 @@ import '$lib/ai-steps';
 import '$lib/ai-chatbot';
 import { AgentAdapter } from '$lib/ai-chatbot/agent-adapter.js';
 import { generateId } from '$lib/ai-chatbot/utils.js';
-import { ToolCall, ChatMessage } from '$lib';
+import { ToolCall, ToolDefinition, ChatMessage } from '$lib';
 
 const component = 'forge-ai-steps';
 
@@ -50,6 +50,36 @@ const toolCalls: ToolCall[] = [
     endTimestamp: 2210
   }
 ];
+
+/**
+ * Tool calls with no args and no result (e.g. a plain "refresh cache" call) skip the
+ * step-card entirely and render as just a marker and name, optionally with a duration
+ * badge — falling back to the raw tool name unless a `ToolDefinition.displayName` is set.
+ */
+const noDetailToolCalls: ToolCall[] = [
+  {
+    id: 'tool-4',
+    messageId: 'message-1',
+    name: 'called.refresh_cache',
+    args: {},
+    status: 'complete',
+    type: 'agent',
+    startTimestamp: 1000,
+    endTimestamp: 1180
+  },
+  {
+    id: 'tool-5',
+    messageId: 'message-1',
+    name: 'called.customer_records',
+    args: {},
+    status: 'complete',
+    type: 'agent'
+  }
+];
+
+const noDetailTools = new Map<string, ToolDefinition>([
+  ['called.customer_records', { name: 'called.customer_records', displayName: 'Customer records' }]
+]);
 
 /**
  * Demonstrates `ToolDefinition.displayAs: 'steps'` end-to-end: an adapter streams a
@@ -154,6 +184,10 @@ type Story = StoryObj;
 
 export const Demo: Story = {
   render: () => html`<forge-ai-steps .toolCalls=${toolCalls}></forge-ai-steps>`
+};
+
+export const NoDetail: Story = {
+  render: () => html`<forge-ai-steps .toolCalls=${noDetailToolCalls} .tools=${noDetailTools}></forge-ai-steps>`
 };
 
 export const WithChatbot: Story = {

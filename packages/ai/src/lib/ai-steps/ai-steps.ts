@@ -76,31 +76,18 @@ export class AiStepsComponent extends LitElement {
   `;
 
   readonly #rowMarker: TemplateResult = html`<span class="row-marker"></span>`;
-  get #count(): number {
-    return this.toolCalls.length;
-  }
-
-  get #isRunning(): boolean {
-    return this.toolCalls.some(tc => !isStepCallSettled(tc, this.tools?.get(tc.name)));
-  }
 
   get #isFinished(): boolean {
-    return !this.#isRunning && this.status === 'complete';
-  }
-
-  #actionDisplayName(toolCall: ToolCall): string {
-    const [action] = toolCall.name.split('.');
-    return ACTION_STEPS[action] ?? action;
-  }
-
-  #defaultToolDisplayName(toolCall: ToolCall): string {
-    const [, subject] = toolCall.name.split('.');
-    return (subject ?? toolCall.name).replace(/_/g, ' ');
+    const isRunning = this.toolCalls.some(tc => !isStepCallSettled(tc, this.tools?.get(tc.name)));
+    return !isRunning && this.status === 'complete';
   }
 
   #stepLabel(toolCall: ToolCall): TemplateResult {
-    const toolDisplayName = this.tools?.get(toolCall.name)?.displayName ?? this.#defaultToolDisplayName(toolCall);
-    return html`${this.#actionDisplayName(toolCall)} <code>${toolDisplayName}</code>`;
+    const [action, subject] = toolCall.name.split('.');
+    const actionDisplayName = ACTION_STEPS[action] ?? action;
+    const defaultToolDisplayName = (subject ?? toolCall.name).replace(/_/g, ' ');
+    const toolDisplayName = this.tools?.get(toolCall.name)?.displayName ?? defaultToolDisplayName;
+    return html`${actionDisplayName} <code>${toolDisplayName}</code>`;
   }
 
   get #summaryLabel(): TemplateResult {
@@ -114,22 +101,6 @@ export class AiStepsComponent extends LitElement {
 
   #toggle(): void {
     this._expanded = !this._expanded;
-  }
-
-  #hasDetail(toolCall: ToolCall): boolean {
-    const hasArgs = !!toolCall.args && Object.keys(toolCall.args).length > 0;
-    const showResult = toolCall.status === 'complete' && toolCall.result !== undefined;
-    const showError = toolCall.status === 'error';
-    return hasArgs || showResult || showError;
-  }
-
-  #rowDuration(toolCall: ToolCall): string | undefined {
-    const { startTimestamp, endTimestamp } = toolCall;
-    if (!startTimestamp || !endTimestamp || endTimestamp < startTimestamp) {
-      return undefined;
-    }
-    const ms = endTimestamp - startTimestamp;
-    return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
   }
 
   #formatValue(value: unknown): TemplateResult {
@@ -146,55 +117,60 @@ export class AiStepsComponent extends LitElement {
     })}`;
   }
 
-  #statusBadge(toolCall: ToolCall): TemplateResult | typeof nothing {
-    const duration = this.#rowDuration(toolCall);
-    if (!duration) {
-      return nothing;
-    }
-    return html`<span class="code-card__status" data-status=${toolCall.status}>${duration}</span>`;
+  #renderNoDetailStep(toolCall: ToolCall): TemplateResult {
+    const { status, startTimestamp, endTimestamp, name } = toolCall;
+    const displayName = this.tools?.get(name)?.displayName ?? name;
+    const durationMs =
+      startTimestamp && endTimestamp && endTimestamp >= startTimestamp ? endTimestamp - startTimestamp : undefined;
+    const duration =
+      durationMs === undefined
+        ? undefined
+        : durationMs < 1000
+          ? `${durationMs}ms`
+          : `${(durationMs / 1000).toFixed(1)}s`;
+    const statusBadge = duration
+      ? html`<span class="code-card__status" data-status=${status}>${duration}</span>`
+      : nothing;
+
+    return html`
+      <div class="timeline-row" data-status=${status}>
+        <div class="row-header">
+          ${this.#rowMarker}
+          <span class="row-label">
+            <span class="row-name">${displayName}${statusBadge}</span>
+          </span>
+        </div>
+      </div>
+    `;
   }
 
-  #stepDetails(toolCall: ToolCall): Record<string, unknown> {
-    const { result } = toolCall;
+  #renderStep(toolCall: ToolCall): TemplateResult {
+    const { args, result, status } = toolCall;
+    const hasDetail =
+      (!!args && Object.keys(args).length > 0) || (status === 'complete' && result !== undefined) || status === 'error';
+
+    if (!hasDetail) {
+      return this.#renderNoDetailStep(toolCall);
+    }
+
     const resultDetails =
       result && typeof result === 'object'
         ? (result as Record<string, unknown>)
         : result !== undefined
           ? { result }
           : {};
-    return { ...toolCall.args, ...resultDetails };
-  }
-
-  #renderCard(toolCall: ToolCall): TemplateResult {
-    return html`
-      <div class="step-card">
-        <span class="step-card-title">${this.#stepLabel(toolCall)}</span>
-        <div class="step-card-body">
-          <div class="step-card-result">${this.#formatValue(this.#stepDetails(toolCall))}</div>
-        </div>
-      </div>
-    `;
-  }
-
-  #renderRow(toolCall: ToolCall): TemplateResult {
-    if (this.#hasDetail(toolCall)) {
-      return html`
-        <div class="timeline-row" data-status=${toolCall.status}>
-          <div class="row-header">${this.#rowMarker}${this.#renderCard(toolCall)}</div>
-        </div>
-      `;
-    }
-
-    const definition = this.tools?.get(toolCall.name);
-    const name = definition?.displayName ?? toolCall.name;
+    const stepDetails = { ...args, ...resultDetails };
 
     return html`
-      <div class="timeline-row" data-status=${toolCall.status}>
+      <div class="timeline-row" data-status=${status}>
         <div class="row-header">
           ${this.#rowMarker}
-          <span class="row-label">
-            <span class="row-name">${name}${this.#statusBadge(toolCall)}</span>
-          </span>
+          <div class="step-card">
+            <span class="step-card-title">${this.#stepLabel(toolCall)}</span>
+            <div class="step-card-body">
+              <div class="step-card-result">${this.#formatValue(stepDetails)}</div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -207,18 +183,18 @@ export class AiStepsComponent extends LitElement {
     return !this.#isFinished || this._expanded;
   }
 
-  get #timeline(): TemplateResult {
+  get #steps(): TemplateResult {
     return html`
       <div
         id="timeline-content"
         class="timeline ${this.#isExpanded ? 'expanded' : ''}"
         aria-hidden=${this.#isExpanded ? 'false' : 'true'}>
-        <div class="timeline-content">${this.toolCalls.map(tc => this.#renderRow(tc))}</div>
+        <div class="timeline-content">${this.toolCalls.map(tc => this.#renderStep(tc))}</div>
       </div>
     `;
   }
 
-  get #summaryButton(): TemplateResult | typeof nothing {
+  get #stepsSummary(): TemplateResult | typeof nothing {
     return when(
       this.#isFinished || this.status === undefined,
       () => html`
@@ -243,14 +219,15 @@ export class AiStepsComponent extends LitElement {
   }
 
   get #stepsCountLabel(): string {
-    return `${this.#count} STEP${this.#count === 1 ? '' : 'S'}`;
+    const count = this.toolCalls.length;
+    return `${count} STEP${count === 1 ? '' : 'S'}`;
   }
 
   public override render(): TemplateResult | typeof nothing {
     return html`
       <div class="steps">
         <div class="steps-count">${this.#stepsCountLabel}</div>
-        ${this.#summaryButton} ${this.#timeline}
+        ${this.#stepsSummary} ${this.#steps}
       </div>
     `;
   }
