@@ -1,5 +1,6 @@
 import { LitElement, PropertyValues, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { join } from 'lit/directives/join.js';
 import { when } from 'lit/directives/when.js';
 import type { ToolCall, ToolDefinition } from '../ai-chatbot/types.js';
 import { isToolCallSettled as isStepCallSettled } from '../ai-chatbot/utils.js';
@@ -106,7 +107,9 @@ export class AiStepsComponent extends LitElement {
     const stepLabels = this.toolCalls.map(toolCall => html`<span>${this.#stepLabel(toolCall)}</span>`);
     const visibleLabels = stepLabels.slice(0, 2);
     const remaining = stepLabels.length - visibleLabels.length;
-    return remaining > 0 ? html`${visibleLabels} +${remaining} more` : html`${visibleLabels}`;
+    return remaining > 0
+      ? html`${join(visibleLabels, html`, `)} +${remaining} more`
+      : html`${join(visibleLabels, html`, `)}`;
   }
 
   #toggle(): void {
