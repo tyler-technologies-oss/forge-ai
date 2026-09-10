@@ -239,10 +239,14 @@ export class AiStepsComponent extends LitElement {
     }
   }
 
+  get #stepsCountLabel(): string {
+    return `${this.#count} STEP${this.#count === 1 ? '' : 'S'}`;
+  }
+
   public override render(): TemplateResult | typeof nothing {
     return html`
       <div class="steps">
-        <div class="steps-count">${this.#count} STEPS</div>
+        <div class="steps-count">${this.#stepsCountLabel}</div>
         ${this.#summaryButton} ${this.#timeline}
       </div>
     `;

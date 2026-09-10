@@ -27,11 +27,12 @@ $marker-size: 20px;
 
 .chevron {
   flex-shrink: 0;
+  transform: rotate(-90deg);
   transition: transform #{forge-animation.variable(duration-short4)} #{forge-animation.variable(easing-standard)};
 }
 
 .summary[aria-expanded='true'] .chevron {
-  transform: rotate(-90deg);
+  transform: rotate(0deg);
 }
 
 .steps {
