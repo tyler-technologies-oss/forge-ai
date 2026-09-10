@@ -1,4 +1,4 @@
-import { LitElement, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
+import { LitElement, PropertyValues, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import type { ToolCall, ToolDefinition } from '../ai-chatbot/types.js';
@@ -48,8 +48,18 @@ export class AiStepsComponent extends LitElement {
   @property({ attribute: false })
   public tools?: Map<string, ToolDefinition>;
 
+  /**
+   * Whether the overall response/run this batch of steps belongs to has finished, not just
+   * these steps themselves. Defaults to `true` so the component behaves fully self-contained
+   * (e.g. in isolation/Storybook) unless a parent explicitly reports it's still part of a
+   * larger run in progress.
+   */
+  @property({ type: String, reflect: true, attribute: 'status' })
+  public status?: string;
+
+  // If status is not provided, we default to expanded
   @state()
-  private _expanded = false;
+  private _expanded = this.status === undefined;
 
   readonly #chevronIcon = html`
     <svg
@@ -65,13 +75,16 @@ export class AiStepsComponent extends LitElement {
   `;
 
   readonly #rowMarker: TemplateResult = html`<span class="row-marker"></span>`;
-
   get #count(): number {
     return this.toolCalls.length;
   }
 
   get #isRunning(): boolean {
     return this.toolCalls.some(tc => !isStepCallSettled(tc, this.tools?.get(tc.name)));
+  }
+
+  get #isFinished(): boolean {
+    return !this.#isRunning && this.status === 'complete';
   }
 
   #actionDisplayName(toolCall: ToolCall): string {
@@ -184,9 +197,16 @@ export class AiStepsComponent extends LitElement {
     `;
   }
 
+  get #isExpanded(): boolean {
+    if (this.status === undefined) {
+      return this._expanded;
+    }
+    return !this.#isFinished || this._expanded;
+  }
+
   get #timeline(): TemplateResult {
     return html`
-      <div class="timeline ${this._expanded ? 'expanded' : ''}">
+      <div class="timeline ${this.#isExpanded ? 'expanded' : ''}">
         <div class="timeline-content">${this.toolCalls.map(tc => this.#renderRow(tc))}</div>
       </div>
     `;
@@ -194,7 +214,7 @@ export class AiStepsComponent extends LitElement {
 
   get #summaryButton(): TemplateResult | typeof nothing {
     return when(
-      !this.#isRunning,
+      this.#isFinished || this.status === undefined,
       () => html`
         <button class="summary" type="button" aria-expanded=${this._expanded} @click=${this.#toggle}>
           ${this.#chevronIcon}
@@ -203,6 +223,12 @@ export class AiStepsComponent extends LitElement {
         </button>
       `
     );
+  }
+
+  public override updated(changedProperties: PropertyValues<this>): void {
+    if (changedProperties.has('status') && String(this.status) === 'complete') {
+      this.#toggle();
+    }
   }
 
   public override render(): TemplateResult | typeof nothing {

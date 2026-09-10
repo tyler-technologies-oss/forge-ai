@@ -131,10 +131,12 @@ export class AiAssistantResponseComponent extends LitElement {
 
       const flushed = toolBuffer;
       toolBuffer = [];
-
       results.push(
         bufferMode === 'steps'
-          ? html`<forge-ai-steps .toolCalls=${flushed} .tools=${this.tools}></forge-ai-steps>`
+          ? html`<forge-ai-steps
+              .toolCalls=${flushed}
+              .tools=${this.tools}
+              .status=${this.response.status}></forge-ai-steps>`
           : html`<forge-ai-tool-call-indicator
               .toolCalls=${flushed}
               .tools=${this.tools}
@@ -145,7 +147,7 @@ export class AiAssistantResponseComponent extends LitElement {
         results.push(this.#renderToolCall(toolCall));
       }
     };
-    
+
     for (const child of this.response.children) {
       if (child.type === 'text') {
         flushIndicator();

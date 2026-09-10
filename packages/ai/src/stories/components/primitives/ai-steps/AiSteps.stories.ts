@@ -97,7 +97,7 @@ class StepsDemoAdapter extends AgentAdapter {
     for (const step of StepsDemoAdapter.STEPS) {
       const toolCallId = generateId();
       const startDelay = delay;
-      const endDelay = startDelay + 500;
+      const endDelay = startDelay + 1000;
 
       setTimeout(() => {
         this._emitToolCallStart({ id: toolCallId, messageId, name: step.name });
