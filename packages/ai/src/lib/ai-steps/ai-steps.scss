@@ -48,6 +48,7 @@ $marker-size: 20px;
     border-radius: 4px;
     padding: 4px;
     margin-right: 4px;
+    font-family: monospace;
   }
 }
 
@@ -152,6 +153,7 @@ $marker-size: 20px;
   }
   &-value {
     font-weight: normal;
+    font-family: monospace;
     opacity: 60%;
     margin-left: 32px;
   }

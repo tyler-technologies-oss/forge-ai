@@ -206,7 +206,10 @@ export class AiStepsComponent extends LitElement {
 
   get #timeline(): TemplateResult {
     return html`
-      <div class="timeline ${this.#isExpanded ? 'expanded' : ''}">
+      <div
+        id="timeline-content"
+        class="timeline ${this.#isExpanded ? 'expanded' : ''}"
+        aria-hidden=${this.#isExpanded ? 'false' : 'true'}>
         <div class="timeline-content">${this.toolCalls.map(tc => this.#renderRow(tc))}</div>
       </div>
     `;
@@ -216,7 +219,12 @@ export class AiStepsComponent extends LitElement {
     return when(
       this.#isFinished || this.status === undefined,
       () => html`
-        <button class="summary" type="button" aria-expanded=${this._expanded} @click=${this.#toggle}>
+        <button
+          class="summary"
+          type="button"
+          aria-expanded=${this._expanded}
+          aria-controls="timeline-content"
+          @click=${this.#toggle}>
           ${this.#chevronIcon}
           <span class="status-text">${this.#summaryLabel}</span>
           <span class="focus-indicator"></span>
