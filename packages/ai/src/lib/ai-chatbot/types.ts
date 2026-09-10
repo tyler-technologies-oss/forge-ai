@@ -102,6 +102,8 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
   renderer?: ToolRenderer;
   /** If true, renderer shows immediately on tool call start (default: false). */
   renderOnStart?: boolean;
+  /** Component used to display this tool's calls in the chat UI (default: 'toolCall'). */
+  displayAs?: 'toolCall' | 'steps';
   /** Called when tool call starts (before args stream). */
   onStart?: (context: ToolStartContext) => void;
   /** Called during streaming with partial args. */
@@ -246,6 +248,7 @@ export interface ForgeAiChatbotFileSelectEventData {
 export type MessageItem =
   | { type: 'message'; data: ChatMessage }
   | { type: 'toolCall'; data: ToolCall }
+  | { type: 'steps'; data: ToolCall }
   | { type: 'assistant'; data: AssistantResponse };
 
 export interface ThreadState {
