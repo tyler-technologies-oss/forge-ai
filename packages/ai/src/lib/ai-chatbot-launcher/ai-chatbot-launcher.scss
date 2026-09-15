@@ -142,8 +142,10 @@ $_max-content-width: 768px;
 
   forge-ai-threads-search {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     flex: 1;
     min-height: 0;
+    min-inline-size: 0;
   }
 
   &__view-all {
@@ -332,6 +334,17 @@ $_max-content-width: 768px;
   .history,
   .prompt-section {
     animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launcher {
+    .welcome,
+    .conversation forge-ai-message-thread,
+    .history,
+    .prompt-section {
+      animation: none;
+    }
   }
 }
 
