@@ -1,5 +1,13 @@
 # @tylertech/forge-ai-react
 
+## 0.15.1
+
+### Patch Changes
+
+- 0c70259: fix: history popover a11y, nested popover toggle leak, stale search reset
+- Updated dependencies [0c70259]
+  - @tylertech/forge-ai@0.15.1
+
 ## 0.15.0
 
 ### Minor Changes
