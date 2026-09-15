@@ -105,6 +105,9 @@ export class ForgeAiPopoverComponent extends LitElement {
   private _arrowElement?: HTMLElement;
 
   private _onOverlayToggle = (event: CustomEvent): void => {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
     this.open = event.detail.open;
 
     // Re-emit as popover-specific event

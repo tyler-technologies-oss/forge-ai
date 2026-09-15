@@ -394,6 +394,9 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   }
 
   #handleHistoryPopoverToggle(evt: CustomEvent<{ open: boolean }>): void {
+    if (evt.target !== evt.currentTarget) {
+      return;
+    }
     this._historyPopoverOpen = evt.detail.open;
   }
 
