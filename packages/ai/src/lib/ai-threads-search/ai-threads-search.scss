@@ -197,6 +197,10 @@ $_max-content-width: 768px;
   margin-block-start: #{forge-spacing.variable(xxsmall)};
 }
 
+.load-more-button {
+  color: #{forge-theme.variable(text-medium)};
+}
+
 forge-ai-modal {
   --forge-ai-modal-width: fit-content;
   --forge-ai-modal-height: fit-content;
