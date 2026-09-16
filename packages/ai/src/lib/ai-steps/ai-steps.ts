@@ -2,7 +2,7 @@ import { LitElement, PropertyValues, html, nothing, unsafeCSS, type TemplateResu
 import { customElement, property, state } from 'lit/decorators.js';
 import { join } from 'lit/directives/join.js';
 import { when } from 'lit/directives/when.js';
-import type { ToolCall, ToolDefinition } from '../ai-chatbot/types.js';
+import type { AssistantResponse, ToolCall, ToolDefinition } from '../ai-chatbot/types.js';
 import { isToolCallSettled as isStepCallSettled } from '../ai-chatbot/utils.js';
 
 import styles from './ai-steps.scss?inline';
@@ -15,29 +15,63 @@ declare global {
 
 export const AiStepsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-steps';
 
-/** Maps the action segment of a `toolCall.name` (e.g. `searched` in `searched.customers_table`) to its display label. */
-const ACTION_STEPS: Record<string, string> = {
-  called: 'Called',
-  filtered: 'Filtered by',
-  grouped: 'Grouped',
-  joined: 'Joined',
-  queried: 'Queried',
-  searched: 'Searched',
-  separated: 'Separated',
-  sorted: 'Sorted'
-};
-
 const MAX_DETAIL_LENGTH = 2000;
 
 /**
- * @tag forge-ai-tool-call-indicator
+ * A step label split into prose and an optional value, returned from
+ * {@link AiStepsComponent.stepLabel}. The component renders `code` as an inline chip after `label`,
+ * so consumers get the styling without needing to build markup themselves.
+ */
+export interface AiStepLabel {
+  /** Leading prose, e.g. `'Filtered by'`. */
+  label: string;
+  /** Optional trailing value rendered as an inline `<code>` chip, e.g. `'crime_category'`. */
+  code?: string;
+}
+
+/**
+ * Passed to {@link AiStepsComponent.stepLabel} for each step.
+ */
+export interface AiStepLabelContext {
+  /**
+   * The label the component would render on its own: the matching `ToolDefinition.displayName`, or
+   * the raw `toolCall.name` when the tool has no display name. Reformat or restructure this rather
+   * than rebuilding the label from scratch.
+   */
+  displayName: string;
+  /** The tool call the label is being rendered for, for status- or argument-dependent wording. */
+  toolCall: ToolCall;
+}
+
+/**
+ * @tag forge-ai-steps
  *
  * @summary Expandable timeline summarizing the tool calls made during an assistant response.
  *
  * @description
- * Collapsed, it shows an activity summary ("Running steps…" or "Used N steps · Xs"). When
- * expanded, it lists each tool call with its status. In debug mode the expanded view also
- * shows each tool's arguments and result.
+ * Collapsed, it shows a step count and an activity summary of the tool calls performed. When
+ * expanded, it lists each tool call as a row in a vertical timeline along with its status. Steps
+ * that have arguments or a result are rendered as detail cards showing each key/value pair;
+ * steps without any detail render as a simple labeled row.
+ *
+ * When `status` is provided, the component auto-collapses once the run completes
+ * (`status === 'complete'`) and the summary row only renders once every step has settled. When
+ * `status` is omitted, the component is always expanded and the summary row is hidden.
+ *
+ * Step labels come from the `tools` map: each step is labeled with its matching
+ * `ToolDefinition.displayName`, falling back to the raw `toolCall.name` for tools that don't declare
+ * one. Naming steps is therefore a matter of filling in `displayName`, and the component makes no
+ * assumption about how tool names are structured.
+ *
+ * `stepLabel` is an optional formatter layered on top of that. It receives the resolved display name
+ * plus the tool call and returns either a replacement string or an `AiStepLabel` (`{ label, code }`),
+ * whose `code` portion renders as an inline chip. Use it to reword, shorten, or split labels without
+ * building markup or depending on Lit; omit it and `displayName` is used verbatim.
+ *
+ * @property {ToolCall[]} toolCalls - The tool calls to render as timeline steps
+ * @property {Map<string, ToolDefinition>} tools - Tool definitions supplying each step's `displayName`
+ * @property {Function} stepLabel - Optional formatter for the resolved display name; returns a string or `AiStepLabel`
+ * @property {string} status - Status of the overall response/run these steps belong to; `'complete'` collapses the timeline
  */
 @customElement(AiStepsComponentTagName)
 export class AiStepsComponent extends LitElement {
@@ -50,13 +84,24 @@ export class AiStepsComponent extends LitElement {
   public tools?: Map<string, ToolDefinition>;
 
   /**
-   * Whether the overall response/run this batch of steps belongs to has finished, not just
-   * these steps themselves. Defaults to `true` so the component behaves fully self-contained
-   * (e.g. in isolation/Storybook) unless a parent explicitly reports it's still part of a
-   * larger run in progress.
+   * Optional formatter for step labels. Labels are based on `ToolDefinition.displayName` from the
+   * `tools` map (falling back to the raw `toolCall.name`); this hook receives that resolved name and
+   * can reword or restructure it, e.g. `({ displayName }) => displayName.toUpperCase()`. Return an
+   * {@link AiStepLabel} to render part of the label as an inline `<code>` chip. Omit it and the
+   * resolved display name is used as-is.
+   */
+  @property({ attribute: false })
+  public stepLabel?: (context: AiStepLabelContext) => string | AiStepLabel;
+
+  /**
+   * Status of the overall response/run these steps belong to — not the status of the steps
+   * themselves, which comes from each `ToolCall`. Only `'complete'` is meaningful: it collapses the
+   * timeline once every step has settled. Any other value means the run is still in progress, which
+   * keeps the timeline expanded and the summary row hidden. Omit it entirely and the component stays
+   * expanded and self-contained (e.g. in isolation/Storybook).
    */
   @property({ type: String, reflect: true, attribute: 'status' })
-  public status?: string;
+  public status?: AssistantResponse['status'];
 
   // If status is not provided, we default to expanded
   @state()
@@ -82,16 +127,19 @@ export class AiStepsComponent extends LitElement {
     return !isRunning && this.status === 'complete';
   }
 
-  #stepLabel(toolCall: ToolCall): TemplateResult {
-    const [action, subject] = toolCall.name.split('.');
-    const actionDisplayName = ACTION_STEPS[action] ?? action;
-    const defaultToolDisplayName = (subject ?? toolCall.name).replace(/_/g, ' ');
-    const toolDisplayName = this.tools?.get(toolCall.name)?.displayName ?? defaultToolDisplayName;
-    return html`${actionDisplayName} <code>${toolDisplayName}</code>`;
+  #labelFor(toolCall: ToolCall): string | TemplateResult {
+    const displayName = this.tools?.get(toolCall.name)?.displayName ?? toolCall.name;
+    const label = this.stepLabel?.({ displayName, toolCall }) ?? displayName;
+
+    if (typeof label === 'string') {
+      return label;
+    }
+
+    return label.code ? html`${label.label} <code>${label.code}</code>` : html`${label.label}`;
   }
 
   get #summaryLabel(): TemplateResult {
-    const stepLabels = this.toolCalls.map(toolCall => html`<span>${this.#stepLabel(toolCall)}</span>`);
+    const stepLabels = this.toolCalls.map(toolCall => html`<span>${this.#labelFor(toolCall)}</span>`);
     const visibleLabels = stepLabels.slice(0, 2);
     const remaining = stepLabels.length - visibleLabels.length;
     return remaining > 0
@@ -118,8 +166,7 @@ export class AiStepsComponent extends LitElement {
   }
 
   #renderNoDetailStep(toolCall: ToolCall): TemplateResult {
-    const { status, startTimestamp, endTimestamp, name } = toolCall;
-    const displayName = this.tools?.get(name)?.displayName ?? name;
+    const { status, startTimestamp, endTimestamp } = toolCall;
     const durationMs =
       startTimestamp && endTimestamp && endTimestamp >= startTimestamp ? endTimestamp - startTimestamp : undefined;
     const duration =
@@ -137,7 +184,7 @@ export class AiStepsComponent extends LitElement {
         <div class="row-header">
           ${this.#rowMarker}
           <span class="row-label">
-            <span class="row-name">${displayName}${statusBadge}</span>
+            <span class="row-name">${this.#labelFor(toolCall)}${statusBadge}</span>
           </span>
         </div>
       </div>
@@ -166,7 +213,7 @@ export class AiStepsComponent extends LitElement {
         <div class="row-header">
           ${this.#rowMarker}
           <div class="step-card">
-            <span class="step-card-title">${this.#stepLabel(toolCall)}</span>
+            <span class="step-card-title">${this.#labelFor(toolCall)}</span>
             <div class="step-card-body">
               <div class="step-card-result">${this.#formatValue(stepDetails)}</div>
             </div>
@@ -212,15 +259,17 @@ export class AiStepsComponent extends LitElement {
     );
   }
 
-  public override updated(changedProperties: PropertyValues<this>): void {
-    if (changedProperties.has('status') && String(this.status) === 'complete') {
-      this.#toggle();
-    }
-  }
-
   get #stepsCountLabel(): string {
     const count = this.toolCalls.length;
     return `${count} STEP${count === 1 ? '' : 'S'}`;
+  }
+
+  public override willUpdate(changedProperties: PropertyValues<this>): void {
+    // Collapse rather than toggle: the intent is one-directional, and toggling leaves the component
+    // expanded on any later transition back into 'complete' (e.g. an element reused for a second run).
+    if (changedProperties.has('status') && this.status === 'complete') {
+      this._expanded = false;
+    }
   }
 
   public override render(): TemplateResult | typeof nothing {

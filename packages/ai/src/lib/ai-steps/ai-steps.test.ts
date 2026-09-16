@@ -1,6 +1,6 @@
 import { expect } from '@esm-bundle/chai';
 import { elementUpdated, fixture, html } from '@open-wc/testing';
-import { AiStepsComponent } from './ai-steps.js';
+import { AiStepsComponent, type AiStepLabel, type AiStepLabelContext } from './ai-steps.js';
 import type { ToolCall, ToolDefinition } from '../ai-chatbot/types.js';
 
 import './ai-steps.js';
@@ -45,29 +45,94 @@ describe('AiStepsComponent', () => {
     expect(textOf(el.shadowRoot!.querySelector('.steps-count'))).to.equal('2 STEPS');
   });
 
-  it('should map the action segment of the tool name to its dictionary label and code-format the subject', async () => {
+  it('should fall back to the raw tool name when no displayName or stepLabel is supplied', async () => {
     const toolCall = createToolCall({ name: 'filtered.crime_category', args: { value: 'theft' } });
     const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .toolCalls=${[toolCall]}></forge-ai-steps>`);
 
-    const title = el.shadowRoot!.querySelector('.step-card-title');
-    expect(textOf(title)).to.equal('Filtered by crime category');
-    expect(title!.querySelector('code')).to.exist;
+    expect(textOf(el.shadowRoot!.querySelector('.step-card-title'))).to.equal('filtered.crime_category');
   });
 
-  it('should fall back to the raw action segment when it is not part of the action dictionary', async () => {
-    const toolCall = createToolCall({ name: 'summarized.report', args: { note: 'n/a' } });
-    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .toolCalls=${[toolCall]}></forge-ai-steps>`);
+  it('should use the tool definition displayName for a step label', async () => {
+    const toolCall = createToolCall({ name: 'filtered.crime_category', args: { value: 'theft' } });
+    const tools = new Map<string, ToolDefinition>([
+      ['filtered.crime_category', { name: 'filtered.crime_category', displayName: 'Filtered by crime' }]
+    ]);
+    const el = await fixture<AiStepsComponent>(
+      html`<forge-ai-steps .toolCalls=${[toolCall]} .tools=${tools}></forge-ai-steps>`
+    );
 
-    expect(textOf(el.shadowRoot!.querySelector('.step-card-title'))).to.equal('summarized report');
+    expect(textOf(el.shadowRoot!.querySelector('.step-card-title'))).to.equal('Filtered by crime');
   });
 
-  it('should derive both the action and subject from the full name when there is no "." segment', async () => {
-    // With no `.` separator, the action and subject segments both resolve to the whole
-    // name, so it is rendered twice: once raw (action) and once space-formatted (subject).
-    const toolCall = createToolCall({ name: 'cleanup_task', args: { done: true } });
-    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .toolCalls=${[toolCall]}></forge-ai-steps>`);
+  it('should pass the resolved displayName to the stepLabel formatter for reformatting', async () => {
+    const toolCall = createToolCall({ name: 'filtered.crime_category', args: { value: 'theft' } });
+    const tools = new Map<string, ToolDefinition>([
+      ['filtered.crime_category', { name: 'filtered.crime_category', displayName: 'Filtered by crime' }]
+    ]);
+    const el = await fixture<AiStepsComponent>(
+      html`<forge-ai-steps
+        .toolCalls=${[toolCall]}
+        .tools=${tools}
+        .stepLabel=${({ displayName }: AiStepLabelContext): string => displayName.toUpperCase()}></forge-ai-steps>`
+    );
 
-    expect(textOf(el.shadowRoot!.querySelector('.step-card-title'))).to.equal('cleanup_task cleanup task');
+    expect(textOf(el.shadowRoot!.querySelector('.step-card-title'))).to.equal('FILTERED BY CRIME');
+  });
+
+  it('should pass the raw tool name to the stepLabel formatter when the tool has no displayName', async () => {
+    const toolCall = createToolCall({ name: 'filtered.crime_category', args: { value: 'theft' } });
+    const el = await fixture<AiStepsComponent>(
+      html`<forge-ai-steps
+        .toolCalls=${[toolCall]}
+        .stepLabel=${({ displayName }: AiStepLabelContext): string => `<${displayName}>`}></forge-ai-steps>`
+    );
+
+    expect(textOf(el.shadowRoot!.querySelector('.step-card-title'))).to.equal('<filtered.crime_category>');
+  });
+
+  it('should pass the tool call to the stepLabel formatter for status-dependent wording', async () => {
+    const toolCall = createToolCall({ name: 'filtered.crime_category', args: { value: 'theft' }, status: 'error' });
+    const tools = new Map<string, ToolDefinition>([
+      ['filtered.crime_category', { name: 'filtered.crime_category', displayName: 'Filtered by crime' }]
+    ]);
+    const stepLabel = ({ displayName, toolCall: tc }: AiStepLabelContext): string =>
+      tc.status === 'error' ? `${displayName} (failed)` : displayName;
+    const el = await fixture<AiStepsComponent>(
+      html`<forge-ai-steps .toolCalls=${[toolCall]} .tools=${tools} .stepLabel=${stepLabel}></forge-ai-steps>`
+    );
+
+    expect(textOf(el.shadowRoot!.querySelector('.step-card-title'))).to.equal('Filtered by crime (failed)');
+  });
+
+  it('should render an inline code chip when the stepLabel formatter returns an AiStepLabel', async () => {
+    const toolCall = createToolCall({ name: 'filtered.crime_category', args: { value: 'theft' } });
+    const tools = new Map<string, ToolDefinition>([
+      ['filtered.crime_category', { name: 'filtered.crime_category', displayName: 'Filtered crime_category' }]
+    ]);
+    const stepLabel = ({ displayName }: AiStepLabelContext): AiStepLabel => {
+      const [label, ...code] = displayName.split(' ');
+      return { label, code: code.join(' ') };
+    };
+    const el = await fixture<AiStepsComponent>(
+      html`<forge-ai-steps .toolCalls=${[toolCall]} .tools=${tools} .stepLabel=${stepLabel}></forge-ai-steps>`
+    );
+
+    const title = el.shadowRoot!.querySelector('.step-card-title')!;
+    expect(textOf(title)).to.equal('Filtered crime_category');
+    expect(textOf(title.querySelector('code'))).to.equal('crime_category');
+  });
+
+  it('should omit the code chip when an AiStepLabel has no code portion', async () => {
+    const toolCall = createToolCall({ name: 'filtered.crime_category', args: { value: 'theft' } });
+    const el = await fixture<AiStepsComponent>(
+      html`<forge-ai-steps
+        .toolCalls=${[toolCall]}
+        .stepLabel=${(): AiStepLabel => ({ label: 'Filtered' })}></forge-ai-steps>`
+    );
+
+    const title = el.shadowRoot!.querySelector('.step-card-title')!;
+    expect(textOf(title)).to.equal('Filtered');
+    expect(title.querySelector('code')).to.not.exist;
   });
 
   it('should fall back to the raw tool name for rows without args or a result', async () => {
@@ -88,6 +153,21 @@ describe('AiStepsComponent', () => {
     );
 
     expect(textOf(el.shadowRoot!.querySelector('.row-name'))).to.equal('Called Some Tool');
+  });
+
+  it('should resolve labels identically for detail cards and rows without detail', async () => {
+    const toolCalls = [
+      createToolCall({ id: 'tc-1', name: 'filtered.crime_category', args: { value: 'theft' } }),
+      createToolCall({ id: 'tc-2', name: 'called.some_tool', args: {}, result: undefined })
+    ];
+    const el = await fixture<AiStepsComponent>(
+      html`<forge-ai-steps
+        .toolCalls=${toolCalls}
+        .stepLabel=${({ displayName }: AiStepLabelContext) => `[${displayName}]`}></forge-ai-steps>`
+    );
+
+    expect(textOf(el.shadowRoot!.querySelector('.step-card-title'))).to.equal('[filtered.crime_category]');
+    expect(textOf(el.shadowRoot!.querySelector('.row-name'))).to.equal('[called.some_tool]');
   });
 
   it('should render an error row through the detail card when the tool call failed', async () => {
@@ -172,13 +252,13 @@ describe('AiStepsComponent', () => {
     );
 
     const statusText = el.shadowRoot!.querySelector('.status-text')!;
-    expect(textOf(statusText)).to.equal('Searched orders table, Filtered by region +2 more');
+    expect(textOf(statusText)).to.equal('searched.orders_table, filtered.region +2 more');
   });
 
   it('should keep the timeline expanded and hide the summary button while a run is in progress', async () => {
     const toolCall = createToolCall({ status: 'executing' });
     const el = await fixture<AiStepsComponent>(
-      html`<forge-ai-steps .toolCalls=${[toolCall]} status="running"></forge-ai-steps>`
+      html`<forge-ai-steps .toolCalls=${[toolCall]} status="streaming"></forge-ai-steps>`
     );
 
     expect(el.shadowRoot!.querySelector('.summary')).to.not.exist;
@@ -190,7 +270,7 @@ describe('AiStepsComponent', () => {
   it('should auto-collapse once the run finishes, and remain toggleable via the summary row', async () => {
     const toolCall = createToolCall({ status: 'complete' });
     const el = await fixture<AiStepsComponent>(
-      html`<forge-ai-steps .toolCalls=${[toolCall]} status="running"></forge-ai-steps>`
+      html`<forge-ai-steps .toolCalls=${[toolCall]} status="streaming"></forge-ai-steps>`
     );
 
     el.status = 'complete';
@@ -212,6 +292,24 @@ describe('AiStepsComponent', () => {
     timeline = el.shadowRoot!.querySelector('.timeline')!;
     expect(timeline.classList.contains('expanded')).to.be.true;
     expect(timeline.getAttribute('aria-hidden')).to.equal('false');
+  });
+
+  it('should auto-collapse again when the same element is reused for a second run', async () => {
+    const toolCall = createToolCall({ status: 'complete' });
+    const el = await fixture<AiStepsComponent>(
+      html`<forge-ai-steps .toolCalls=${[toolCall]} status="streaming"></forge-ai-steps>`
+    );
+
+    el.status = 'complete';
+    await elementUpdated(el);
+    expect(el.shadowRoot!.querySelector('.timeline')!.classList.contains('expanded'), 'run 1 collapsed').to.be.false;
+
+    // Element reused for a second run (e.g. keyed list re-render)
+    el.status = 'streaming';
+    await elementUpdated(el);
+    el.status = 'complete';
+    await elementUpdated(el);
+    expect(el.shadowRoot!.querySelector('.timeline')!.classList.contains('expanded'), 'run 2 collapsed').to.be.false;
   });
 
   it('should default to expanded with a visible summary button when no status is provided', async () => {

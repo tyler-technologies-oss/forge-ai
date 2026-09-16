@@ -3,7 +3,7 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 
-$marker-size: 20px;
+$marker-size: #{forge-spacing.variable(medium-large)};
 
 :host {
   display: flex;
@@ -45,17 +45,18 @@ $marker-size: 20px;
   }
 
   code {
-    background: #e0e0e0;
-    border-radius: 4px;
-    padding: 4px;
-    margin-right: 4px;
+    background: #{forge-theme.variable(surface-container)};
+    border-radius: #{forge-shape.variable(medium)};
+    padding: #{forge-spacing.variable(xxsmall)};
+    margin-inline-end: #{forge-spacing.variable(xxsmall)};
   }
 }
 
 .timeline {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.3s ease-out;
+  transition: grid-template-rows #{forge-animation.variable(duration-medium2)}
+    #{forge-animation.variable(easing-decelerate)};
 
   &.expanded {
     grid-template-rows: 1fr;
@@ -78,7 +79,7 @@ $marker-size: 20px;
     position: absolute;
     inset-block-start: calc(#{$marker-size} + -5px);
     inset-block-end: -8px;
-    inset-inline-start: 10px;
+    inset-inline-start: calc(#{$marker-size} / 2);
     width: 1px;
     background-color: #{forge-theme.variable(outline)};
   }
@@ -104,13 +105,13 @@ $marker-size: 20px;
   flex-shrink: 0;
   width: $marker-size;
   height: $marker-size;
-  border-radius: 50%;
+  border-radius: #{forge-shape.variable(round)};
 
   &::before {
     content: '';
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: #{forge-spacing.variable(xsmall)};
+    height: #{forge-spacing.variable(xsmall)};
+    border-radius: #{forge-shape.variable(round)};
     background-color: currentColor;
     position: absolute;
     top: 7px;
@@ -138,22 +139,22 @@ $marker-size: 20px;
   width: 100%;
   &-title {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 
   &-result {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 }
 
 .detail {
   &-key {
     font-weight: 500;
-    opacity: 60%;
+    color: #{forge-theme.variable(text-medium)};
   }
   &-value {
     font-weight: normal;
-    opacity: 60%;
-    margin-left: 32px;
+    color: #{forge-theme.variable(text-medium)};
+    margin-inline-start: #{forge-spacing.variable(xlarge)};
   }
 }

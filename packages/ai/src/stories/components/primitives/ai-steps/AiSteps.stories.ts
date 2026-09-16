@@ -2,10 +2,8 @@ import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
 
 import '$lib/ai-steps';
-import '$lib/ai-chatbot';
-import { AgentAdapter } from '$lib/ai-chatbot/agent-adapter.js';
-import { generateId } from '$lib/ai-chatbot/utils.js';
-import { ToolCall, ToolDefinition, ChatMessage } from '$lib';
+import { ToolCall, ToolDefinition } from '$lib';
+import type { AiStepLabel, AiStepLabelContext } from '$lib/ai-steps';
 
 const component = 'forge-ai-steps';
 
@@ -81,108 +79,39 @@ const noDetailTools = new Map<string, ToolDefinition>([
   ['called.customer_records', { name: 'called.customer_records', displayName: 'Customer records' }]
 ]);
 
-/**
- * Demonstrates `ToolDefinition.displayAs: 'steps'` end-to-end: an adapter streams a
- * sequence of tool calls through the real event pipeline (`tool-call-start` →
- * `tool-call-args` → `tool-call-end` → `tool-call` → `tool-result`). Because each tool
- * is registered with `displayAs: 'steps'`, `forge-ai-assistant-response` renders them
- * with `forge-ai-steps` instead of `forge-ai-tool-call-indicator`.
- */
-class StepsDemoAdapter extends AgentAdapter {
-  private static readonly STEPS = [
-    { name: 'searched.open_invoices', args: { query: 'open invoices' }, result: { count: 12 } },
-    { name: 'filtered.overdue_invoices', args: { status: 'overdue' }, result: { count: 4 } },
-    { name: 'joined.orders_+_customers', args: { ids: ['INV-1', 'INV-2'] }, result: { removed: 2 } }
-  ];
+const tools = new Map<string, ToolDefinition>([
+  ['searched.orders_table', { name: 'searched.orders_table', displayName: 'Searched orders table' }],
+  ['filtered.region', { name: 'filtered.region', displayName: 'Filtered region' }],
+  ['loaded.product_catalog', { name: 'loaded.product_catalog', displayName: 'Loaded product catalog' }]
+]);
 
-  #threadId = 'steps-demo-thread';
+// Annotates the resolved display name based on the tool call's own status.
+const stepLabel = ({ displayName, toolCall }: AiStepLabelContext): string =>
+  toolCall.status === 'error' ? `${displayName} (failed)` : displayName;
 
-  public constructor() {
-    super();
-    this.setTools(StepsDemoAdapter.STEPS.map(step => ({ name: step.name, displayAs: 'steps' })));
-  }
-
-  public get threadId(): string {
-    return this.#threadId;
-  }
-  public set threadId(value: string) {
-    this.#threadId = value;
-  }
-
-  public async connect(): Promise<void> {
-    this._updateState({ isConnected: true });
-  }
-
-  public async disconnect(): Promise<void> {
-    this._updateState({ isConnected: false });
-  }
-
-  public sendMessage(_messages: ChatMessage[]): void {
-    this._updateState({ isRunning: true });
-    this._emitRunStarted();
-
-    const messageId = generateId();
-
-    let delay = 300;
-    for (const step of StepsDemoAdapter.STEPS) {
-      const toolCallId = generateId();
-      const startDelay = delay;
-      const endDelay = startDelay + 1000;
-
-      setTimeout(() => {
-        this._emitToolCallStart({ id: toolCallId, messageId, name: step.name });
-        this._emitToolCallArgs({
-          id: toolCallId,
-          messageId,
-          name: step.name,
-          argsBuffer: JSON.stringify(step.args),
-          partialArgs: step.args
-        });
-        this._emitToolCallEnd({ id: toolCallId, messageId, name: step.name, args: step.args });
-        this._emitToolCall({ id: toolCallId, messageId, name: step.name, args: step.args });
-      }, startDelay);
-
-      setTimeout(() => {
-        this._emitToolResult({
-          toolCallId,
-          result: step.result,
-          message: {
-            id: generateId(),
-            role: 'tool',
-            content: JSON.stringify(step.result),
-            timestamp: Date.now(),
-            status: 'complete',
-            toolCallId
-          }
-        });
-      }, endDelay);
-
-      delay = endDelay + 300;
-    }
-
-    setTimeout(() => {
-      this._emitMessageStart(messageId);
-      this._emitMessageDelta(messageId, 'Done — removed 2 overdue invoices after searching and filtering.');
-      this._emitMessageEnd(messageId);
-      this._updateState({ isRunning: false });
-      this._emitRunFinished();
-    }, delay);
-  }
-
-  public sendToolResult(): void {
-    // This demo resolves every tool call directly via `_emitToolResult` above.
-  }
-
-  public abort(): void {
-    this._updateState({ isRunning: false });
-  }
-}
+// Splits the resolved display name into a leading verb and the subject it acted on.
+const stepLabelWithCode = ({ displayName }: AiStepLabelContext): AiStepLabel => {
+  const [label, ...code] = displayName.split(' ');
+  return { label, code: code.join(' ') };
+};
 
 export default meta;
 
 type Story = StoryObj;
 
+/**
+ * Each step is labeled with the `displayName` from its matching `ToolDefinition` in the `tools` map.
+ * This is the only thing most consumers need to set.
+ */
 export const Demo: Story = {
+  render: () => html`<forge-ai-steps .toolCalls=${toolCalls} .tools=${tools}></forge-ai-steps>`
+};
+
+/**
+ * Tools with no `displayName` — or no entry in `tools` at all — fall back to the raw `toolCall.name`,
+ * so steps are never unlabeled.
+ */
+export const WithoutDisplayNames: Story = {
   render: () => html`<forge-ai-steps .toolCalls=${toolCalls}></forge-ai-steps>`
 };
 
@@ -190,12 +119,22 @@ export const NoDetail: Story = {
   render: () => html`<forge-ai-steps .toolCalls=${noDetailToolCalls} .tools=${noDetailTools}></forge-ai-steps>`
 };
 
-export const WithChatbot: Story = {
-  render: () => {
-    const adapter = new StepsDemoAdapter();
+/**
+ * `stepLabel` is optional — it formats the label the component already resolved rather than replacing
+ * the `displayName` lookup. It receives that resolved name plus the tool call, so labels can react to
+ * per-call state; here the second step failed and is annotated accordingly.
+ */
+export const WithStepLabel: Story = {
+  render: () => html`<forge-ai-steps .toolCalls=${toolCalls} .tools=${tools} .stepLabel=${stepLabel}></forge-ai-steps>`
+};
 
-    return html`
-      <forge-ai-chatbot .adapter=${adapter} placeholder="Ask me to clean up overdue invoices"> </forge-ai-chatbot>
-    `;
-  }
+/**
+ * `stepLabel` can also restructure the label by returning an `AiStepLabel` (`{ label, code }`) instead
+ * of a string. The `code` portion renders as an inline `<code>` chip, so here each `displayName` is
+ * split into a leading verb and the subject it acted on. Because it's plain data rather than markup,
+ * this works the same from any framework.
+ */
+export const WithCodeInStepLabel: Story = {
+  render: () =>
+    html`<forge-ai-steps .toolCalls=${toolCalls} .tools=${tools} .stepLabel=${stepLabelWithCode}></forge-ai-steps>`
 };
