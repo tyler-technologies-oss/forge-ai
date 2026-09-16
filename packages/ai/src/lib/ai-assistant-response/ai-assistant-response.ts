@@ -141,10 +141,9 @@ export class AiAssistantResponseComponent extends LitElement {
       if (child.type === 'text') {
         flushIndicator();
         results.push(this.#renderTextChunk(child));
-        continue;
+      } else {
+        toolBuffer.push(child.data);
       }
-
-      toolBuffer.push(child.data);
     }
 
     flushIndicator();

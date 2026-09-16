@@ -10,7 +10,8 @@ import type { ChatMessage, ToolCall, ToolDefinition } from '$lib/ai-chatbot/type
 const component = 'forge-ai-tool-call-indicator';
 
 const tools = new Map<string, ToolDefinition>([
-  ['getCurrentWeather', { name: 'getCurrentWeather', displayName: 'Get current weather' }]
+  ['getCurrentWeather', { name: 'getCurrentWeather', displayName: 'Get current weather' }],
+  ['lookup_case', { name: 'lookup_case', displayName: 'Case lookup' }]
 ]);
 
 const toolCalls: ToolCall[] = [
