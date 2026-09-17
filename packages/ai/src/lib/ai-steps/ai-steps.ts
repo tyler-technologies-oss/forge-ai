@@ -1,8 +1,10 @@
 import { LitElement, PropertyValues, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { join } from 'lit/directives/join.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { when } from 'lit/directives/when.js';
 
+import { renderInlineMarkdown } from '../utils/markdown.js';
 import styles from './ai-steps.scss?inline';
 
 declare global {
@@ -23,15 +25,16 @@ export type AiStepStatus = 'pending' | 'running' | 'complete' | 'error';
  * labels of its own and makes no assumption about how the agent names its work.
  */
 export interface AiStep {
-  /** Agent-provided label for the step, e.g. `'Filtered by crime category'`. */
+  /**
+   * Agent-provided label for the step, e.g. `'Filtered by \`crime_category\`'`. Rendered as inline
+   * markdown, so the agent decides which part of its own label to emphasize. Literal `*`, `_` and
+   * `` ` `` characters need escaping.
+   */
   label: string;
   /**
-   * Optional value rendered as an inline `<code>` chip after `label`, for the part of the step that
-   * reads better set apart — a column, table, or query fragment, e.g. `'crime_category'`. Supplying
-   * it as its own field rather than embedding markup in `label` keeps the input plain JSON.
+   * Optional agent-provided elaboration, rendered as a detail card beneath the label. Also rendered
+   * as inline markdown.
    */
-  code?: string;
-  /** Optional agent-provided elaboration, rendered as a detail card beneath the label. */
   detail?: string;
   /** Lifecycle state of this step. Defaults to `'complete'` when omitted. */
   status?: AiStepStatus;
@@ -45,8 +48,11 @@ export interface AiStep {
  * @description
  * Collapsed, it shows a step count and a summary of the first couple of step labels. When expanded,
  * it lists each step as a row in a vertical timeline along with its status. Steps carrying a
- * `detail` render as detail cards; steps without one render as a simple labeled row. A step may also
- * carry a `code` value, rendered as an inline chip after the label.
+ * `detail` render as detail cards; steps without one render as a simple labeled row.
+ *
+ * Labels and details are rendered as sanitized inline markdown, so the agent controls its own
+ * emphasis — bold, italic, strikethrough, `code` and links — rather than the component or the
+ * consumer prescribing which part of a step matters.
  *
  * This is a presentational primitive: it renders whatever `steps` it is given and knows nothing
  * about tool calls or tool definitions. `forge-ai-tool-steps` is the tool renderer that maps an
@@ -92,13 +98,21 @@ export class AiStepsComponent extends LitElement {
 
   readonly #rowMarker: TemplateResult = html`<span class="row-marker"></span>`;
 
-  // Shared so a step reads the same in the collapsed summary as it does in its timeline row.
-  #renderLabel(step: AiStep): TemplateResult {
-    return step.code ? html`${step.label} <code>${step.code}</code>` : html`${step.label}`;
+  /**
+   * Agent-authored text as sanitized inline markdown. Inline rather than block so a label stays on
+   * one line instead of gaining a `<p>` wrapper. Shared by the summary row, the timeline labels and
+   * the detail cards so a step reads the same wherever it appears.
+   *
+   * Unclosed syntax is left as literal characters — `renderInlineMarkdown` skips the partial-syntax
+   * repair that `renderMarkdown` applies, so a label caught mid-stream briefly shows its `**` rather
+   * than guessing at an emphasis the agent has not finished writing.
+   */
+  #renderInline(value: string): TemplateResult {
+    return html`${unsafeHTML(renderInlineMarkdown(value))}`;
   }
 
   get #summaryLabel(): TemplateResult {
-    const stepLabels = this.steps.map(step => html`<span>${this.#renderLabel(step)}</span>`);
+    const stepLabels = this.steps.map(step => html`<span>${this.#renderInline(step.label)}</span>`);
     const visibleLabels = stepLabels.slice(0, 2);
     const remaining = stepLabels.length - visibleLabels.length;
     return remaining > 0
@@ -116,7 +130,7 @@ export class AiStepsComponent extends LitElement {
         <div class="row-header">
           ${this.#rowMarker}
           <span class="row-label">
-            <span class="row-name">${this.#renderLabel(step)}</span>
+            <span class="row-name">${this.#renderInline(step.label)}</span>
           </span>
         </div>
       </div>
@@ -129,6 +143,8 @@ export class AiStepsComponent extends LitElement {
       return this.#renderNoDetailStep(step);
     }
 
+    // Truncated before parsing, never after: cutting the rendered HTML would split a tag. The cut can
+    // strand an opening `**`, which then renders as literal characters rather than broken markup.
     const truncated = detail.length > MAX_DETAIL_LENGTH ? `${detail.slice(0, MAX_DETAIL_LENGTH)}… (truncated)` : detail;
 
     return html`
@@ -136,9 +152,9 @@ export class AiStepsComponent extends LitElement {
         <div class="row-header">
           ${this.#rowMarker}
           <div class="step-card">
-            <span class="step-card-title">${this.#renderLabel(step)}</span>
+            <span class="step-card-title">${this.#renderInline(step.label)}</span>
             <div class="step-card-body">
-              <div class="step-card-result">${truncated}</div>
+              <div class="step-card-result">${this.#renderInline(truncated)}</div>
             </div>
           </div>
         </div>

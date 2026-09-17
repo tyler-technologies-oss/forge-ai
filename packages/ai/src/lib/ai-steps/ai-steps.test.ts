@@ -53,8 +53,8 @@ describe('AiStepsComponent', () => {
     expect(textOf(el.shadowRoot!.querySelector('.row-name'))).to.equal('Refreshed the cache');
   });
 
-  it('should render a step code as an inline chip after the label on a detail card', async () => {
-    const step = createStep({ label: 'Filtered by', code: 'crime_category', detail: 'Narrowed to 412 records.' });
+  it('should render inline markdown in a label on a detail card', async () => {
+    const step = createStep({ label: 'Filtered by `crime_category`', detail: 'Narrowed to 412 records.' });
     const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
 
     const title = el.shadowRoot!.querySelector('.step-card-title')!;
@@ -62,25 +62,91 @@ describe('AiStepsComponent', () => {
     expect(textOf(title)).to.equal('Filtered by crime_category');
   });
 
-  it('should render a step code as an inline chip on a row with no detail', async () => {
-    const step = createStep({ label: 'Joined', code: 'incidents ⨝ districts' });
+  it('should render inline markdown in a label on a row with no detail', async () => {
+    const step = createStep({ label: 'Kept **412** rows, ~~ignoring~~ the cache' });
     const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
 
     const rowName = el.shadowRoot!.querySelector('.row-name')!;
-    expect(textOf(rowName.querySelector('code'))).to.equal('incidents ⨝ districts');
+    expect(textOf(rowName.querySelector('strong'))).to.equal('412');
+    expect(textOf(rowName.querySelector('del'))).to.equal('ignoring');
   });
 
-  it('should omit the code chip for a step with no code', async () => {
+  it('should render emphasis anywhere in a label, not only at the end', async () => {
+    const step = createStep({ label: 'Filtered `incidents` by *category*' });
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
+
+    const rowName = el.shadowRoot!.querySelector('.row-name')!;
+    expect(textOf(rowName.querySelector('code'))).to.equal('incidents');
+    expect(textOf(rowName.querySelector('em'))).to.equal('category');
+  });
+
+  it('should render inline markdown in a detail', async () => {
+    const step = createStep({ detail: 'Matched **1,284** orders in `orders`.' });
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
+
+    const result = el.shadowRoot!.querySelector('.step-card-result')!;
+    expect(textOf(result.querySelector('strong'))).to.equal('1,284');
+    expect(textOf(result.querySelector('code'))).to.equal('orders');
+  });
+
+  it('should leave a label with no markdown syntax untouched', async () => {
     const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[createStep()]}></forge-ai-steps>`);
 
-    expect(el.shadowRoot!.querySelector('.row-name code')).to.not.exist;
+    const rowName = el.shadowRoot!.querySelector('.row-name')!;
+    expect(rowName.querySelector('code')).to.not.exist;
+    expect(textOf(rowName)).to.equal('Searched the orders table');
   });
 
-  it('should include the code chip in the collapsed summary', async () => {
-    const step = createStep({ label: 'Filtered by', code: 'crime_category' });
+  it('should render inline markdown in the collapsed summary', async () => {
+    const step = createStep({ label: 'Filtered by `crime_category`' });
     const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
 
     expect(textOf(el.shadowRoot!.querySelector('.status-text code'))).to.equal('crime_category');
+  });
+
+  it('should not wrap an inline-rendered label in a block-level paragraph', async () => {
+    const step = createStep({ label: 'Searched `orders`' });
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
+
+    expect(el.shadowRoot!.querySelector('.row-name p')).to.not.exist;
+  });
+
+  it('should strip unsafe markup from an agent-supplied label', async () => {
+    const step = createStep({
+      label: 'Searched <span onclick="window.__xss = true">orders</span><script>window.__xss = true</script>'
+    });
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
+
+    const rowName = el.shadowRoot!.querySelector('.row-name')!;
+    expect(rowName.querySelector('script')).to.not.exist;
+    expect(rowName.querySelector('span')?.hasAttribute('onclick') ?? false).to.be.false;
+    expect(textOf(rowName)).to.contain('orders');
+  });
+
+  it('should strip an unsafe protocol from an agent-supplied link', async () => {
+    const step = createStep({ label: 'Opened [the record](javascript:window.__xss = true)' });
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
+
+    const anchor = el.shadowRoot!.querySelector('.row-name a');
+    expect(anchor?.getAttribute('href') ?? '').to.not.contain('javascript:');
+  });
+
+  it('should force agent-supplied links to open safely in a new tab', async () => {
+    const step = createStep({ label: 'Opened [parcel 4471](https://example.com/parcel/4471)' });
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
+
+    const anchor = el.shadowRoot!.querySelector('.row-name a')!;
+    expect(anchor.getAttribute('target')).to.equal('_blank');
+    expect(anchor.getAttribute('rel')).to.equal('noreferrer noopener');
+  });
+
+  it('should leave unclosed markdown syntax as literal text', async () => {
+    const step = createStep({ label: 'Filtered by **crime_' });
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[step]}></forge-ai-steps>`);
+
+    const rowName = el.shadowRoot!.querySelector('.row-name')!;
+    expect(rowName.querySelector('strong')).to.not.exist;
+    expect(textOf(rowName)).to.contain('**');
   });
 
   it('should truncate a detail longer than the maximum length', async () => {

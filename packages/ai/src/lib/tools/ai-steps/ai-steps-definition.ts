@@ -17,17 +17,12 @@ export const displayStepsTool: ToolDefinition = {
             label: {
               type: 'string',
               description:
-                'Short past-tense description of the step, e.g. "Searched the orders table" or "Filtered by crime category". This is the row title, so keep it to a few words.'
-            },
-            code: {
-              type: 'string',
-              description:
-                'Optional value rendered as an inline code chip after the label — a column, table, or query fragment, e.g. "crime_category". Use it when part of the label is an identifier rather than prose; put the prose in "label" and the identifier here.'
+                'Short past-tense description of the step, e.g. "Searched the orders table" or "Filtered by `crime_category`". This is the row title, so keep it to a few words. Inline markdown is supported — use `backticks` for identifiers such as columns, tables or query fragments, **bold** for a figure or outcome worth emphasizing, and *italics* or ~~strikethrough~~ where they help. Emphasize sparingly; a row where everything is bold reads the same as one where nothing is.'
             },
             detail: {
               type: 'string',
               description:
-                'Optional elaboration shown beneath the label, e.g. the filter applied or the number of records matched. Omit for steps that need no explanation.'
+                'Optional elaboration shown beneath the label, e.g. the filter applied or the number of records matched. Supports the same inline markdown as "label". Omit for steps that need no explanation.'
             },
             status: {
               type: 'string',

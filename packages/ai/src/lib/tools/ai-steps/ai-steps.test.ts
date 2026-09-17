@@ -50,12 +50,14 @@ describe('StepsToolElement', () => {
     expect(steps.steps[1].status).to.equal('error');
   });
 
-  it('should pass an agent-provided code value through to the steps primitive', async () => {
+  it('should pass an agent-provided markdown label through to the steps primitive verbatim', async () => {
     const { steps } = await renderTool(
-      createToolCall({ args: { steps: [{ label: 'Filtered by', code: 'crime_category' }] } })
+      createToolCall({ args: { steps: [{ label: 'Filtered by `crime_category`' }] } })
     );
 
-    expect(steps.steps[0].code).to.equal('crime_category');
+    // The renderer forwards the raw string; parsing belongs to the primitive.
+    expect(steps.steps[0].label).to.equal('Filtered by `crime_category`');
+    expect(steps.shadowRoot!.querySelector('.row-name code')?.textContent).to.equal('crime_category');
   });
 
   it('should render an empty timeline when arguments have not streamed in yet', async () => {

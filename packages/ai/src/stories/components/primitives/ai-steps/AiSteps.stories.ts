@@ -53,31 +53,23 @@ const noDetailSteps: AiStep[] = [
 ];
 
 /**
- * Splitting the identifier out of the prose and into `code` lets each step name the exact column,
- * table, or expression it acted on without the label turning into an unreadable run-on.
+ * One step per formatting style, so each renders in isolation: bold for a figure worth pulling out,
+ * italics plus strikethrough for a caveat, and backticks for an identifier.
  */
-const codeSteps: AiStep[] = [
+const markdownSteps: AiStep[] = [
   {
-    label: 'Queried',
-    code: 'incidents',
-    detail: 'Read 2024–2025 filings, returning 8,412 rows.',
+    label: 'Matched **8,412** incidents',
+    detail: 'Read every 2024–2025 filing before narrowing.',
     status: 'complete'
   },
   {
-    label: 'Filtered by',
-    code: 'crime_category',
-    detail: "Kept rows where crime_category = 'Burglary', leaving 412.",
+    label: '*Approximated* the ~~cached~~ district totals',
+    detail: 'The catalog service was unreachable, so these are recomputed rather than cached.',
     status: 'complete'
   },
   {
-    label: 'Joined',
-    code: 'incidents ⨝ districts',
-    status: 'complete'
-  },
-  {
-    label: 'Aggregated',
-    code: 'COUNT(*) GROUP BY district',
-    detail: 'Produced 11 district totals.',
+    label: 'Filtered `incidents` by `crime_category`',
+    detail: "Kept rows where `crime_category = 'Burglary'`, leaving **412**.",
     status: 'complete'
   }
 ];
@@ -89,24 +81,21 @@ const runningSteps: AiStep[] = [
 ];
 
 /**
- * Steps the chatbot story works through. Each one is announced with only its `label` and `code` while
- * it runs; its `detail` is what arrives when the step completes.
+ * Steps the chatbot story works through. Each one is announced with only its `label` while it runs;
+ * its `detail` is what arrives when the step completes.
  */
 const streamedSteps: AiStep[] = [
   {
-    label: 'Searched',
-    code: 'case_filings',
-    detail: 'Queried 2024–2025 filings for "zoning variance", returning 63 matches.'
+    label: 'Searched `case_filings`',
+    detail: 'Queried 2024–2025 filings for "zoning variance", returning **63** matches.'
   },
   {
-    label: 'Filtered by',
-    code: 'jurisdiction',
-    detail: 'Kept the 18 filings within Travis County.'
+    label: 'Filtered by `jurisdiction`',
+    detail: 'Kept the **18** filings within Travis County.'
   },
   {
-    label: 'Grouped by',
-    code: 'outcome',
-    detail: '11 approved, 5 denied, 2 withdrawn.'
+    label: 'Grouped by `outcome`',
+    detail: '**11** approved, 5 denied, 2 withdrawn.'
   }
 ];
 
@@ -127,7 +116,7 @@ function stepsInFlight(index: number): AiStep[] {
   const finished = streamedSteps.slice(0, index).map(step => ({ ...step, status: 'complete' as const }));
   const current = streamedSteps[index];
 
-  return current ? [...finished, { label: current.label, code: current.code, status: 'running' as const }] : finished;
+  return current ? [...finished, { label: current.label, status: 'running' as const }] : finished;
 }
 
 /**
@@ -219,13 +208,13 @@ export const NoDetail: Story = {
 };
 
 /**
- * A step's optional `code` renders as an inline chip after its `label`, so the identifier the step
- * acted on is set apart from the prose describing it. Both fields come from the agent as plain
- * strings — the chip is styling the component applies, not markup the agent has to build. The chip
- * shows in the collapsed summary too, so a step reads the same either way.
+ * `label` and `detail` are rendered as sanitized inline markdown, so the agent chooses what to
+ * emphasize instead of the component prescribing it. Emphasis works at any position and any number of
+ * times per label, and it carries into the collapsed summary. Unsafe markup is stripped, and links
+ * are forced to `target="_blank"` with a safe `rel`.
  */
-export const WithCodeLabels: Story = {
-  render: ({ running }) => html`<forge-ai-steps .steps=${codeSteps} ?running=${running}></forge-ai-steps>`
+export const WithMarkdownLabels: Story = {
+  render: ({ running }) => html`<forge-ai-steps .steps=${markdownSteps} ?running=${running}></forge-ai-steps>`
 };
 
 /**

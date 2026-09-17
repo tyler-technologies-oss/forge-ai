@@ -8,7 +8,7 @@ import * as AiStepsStories from './AiSteps.stories';
 
 The AI Steps component is an expandable timeline summarizing the steps an agent took while producing a response. Collapsed, it shows a step count and the first couple of step labels. Expanded, it lists each step as a row with a status marker, rendering a detail card for any step that carries a `detail`.
 
-This is a presentational primitive — it renders whatever `steps` it is given and knows nothing about tool calls. Labels and details are always supplied by the agent, never derived by the component or configured by the consumer.
+This is a presentational primitive — it renders whatever `steps` it is given and knows nothing about tool calls. Labels and details are always supplied by the agent, never derived by the component or configured by the consumer, and are rendered as sanitized inline markdown so the agent controls its own emphasis.
 
 <Canvas of={AiStepsStories.Demo} />
 
@@ -28,20 +28,35 @@ Steps with no `detail` skip the detail card and render as just a marker and labe
 
 <Canvas of={AiStepsStories.NoDetail} />
 
-## Labels with a code chip
+## Formatting within a label
 
-A step's optional `code` renders as an inline chip after its `label`, for the part of a step that is an identifier rather than prose — a column, table, or query fragment. Put the prose in `label` and the identifier in `code`; the component supplies the chip styling, so the agent never has to build markup and the tool input stays plain JSON.
+`label` and `detail` are rendered as sanitized inline markdown, so the agent decides which part of its own step matters rather than the component or the consumer prescribing it.
 
 ```ts
 const steps = [
-  { label: 'Filtered by', code: 'crime_category', detail: 'Narrowed to 412 records.' },
-  { label: 'Joined', code: 'incidents ⨝ districts' }
+  { label: 'Matched **8,412** incidents' },
+  { label: '*Approximated* the ~~cached~~ district totals' },
+  { label: 'Filtered `incidents` by `crime_category`', detail: 'Leaving **412** rows.' }
 ];
 ```
 
-The chip also appears in the collapsed summary, so a step reads the same whether the timeline is open or closed.
+| Syntax        | Renders as       | Use it for                              |
+| ------------- | ---------------- | --------------------------------------- |
+| `` `value` `` | inline code chip | columns, tables, query fragments        |
+| `**value**`   | bold             | a figure or outcome worth pulling out   |
+| `*value*`     | italic           | hedging — approximations, assumptions   |
+| `~~value~~`   | strikethrough    | something skipped, stale, or superseded |
+| `[text](url)` | link             | a record the user can open              |
 
-<Canvas of={AiStepsStories.WithCodeLabels} />
+Emphasis works at any position and any number of times per label, and it carries into the collapsed summary so a step reads the same open or closed.
+
+Three caveats:
+
+- **Escaping.** Literal `*`, `_` and `` ` `` characters need a backslash. A hand-written `label: 'Cost * quantity'` would otherwise start an emphasis run.
+- **Links** are forced to `target="_blank"` with `rel="noreferrer noopener"`, and unsafe protocols such as `javascript:` are stripped.
+- **Partial syntax stays literal.** While a label is still streaming in, an unclosed `**` renders as two asterisks rather than the component guessing at an emphasis the agent has not finished writing.
+
+<Canvas of={AiStepsStories.WithMarkdownLabels} />
 
 ## Use as an agent tool
 
@@ -53,9 +68,9 @@ import { displayStepsTool } from '@tylertech/forge-ai/tools';
 adapter.setTools([displayStepsTool]);
 ```
 
-The tool's schema accepts a `steps` array, each entry taking a required `label`, an optional `code`, an optional `detail`, and an optional `status` of `pending`, `running`, `complete`, or `error`. The `forge-ai-tool-steps` renderer maps that tool call onto this primitive, deriving `running` from the tool call's own status. Because the tool sets `renderOnStart`, the timeline appears while arguments are still streaming rather than only once the call settles.
+The tool's schema accepts a `steps` array, each entry taking a required `label`, an optional `detail`, and an optional `status` of `pending`, `running`, `complete`, or `error`. The `label` and `detail` descriptions tell the agent that inline markdown is available and to use it sparingly. The `forge-ai-tool-steps` renderer maps that tool call onto this primitive, deriving `running` from the tool call's own status. Because the tool sets `renderOnStart`, the timeline appears while arguments are still streaming rather than only once the call settles.
 
-The story below works through its steps one at a time. Each step is announced with just its `label` and `code` at `status: 'running'`, spends four seconds there, then flips to `complete` and gains its `detail` — so the detail card under the label is the part that streams in. Each tick re-emits the whole `steps` array, which is how a real agent's partial JSON accumulates. The timeline stays expanded with no summary row while the call is in flight, then auto-collapses once it settles.
+The story below works through its steps one at a time. Each step is announced with just its `label` at `status: 'running'`, waits there, then flips to `complete` and gains its `detail` — so the detail card under the label is the part that streams in. Each tick re-emits the whole `steps` array, which is how a real agent's partial JSON accumulates. The timeline stays expanded with no summary row while the call is in flight, then auto-collapses once it settles.
 
 <Canvas of={AiStepsStories.WithChatbot} />
 

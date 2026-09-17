@@ -3,6 +3,7 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '../utils/markdown-styles' as markdown;
 
 $marker-size: #{forge-spacing.variable(medium-large)};
 // Hairline for the timeline connector; there is no Forge token for a 1px rule.
@@ -49,16 +50,16 @@ $connector-width: 1px;
   display: flex;
   flex-direction: column;
   gap: #{forge-spacing.variable(xsmall)};
+
+  // Agent labels and details render as markdown, so the timeline shares the one markdown style the
+  // message thread and assistant response use. Included on the wrapper rather than on each text
+  // container so a code chip or link is styled identically in the summary row, the step labels and the
+  // detail cards without restating the rules four times.
+  @include markdown.markdown-content;
+
   &-count {
     color: #{forge-theme.variable(text-medium)};
     font-weight: 700;
-  }
-
-  code {
-    background: #{forge-theme.variable(surface-container)};
-    border-radius: #{forge-shape.variable(medium)};
-    padding: #{forge-spacing.variable(xxsmall)};
-    margin-inline-end: #{forge-spacing.variable(xxsmall)};
   }
 }
 
@@ -167,6 +168,14 @@ $connector-width: 1px;
   &-result {
     @include forge-typography.style(body1);
   }
+}
+
+// The shared `strong` weight is 500, which reads as emphasis against normal body text but not against
+// a label that is already 500 (`.row-name`) or 700 (`.step-card-title`) — there it would render
+// identically, or lighter than its own container. Agent emphasis has to outweigh whatever it sits in.
+.row-name strong,
+.step-card-title strong {
+  font-weight: 700;
 }
 
 .detail {
