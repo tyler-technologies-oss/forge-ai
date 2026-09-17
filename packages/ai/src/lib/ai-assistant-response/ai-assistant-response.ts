@@ -125,6 +125,7 @@ export class AiAssistantResponseComponent extends LitElement {
 
       const flushed = toolBuffer;
       toolBuffer = [];
+
       results.push(
         html`<forge-ai-tool-call-indicator
           .toolCalls=${flushed}

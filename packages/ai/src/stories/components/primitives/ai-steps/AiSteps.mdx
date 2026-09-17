@@ -1,0 +1,68 @@
+import { Meta, Title, Canvas } from '@storybook/addon-docs/blocks';
+import CustomArgTypes from '../../../blocks/CustomArgTypes';
+import * as AiStepsStories from './AiSteps.stories';
+
+<Meta of={AiStepsStories} />
+
+<Title />
+
+The AI Steps component is an expandable timeline summarizing the steps an agent took while producing a response. Collapsed, it shows a step count and the first couple of step labels. Expanded, it lists each step as a row with a status marker, rendering a detail card for any step that carries a `detail`.
+
+This is a presentational primitive — it renders whatever `steps` it is given and knows nothing about tool calls. Labels and details are always supplied by the agent, never derived by the component or configured by the consumer.
+
+<Canvas of={AiStepsStories.Demo} />
+
+## Running and complete
+
+While `running` is `true` the timeline is held open and the summary row is hidden, so the user can watch the agent work.
+
+<Canvas of={AiStepsStories.Running} />
+
+When `running` flips back to `false` the timeline auto-collapses, leaving the summary row as the way back in. An element that mounts with `running` already `false` renders expanded instead, so a finished run read back from history is legible without interaction.
+
+<Canvas of={AiStepsStories.Complete} />
+
+## Steps without detail
+
+Steps with no `detail` skip the detail card and render as just a marker and label.
+
+<Canvas of={AiStepsStories.NoDetail} />
+
+## Labels with a code chip
+
+A step's optional `code` renders as an inline chip after its `label`, for the part of a step that is an identifier rather than prose — a column, table, or query fragment. Put the prose in `label` and the identifier in `code`; the component supplies the chip styling, so the agent never has to build markup and the tool input stays plain JSON.
+
+```ts
+const steps = [
+  { label: 'Filtered by', code: 'crime_category', detail: 'Narrowed to 412 records.' },
+  { label: 'Joined', code: 'incidents ⨝ districts' }
+];
+```
+
+The chip also appears in the collapsed summary, so a step reads the same whether the timeline is open or closed.
+
+<Canvas of={AiStepsStories.WithCodeLabels} />
+
+## Use as an agent tool
+
+Steps are agent-controlled rather than consumer-configured. Register `displayStepsTool` with your adapter and the agent drives the timeline by calling `displaySteps`:
+
+```ts
+import { displayStepsTool } from '@tylertech/forge-ai/tools';
+
+adapter.setTools([displayStepsTool]);
+```
+
+The tool's schema accepts a `steps` array, each entry taking a required `label`, an optional `code`, an optional `detail`, and an optional `status` of `pending`, `running`, `complete`, or `error`. The `forge-ai-tool-steps` renderer maps that tool call onto this primitive, deriving `running` from the tool call's own status. Because the tool sets `renderOnStart`, the timeline appears while arguments are still streaming rather than only once the call settles.
+
+The story below works through its steps one at a time. Each step is announced with just its `label` and `code` at `status: 'running'`, spends four seconds there, then flips to `complete` and gains its `detail` — so the detail card under the label is the part that streams in. Each tick re-emits the whole `steps` array, which is how a real agent's partial JSON accumulates. The timeline stays expanded with no summary row while the call is in flight, then auto-collapses once it settles.
+
+<Canvas of={AiStepsStories.WithChatbot} />
+
+## API
+
+<CustomArgTypes />
+
+## Accessibility
+
+The summary row is a real `<button>` with `aria-expanded` and `aria-controls` pointing at the timeline region, so the collapsed and expanded states are operable and announced correctly by assistive technology. The timeline itself carries `aria-hidden` while collapsed so its rows are not announced out of context.

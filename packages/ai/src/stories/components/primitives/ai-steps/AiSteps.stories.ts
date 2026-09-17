@@ -1,140 +1,275 @@
 import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
+import { createRef, ref } from 'lit/directives/ref.js';
 
 import '$lib/ai-steps';
-import { ToolCall, ToolDefinition } from '$lib';
-import type { AiStepLabel, AiStepLabelContext } from '$lib/ai-steps';
+import '$lib/ai-chatbot';
+import type { AiStep } from '$lib/ai-steps';
+import { type AiChatbotComponent, generateId } from '$lib/ai-chatbot';
+import { displayStepsTool } from '$lib/tools';
+import { MockAdapter } from '../../../utils/mock-adapter';
 
 const component = 'forge-ai-steps';
 
 const meta = {
   title: 'AI Components/Primitives/Steps',
   component,
+  argTypes: {
+    running: {
+      control: 'boolean',
+      description: 'Whether the run producing these steps is still in progress'
+    }
+  },
+  args: {
+    running: false
+  },
   tags: ['autodocs']
 } satisfies Meta;
 
-const toolCalls: ToolCall[] = [
+const steps: AiStep[] = [
   {
-    id: 'tool-1',
-    messageId: 'message-1',
-    name: 'searched.orders_table',
-    args: { name: 'Ergonomic', type: 'Table' },
-    result: { temperature: 68, condition: 'Sunny' },
-    status: 'complete',
-    type: 'agent',
-    startTimestamp: 1000,
-    endTimestamp: 1420
+    label: 'Searched the orders table',
+    detail: 'Matched 1,284 orders placed in the last 90 days.',
+    status: 'complete'
   },
   {
-    id: 'tool-2',
-    messageId: 'message-1',
-    name: 'filtered.region',
-    args: { name: 'Coffee', type: 'Grounds' },
-    result: { method: 'Manual', size: '10kg' },
-    status: 'error',
-    type: 'agent',
-    startTimestamp: 1500,
-    endTimestamp: 2210
+    label: 'Filtered by region',
+    detail: 'Narrowed to the West region, leaving 412 orders.',
+    status: 'complete'
   },
   {
-    id: 'tool-2',
-    messageId: 'message-1',
-    name: 'loaded.product_catalog',
-    args: { name: 'Duplicate', type: 'Documents' },
-    result: { message: 'Case not found' },
-    status: 'error',
-    type: 'agent',
-    startTimestamp: 1420,
-    endTimestamp: 2210
+    label: 'Loaded the product catalog',
+    detail: 'Could not reach the catalog service — falling back to cached product names.',
+    status: 'error'
   }
 ];
 
 /**
- * Tool calls with no args and no result (e.g. a plain "refresh cache" call) skip the
- * step-card entirely and render as just a marker and name, optionally with a duration
- * badge — falling back to the raw tool name unless a `ToolDefinition.displayName` is set.
+ * Steps with no `detail` skip the detail card entirely and render as just a marker and label.
  */
-const noDetailToolCalls: ToolCall[] = [
+const noDetailSteps: AiStep[] = [
+  { label: 'Refreshed the cache', status: 'complete' },
+  { label: 'Loaded customer records', status: 'complete' }
+];
+
+/**
+ * Splitting the identifier out of the prose and into `code` lets each step name the exact column,
+ * table, or expression it acted on without the label turning into an unreadable run-on.
+ */
+const codeSteps: AiStep[] = [
   {
-    id: 'tool-4',
-    messageId: 'message-1',
-    name: 'called.refresh_cache',
-    args: {},
-    status: 'complete',
-    type: 'agent',
-    startTimestamp: 1000,
-    endTimestamp: 1180
+    label: 'Queried',
+    code: 'incidents',
+    detail: 'Read 2024–2025 filings, returning 8,412 rows.',
+    status: 'complete'
   },
   {
-    id: 'tool-5',
-    messageId: 'message-1',
-    name: 'called.customer_records',
-    args: {},
-    status: 'complete',
-    type: 'agent'
+    label: 'Filtered by',
+    code: 'crime_category',
+    detail: "Kept rows where crime_category = 'Burglary', leaving 412.",
+    status: 'complete'
+  },
+  {
+    label: 'Joined',
+    code: 'incidents ⨝ districts',
+    status: 'complete'
+  },
+  {
+    label: 'Aggregated',
+    code: 'COUNT(*) GROUP BY district',
+    detail: 'Produced 11 district totals.',
+    status: 'complete'
   }
 ];
 
-const noDetailTools = new Map<string, ToolDefinition>([
-  ['called.customer_records', { name: 'called.customer_records', displayName: 'Customer records' }]
-]);
+const runningSteps: AiStep[] = [
+  { label: 'Searched the orders table', detail: 'Matched 1,284 orders.', status: 'complete' },
+  { label: 'Filtered by region', status: 'running' },
+  { label: 'Summarizing results', status: 'pending' }
+];
 
-const tools = new Map<string, ToolDefinition>([
-  ['searched.orders_table', { name: 'searched.orders_table', displayName: 'Searched orders table' }],
-  ['filtered.region', { name: 'filtered.region', displayName: 'Filtered region' }],
-  ['loaded.product_catalog', { name: 'loaded.product_catalog', displayName: 'Loaded product catalog' }]
-]);
+/**
+ * Steps the chatbot story works through. Each one is announced with only its `label` and `code` while
+ * it runs; its `detail` is what arrives when the step completes.
+ */
+const streamedSteps: AiStep[] = [
+  {
+    label: 'Searched',
+    code: 'case_filings',
+    detail: 'Queried 2024–2025 filings for "zoning variance", returning 63 matches.'
+  },
+  {
+    label: 'Filtered by',
+    code: 'jurisdiction',
+    detail: 'Kept the 18 filings within Travis County.'
+  },
+  {
+    label: 'Grouped by',
+    code: 'outcome',
+    detail: '11 approved, 5 denied, 2 withdrawn.'
+  }
+];
 
-// Annotates the resolved display name based on the tool call's own status.
-const stepLabel = ({ displayName, toolCall }: AiStepLabelContext): string =>
-  toolCall.status === 'error' ? `${displayName} (failed)` : displayName;
+/** How long each step sits at `status: 'running'` before it completes. */
+const STEP_RUNNING_DELAY = 1000;
 
-// Splits the resolved display name into a leading verb and the subject it acted on.
-const stepLabelWithCode = ({ displayName }: AiStepLabelContext): AiStepLabel => {
-  const [label, ...code] = displayName.split(' ');
-  return { label, code: code.join(' ') };
-};
+/** Long enough to read the finished timeline before the settled call collapses it. */
+const SETTLE_DELAY = 1000;
+
+const ANSWER = 'Of the 18 Travis County zoning variance filings, 11 were approved.';
+
+/**
+ * The snapshot of `steps` at the point where `index` is the step currently in flight: everything
+ * before it has completed and carries its `detail`, and `index` itself is `running` with no detail
+ * yet. Passing `streamedSteps.length` yields the fully finished list.
+ */
+function stepsInFlight(index: number): AiStep[] {
+  const finished = streamedSteps.slice(0, index).map(step => ({ ...step, status: 'complete' as const }));
+  const current = streamedSteps[index];
+
+  return current ? [...finished, { label: current.label, code: current.code, status: 'running' as const }] : finished;
+}
+
+/**
+ * Walks a `displaySteps` call through its statuses, which `MockAdapter` can't do — it emits a single
+ * hard-coded tool call in one shot. Each step is announced as `running` with just its label, then
+ * flips to `complete` and gains its `detail` once the work "finishes", so the detail card is the part
+ * that streams in. Re-emitting the whole `steps` array each tick mirrors how a real agent's partial
+ * JSON accumulates.
+ */
+class StepsStreamingAdapter extends MockAdapter {
+  #timeouts: number[] = [];
+
+  public override sendMessage(): void {
+    this._updateState({ isRunning: true });
+    this._emitRunStarted();
+
+    const messageId = generateId();
+    const id = generateId();
+    const name = displayStepsTool.name;
+
+    this._emitMessageStart(messageId);
+    this._emitToolCallStart({ id, messageId, name });
+
+    // One tick per step announcing it as running, plus a final tick where the last step completes.
+    for (let index = 0; index <= streamedSteps.length; index++) {
+      const steps = stepsInFlight(index);
+      this.#defer(
+        () =>
+          this._emitToolCallArgs({
+            id,
+            messageId,
+            name,
+            argsBuffer: JSON.stringify({ steps }),
+            partialArgs: { steps }
+          }),
+        index * STEP_RUNNING_DELAY
+      );
+    }
+
+    this.#defer(
+      () => {
+        const args = { steps: stepsInFlight(streamedSteps.length) };
+        this._emitToolCallEnd({ id, messageId, name, args });
+        this._emitToolCall({ id, messageId, name, args });
+        this._emitMessageDelta(messageId, ANSWER);
+        this._emitMessageEnd(messageId);
+        this._updateState({ isRunning: false });
+        this._emitRunFinished();
+      },
+      streamedSteps.length * STEP_RUNNING_DELAY + SETTLE_DELAY
+    );
+  }
+
+  /**
+   * Deliberately a no-op. `MockAdapter.sendToolResult` finishes by calling `sendMessage` again, which
+   * is right for a real agent taking another turn on a tool's output — but `displaySteps` renders
+   * rather than returns, and the chatbot sends a result for it regardless because the tool has no
+   * handler. Letting that through restarts this script on a loop, appending a fresh timeline every
+   * time the previous one settles. The core controller marks the call complete before it reaches the
+   * adapter, so nothing is lost by dropping the round-trip.
+   */
+  public override sendToolResult(): void {}
+
+  public override abort(): void {
+    this.#timeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.#timeouts = [];
+    super.abort();
+  }
+
+  #defer(callback: () => void, delay: number): void {
+    this.#timeouts.push(window.setTimeout(callback, delay));
+  }
+}
 
 export default meta;
 
 type Story = StoryObj;
 
 /**
- * Each step is labeled with the `displayName` from its matching `ToolDefinition` in the `tools` map.
- * This is the only thing most consumers need to set.
+ * Every label and detail is supplied by the agent through the `displaySteps` tool call — the
+ * component derives nothing on its own.
  */
 export const Demo: Story = {
-  render: () => html`<forge-ai-steps .toolCalls=${toolCalls} .tools=${tools}></forge-ai-steps>`
-};
-
-/**
- * Tools with no `displayName` — or no entry in `tools` at all — fall back to the raw `toolCall.name`,
- * so steps are never unlabeled.
- */
-export const WithoutDisplayNames: Story = {
-  render: () => html`<forge-ai-steps .toolCalls=${toolCalls}></forge-ai-steps>`
+  render: ({ running }) => html`<forge-ai-steps .steps=${steps} ?running=${running}></forge-ai-steps>`
 };
 
 export const NoDetail: Story = {
-  render: () => html`<forge-ai-steps .toolCalls=${noDetailToolCalls} .tools=${noDetailTools}></forge-ai-steps>`
+  render: () => html`<forge-ai-steps .steps=${noDetailSteps}></forge-ai-steps>`
 };
 
 /**
- * `stepLabel` is optional — it formats the label the component already resolved rather than replacing
- * the `displayName` lookup. It receives that resolved name plus the tool call, so labels can react to
- * per-call state; here the second step failed and is annotated accordingly.
+ * A step's optional `code` renders as an inline chip after its `label`, so the identifier the step
+ * acted on is set apart from the prose describing it. Both fields come from the agent as plain
+ * strings — the chip is styling the component applies, not markup the agent has to build. The chip
+ * shows in the collapsed summary too, so a step reads the same either way.
  */
-export const WithStepLabel: Story = {
-  render: () => html`<forge-ai-steps .toolCalls=${toolCalls} .tools=${tools} .stepLabel=${stepLabel}></forge-ai-steps>`
+export const WithCodeLabels: Story = {
+  render: ({ running }) => html`<forge-ai-steps .steps=${codeSteps} ?running=${running}></forge-ai-steps>`
 };
 
 /**
- * `stepLabel` can also restructure the label by returning an `AiStepLabel` (`{ label, code }`) instead
- * of a string. The `code` portion renders as an inline `<code>` chip, so here each `displayName` is
- * split into a leading verb and the subject it acted on. Because it's plain data rather than markup,
- * this works the same from any framework.
+ * While `running` is `true` the timeline is held open and the summary row is hidden, so the user can
+ * watch the agent work.
  */
-export const WithCodeInStepLabel: Story = {
-  render: () =>
-    html`<forge-ai-steps .toolCalls=${toolCalls} .tools=${tools} .stepLabel=${stepLabelWithCode}></forge-ai-steps>`
+export const Running: Story = {
+  render: () => html`<forge-ai-steps .steps=${runningSteps} running></forge-ai-steps>`
+};
+
+/**
+ * A finished run. An element that mounts with `running` already `false` renders expanded and can be
+ * collapsed with the summary row; one that *transitions* from running to finished auto-collapses.
+ */
+export const Complete: Story = {
+  render: () => html`<forge-ai-steps .steps=${steps}></forge-ai-steps>`
+};
+
+/**
+ * The `displayStepsTool` definition wired into a real `forge-ai-chatbot`. The agent calls
+ * `displaySteps` with its steps and the `forge-ai-tool-steps` renderer maps them onto the primitive.
+ */
+export const WithChatbot: Story = {
+  render: () => {
+    const adapter = new StepsStreamingAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      tools: [displayStepsTool]
+    });
+
+    const question = 'How did zoning variance requests turn out in Travis County?';
+
+    // Kick the run off on mount so the timeline is streaming when the story opens; sending another
+    // message replays it. Held as a ref rather than looked up with `document.querySelector`, which
+    // would find the first chatbot on the page — a different story's, in the docs view.
+    const chatbot = createRef<AiChatbotComponent>();
+    setTimeout(() => {
+      void chatbot.value?.sendMessage(question);
+    }, 0);
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot ${ref(chatbot)} .adapter=${adapter} title-text="Steps"></forge-ai-chatbot>
+      </div>
+    `;
+  }
 };
