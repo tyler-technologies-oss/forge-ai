@@ -1,5 +1,5 @@
 ---
-'@tylertech/forge-ai': minor
+'@tylertech/forge-ai': patch
 ---
 
 feat(sidebar): persist resized width per tab via sessionStorage with a localStorage fallback for new tabs, expose `width` property and `forge-ai-sidebar-resize` / `forge-ai-sidebar-chat-resize` events, retain width across expand/collapse
