@@ -25,7 +25,7 @@ describe('AiStepsComponent', () => {
   it('should render a singular steps-count label for a single step', async () => {
     const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[createStep()]}></forge-ai-steps>`);
 
-    expect(textOf(el.shadowRoot!.querySelector('.steps-count'))).to.equal('1 STEP');
+    expect(textOf(el.shadowRoot!.querySelector('.steps-count'))).to.equal('1 step');
   });
 
   it('should render a plural steps-count label for multiple steps', async () => {
@@ -33,7 +33,34 @@ describe('AiStepsComponent', () => {
       html`<forge-ai-steps .steps=${[createStep(), createStep({ label: 'Filtered by region' })]}></forge-ai-steps>`
     );
 
-    expect(textOf(el.shadowRoot!.querySelector('.steps-count'))).to.equal('2 STEPS');
+    expect(textOf(el.shadowRoot!.querySelector('.steps-count'))).to.equal('2 steps');
+  });
+
+  it('should uppercase the steps count with CSS so its accessible text is not spelled out', async () => {
+    const el = await fixture<AiStepsComponent>(
+      html`<forge-ai-steps .steps=${[createStep(), createStep({ label: 'Filtered by region' })]}></forge-ai-steps>`
+    );
+
+    const count = el.shadowRoot!.querySelector('.steps-count')!;
+    expect(getComputedStyle(count).textTransform).to.equal('uppercase');
+  });
+
+  it('should render nothing when there are no steps', async () => {
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps></forge-ai-steps>`);
+
+    expect(el.shadowRoot!.querySelector('.steps-count')).to.not.exist;
+    expect(el.shadowRoot!.querySelector('.summary')).to.not.exist;
+    expect(el.shadowRoot!.querySelector('.timeline')).to.not.exist;
+  });
+
+  it('should begin rendering once the first step arrives', async () => {
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps></forge-ai-steps>`);
+    expect(el.shadowRoot!.querySelector('.steps-count')).to.not.exist;
+
+    el.steps = [createStep()];
+    await elementUpdated(el);
+
+    expect(textOf(el.shadowRoot!.querySelector('.steps-count'))).to.equal('1 step');
   });
 
   it('should render the agent-provided label as a detail card when the step has detail', async () => {
@@ -252,6 +279,19 @@ describe('AiStepsComponent', () => {
     timeline = el.shadowRoot!.querySelector('.timeline')!;
     expect(timeline.classList.contains('expanded')).to.be.true;
     expect(timeline.getAttribute('aria-hidden')).to.equal('false');
+  });
+
+  it('should reveal the Forge focus indicator when the summary button takes focus', async () => {
+    const el = await fixture<AiStepsComponent>(html`<forge-ai-steps .steps=${[createStep()]}></forge-ai-steps>`);
+
+    const summary = el.shadowRoot!.querySelector('.summary') as HTMLButtonElement;
+    const indicator = el.shadowRoot!.querySelector('.focus-indicator')!;
+    expect(getComputedStyle(indicator).display, 'hidden while unfocused').to.equal('none');
+
+    summary.focus();
+    await elementUpdated(el);
+
+    expect(getComputedStyle(indicator).display, 'shown while focused').to.equal('block');
   });
 
   it('should auto-collapse again when the same element is reused for a second run', async () => {

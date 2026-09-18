@@ -195,9 +195,14 @@ export class AiStepsComponent extends LitElement {
     );
   }
 
+  /**
+   * Sentence case in the DOM; the display casing is applied by `text-transform` in CSS. Screen readers
+   * announce a literal `STEPS` as an initialism and spell it out letter by letter, so the accessible
+   * text stays lowercase and only the rendering is uppercased.
+   */
   get #stepsCountLabel(): string {
     const count = this.steps.length;
-    return `${count} STEP${count === 1 ? '' : 'S'}`;
+    return `${count} step${count === 1 ? '' : 's'}`;
   }
 
   public override willUpdate(changedProperties: PropertyValues<this>): void {
@@ -210,6 +215,13 @@ export class AiStepsComponent extends LitElement {
   }
 
   public override render(): TemplateResult | typeof nothing {
+    // Nothing at all rather than a "0 steps" shell. This is a live path, not just a misuse guard: the
+    // tool sets `renderOnStart`, so the element mounts before any step has a label and the wrapper
+    // filters those out — without this the timeline would flash an empty summary on every run.
+    if (this.steps.length === 0) {
+      return nothing;
+    }
+
     return html`
       <div class="steps">
         <div class="steps-count">${this.#stepsCountLabel}</div>

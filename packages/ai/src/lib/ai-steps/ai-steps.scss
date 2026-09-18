@@ -3,7 +3,11 @@
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/core/styles/animation' as forge-animation;
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/state-layer' as forge-state-layer;
+@use '@tylertech/forge/sass/focus-indicator' as forge-focus-indicator;
 @use '../utils/markdown-styles' as markdown;
+
+@include forge-focus-indicator.keyframes;
 
 $marker-size: #{forge-spacing.variable(medium-large)};
 // Hairline for the timeline connector; there is no Forge token for a 1px rule.
@@ -27,6 +31,11 @@ $connector-width: 1px;
   cursor: pointer;
   text-align: start;
   position: relative;
+  // Suppressed in favour of the Forge focus indicator below, which is themed and animated to match the
+  // rest of the library rather than relying on the UA ring.
+  outline: none;
+
+  @include forge-state-layer.standalone;
 }
 
 // Set explicitly rather than inherited: the summary text, the row labels and the detail cards all
@@ -46,6 +55,36 @@ $connector-width: 1px;
   transform: rotate(0deg);
 }
 
+// Sentinel element for the Forge focus ring, mirroring `ai-tool-call-indicator`. Kept out of the
+// button's flex flow so its presence doesn't contribute gap whitespace; the button is positioned
+// relative, so the absolute indicator anchors to it.
+.focus-indicator {
+  position: absolute;
+  display: none;
+}
+
+:host {
+  .summary:focus .focus-indicator {
+    @include forge-focus-indicator.tokens;
+    @include forge-focus-indicator.base;
+    @include forge-focus-indicator.inward;
+
+    &::before {
+      content: '';
+    }
+
+    display: block;
+
+    // Matches the summary button's own `large` radius so the ring traces the button rather than
+    // cutting across its corners.
+    @include forge-focus-indicator.provide-theme(
+      (
+        shape: forge-shape.variable(large)
+      )
+    );
+  }
+}
+
 .steps {
   display: flex;
   flex-direction: column;
@@ -60,6 +99,9 @@ $connector-width: 1px;
   &-count {
     color: #{forge-theme.variable(text-medium)};
     font-weight: 700;
+    // Uppercased here rather than in the label string so assistive technology reads "3 steps" instead of
+    // spelling out an apparent initialism.
+    text-transform: uppercase;
   }
 }
 
