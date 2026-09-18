@@ -431,12 +431,27 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
       return;
     }
 
-    // Escape/light dismiss drops focus to the body when the focused control was inside the popover.
-    // Return it to the trigger, but never steal it from a control the user deliberately clicked.
+    // Escape/light dismiss leaves focus on a control inside the now-hidden popover; the browser
+    // only moves it to the body after this event. Return it to the trigger in either state, but
+    // never steal it from a control the user deliberately clicked.
+    const activeElement = this.shadowRoot?.activeElement ?? null;
+    const focusInsidePopover = (evt.currentTarget as HTMLElement).contains(activeElement);
     const focusLost = this.ownerDocument.activeElement === this.ownerDocument.body;
-    if (focusLost && this._viewState !== 'history') {
+    if ((focusInsidePopover || focusLost) && this._viewState !== 'history') {
       this.#historyButtonRef.value?.focus();
     }
+  }
+
+  // Closing here instead of via native light dismiss keeps the hide and the refocus in one
+  // update, so focus never rests on a control inside the hidden popover.
+  #handleHistoryPopoverKeydown(evt: KeyboardEvent): void {
+    if (evt.key !== 'Escape' || evt.defaultPrevented) {
+      return;
+    }
+    evt.preventDefault();
+    evt.stopPropagation();
+    this._historyPopoverOpen = false;
+    void this.#focusAfterUpdate(() => this.#historyButtonRef.value);
   }
 
   #handleViewAllClick(): void {
@@ -865,6 +880,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
         .flip=${true}
         .autoSize=${true}
         ?open=${this._historyPopoverOpen}
+        @keydown=${this.#handleHistoryPopoverKeydown}
         @forge-ai-popover-toggle=${this.#handleHistoryPopoverToggle}>
         <div class="history-popover" style=${popoverWidth ? `width: ${popoverWidth}px` : ''}>
           <forge-ai-threads-search
