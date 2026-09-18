@@ -15,6 +15,8 @@ The AI Sidebar Chat component is a form factor component that positions a slotte
 - **Dual display modes**: Sidebar for normal view, fullscreen modal when expanded
 - **Direct chatbot access**: Exposes slotted chatbot via `chatbot` property for programmatic control
 - **Event bubbling**: All chatbot events bubble through unchanged
+- **Resizable sidebar**: Width is retained when switching between sidebar and modal
+- **Width persistence**: Remembers the resized width across page loads
 
 ## When to Use
 
@@ -49,6 +51,20 @@ const chatbot = sidebarChat.chatbot;
 chatbot.sendMessage('Hello!');
 ```
 
+### Resizing and Width Persistence
+
+The sidebar width is retained when expanding to the modal and collapsing back, and remembered across page reloads. Each tab keeps its own width via `sessionStorage`; new tabs start at the most recently used width on the origin via `localStorage`. See the Sidebar primitive docs for details.
+
+Listen for `forge-ai-sidebar-chat-resize` to react to width changes. `event.detail.width` contains the new width in pixels.
+
 ## API
 
 <CustomArgTypes />
+
+### Events
+
+- `forge-ai-sidebar-chat-open`: Fired when the sidebar chat is opened
+- `forge-ai-sidebar-chat-close`: Fired when the sidebar chat is closed
+- `forge-ai-sidebar-chat-expand`: Fired when the sidebar chat is expanded to modal
+- `forge-ai-sidebar-chat-collapse`: Fired when the sidebar chat is collapsed from modal
+- `forge-ai-sidebar-chat-resize`: Fired when the sidebar width is resized
