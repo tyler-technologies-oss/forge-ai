@@ -1,5 +1,14 @@
 # @tylertech/forge-ai
 
+## 0.15.2
+
+### Patch Changes
+
+- 2f7433e: fix: return focus to the history button when Escape or light dismiss closes the launcher history popover
+- 604755c: feat(sidebar): persist resized width per tab via sessionStorage with a localStorage fallback for new tabs, expose `width` property and `forge-ai-sidebar-resize` / `forge-ai-sidebar-chat-resize` events, retain width across expand/collapse
+  
+  BREAKING: `resizable` on `forge-ai-sidebar` and `forge-ai-sidebar-chat` is now `'on' | 'off'` (default `'on'`) instead of a boolean, so it can be disabled via attribute. Replace `.resizable=${false}` with `resizable="off"`.
+
 ## 0.15.1
 
 ### Patch Changes
