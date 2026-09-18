@@ -95,7 +95,3 @@
     background-color: #{forge-theme.variable(primary)};
   }
 }
-
-:host([resizable='false']) .resize-handle {
-  display: none;
-}
