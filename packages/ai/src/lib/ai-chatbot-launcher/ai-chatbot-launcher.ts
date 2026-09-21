@@ -677,7 +677,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           isEditing,
           () => html`
             <forge-ai-edit-thread
-              density="medium"
               .thread=${{
                 id: threadId,
                 title: this.threadName || '',
