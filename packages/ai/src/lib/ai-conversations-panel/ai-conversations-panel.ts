@@ -5,6 +5,7 @@ import { DeleteThreadController } from '../utils/delete-thread-controller';
 import { InfiniteScrollController } from '../utils/infinite-scroll-controller';
 import type { Thread } from '../ai-threads';
 import '../ai-modal/ai-modal';
+import '../ai-error-message';
 import '../ai-icon/ai-icon';
 import '../ai-spinner/ai-spinner';
 import '../ai-thread-actions-menu';
@@ -25,6 +26,7 @@ declare global {
     'forge-ai-conversations-panel-load-more': CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>;
     'forge-ai-conversations-panel-rename': CustomEvent<ForgeAiConversationsPanelRenameEventData>;
     'forge-ai-conversations-panel-delete': CustomEvent<ForgeAiConversationsPanelDeleteEventData>;
+    'forge-ai-conversations-panel-retry': CustomEvent<void>;
   }
 }
 
@@ -70,6 +72,7 @@ export const AiConversationsPanelComponentTagName: keyof HTMLElementTagNameMap =
  * @event {CustomEvent<ForgeAiConversationsPanelLoadMoreEventData>} forge-ai-conversations-panel-load-more - Fired when scrolling near bottom in recent chats or search chats. Query field differentiates contexts. Always shows loading - call appendResults([]) to signal end.
  * @event {CustomEvent<ForgeAiConversationsPanelRenameEventData>} forge-ai-conversations-panel-rename - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert. Otherwise optimistically updated.
  * @event {CustomEvent<ForgeAiConversationsPanelDeleteEventData>} forge-ai-conversations-panel-delete - Fired when thread delete confirmed. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
+ * @event {CustomEvent<void>} forge-ai-conversations-panel-retry - Fired when the retry button in the error state is clicked. The host should re-request the threads and clear errorMessage once the load succeeds.
  *
  * @description Standalone conversations list panel with header, new chat action, search, and thread list.
  * Used within chatbot components for conversation history navigation.
@@ -79,7 +82,7 @@ export class AiConversationsPanelComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   @property({ type: Array })
-  public recentThreads: Thread[] = [];
+  public threads: Thread[] = [];
 
   /**
    * Total number of threads available. When set to a positive number and fewer threads
@@ -92,14 +95,24 @@ export class AiConversationsPanelComponent extends LitElement {
   @property({ type: String, attribute: 'selected-thread-id' })
   public selectedThreadId: string | null = null;
 
-  @property({ type: Boolean, attribute: 'show-conversation-rename' })
-  public showConversationRename = false;
+  @property({ type: Boolean, attribute: 'show-thread-rename' })
+  public showThreadRename = false;
 
-  @property({ type: Boolean, attribute: 'show-conversation-delete' })
-  public showConversationDelete = false;
+  @property({ type: Boolean, attribute: 'show-thread-delete' })
+  public showThreadDelete = false;
 
   @property({ type: Boolean, reflect: true })
   public loading = false;
+
+  /**
+   * Message describing a failed thread load. When no threads are loaded, an error banner with a
+   * retry button replaces the empty state and loading indicator. When threads are already on screen
+   * the list stays visible and the message shows as a compact single line with a retry - at the bottom
+   * of the list if a page was in flight, otherwise above it. The host owns this value and should clear
+   * it once a load succeeds.
+   */
+  @property({ type: String, attribute: 'error-message' })
+  public errorMessage?: string;
 
   @state()
   private _viewState: 'main' | 'search' = 'main';
@@ -166,7 +179,7 @@ export class AiConversationsPanelComponent extends LitElement {
     if (this.totalChats <= 0) {
       return false;
     }
-    const displayedCount = this.recentThreads.filter(t => !this._hiddenThreadIds.has(t.id)).length;
+    const displayedCount = this.threads.filter(t => !this._hiddenThreadIds.has(t.id)).length;
     return displayedCount < this.totalChats;
   }
 
@@ -190,7 +203,7 @@ export class AiConversationsPanelComponent extends LitElement {
   public override connectedCallback(): void {
     super.connectedCallback();
     this.updateComplete.then(() => {
-      if (this._viewState === 'main' && this.recentThreads.length) {
+      if (this._viewState === 'main' && this.threads.length) {
         this._searchInputMain?.focus();
       } else if (this._viewState === 'search') {
         this._searchInputSearch?.focus();
@@ -210,10 +223,10 @@ export class AiConversationsPanelComponent extends LitElement {
   public override updated(changedProperties: Map<string, unknown>): void {
     if (
       changedProperties.has('_viewState') ||
-      changedProperties.has('recentThreads') ||
+      changedProperties.has('threads') ||
       changedProperties.has('totalChats')
     ) {
-      if (changedProperties.has('recentThreads') || changedProperties.has('totalChats')) {
+      if (changedProperties.has('threads') || changedProperties.has('totalChats')) {
         this.#recentChatsScrollController.reset();
         this.#searchChatsScrollController.reset();
       }
@@ -242,7 +255,7 @@ export class AiConversationsPanelComponent extends LitElement {
   }
 
   get #displayedThreads(): Thread[] {
-    const threads = this._viewState === 'search' ? this._searchResults : this.recentThreads;
+    const threads = this._viewState === 'search' ? this._searchResults : this.threads;
     return threads.filter(thread => !this._hiddenThreadIds.has(thread.id));
   }
 
@@ -266,7 +279,7 @@ export class AiConversationsPanelComponent extends LitElement {
       this._isSearching = true;
     } else {
       this._isSearching = false;
-      this._searchResults = this.recentThreads.filter(thread =>
+      this._searchResults = this.threads.filter(thread =>
         thread.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
@@ -279,7 +292,7 @@ export class AiConversationsPanelComponent extends LitElement {
 
     if (!searchQuery.trim()) {
       this._searchQuery = '';
-      this._searchResults = this.recentThreads;
+      this._searchResults = this.threads;
       this._isSearching = false;
       return;
     }
@@ -294,7 +307,7 @@ export class AiConversationsPanelComponent extends LitElement {
       if (results.length === 0) {
         this.#recentChatsScrollController.setHasMore(false);
       } else {
-        this.recentThreads = [...this.recentThreads, ...results];
+        this.threads = [...this.threads, ...results];
       }
       this.#recentChatsScrollController.setLoadingState(false);
     };
@@ -339,7 +352,7 @@ export class AiConversationsPanelComponent extends LitElement {
     }
     this._viewState = 'search';
     this._searchQuery = '';
-    this._searchResults = this.recentThreads;
+    this._searchResults = this.threads;
     this._isSearching = false;
     this._editingThreadId = null;
     this.#recentChatsScrollController.reset();
@@ -389,6 +402,14 @@ export class AiConversationsPanelComponent extends LitElement {
 
   #handleCloseClick(): void {
     const event = new CustomEvent('forge-ai-conversations-panel-close', {
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  #handleRetryClick(): void {
+    const event = new CustomEvent<void>('forge-ai-conversations-panel-retry', {
       bubbles: true,
       composed: true
     });
@@ -515,8 +536,9 @@ export class AiConversationsPanelComponent extends LitElement {
         <input
           type="text"
           id="search-input-search"
+          aria-label="Search"
+          placeholder="Find a chat"
           autocomplete="off"
-          placeholder="Search chats..."
           .value=${this._searchQuery}
           @input=${this.#handleSearchInput} />
         ${when(
@@ -536,11 +558,12 @@ export class AiConversationsPanelComponent extends LitElement {
     `;
   }
 
-  get #loadingMoreIndicator(): TemplateResult | typeof nothing {
-    const controller =
-      this._viewState === 'search' ? this.#searchChatsScrollController : this.#recentChatsScrollController;
+  get #activeScrollController(): InfiniteScrollController {
+    return this._viewState === 'search' ? this.#searchChatsScrollController : this.#recentChatsScrollController;
+  }
 
-    if (!controller.isLoadingMore) {
+  get #loadingMoreIndicator(): TemplateResult | typeof nothing {
+    if (!this.#activeScrollController.isLoadingMore) {
       return nothing;
     }
     return html`
@@ -556,15 +579,72 @@ export class AiConversationsPanelComponent extends LitElement {
     </div>
   `;
 
+  get #errorState(): TemplateResult {
+    return html`
+      <div class="error-state">
+        <forge-ai-error-message density="small">
+          <span slot="title">Error</span>
+          <p class="error-state__message">${this.errorMessage}</p>
+          <button
+            class="forge-button forge-button--outlined forge-button--dense error-state__retry"
+            type="button"
+            @click=${this.#handleRetryClick}>
+            Retry
+          </button>
+        </forge-ai-error-message>
+      </div>
+    `;
+  }
+
+  /** The single-line variant, used when threads are already on screen and the list stays visible. */
+  get #compactError(): TemplateResult {
+    return html`
+      <forge-ai-error-message class="compact-error" density="small">
+        <div class="compact-error__body">
+          <span>${this.errorMessage}</span>
+          <button
+            class="forge-button forge-button--outlined forge-button--dense compact-error__retry"
+            type="button"
+            @click=${this.#handleRetryClick}>
+            Retry
+          </button>
+        </div>
+      </forge-ai-error-message>
+    `;
+  }
+
+  /**
+   * A failure that arrives while a page is in flight is a pagination failure, so it reads at the
+   * bottom of the list where the load-more spinner would have been. Any other failure - a rejected
+   * thread selection, for instance - is not tied to the end of the list, so it sits above it.
+   */
+  get #errorPlacement(): 'above-list' | 'list-footer' | 'none' {
+    // With no threads on screen the full banner replaces the empty state instead.
+    if (!this.errorMessage || this.#displayedThreads.length === 0) {
+      return 'none';
+    }
+
+    return this.#activeScrollController.isLoadingMore ? 'list-footer' : 'above-list';
+  }
+
   get #threadList(): TemplateResult | typeof nothing {
     const threads = this.#displayedThreads;
 
     if (threads.length === 0) {
+      if (this.errorMessage) {
+        return this.#errorState;
+      }
       if (this.loading && this._viewState === 'main') {
         return this.#loadingIndicator;
       }
       return this.#emptyState;
     }
+
+    return this.#threadItems;
+  }
+
+  get #threadItems(): TemplateResult {
+    const threads = this.#displayedThreads;
 
     return html`
       <ul class="forge-list forge-list--dense forge-list--navlist" role="list">
@@ -590,17 +670,19 @@ export class AiConversationsPanelComponent extends LitElement {
                   </forge-ai-edit-thread>
                 `,
                 () => html`
-                  <button @click=${() => this.#handleThreadSelect(thread)} aria-selected=${isSelected}>
+                  <button
+                    @click=${() => this.#handleThreadSelect(thread)}
+                    aria-current=${isSelected ? 'true' : nothing}>
                     <span>${thread.title}</span>
                   </button>
                   ${when(
-                    this.showConversationRename || this.showConversationDelete,
+                    this.showThreadRename || this.showThreadDelete,
                     () => html`
-                      <div class="conversation-item-actions">
+                      <div class="thread-item-actions">
                         <forge-ai-thread-actions-menu
                           .thread=${thread}
-                          ?show-rename=${this.showConversationRename}
-                          ?show-delete=${this.showConversationDelete}
+                          ?show-rename=${this.showThreadRename}
+                          ?show-delete=${this.showThreadDelete}
                           @forge-ai-thread-actions-menu-rename=${this.#handleMenuRename}
                           @forge-ai-thread-actions-menu-delete-click=${this.#handleMenuDeleteClick}
                           @forge-ai-thread-actions-menu-open=${this.#handleMenuOpen}
@@ -615,7 +697,7 @@ export class AiConversationsPanelComponent extends LitElement {
           `;
         })}
       </ul>
-      ${this.#loadingMoreIndicator}
+      ${this.#errorPlacement === 'list-footer' ? this.#compactError : this.#loadingMoreIndicator}
     `;
   }
 
@@ -654,7 +736,8 @@ export class AiConversationsPanelComponent extends LitElement {
       <aside class="conversations-panel" role="complementary" aria-label="Conversation history">
         ${when(isMainView, () => this.#header)} ${when(isSearchView, () => this.#headerSearch)}
         ${when(isMainView, () => this.#chatActionsList)} ${when(isMainView, () => this.#chatsLabel)}
-        ${when(isSearchView, () => this.#searchFieldSearch)} ${this.#threadListContainer}
+        ${when(isSearchView, () => this.#searchFieldSearch)}
+        ${when(this.#errorPlacement === 'above-list', () => this.#compactError)} ${this.#threadListContainer}
       </aside>
       ${this.#deleteThreadController.template}
     `;

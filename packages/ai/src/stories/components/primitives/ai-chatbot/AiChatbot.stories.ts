@@ -1,12 +1,20 @@
 import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
+import { ref } from 'lit/directives/ref.js';
 import { action } from 'storybook/actions';
 
 import '$lib/ai-chatbot';
 import '$lib/ai-empty-state';
 import '$lib/ai-suggestions';
 import '$lib/ai-voice-input';
-import { type ToolDefinition, type Suggestion, type ChatMessage, type ToolCall, ContextItem } from '$lib/ai-chatbot';
+import {
+  type AiChatbotComponent,
+  type ToolDefinition,
+  type Suggestion,
+  type ChatMessage,
+  type ToolCall,
+  ContextItem
+} from '$lib/ai-chatbot';
 import type { AgentInfo } from '$lib/ai-agent-info';
 import { displayDataTableTool } from '$lib/tools';
 import { MockAdapter } from '../../../utils/mock-adapter';
@@ -74,17 +82,22 @@ const meta = {
       control: 'boolean',
       description: 'Show conversations button in header'
     },
-    showConversationRename: {
+    showThreadRename: {
       control: 'boolean',
       description: 'Show rename option in conversations panel'
     },
-    showConversationDelete: {
+    showThreadDelete: {
       control: 'boolean',
       description: 'Show delete option in conversations panel'
     },
     threadsLoading: {
       control: 'boolean',
       description: 'Show a loading indicator in the conversations panel while recent chats are loading'
+    },
+    threadsError: {
+      control: 'text',
+      description:
+        'Message describing a failed thread load. Shown with a retry button in the conversations panel instead of its empty state or loading indicator'
     },
     enableReactions: {
       control: 'boolean',
@@ -116,8 +129,8 @@ const meta = {
     expanded: false,
     minimizeIcon: 'default',
     showConversationsButton: false,
-    showConversationRename: true,
-    showConversationDelete: true,
+    showThreadRename: true,
+    showThreadDelete: true,
     threadsLoading: false,
     enableReactions: false,
     disclaimerText: 'AI can make mistakes. Always verify responses.',
@@ -168,8 +181,8 @@ const meta = {
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           ?show-conversations-button=${args.showConversationsButton}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           ?threads-loading=${args.threadsLoading}
           ?expanded=${args.expanded}
           ?enable-reactions=${args.enableReactions}
@@ -1283,10 +1296,10 @@ export const WithHeaderActions: Story = {
           ?show-expand-button=${args.showExpandButton}
           ?show-minimize-button=${args.showMinimizeButton}
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}>
-          <forge-icon-button slot="header-actions" aria-label="History">
+          <forge-icon-button slot="header-actions" density="medium" aria-label="History">
             <forge-icon name="history"></forge-icon>
           </forge-icon-button>
-          <forge-icon-button slot="header-actions" aria-label="Settings">
+          <forge-icon-button slot="header-actions" density="medium" aria-label="Settings">
             <forge-icon name="settings"></forge-icon>
           </forge-icon-button>
           <span slot="empty-state-heading">How can I help you today?</span>
@@ -1537,32 +1550,32 @@ export const WithConversationHistory: Story = {
       }
     ];
 
-    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onThreadSelect = action('forge-ai-chatbot-thread-select');
     const onNewChat = action('forge-ai-chatbot-new-chat');
     const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
     const onConversationsClose = action('forge-ai-chatbot-conversations-close');
-    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
-    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
+    const onThreadRename = action('forge-ai-chatbot-thread-rename');
+    const onThreadDelete = action('forge-ai-chatbot-thread-delete');
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
         <forge-ai-chatbot
           .adapter=${adapter}
-          .recentThreads=${threads}
+          .threads=${threads}
           ?show-conversations-button=${true}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           placeholder=${args.placeholder}
           title-text="AI Assistant with History"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
-          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-thread-select=${(e: CustomEvent) => onThreadSelect(e.detail)}
           @forge-ai-chatbot-new-chat=${onNewChat}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
           @forge-ai-chatbot-conversations-close=${onConversationsClose}
-          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
-          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+          @forge-ai-chatbot-thread-rename=${(e: CustomEvent) => onThreadRename(e.detail)}
+          @forge-ai-chatbot-thread-delete=${(e: CustomEvent) => onThreadDelete(e.detail)}>
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
@@ -1580,32 +1593,32 @@ export const WithEmptyConversationHistory: Story = {
       responseDelay: 500
     });
 
-    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onThreadSelect = action('forge-ai-chatbot-thread-select');
     const onNewChat = action('forge-ai-chatbot-new-chat');
     const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
     const onConversationsClose = action('forge-ai-chatbot-conversations-close');
-    const onConversationRename = action('forge-ai-chatbot-conversation-rename');
-    const onConversationDelete = action('forge-ai-chatbot-conversation-delete');
+    const onThreadRename = action('forge-ai-chatbot-thread-rename');
+    const onThreadDelete = action('forge-ai-chatbot-thread-delete');
 
     return html`
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
         <forge-ai-chatbot
           .adapter=${adapter}
-          .recentThreads=${[]}
+          .threads=${[]}
           ?show-conversations-button=${true}
-          ?show-conversation-rename=${args.showConversationRename}
-          ?show-conversation-delete=${args.showConversationDelete}
+          ?show-thread-rename=${args.showThreadRename}
+          ?show-thread-delete=${args.showThreadDelete}
           placeholder=${args.placeholder}
           title-text="AI Assistant with Empty History"
           file-upload=${args.fileUpload}
           voice-input=${args.voiceInput}
           ?enable-reactions=${args.enableReactions}
-          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-thread-select=${(e: CustomEvent) => onThreadSelect(e.detail)}
           @forge-ai-chatbot-new-chat=${onNewChat}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
           @forge-ai-chatbot-conversations-close=${onConversationsClose}
-          @forge-ai-chatbot-conversation-rename=${(e: CustomEvent) => onConversationRename(e.detail)}
-          @forge-ai-chatbot-conversation-delete=${(e: CustomEvent) => onConversationDelete(e.detail)}>
+          @forge-ai-chatbot-thread-rename=${(e: CustomEvent) => onThreadRename(e.detail)}
+          @forge-ai-chatbot-thread-delete=${(e: CustomEvent) => onThreadDelete(e.detail)}>
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
@@ -1633,7 +1646,7 @@ export const WithLoadingConversationHistory: Story = {
       <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
         <forge-ai-chatbot
           .adapter=${adapter}
-          .recentThreads=${[]}
+          .threads=${[]}
           ?show-conversations-button=${true}
           ?threads-loading=${args.threadsLoading}
           placeholder=${args.placeholder}
@@ -1643,6 +1656,170 @@ export const WithLoadingConversationHistory: Story = {
           ?enable-reactions=${args.enableReactions}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
           @forge-ai-chatbot-conversations-close=${onConversationsClose}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+/**
+ * A failed conversations load. The panel shows the error with a retry instead of its "no chats yet"
+ * empty state, so the failure is not mistaken for an empty history. Retry succeeds.
+ */
+export const WithConversationHistoryError: Story = {
+  args: {
+    threadsError: 'Could not load your chats.'
+  },
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const threads = [
+      {
+        id: 'thread-1',
+        title: 'TypeScript best practices',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        messageCount: 8
+      },
+      {
+        id: 'thread-2',
+        title: 'Web component architecture',
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        messageCount: 15
+      }
+    ];
+
+    let chatbot: AiChatbotComponent | null = null;
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          ${ref(el => {
+            chatbot = el as AiChatbotComponent;
+          })}
+          .adapter=${adapter}
+          .threads=${[]}
+          .threadsError=${args.threadsError}
+          ?show-conversations-button=${true}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant with Failed History"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-thread-retry=${() => {
+            action('forge-ai-chatbot-thread-retry')();
+            if (!chatbot) {
+              return;
+            }
+            chatbot.threadsError = undefined;
+            chatbot.threadsLoading = true;
+            setTimeout(() => {
+              chatbot!.threads = threads;
+              chatbot!.threadsLoading = false;
+              action('retry succeeded')({ threads: threads.length });
+            }, 800);
+          }}
+          @forge-ai-chatbot-thread-select=${(e: CustomEvent) => action('forge-ai-chatbot-thread-select')(e.detail)}
+          @forge-ai-chatbot-conversations-open=${action('forge-ai-chatbot-conversations-open')}
+          @forge-ai-chatbot-conversations-close=${action('forge-ai-chatbot-conversations-close')}>
+          <span slot="empty-state-heading">How can I help you today?</span>
+          <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+/**
+ * The host rejects the select by calling preventDefault(), then owns the commit. The first thread
+ * clicked always fails to load, so `selectedThreadId` must stay untouched; clicking the same thread
+ * again succeeds and the host commits it.
+ */
+export const ThreadSelectRejection: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 50,
+      responseDelay: 500
+    });
+
+    const threads = [
+      {
+        id: 'thread-1',
+        title: 'TypeScript best practices',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        messageCount: 8
+      },
+      {
+        id: 'thread-2',
+        title: 'Web component architecture',
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        messageCount: 15
+      },
+      {
+        id: 'thread-3',
+        title: 'How to use localStorage?',
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        messageCount: 3
+      }
+    ];
+
+    const attemptedThreadIds = new Set<string>();
+    let chatbot: AiChatbotComponent | null = null;
+
+    return html`
+      <div style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;">
+        <forge-ai-chatbot
+          ${ref(el => {
+            chatbot = el as AiChatbotComponent;
+          })}
+          .adapter=${adapter}
+          .threads=${threads}
+          ?show-conversations-button=${true}
+          placeholder=${args.placeholder}
+          title-text="AI Assistant"
+          file-upload=${args.fileUpload}
+          voice-input=${args.voiceInput}
+          ?enable-reactions=${args.enableReactions}
+          @forge-ai-chatbot-thread-select=${async (e: CustomEvent) => {
+            action('forge-ai-chatbot-thread-select')(e.detail);
+            e.preventDefault();
+
+            const { id } = e.detail;
+            chatbot!.threadsError = undefined;
+            chatbot!.threadsLoading = true;
+
+            await new Promise(resolve => setTimeout(resolve, 600));
+            chatbot!.threadsLoading = false;
+
+            if (!attemptedThreadIds.has(id)) {
+              attemptedThreadIds.add(id);
+              // Nothing to undo - selectedThreadId was never touched.
+              chatbot!.threadsError = '403 Forbidden - access to this chat was revoked';
+              action('host load failed')({
+                id,
+                error: chatbot!.threadsError,
+                selectedThreadId: chatbot?.selectedThreadId
+              });
+              return;
+            }
+
+            chatbot!.selectedThreadId = id;
+            action('host commit')({ id, selectedThreadId: chatbot?.selectedThreadId });
+          }}
+          @forge-ai-chatbot-thread-retry=${() => {
+            action('forge-ai-chatbot-thread-retry')();
+            chatbot!.threadsError = undefined;
+          }}
+          @forge-ai-chatbot-conversations-open=${action('forge-ai-chatbot-conversations-open')}
+          @forge-ai-chatbot-conversations-close=${action('forge-ai-chatbot-conversations-close')}>
           <span slot="empty-state-heading">How can I help you today?</span>
           <span slot="empty-state-message">Ask me anything or choose a suggestion below to get started.</span>
         </forge-ai-chatbot>
@@ -1978,6 +2155,100 @@ export const Branded: Story = {
             Need personalized help?
             <a href="#contact" style="color: #4A90E2; text-decoration: underline;">Contact our support team</a>
           </span>
+        </forge-ai-chatbot>
+      </div>
+    `;
+  }
+};
+
+export const ClientMessages: Story = {
+  render: (args: any) => {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: false,
+      streamingDelay: 150,
+      responseDelay: 800
+    });
+
+    const withChatbot = (fn: (chatbot: any) => void): void => {
+      const chatbot = document.querySelector('forge-ai-chatbot');
+      if (chatbot) {
+        fn(chatbot);
+      }
+    };
+
+    return html`
+      <div>
+        <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+          <strong>Client Messages Demo</strong>
+          <p style="margin: 8px 0 0 0; font-size: 14px;">
+            Send a message, then click a button below while the reply is streaming - client messages never touch the
+            live response, so the reply keeps streaming normally underneath. Session Expired includes a "Refresh" action
+            button.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() =>
+                withChatbot(chatbot =>
+                  chatbot.addClientMessage({
+                    id: 'session-expired',
+                    kind: 'error',
+                    header: 'Session expired',
+                    content: 'Your session expired. Please refresh the page to re-authenticate.',
+                    actions: [{ id: 'refresh', label: 'Refresh', onClick: () => action('refresh-clicked')() }]
+                  })
+                )}>
+              Show session expired
+            </button>
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() => withChatbot(chatbot => chatbot.removeClientMessage('session-expired'))}>
+              Dismiss session expired
+            </button>
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() =>
+                withChatbot(chatbot =>
+                  chatbot.addClientMessage({
+                    id: 'indexing',
+                    kind: 'info',
+                    header: 'Indexing',
+                    content: 'Indexing 3 uploaded documents...'
+                  })
+                )}>
+              Show indexing (info)
+            </button>
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() =>
+                withChatbot(chatbot =>
+                  chatbot.addClientMessage({
+                    id: 'indexing',
+                    kind: 'success',
+                    content: 'Finished indexing 3 documents.'
+                  })
+                )}>
+              Show indexing done (success, upsert)
+            </button>
+            <button
+              type="button"
+              class="forge-button forge-button--outlined"
+              @click=${() =>
+                withChatbot(chatbot => chatbot.addClientMessage({ content: 'Switched to Research Assistant' }))}>
+              Show agent switch (text)
+            </button>
+          </div>
+        </div>
+        <forge-ai-chatbot
+          style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto;"
+          .adapter=${adapter}
+          placeholder=${args.placeholder}
+          title-text=${args.titleText}>
         </forge-ai-chatbot>
       </div>
     `;

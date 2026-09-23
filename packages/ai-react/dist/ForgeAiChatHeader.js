@@ -10,6 +10,7 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
     expanded,
     disableAgentSelector,
     showConversationsButton,
+    hasConversationsError,
     minimizeIcon,
     options,
     exportOption,
@@ -89,6 +90,7 @@ export const ForgeAiChatHeader = forwardRef((props, forwardedRef) => {
       "show-conversations-button": props.showConversationsButton
         ? true
         : undefined,
+      "has-conversations-error": props.hasConversationsError ? true : undefined,
       style: { ...props.style },
     },
     props.children,

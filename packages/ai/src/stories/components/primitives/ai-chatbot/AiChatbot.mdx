@@ -129,6 +129,76 @@ const adapter = new CustomAdapter();
 - `emitError(message: string)`: Signal error occurred
 - `updateState(updates: Partial<AdapterState>)`: Update connection/running state
 
+## Client Messages
+
+Use `addClientMessage()` / `removeClientMessage()` to show host-driven status messages (session
+expiry, upload progress, agent-switch banners) in the thread without touching the conversation the
+adapter sees. They're safe to call at any time, including while a response is streaming.
+
+```typescript
+const id = chatbot.addClientMessage({
+  kind: 'error',
+  header: 'Session expired',
+  content: 'Your session expired. Please refresh the page to re-authenticate.',
+  actions: [{ id: 'refresh', label: 'Refresh', onClick: () => location.reload() }]
+});
+
+// Later, once your own logic determines it's no longer relevant:
+chatbot.removeClientMessage(id);
+
+// Pass the same id again to upsert (replace) rather than stack a new message:
+chatbot.addClientMessage({ id: 'upload-status', kind: 'info', content: 'Uploading...' });
+chatbot.addClientMessage({ id: 'upload-status', kind: 'success', content: 'Upload complete.' });
+```
+
+`kind` is one of `'text' | 'info' | 'warning' | 'error' | 'success'` (default `'text'`, matching the
+plain italic system-message style). Removal is never automatic - forge-ai has no way to know when a
+host-specific condition (e.g. "session recovered") has been satisfied, so call `removeClientMessage`
+from your own event handling.
+
+<Canvas of={AiChatbotStories.ClientMessages} />
+
+## Conversation History
+
+Set `threads` (and optionally `threadsLoading`) to populate the conversations panel, shown when `showConversationsButton` is set.
+
+### Owning Thread Selection
+
+`forge-ai-chatbot-thread-select` is cancelable. By default the component sets `selectedThreadId` itself as soon as a thread is clicked, which means a server load that later fails leaves the panel highlighting a thread that never opened. Call `preventDefault()` to own the commit instead:
+
+```ts
+chatbot.addEventListener('forge-ai-chatbot-thread-select', async evt => {
+  evt.preventDefault();
+  chatbot.threadsError = undefined;
+  chatbot.threadsLoading = true;
+
+  try {
+    const messages = await api.loadThread(evt.detail.id);
+    chatbot.selectedThreadId = evt.detail.id;
+    await chatbot.setThreadState({ threadId: evt.detail.id, messages });
+  } catch (error) {
+    // Nothing to undo - selectedThreadId was never touched.
+    chatbot.threadsError = error.message || 'Could not open that chat.';
+  } finally {
+    chatbot.threadsLoading = false;
+  }
+});
+```
+
+The conversations panel closes either way, so the user is not left staring at a list while the load runs. Set `threadsError` on failure rather than reverting anything: the conversations button picks up an error badge so the failure is still visible with the panel closed, and reopening the panel shows the message with a **Retry**.
+
+<Canvas of={AiChatbotStories.ThreadSelectRejection} />
+
+### Handling a Failed History Load
+
+Set `threadsError` to a message when a thread load fails. The conversations panel shows it with a **Retry** button in place of its "no chats yet" empty state, so a failure is not mistaken for an empty history.
+
+If threads are already loaded the list stays visible, and the message renders as a compact single line with a **Retry** instead of the banner. Where it sits depends on what failed: a failure that arrives while a page is in flight is a pagination failure, so it reads at the bottom of the list where the load-more spinner would have appeared. Any other failure — a rejected thread selection, for instance — is not tied to the end of the list, so it sits above it.
+
+Retry dispatches `forge-ai-chatbot-thread-retry` — a plain notification. Re-request the threads and clear `threadsError` once the load succeeds. An error supersedes `threadsLoading`, so the two never render together. Always fall back to your own copy rather than assigning `error.message` directly — an empty message reads as "no error" and hides the badge along with the retry.
+
+<Canvas of={AiChatbotStories.WithConversationHistoryError} />
+
 ## Keyboard Shortcuts
 
 - **Escape**: Abort the current streaming response

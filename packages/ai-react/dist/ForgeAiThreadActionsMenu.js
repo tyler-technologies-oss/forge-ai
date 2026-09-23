@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiThreadActionsMenu = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { showRename, showDelete, thread, ...filteredProps } = props;
+  const { showRename, showDelete, thread, density, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -41,6 +41,7 @@ export const ForgeAiThreadActionsMenu = forwardRef((props, forwardedRef) => {
       },
       ...filteredProps,
       thread: props.thread,
+      density: props.density,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

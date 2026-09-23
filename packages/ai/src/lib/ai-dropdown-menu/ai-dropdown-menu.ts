@@ -454,7 +454,7 @@ export class ForgeAiDropdownMenuComponent extends LitElement {
     const isIconButton = this.variant === 'icon-button' || this.variant === 'icon-button-squared';
     const isIconButtonSquared = this.variant === 'icon-button-squared';
     const densityClass =
-      this.density !== 'medium' ? `${isButton ? 'forge-button' : 'forge-icon-button'}--${this.density}` : '';
+      this.density !== 'large' ? `${isButton ? 'forge-button' : 'forge-icon-button'}--${this.density}` : '';
 
     return html`
       <button

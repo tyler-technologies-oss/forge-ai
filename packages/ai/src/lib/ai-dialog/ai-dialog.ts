@@ -137,7 +137,7 @@ export class AiDialogComponent extends LitElement {
         <button
           ${ref(this.#dragHandleRef)}
           id="drag-handle"
-          aria-label="Move dialog"
+          aria-label="Move chatbot"
           class="forge-icon-button forge-icon-button--small ai-icon-button drag-handle"
           tabindex="0"
           @pointerdown=${this.#dragController?.handlePointerDown}

@@ -24,6 +24,9 @@ export interface ForgeAiEditThreadProps extends Pick<
   /** undefined */
   value?: ForgeAiEditThreadElement["value"];
 
+  /** The density of the cancel/save buttons */
+  density?: ForgeAiEditThreadElement["density"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 

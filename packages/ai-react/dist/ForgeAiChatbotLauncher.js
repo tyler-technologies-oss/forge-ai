@@ -5,12 +5,17 @@ import { useEventListener, useProperties } from "./react-utils.js";
 export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
   const {
+    showHistoryButton,
     showThreadRename,
     showThreadDelete,
+    threadsLoading,
     enableReactions,
     debugMode,
     descriptionText,
     threadName,
+    totalThreads,
+    threadsError,
+    selectedThreadId,
     fileUpload,
     maxFileSize,
     acceptedFileTypes,
@@ -23,6 +28,7 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
     exportOption,
     clearOption,
     selectedAgentId,
+    threads,
     agentInfo,
     agents,
     ...filteredProps
@@ -57,6 +63,16 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
   );
   useEventListener(
     ref,
+    "forge-ai-chatbot-launcher-history-open",
+    props.onForgeAiChatbotLauncherHistoryOpen,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-history-close",
+    props.onForgeAiChatbotLauncherHistoryClose,
+  );
+  useEventListener(
+    ref,
     "forge-ai-chatbot-response-feedback",
     props.onForgeAiChatbotResponseFeedback,
   );
@@ -76,8 +92,34 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
     "forge-ai-chatbot-launcher-thread-delete",
     props.onForgeAiChatbotLauncherThreadDelete,
   );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-thread-select",
+    props.onForgeAiChatbotLauncherThreadSelect,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-thread-search",
+    props.onForgeAiChatbotLauncherThreadSearch,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-thread-load-more",
+    props.onForgeAiChatbotLauncherThreadLoadMore,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-new-chat",
+    props.onForgeAiChatbotLauncherNewChat,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-thread-retry",
+    props.onForgeAiChatbotLauncherThreadRetry,
+  );
 
   /** Properties - run whenever a property has changed */
+  useProperties(ref, "threads", props.threads);
   useProperties(ref, "agentInfo", props.agentInfo);
   useProperties(ref, "agents", props.agents);
 
@@ -95,6 +137,10 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       "description-text": props.descriptionText || props["description-text"],
       "thread-name": props.threadName || props["thread-name"],
+      "total-threads": props.totalThreads || props["total-threads"],
+      "threads-error": props.threadsError || props["threads-error"],
+      "selected-thread-id":
+        props.selectedThreadId || props["selected-thread-id"],
       "file-upload": props.fileUpload || props["file-upload"],
       "max-file-size": props.maxFileSize || props["max-file-size"],
       "accepted-file-types":
@@ -113,8 +159,10 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
+      "show-history-button": props.showHistoryButton ? true : undefined,
       "show-thread-rename": props.showThreadRename ? true : undefined,
       "show-thread-delete": props.showThreadDelete ? true : undefined,
+      "threads-loading": props.threadsLoading ? true : undefined,
       "enable-reactions": props.enableReactions ? true : undefined,
       "debug-mode": props.debugMode ? true : undefined,
       style: { ...props.style },

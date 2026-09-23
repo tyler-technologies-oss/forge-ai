@@ -5,12 +5,13 @@ import { useEventListener } from "./react-utils.js";
 export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
   const {
-    showConversationRename,
-    showConversationDelete,
+    showThreadRename,
+    showThreadDelete,
     loading,
-    recentThreads,
+    threads,
     totalChats,
     selectedThreadId,
+    errorMessage,
     ...filteredProps
   } = props;
 
@@ -50,6 +51,11 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
     "forge-ai-conversations-panel-delete",
     props.onForgeAiConversationsPanelDelete,
   );
+  useEventListener(
+    ref,
+    "forge-ai-conversations-panel-retry",
+    props.onForgeAiConversationsPanelRetry,
+  );
 
   return React.createElement(
     "forge-ai-conversations-panel",
@@ -63,21 +69,18 @@ export const ForgeAiConversationsPanel = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
-      recentThreads: props.recentThreads,
+      threads: props.threads,
       "total-chats": props.totalChats || props["total-chats"],
       "selected-thread-id":
         props.selectedThreadId || props["selected-thread-id"],
+      "error-message": props.errorMessage || props["error-message"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      "show-conversation-rename": props.showConversationRename
-        ? true
-        : undefined,
-      "show-conversation-delete": props.showConversationDelete
-        ? true
-        : undefined,
+      "show-thread-rename": props.showThreadRename ? true : undefined,
+      "show-thread-delete": props.showThreadDelete ? true : undefined,
       loading: props.loading ? true : undefined,
       style: { ...props.style },
     },

@@ -44,7 +44,10 @@ export class AiIconButtonComponent extends LitElement {
 
   public override render(): TemplateResult {
     return html`
-      <button aria-label="AI Icon Button" class="forge-icon-button ai-icon-button" .disabled=${this.disabled}>
+      <button
+        aria-label="AI Icon Button"
+        class="forge-icon-button forge-icon-button--medium ai-icon-button"
+        .disabled=${this.disabled}>
         <forge-ai-icon></forge-ai-icon>
       </button>
     `;

@@ -63,7 +63,8 @@ const meta = {
       description: 'Controls whether the chat is displayed in an expanded modal state'
     },
     resizable: {
-      control: { type: 'boolean' },
+      control: { type: 'select' },
+      options: ['on', 'off'],
       description: 'Enables sidebar resizing'
     },
     fileUpload: {
@@ -79,7 +80,7 @@ const meta = {
   args: {
     open: true,
     expanded: false,
-    resizable: true,
+    resizable: 'on',
     fileUpload: 'off',
     placeholder: 'Ask a question...'
   },
@@ -118,9 +119,10 @@ const meta = {
       <forge-ai-sidebar-chat
         ?open=${args.open}
         ?expanded=${args.expanded}
-        ?resizable=${args.resizable}
+        resizable=${args.resizable}
         @forge-ai-sidebar-chat-open=${action('forge-ai-sidebar-chat-open')}
         @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}
+        @forge-ai-sidebar-chat-resize=${action('forge-ai-sidebar-chat-resize')}
         @forge-ai-sidebar-chat-expand=${handleExpand}
         @forge-ai-sidebar-chat-collapse=${handleCollapse}>
         <forge-ai-chatbot
@@ -229,9 +231,10 @@ export const WithDisclaimer: Story = {
       <forge-ai-sidebar-chat
         ?open=${args.open}
         ?expanded=${args.expanded}
-        ?resizable=${args.resizable}
+        resizable=${args.resizable}
         @forge-ai-sidebar-chat-open=${action('forge-ai-sidebar-chat-open')}
         @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}
+        @forge-ai-sidebar-chat-resize=${action('forge-ai-sidebar-chat-resize')}
         @forge-ai-sidebar-chat-expand=${handleExpand}
         @forge-ai-sidebar-chat-collapse=${handleCollapse}>
         <forge-ai-disclaimer @forge-ai-disclaimer-agree=${handleAgree} @forge-ai-disclaimer-disagree=${handleDisagree}>
@@ -357,7 +360,7 @@ export const WithConversationHistory: Story = {
       }
     };
 
-    const onConversationSelect = action('forge-ai-chatbot-conversation-select');
+    const onThreadSelect = action('forge-ai-chatbot-thread-select');
     const onNewChat = action('forge-ai-chatbot-new-chat');
     const onConversationsOpen = action('forge-ai-chatbot-conversations-open');
     const onConversationsClose = action('forge-ai-chatbot-conversations-close');
@@ -366,23 +369,24 @@ export const WithConversationHistory: Story = {
       <forge-ai-sidebar-chat
         ?open=${args.open}
         ?expanded=${args.expanded}
-        ?resizable=${args.resizable}
+        resizable=${args.resizable}
         @forge-ai-sidebar-chat-open=${action('forge-ai-sidebar-chat-open')}
         @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}
+        @forge-ai-sidebar-chat-resize=${action('forge-ai-sidebar-chat-resize')}
         @forge-ai-sidebar-chat-expand=${handleExpand}
         @forge-ai-sidebar-chat-collapse=${handleCollapse}>
         <forge-ai-chatbot
           .adapter=${adapter}
           .agentInfo=${agentInfo}
-          .recentThreads=${threads}
+          .threads=${threads}
           file-upload=${args.fileUpload}
           ?expanded=${args.expanded}
           placeholder=${args.placeholder}
           show-expand-button
           show-minimize-button
           show-conversations-button
-          show-conversation-rename
-          show-conversation-delete
+          show-thread-rename
+          show-thread-delete
           minimize-icon="panel"
           @forge-ai-chatbot-connected=${action('forge-ai-chatbot-connected')}
           @forge-ai-chatbot-disconnected=${action('forge-ai-chatbot-disconnected')}
@@ -392,7 +396,7 @@ export const WithConversationHistory: Story = {
           @forge-ai-chatbot-error=${action('forge-ai-chatbot-error')}
           @forge-ai-chatbot-clear=${action('forge-ai-chatbot-clear')}
           @forge-ai-chatbot-info=${action('forge-ai-chatbot-info')}
-          @forge-ai-chatbot-conversation-select=${(e: CustomEvent) => onConversationSelect(e.detail)}
+          @forge-ai-chatbot-thread-select=${(e: CustomEvent) => onThreadSelect(e.detail)}
           @forge-ai-chatbot-new-chat=${onNewChat}
           @forge-ai-chatbot-conversations-open=${onConversationsOpen}
           @forge-ai-chatbot-conversations-close=${onConversationsClose}>

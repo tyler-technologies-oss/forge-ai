@@ -159,7 +159,7 @@ export class AiVoiceInputComponent extends LitElement {
           id="voice-btn"
           class=${classes}
           @click=${this._toggleRecording}
-          aria-label=${this._isRecording ? 'Stop recording' : 'Start recording'}
+          aria-label=${this._isRecording ? 'Stop dictating' : 'Dictate prompt'}
           ?disabled=${!this._recognition}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon custom-icon" aria-hidden="true">
             <path fill="none" d="M0 0h24v24H0z" />
@@ -168,7 +168,7 @@ export class AiVoiceInputComponent extends LitElement {
           </svg>
         </button>
         <forge-ai-tooltip for="voice-btn" placement="top"
-          >${this._isRecording ? 'Stop recording' : 'Dictate'}</forge-ai-tooltip
+          >${this._isRecording ? 'Stop dictating' : 'Dictate prompt'}</forge-ai-tooltip
         >
       </div>
     `;

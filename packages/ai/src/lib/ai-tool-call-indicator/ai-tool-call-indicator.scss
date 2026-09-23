@@ -182,12 +182,12 @@ $marker-size: 28px;
 
   &--complete {
     background-color: #{forge-theme.variable(success-container)};
-    color: #{forge-theme.variable(success)};
+    color: #{forge-theme.variable(on-success-container)};
   }
 
   &--error {
     background-color: #{forge-theme.variable(error-container)};
-    color: #{forge-theme.variable(error)};
+    color: #{forge-theme.variable(on-error-container)};
   }
 }
 
@@ -274,12 +274,12 @@ $marker-size: 28px;
   background-color: #{forge-theme.variable(surface-container)};
 
   &[data-status='complete'] {
-    color: #{forge-theme.variable(success)};
+    color: #{forge-theme.variable(on-success-container)};
     background-color: #{forge-theme.variable(success-container)};
   }
 
   &[data-status='error'] {
-    color: #{forge-theme.variable(error)};
+    color: #{forge-theme.variable(on-error-container)};
     background-color: #{forge-theme.variable(error-container)};
   }
 }

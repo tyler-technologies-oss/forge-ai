@@ -4,7 +4,7 @@ import { action } from 'storybook/actions';
 
 import '$lib/ai-message-thread';
 import '$lib/ai-suggestions';
-import { type MessageItem, type ToolDefinition } from '$lib/ai-chatbot';
+import { type ClientMessageAction, type MessageItem, type ToolDefinition } from '$lib/ai-chatbot';
 
 const component = 'forge-ai-message-thread';
 
@@ -416,6 +416,134 @@ export const WithErroredToolCalls: Story = {
         <forge-ai-message-thread
           .messageItems=${messageItems}
           .tools=${tools}
+          ?enable-reactions=${args.enableReactions}
+          ?show-thinking=${args.showThinking}
+          ?debug-mode=${args.debugMode}
+          auto-scroll=${args.autoScroll}
+          @forge-ai-message-thread-copy=${onCopy}
+          @forge-ai-message-thread-resend=${onResend}
+          @forge-ai-message-thread-thumbs-up=${onThumbsUp}
+          @forge-ai-message-thread-thumbs-down=${onThumbsDown}
+          @forge-ai-message-thread-scroll-request=${onScrollRequest}>
+        </forge-ai-message-thread>
+      </div>
+    `;
+  }
+};
+
+export const WithClientMessages: Story = {
+  render: args => {
+    const onCopy = action('forge-ai-message-thread-copy');
+    const onResend = action('forge-ai-message-thread-resend');
+    const onThumbsUp = action('forge-ai-message-thread-thumbs-up');
+    const onThumbsDown = action('forge-ai-message-thread-thumbs-down');
+    const onScrollRequest = action('forge-ai-message-thread-scroll-request');
+    const onActionClick = action('client-message-action-click');
+    const refreshAction: ClientMessageAction[] = [
+      { id: 'refresh', label: 'Refresh', onClick: () => onActionClick('refresh') }
+    ];
+
+    const messageItems: MessageItem[] = [
+      {
+        type: 'message',
+        data: {
+          id: 'msg-1',
+          role: 'user',
+          content: 'Summarize the latest incident report.',
+          timestamp: Date.now() - 90000,
+          status: 'complete'
+        }
+      },
+      {
+        type: 'message',
+        data: {
+          id: 'switch-1',
+          role: 'system',
+          content: 'Switched to Incident Response Agent',
+          timestamp: Date.now() - 85000,
+          status: 'complete',
+          clientOnly: true
+        }
+      },
+      {
+        type: 'message',
+        data: {
+          id: 'msg-2',
+          role: 'assistant',
+          content: 'Here is a summary of the most recent incident report...',
+          timestamp: Date.now() - 80000,
+          status: 'complete'
+        }
+      },
+      {
+        type: 'message',
+        data: {
+          id: 'indexing-1',
+          role: 'system',
+          content: 'Indexing 3 uploaded documents...',
+          timestamp: Date.now() - 60000,
+          status: 'complete',
+          clientOnly: true,
+          kind: 'info',
+          header: 'Indexing'
+        }
+      },
+      {
+        type: 'message',
+        data: {
+          id: 'upload-error-1',
+          role: 'system',
+          content: 'incident-photos.zip could not be uploaded because it exceeds the 25 MB limit.',
+          timestamp: Date.now() - 50000,
+          status: 'complete',
+          clientOnly: true,
+          kind: 'warning',
+          header: 'Upload failed'
+        }
+      },
+      {
+        type: 'message',
+        data: {
+          id: 'msg-3',
+          role: 'user',
+          content: 'Send a message now.',
+          timestamp: Date.now() - 30000,
+          status: 'complete'
+        }
+      },
+      {
+        type: 'message',
+        data: {
+          id: 'session-expired-1',
+          role: 'system',
+          content: 'Your session expired. Please refresh the page to re-authenticate.',
+          timestamp: Date.now() - 25000,
+          status: 'complete',
+          clientOnly: true,
+          kind: 'error',
+          header: 'Session expired',
+          actions: refreshAction
+        }
+      },
+      {
+        type: 'message',
+        data: {
+          id: 'upload-success-1',
+          role: 'system',
+          content: 'incident-photos-resized.zip uploaded successfully.',
+          timestamp: Date.now() - 10000,
+          status: 'complete',
+          clientOnly: true,
+          kind: 'success'
+        }
+      }
+    ];
+
+    return html`
+      <div
+        style="width: 100%; height: 600px; max-width: 800px; margin: 0 auto; border: 1px solid #ccc; overflow: hidden;">
+        <forge-ai-message-thread
+          .messageItems=${messageItems}
           ?enable-reactions=${args.enableReactions}
           ?show-thinking=${args.showThinking}
           ?debug-mode=${args.debugMode}
