@@ -73,19 +73,32 @@ describe('AiArtifactCard', () => {
     expect(el.hasAttribute('active')).to.be.true;
   });
 
-  it('should render slotted icon and action content', async () => {
+  it('should mark the internal button as current when active', async () => {
+    const el = await fixture<AiArtifactCardComponent>(html`<forge-ai-artifact-card active></forge-ai-artifact-card>`);
+
+    const button = el.shadowRoot?.querySelector<HTMLButtonElement>('.artifact-card');
+
+    expect(button?.getAttribute('aria-current')).to.equal('true');
+  });
+
+  it('should not set aria-current when inactive', async () => {
+    const el = await fixture<AiArtifactCardComponent>(html`<forge-ai-artifact-card></forge-ai-artifact-card>`);
+
+    const button = el.shadowRoot?.querySelector<HTMLButtonElement>('.artifact-card');
+
+    expect(button?.hasAttribute('aria-current')).to.be.false;
+  });
+
+  it('should render slotted icon content', async () => {
     const el = await fixture<AiArtifactCardComponent>(
       html`<forge-ai-artifact-card>
         <svg slot="icon"></svg>
-        <span slot="action">Open results</span>
       </forge-ai-artifact-card>`
     );
 
     const iconSlot = el.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="icon"]');
-    const actionSlot = el.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="action"]');
 
     expect(iconSlot?.assignedElements()).to.have.lengthOf(1);
-    expect(actionSlot?.assignedElements()[0].textContent).to.equal('Open results');
   });
 
   it('should use a native button so keyboard activation works', async () => {
