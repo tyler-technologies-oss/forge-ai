@@ -1,0 +1,65 @@
+@use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/state-layer' as forge-state-layer;
+
+:host {
+  @include forge-state-layer.tokens(
+    $includes: (
+      color,
+      hover-color,
+      hover-opacity
+    )
+  );
+
+  display: block;
+}
+
+.artifact-card-group {
+  overflow: hidden;
+  border: 1px solid #{forge-theme.variable(outline)};
+  border-radius: var(--forge-ai-artifact-card-group-border-radius, 12px);
+  background: #{forge-theme.variable(surface)};
+}
+
+::slotted(:not(:first-child)) {
+  border-top: 1px solid #{forge-theme.variable(outline)};
+}
+
+.toggle {
+  @include forge-typography.style(body1);
+
+  display: flex;
+  align-items: center;
+  gap: #{forge-spacing.variable(xsmall)};
+  width: 100%;
+  min-height: 48px;
+  padding: #{forge-spacing.variable(small)};
+  border: none;
+  border-top: 1px solid #{forge-theme.variable(outline)};
+  background: transparent;
+  color: #{forge-theme.variable(text-high)};
+  text-align: start;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.toggle svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.toggle:hover {
+  background: color-mix(
+    in srgb,
+    #{forge-state-layer.token(hover-color)} calc(#{forge-state-layer.token(hover-opacity)} * 100%),
+    transparent
+  );
+}
+
+/* Inset, because the group clips its children to its rounded corners */
+.toggle:focus-visible {
+  outline: 2px solid #{forge-theme.variable(tertiary)};
+  outline-offset: -2px;
+}

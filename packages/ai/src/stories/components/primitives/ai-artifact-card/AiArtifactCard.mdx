@@ -18,6 +18,8 @@ when it is opened.
 
 - **Whole-card click target**: the entire card is a single native button, so clicking the icon, the text, or empty space all activate it
 - **Truncating text**: both lines truncate to a single line rather than wrapping or growing the card
+- **Trailing arrow**: a built-in, decorative arrow signals that the card opens something; it hides on the active card, which is already open
+- **Groups**: for several results at once, place cards in a `forge-ai-artifact-card-group`, which lists them as rows and collapses the extras
 - **Active state**: renders a ring when the artifact is the one currently being viewed
 - **Consumer-owned icon**: arrives by slot, so no icon set is baked in
 - **Themeable accent**: one custom property colors the active border and ring, and the focus outline
@@ -26,7 +28,7 @@ when it is opened.
 
 The card does not decide when it is active — the consumer sets the `active` attribute. This keeps the component
 usable whether selection state lives in a store, a router, or nowhere at all. An active card takes the accent
-color on its border and outer ring.
+color on its border and outer ring, and its arrow hides, since there is nothing left to open.
 
 <Canvas of={AiArtifactCardStories.Active} />
 

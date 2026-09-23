@@ -1,5 +1,6 @@
 import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
 
 import styles from './ai-artifact-card.scss?inline';
 
@@ -25,9 +26,9 @@ export const AiArtifactCardComponentTagName: keyof HTMLElementTagNameMap = 'forg
  * @summary A compact, clickable card representing an artifact an agent produced.
  *
  * @description
- * Displays a leading icon and two lines of truncating text inside a single button that
- * covers the whole card. Activating it emits an event; the
- * consumer decides what opens. The component is presentational — it holds no knowledge of
+ * Displays a leading icon, two lines of truncating text, and a trailing arrow inside a single
+ * button that covers the whole card. Activating it emits an event; the consumer decides what
+ * opens. Placed in a `forge-ai-artifact-card-group`, it renders as a row of that list. The component is presentational — it holds no knowledge of
  * what the artifact is or where it lives.
  *
  * @slot icon - The leading icon, shown inside a bordered tile. Consumers supply their own.
@@ -77,6 +78,34 @@ export class AiArtifactCardComponent extends LitElement {
   @property({ type: Boolean, reflect: true })
   public disabled = false;
 
+  @state()
+  private _grouped = false;
+
+  readonly #arrowIcon = html`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <path
+        d="M5.25 5.25H12.75V12.75M5.25 12.75L12.75 5.25"
+        stroke="currentColor"
+        stroke-width="1.3125"
+        stroke-linecap="round"
+        stroke-linejoin="round" />
+    </svg>
+  `;
+
+  public override connectedCallback(): void {
+    super.connectedCallback();
+    this.#detectGroup();
+  }
+
+  #detectGroup(): void {
+    this._grouped = this.parentElement?.tagName.toLowerCase() === 'forge-ai-artifact-card-group';
+    if (this._grouped) {
+      this.setAttribute('role', 'listitem');
+    } else if (this.getAttribute('role') === 'listitem') {
+      this.removeAttribute('role');
+    }
+  }
+
   #handleClick(): void {
     if (this.disabled) {
       return;
@@ -94,7 +123,7 @@ export class AiArtifactCardComponent extends LitElement {
   public override render(): TemplateResult {
     return html`
       <button
-        class="artifact-card"
+        class=${classMap({ 'artifact-card': true, 'artifact-card--grouped': this._grouped })}
         type="button"
         aria-current=${this.active ? 'true' : nothing}
         ?disabled=${this.disabled}
@@ -106,6 +135,7 @@ export class AiArtifactCardComponent extends LitElement {
           <span class="title">${this.titleText}</span>
           <span class="subtitle">${this.subtitleText}</span>
         </span>
+        <span class="arrow">${this.#arrowIcon}</span>
       </button>
     `;
   }

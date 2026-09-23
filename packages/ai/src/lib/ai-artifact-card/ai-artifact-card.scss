@@ -17,6 +17,10 @@
   display: block;
 }
 
+:host([hidden]) {
+  display: none;
+}
+
 /*
  * The hover and active rings are drawn outside the border with a spread shadow rather than
  * a thicker border, so the card's layout never shifts between states.
@@ -117,4 +121,57 @@
   @include forge-typography.ellipse;
 
   color: #{forge-theme.variable(text-medium)};
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  color: #{forge-theme.variable(text-medium)};
+}
+
+.arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+/*
+ * The arrow promises the card opens something, which the active card already is. Its space is kept
+ * so the text doesn't reflow when a card becomes active.
+ */
+:host([active]) .arrow {
+  visibility: hidden;
+}
+
+/*
+ * Inside a group the card becomes a list row: the group draws the border, corners, and dividers,
+ * so the row gives those up and shows hover and active as fills rather than rings.
+ */
+.artifact-card--grouped {
+  min-height: 56px;
+  border: none;
+  border-radius: 0;
+}
+
+.artifact-card--grouped:hover {
+  background: color-mix(
+    in srgb,
+    #{forge-state-layer.token(hover-color)} calc(#{forge-state-layer.token(hover-opacity)} * 100%),
+    transparent
+  );
+  box-shadow: none;
+}
+
+/* Inset, because the group clips its rows to its rounded corners */
+.artifact-card--grouped:focus-visible {
+  outline-offset: -2px;
+}
+
+:host([active]) .artifact-card--grouped,
+:host([active]) .artifact-card--grouped:hover {
+  background: color-mix(in srgb, var(--_accent-color) 8%, transparent);
+  box-shadow: none;
 }
