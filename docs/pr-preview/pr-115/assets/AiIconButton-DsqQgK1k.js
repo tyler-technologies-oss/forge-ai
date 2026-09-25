@@ -1,0 +1,6 @@
+import{j as t,M as s,T as r,C as m}from"./blocks-Ux-DVfLb.js";import{useMDXComponents as e}from"./index-5jWqod4W.js";import{C as a}from"./CustomArgTypes-Cijl7339.js";import{A as p,D as c}from"./AiIconButton.stories-CAVJVjmt.js";import"./preload-helper-PPVm8Dsz.js";import"./_commonjsHelpers-CqkleIqs.js";import"./iframe-DdEsgLXc.js";import"./utils-DwVr3uOz.js";import"./utils-DIqd7FWX.js";import"./custom-element-UsVr97OX.js";import"./property-DhUOPoOO.js";import"./ai-icon-DVJejIk9.js";import"./when-CI7b_ccM.js";import"./ai-gradient-container-BgyaJUEz.js";function i(n){const o={h2:"h2",p:"p",...e(),...n.components};return t.jsxs(t.Fragment,{children:[t.jsx(s,{of:p}),`
+`,t.jsx(r,{}),`
+`,t.jsx(o.p,{children:"The AI Icon Button is a specialized icon button component built on top of Tyler Forge's icon button component, designed specifically for AI-themed interfaces. It provides enhanced styling with a signature shimmer animation and consistent integration with AI chat widgets."}),`
+`,t.jsx(m,{of:c}),`
+`,t.jsx(o.h2,{id:"api",children:"API"}),`
+`,t.jsx(a,{})]})}function T(n={}){const{wrapper:o}={...e(),...n.components};return o?t.jsx(o,{...n,children:t.jsx(i,{...n})}):i(n)}export{T as default};
