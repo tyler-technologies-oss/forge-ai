@@ -1,5 +1,7 @@
 export * from "./ForgeAiAgentInfo.js";
 export * from "./ForgeAiArtifact.js";
+export * from "./ForgeAiArtifactCard.js";
+export * from "./ForgeAiArtifactCardGroup.js";
 export * from "./ForgeAiAgentSelector.js";
 export * from "./ForgeAiAssistantResponse.js";
 export * from "./ForgeAiAttachment.js";
