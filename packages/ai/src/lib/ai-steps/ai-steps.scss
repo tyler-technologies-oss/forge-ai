@@ -219,15 +219,3 @@ $connector-width: 1px;
 .step-card-title strong {
   font-weight: 700;
 }
-
-.detail {
-  &-key {
-    font-weight: 500;
-    color: #{forge-theme.variable(text-medium)};
-  }
-  &-value {
-    font-weight: normal;
-    color: #{forge-theme.variable(text-medium)};
-    margin-inline-start: #{forge-spacing.variable(xlarge)};
-  }
-}
