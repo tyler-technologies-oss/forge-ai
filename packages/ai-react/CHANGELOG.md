@@ -1,5 +1,17 @@
 # @tylertech/forge-ai-react
 
+## 0.16.0
+
+### Minor Changes
+
+- ee9d8c6: feat(steps): created forge-ai-steps component and the agent-controlled displaySteps tool
+
+### Patch Changes
+
+- Updated dependencies [58ea2b8]
+- Updated dependencies [ee9d8c6]
+  - @tylertech/forge-ai@0.16.0
+
 ## 0.15.1
 
 ### Patch Changes

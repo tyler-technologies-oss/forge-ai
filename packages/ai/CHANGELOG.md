@@ -1,5 +1,15 @@
 # @tylertech/forge-ai
 
+## 0.16.0
+
+### Minor Changes
+
+- ee9d8c6: feat(steps): created forge-ai-steps component and the agent-controlled displaySteps tool
+
+### Patch Changes
+
+- 58ea2b8: fix(launcher): use small density for thread action buttons
+
 ## 0.15.2
 
 ### Patch Changes
