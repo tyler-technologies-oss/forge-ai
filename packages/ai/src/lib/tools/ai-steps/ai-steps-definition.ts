@@ -26,7 +26,7 @@ export const displayStepsTool: ToolDefinition = {
             },
             status: {
               type: 'string',
-              enum: ['pending', 'running', 'complete', 'error'],
+              enum: ['pending', 'running', 'complete'],
               description: 'Outcome of the step. Defaults to "complete" when omitted.'
             }
           },

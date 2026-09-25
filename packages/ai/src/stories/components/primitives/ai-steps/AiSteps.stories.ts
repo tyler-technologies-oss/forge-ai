@@ -40,7 +40,7 @@ const steps: AiStep[] = [
   {
     label: 'Loaded the product catalog',
     detail: 'Could not reach the catalog service — falling back to cached product names.',
-    status: 'error'
+    status: 'complete'
   }
 ];
 

@@ -30,9 +30,7 @@ Steps with no `detail` skip the detail card and render as just a marker and labe
 
 ## No steps
 
-An empty `steps` array renders nothing at all — no count, no summary row, no timeline — so the canvas below is intentionally blank. This is the state a real run starts in, since `renderOnStart` mounts the element before the agent has written its first label.
-
-<Canvas of={AiStepsStories.Empty} />
+An empty `steps` array renders nothing at all — no count, no summary row, no timeline. This is the state a real run starts in, since `renderOnStart` mounts the element before the agent has written its first label.
 
 ## Formatting within a label
 
@@ -74,7 +72,7 @@ import { displayStepsTool } from '@tylertech/forge-ai/tools';
 adapter.setTools([displayStepsTool]);
 ```
 
-The tool's schema accepts a `steps` array, each entry taking a required `label`, an optional `detail`, and an optional `status` of `pending`, `running`, `complete`, or `error`. The `label` and `detail` descriptions tell the agent that inline markdown is available and to use it sparingly. The `forge-ai-tool-steps` renderer maps that tool call onto this primitive, deriving `running` from the tool call's own status. Because the tool sets `renderOnStart`, the timeline appears while arguments are still streaming rather than only once the call settles.
+The tool's schema accepts a `steps` array, each entry taking a required `label`, an optional `detail`, and an optional `status` of `pending`, `running`, or `complete`. The `label` and `detail` descriptions tell the agent that inline markdown is available and to use it sparingly. The `forge-ai-tool-steps` renderer maps that tool call onto this primitive, deriving `running` from the tool call's own status. Because the tool sets `renderOnStart`, the timeline appears while arguments are still streaming rather than only once the call settles.
 
 The story below works through its steps one at a time. Each step is announced with just its `label` at `status: 'running'`, waits there, then flips to `complete` and gains its `detail` — so the detail card under the label is the part that streams in. Each tick re-emits the whole `steps` array, which is how a real agent's partial JSON accumulates. The timeline stays expanded with no summary row while the call is in flight, then auto-collapses once it settles.
 

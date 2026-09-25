@@ -38,7 +38,7 @@ describe('StepsToolElement', () => {
         args: {
           steps: [
             { label: 'Searched the orders table', detail: 'Matched 1,284 orders.' },
-            { label: 'Filtered by region', status: 'error' }
+            { label: 'Filtered by region', status: 'running' }
           ]
         }
       })
@@ -47,7 +47,7 @@ describe('StepsToolElement', () => {
     expect(steps.steps).to.have.lengthOf(2);
     expect(steps.steps[0].label).to.equal('Searched the orders table');
     expect(steps.steps[0].detail).to.equal('Matched 1,284 orders.');
-    expect(steps.steps[1].status).to.equal('error');
+    expect(steps.steps[1].status).to.equal('running');
   });
 
   it('should pass an agent-provided markdown label through to the steps primitive verbatim', async () => {

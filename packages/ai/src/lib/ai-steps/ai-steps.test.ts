@@ -195,10 +195,10 @@ describe('AiStepsComponent', () => {
 
   it('should expose the step status on the row for styling hooks', async () => {
     const el = await fixture<AiStepsComponent>(
-      html`<forge-ai-steps .steps=${[createStep({ status: 'error', detail: 'Request timed out.' })]}></forge-ai-steps>`
+      html`<forge-ai-steps .steps=${[createStep({ status: 'running', detail: 'Still working.' })]}></forge-ai-steps>`
     );
 
-    expect(el.shadowRoot!.querySelector('.timeline-row')?.getAttribute('data-status')).to.equal('error');
+    expect(el.shadowRoot!.querySelector('.timeline-row')?.getAttribute('data-status')).to.equal('running');
     expect(el.shadowRoot!.querySelector('.step-card-title')).to.exist;
   });
 

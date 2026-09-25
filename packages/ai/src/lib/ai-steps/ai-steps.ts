@@ -18,7 +18,7 @@ export const AiStepsComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-st
 const MAX_DETAIL_LENGTH = 2000;
 
 /** Lifecycle state of an individual step. */
-export type AiStepStatus = 'pending' | 'running' | 'complete' | 'error';
+export type AiStepStatus = 'pending' | 'running' | 'complete';
 
 /**
  * A single step in the timeline. Every field is supplied by the agent — the component derives no
