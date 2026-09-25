@@ -677,7 +677,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           isEditing,
           () => html`
             <forge-ai-edit-thread
-              density="medium"
               .thread=${{
                 id: threadId,
                 title: this.threadName || '',
@@ -722,7 +721,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
     return html`
       <forge-ai-thread-actions-menu
-        density="medium"
         .thread=${thread}
         ?show-rename=${this.showThreadRename}
         ?show-delete=${this.showThreadDelete}
