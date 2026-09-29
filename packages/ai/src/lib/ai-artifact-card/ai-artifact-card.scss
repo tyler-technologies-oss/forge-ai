@@ -165,11 +165,17 @@
   border-radius: 0;
 }
 
-/* Square, because the group clips its rows to its own rounded corners */
+/*
+ * Square, because the group clips its rows to its own rounded corners. The group hands the top and bottom
+ * rows its inner radius so their rings follow the curve instead of being cut off.
+ */
 .artifact-card--grouped:focus-visible .focus-indicator {
   @include forge-focus-indicator.provide-theme(
     (
-      shape: 0px
+      shape-start-start: var(--_forge-ai-artifact-card-group-start-radius, 0px),
+      shape-start-end: var(--_forge-ai-artifact-card-group-start-radius, 0px),
+      shape-end-start: var(--_forge-ai-artifact-card-group-end-radius, 0px),
+      shape-end-end: var(--_forge-ai-artifact-card-group-end-radius, 0px)
     )
   );
 }

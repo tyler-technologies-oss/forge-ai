@@ -6,6 +6,8 @@
 
 @include forge-focus-indicator.keyframes;
 
+$_inner-radius: calc(var(--forge-ai-artifact-card-group-border-radius, 12px) - 1px);
+
 :host {
   display: block;
 }
@@ -27,6 +29,18 @@
 
 ::slotted(*) {
   border-top: 1px solid #{forge-theme.variable(outline)};
+}
+
+/*
+ * Rows meeting the group's rounded corners get its inner radius for their focus rings. The bottom row only
+ * does when no toggle sits below it.
+ */
+.list ::slotted(:nth-child(1 of :not([hidden], [data-collapsed]))) {
+  --_forge-ai-artifact-card-group-start-radius: #{$_inner-radius};
+}
+
+.artifact-card-group:not(:has(.toggle)) ::slotted(:nth-last-child(1 of :not([hidden], [data-collapsed]))) {
+  --_forge-ai-artifact-card-group-end-radius: #{$_inner-radius};
 }
 
 .toggle {
@@ -62,7 +76,7 @@
   display: none;
 }
 
-/* Square, because the group clips its children to its own rounded corners */
+/* The toggle is always the bottom row, so its lower corners follow the group's inner radius */
 .toggle:focus-visible .focus-indicator {
   @include forge-focus-indicator.tokens;
   @include forge-focus-indicator.base;
@@ -72,7 +86,10 @@
 
   @include forge-focus-indicator.provide-theme(
     (
-      shape: 0px
+      shape-start-start: 0px,
+      shape-start-end: 0px,
+      shape-end-start: $_inner-radius,
+      shape-end-end: $_inner-radius
     )
   );
 }
