@@ -21,8 +21,13 @@ export interface ForgeAiSidebarProps extends Pick<
   /** Indicates whether the sidebar is open. */
   open?: boolean;
 
-  /** Enables sidebar resizing. */
-  resizable?: boolean;
+  /** Enables sidebar resizing. Set to `'off'` to disable and reset to the default width. */
+  resizable?: ForgeAiSidebarElement["resizable"];
+
+  /** The current width of the sidebar in pixels. Clamped to the min/max bounds and viewport.
+Resized widths are persisted per tab in sessionStorage and shared across tabs via localStorage.
+On load the session value is preferred, then the local value, then the default. */
+  width?: ForgeAiSidebarElement["width"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -50,6 +55,9 @@ export interface ForgeAiSidebarProps extends Pick<
 
   /** Fired when the sidebar is closed */
   onForgeAiSidebarClose?: (event: CustomEvent) => void;
+
+  /** Fired when a resize is committed via pointer release or keyboard step */
+  onForgeAiSidebarResize?: (event: CustomEvent) => void;
 }
 
 /**
@@ -60,6 +68,7 @@ export interface ForgeAiSidebarProps extends Pick<
  * ### **Events:**
  *  - **forge-ai-sidebar-open** - Fired when the sidebar is opened
  * - **forge-ai-sidebar-close** - Fired when the sidebar is closed
+ * - **forge-ai-sidebar-resize** - Fired when a resize is committed via pointer release or keyboard step
  *
  * ### **Methods:**
  *  - **show(): _void_** - Opens the sidebar.

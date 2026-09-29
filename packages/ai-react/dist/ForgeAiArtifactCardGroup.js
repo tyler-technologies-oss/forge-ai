@@ -1,22 +1,26 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import "@tylertech/forge-ai/ai-sidebar";
+import "@tylertech/forge-ai/ai-artifact-card-group";
 import { useEventListener } from "./react-utils.js";
 
-export const ForgeAiSidebar = forwardRef((props, forwardedRef) => {
+export const ForgeAiArtifactCardGroup = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, resizable, width, ...filteredProps } = props;
+  const {
+    expanded,
+    visibleCount,
+    showMoreText,
+    showLessText,
+    ...filteredProps
+  } = props;
 
   /** Event listeners - run once */
-  useEventListener(ref, "forge-ai-sidebar-open", props.onForgeAiSidebarOpen);
-  useEventListener(ref, "forge-ai-sidebar-close", props.onForgeAiSidebarClose);
   useEventListener(
     ref,
-    "forge-ai-sidebar-resize",
-    props.onForgeAiSidebarResize,
+    "forge-ai-artifact-card-group-toggle",
+    props.onForgeAiArtifactCardGroupToggle,
   );
 
   return React.createElement(
-    "forge-ai-sidebar",
+    "forge-ai-artifact-card-group",
     {
       ref: (node) => {
         ref.current = node;
@@ -27,14 +31,15 @@ export const ForgeAiSidebar = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
-      resizable: props.resizable,
-      width: props.width,
+      "visible-count": props.visibleCount || props["visible-count"],
+      "show-more-text": props.showMoreText || props["show-more-text"],
+      "show-less-text": props.showLessText || props["show-less-text"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      open: props.open ? true : undefined,
+      expanded: props.expanded ? true : undefined,
       style: { ...props.style },
     },
     props.children,

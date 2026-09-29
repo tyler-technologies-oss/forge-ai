@@ -1,22 +1,28 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import "@tylertech/forge-ai/ai-sidebar";
+import "@tylertech/forge-ai/ai-artifact-card";
 import { useEventListener } from "./react-utils.js";
 
-export const ForgeAiSidebar = forwardRef((props, forwardedRef) => {
+export const ForgeAiArtifactCard = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, resizable, width, ...filteredProps } = props;
+  const {
+    active,
+    disabled,
+    titleText,
+    subtitleText,
+    actionLabel,
+    assetId,
+    ...filteredProps
+  } = props;
 
   /** Event listeners - run once */
-  useEventListener(ref, "forge-ai-sidebar-open", props.onForgeAiSidebarOpen);
-  useEventListener(ref, "forge-ai-sidebar-close", props.onForgeAiSidebarClose);
   useEventListener(
     ref,
-    "forge-ai-sidebar-resize",
-    props.onForgeAiSidebarResize,
+    "forge-ai-artifact-card-open",
+    props.onForgeAiArtifactCardOpen,
   );
 
   return React.createElement(
-    "forge-ai-sidebar",
+    "forge-ai-artifact-card",
     {
       ref: (node) => {
         ref.current = node;
@@ -27,14 +33,17 @@ export const ForgeAiSidebar = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
-      resizable: props.resizable,
-      width: props.width,
+      "title-text": props.titleText || props["title-text"],
+      "subtitle-text": props.subtitleText || props["subtitle-text"],
+      "action-label": props.actionLabel || props["action-label"],
+      "asset-id": props.assetId || props["asset-id"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
-      open: props.open ? true : undefined,
+      active: props.active ? true : undefined,
+      disabled: props.disabled ? true : undefined,
       style: { ...props.style },
     },
     props.children,
