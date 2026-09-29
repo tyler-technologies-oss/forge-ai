@@ -1,5 +1,5 @@
 import React, { forwardRef, useRef, useEffect } from "react";
-import "@tylertech/forge-ai/ai-artifact-card";
+import "@tylertech/forge-ai/ai-artifact-card-group";
 import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiArtifactCardGroup = forwardRef((props, forwardedRef) => {

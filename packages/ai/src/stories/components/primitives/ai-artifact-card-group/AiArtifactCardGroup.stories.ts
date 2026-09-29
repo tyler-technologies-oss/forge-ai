@@ -5,6 +5,7 @@ import { defineIconComponent, IconRegistry } from '@tylertech/forge';
 import { tylIconBarChart, tylIconTable } from '@tylertech/tyler-icons';
 
 import '$lib/ai-artifact-card';
+import '$lib/ai-artifact-card-group';
 
 IconRegistry.define([tylIconBarChart, tylIconTable]);
 defineIconComponent();

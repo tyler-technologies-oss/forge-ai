@@ -2,9 +2,9 @@ import { expect } from '@esm-bundle/chai';
 import { fixture, html } from '@open-wc/testing';
 import { TemplateResult } from 'lit';
 import { AiArtifactCardGroupComponent, ForgeAiArtifactCardGroupToggleEventData } from './ai-artifact-card-group';
-import { AiArtifactCardComponent } from './ai-artifact-card';
+import { AiArtifactCardComponent } from '../ai-artifact-card';
 
-import './ai-artifact-card';
+import '../ai-artifact-card';
 import './ai-artifact-card-group';
 
 function cardsTemplate(count: number): TemplateResult[] {

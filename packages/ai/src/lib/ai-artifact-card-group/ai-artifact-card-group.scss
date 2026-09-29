@@ -51,7 +51,7 @@ $_inner-radius: calc(var(--forge-ai-artifact-card-group-border-radius, 12px) - 1
   align-items: center;
   gap: #{forge-spacing.variable(xsmall)};
   width: 100%;
-  min-height: 48px;
+  min-height: #{forge-spacing.variable(xxlarge)};
   padding: #{forge-spacing.variable(small)};
   border: none;
   border-top: 1px solid #{forge-theme.variable(outline)};

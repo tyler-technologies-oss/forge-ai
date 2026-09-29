@@ -87,8 +87,8 @@
   justify-content: center;
   flex-shrink: 0;
   box-sizing: border-box;
-  width: 32px;
-  height: 32px;
+  width: #{forge-spacing.variable(xlarge)};
+  height: #{forge-spacing.variable(xlarge)};
   border: 1px solid #{forge-theme.variable(outline)};
   border-radius: 6px;
   background: #{forge-theme.variable(surface-container-minimum)};
@@ -130,8 +130,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: #{forge-spacing.variable(xlarge)};
+  height: #{forge-spacing.variable(xlarge)};
   color: #{forge-theme.variable(text-medium)};
 }
 
@@ -160,7 +160,7 @@
  * so the row gives those up and shows active as a fill rather than a ring.
  */
 .artifact-card--grouped {
-  min-height: 56px;
+  min-height: #{forge-spacing.variable(xxxlarge)};
   border: none;
   border-radius: 0;
 }

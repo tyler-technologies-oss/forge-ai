@@ -6,6 +6,7 @@ export * from './ai-agent-selector';
 export * from './ai-tool-call-indicator';
 export * from './ai-artifact';
 export * from './ai-artifact-card';
+export * from './ai-artifact-card-group';
 export * from './ai-attachment';
 export * from './ai-button';
 export * from './ai-chain-of-thought';

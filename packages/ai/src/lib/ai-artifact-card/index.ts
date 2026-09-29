@@ -1,2 +1,5 @@
-export * from './ai-artifact-card';
-export * from './ai-artifact-card-group';
+export {
+  AiArtifactCardComponent,
+  AiArtifactCardComponentTagName,
+  type ForgeAiArtifactCardOpenEventData
+} from './ai-artifact-card';

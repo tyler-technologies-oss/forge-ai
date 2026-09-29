@@ -33,10 +33,8 @@ const GROUP_TAG_NAME = 'forge-ai-artifact-card-group';
  * @description
  * Displays a leading icon, two lines of truncating text, and a trailing action glyph inside a single
  * button that covers the whole card. Activating it emits an event; the consumer decides what
- * opens. Placed in a `forge-ai-artifact-card-group`, it renders as a row of that list. Group
- * membership is detected when the card connects, so move a card by re-inserting it rather than
- * mutating its parent in place. The component is presentational — it holds no knowledge of
- * what the artifact is or where it lives.
+ * opens. Placed in a `forge-ai-artifact-card-group`, it renders as a row of that list. The component
+ * is presentational — it holds no knowledge of what the artifact is or where it lives.
  *
  * @slot icon - The leading icon, shown inside a bordered tile. Replaces the default artifact glyph.
  * @slot action-icon - The trailing action glyph. Replaces the default arrow, and unlike the arrow stays
@@ -111,7 +109,7 @@ export class AiArtifactCardComponent extends LitElement {
       <path
         d="M5.25 5.25H12.75V12.75M5.25 12.75L12.75 5.25"
         stroke="currentColor"
-        stroke-width="1.3125"
+        stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round" />
     </svg>

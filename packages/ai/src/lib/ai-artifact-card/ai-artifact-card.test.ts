@@ -3,7 +3,7 @@ import { fixture, html } from '@open-wc/testing';
 import { AiArtifactCardComponent, ForgeAiArtifactCardOpenEventData } from './ai-artifact-card';
 
 import './ai-artifact-card';
-import './ai-artifact-card-group';
+import '../ai-artifact-card-group';
 
 describe('AiArtifactCard', () => {
   it('should contain shadow root', async () => {

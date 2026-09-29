@@ -1,5 +1,5 @@
 import React from "react";
-import { ForgeAiArtifactCardGroup as ForgeAiArtifactCardGroupElement } from "@tylertech/forge-ai/ai-artifact-card";
+import { ForgeAiArtifactCardGroup as ForgeAiArtifactCardGroupElement } from "@tylertech/forge-ai/ai-artifact-card-group";
 
 export type { ForgeAiArtifactCardGroupElement };
 

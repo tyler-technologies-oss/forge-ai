@@ -1,7 +1,10 @@
 import { LitElement, PropertyValues, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js';
 
-import { AI_ARTIFACT_CARD_COLLAPSED_ATTRIBUTE, type AiArtifactCardComponent } from './ai-artifact-card';
+import {
+  AI_ARTIFACT_CARD_COLLAPSED_ATTRIBUTE,
+  type AiArtifactCardComponent
+} from '../ai-artifact-card/ai-artifact-card';
 
 import styles from './ai-artifact-card-group.scss?inline';
 
@@ -72,7 +75,7 @@ export class AiArtifactCardGroupComponent extends LitElement {
   @property({ attribute: 'show-less-text' })
   public showLessText = 'Show less';
 
-  @queryAssignedElements({ selector: 'forge-ai-artifact-card' })
+  @queryAssignedElements({ selector: 'forge-ai-artifact-card', flatten: true })
   private _cards!: AiArtifactCardComponent[];
 
   get #visibleCards(): AiArtifactCardComponent[] {
@@ -95,7 +98,7 @@ export class AiArtifactCardGroupComponent extends LitElement {
       <path
         d="M4.5 6.75L9 11.25L13.5 6.75"
         stroke="currentColor"
-        stroke-width="1.3125"
+        stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round" />
     </svg>
@@ -106,7 +109,7 @@ export class AiArtifactCardGroupComponent extends LitElement {
       <path
         d="M13.5 11.25L9 6.75L4.5 11.25"
         stroke="currentColor"
-        stroke-width="1.3125"
+        stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round" />
     </svg>
