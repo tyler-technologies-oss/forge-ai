@@ -150,6 +150,7 @@ export class AiArtifactCardGroupComponent extends LitElement {
       <button class="toggle" type="button" aria-expanded=${this.expanded} @click=${this.#handleToggle}>
         ${this.expanded ? this.#chevronUpIcon : this.#chevronDownIcon}
         <span>${label}</span>
+        <span class="focus-indicator"></span>
       </button>
     `;
   }

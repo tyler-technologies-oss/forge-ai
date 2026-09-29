@@ -2,16 +2,11 @@
 @use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
 @use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
 @use '@tylertech/forge/sass/state-layer' as forge-state-layer;
+@use '@tylertech/forge/sass/focus-indicator' as forge-focus-indicator;
+
+@include forge-focus-indicator.keyframes;
 
 :host {
-  @include forge-state-layer.tokens(
-    $includes: (
-      color,
-      hover-color,
-      hover-opacity
-    )
-  );
-
   display: block;
 }
 
@@ -37,6 +32,7 @@
 .toggle {
   @include forge-typography.style(body1);
 
+  position: relative;
   display: flex;
   align-items: center;
   gap: #{forge-spacing.variable(xsmall)};
@@ -49,7 +45,9 @@
   color: #{forge-theme.variable(text-high)};
   text-align: start;
   cursor: pointer;
-  transition: background-color 150ms ease;
+  outline: none;
+
+  @include forge-state-layer.standalone;
 }
 
 .toggle svg {
@@ -58,16 +56,23 @@
   height: 18px;
 }
 
-.toggle:hover {
-  background: color-mix(
-    in srgb,
-    #{forge-state-layer.token(hover-color)} calc(#{forge-state-layer.token(hover-opacity)} * 100%),
-    transparent
-  );
+// Sentinel for the Forge focus ring; absolute so it adds no flex gap.
+.focus-indicator {
+  position: absolute;
+  display: none;
 }
 
-/* Inset, because the group clips its children to its rounded corners */
-.toggle:focus-visible {
-  outline: 2px solid #{forge-theme.variable(tertiary)};
-  outline-offset: -2px;
+/* Square, because the group clips its children to its own rounded corners */
+.toggle:focus-visible .focus-indicator {
+  @include forge-focus-indicator.tokens;
+  @include forge-focus-indicator.base;
+  @include forge-focus-indicator.inward;
+
+  display: block;
+
+  @include forge-focus-indicator.provide-theme(
+    (
+      shape: 0px
+    )
+  );
 }

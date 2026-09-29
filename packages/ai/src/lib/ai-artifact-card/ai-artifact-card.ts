@@ -45,7 +45,7 @@ const GROUP_TAG_NAME = 'forge-ai-artifact-card-group';
  * @event {CustomEvent<ForgeAiArtifactCardOpenEventData>} forge-ai-artifact-card-open - Fired
  * when the card is activated by click, Enter, or Space. Not fired while disabled.
  *
- * @cssproperty --forge-ai-artifact-card-accent-color - Color of the active border and ring, and the focus indicator
+ * @cssproperty --forge-ai-artifact-card-accent-color - Color of the active border and ring
  * @cssproperty --forge-ai-artifact-card-background - Background color of the card
  * @cssproperty --forge-ai-artifact-card-border-radius - Corner radius of the card
  * @cssproperty --forge-ai-artifact-card-padding - Padding inside the card

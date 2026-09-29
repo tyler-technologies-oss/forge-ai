@@ -81,7 +81,7 @@ interprets it. */
  * - **action-icon** - The trailing action glyph. Replaces the default arrow, and unlike the arrow stays visible while `active`, so consumers that collapse on a second activation can show a matching glyph.
  *
  * ### **CSS Properties:**
- *  - **--forge-ai-artifact-card-accent-color** - Color of the active border and ring, and the focus indicator _(default: undefined)_
+ *  - **--forge-ai-artifact-card-accent-color** - Color of the active border and ring _(default: undefined)_
  * - **--forge-ai-artifact-card-background** - Background color of the card _(default: undefined)_
  * - **--forge-ai-artifact-card-border-radius** - Corner radius of the card _(default: undefined)_
  * - **--forge-ai-artifact-card-padding** - Padding inside the card _(default: undefined)_

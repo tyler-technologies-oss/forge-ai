@@ -126,7 +126,7 @@ export const CustomAccent: Story = {
       title-text="Q4 collision summary"
       subtitle-text="Report · 4 charts"
       asset-id="q4-report"
-      style="--forge-ai-artifact-card-accent-color: var(--forge-theme-primary);"
+      style="--forge-ai-artifact-card-accent-color: var(--forge-theme-tertiary);"
       @forge-ai-artifact-card-open=${action('forge-ai-artifact-card-open')}>
       ${chartIcon}
     </forge-ai-artifact-card>
