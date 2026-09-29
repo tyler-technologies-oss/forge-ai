@@ -21,7 +21,8 @@ export interface ForgeAiArtifactCardGroupProps extends Pick<
   /** Whether every card is showing. */
   expanded?: boolean;
 
-  /** How many cards show while the list is collapsed. Values below 1 are treated as 1. */
+  /** How many cards show while the list is collapsed. Values below 1 are treated as 1, and
+non-numeric values fall back to the default of 3. */
   visibleCount?: ForgeAiArtifactCardGroupElement["visibleCount"];
 
   /** Label of the toggle while collapsed. `{count}` is replaced with the number of hidden cards. */
@@ -66,7 +67,7 @@ export interface ForgeAiArtifactCardGroupProps extends Pick<
  *  - **forge-ai-artifact-card-group-toggle** - Fired when the user expands or collapses the list with the toggle.
  *
  * ### **Slots:**
- *  - _default_ - The `forge-ai-artifact-card` elements to list.
+ *  - _default_ - The `forge-ai-artifact-card` elements to list. Other elements are not styled as rows and break the list semantics, so keep the slot to cards.
  *
  * ### **CSS Properties:**
  *  - **--forge-ai-artifact-card-group-border-radius** - Corner radius of the group _(default: undefined)_

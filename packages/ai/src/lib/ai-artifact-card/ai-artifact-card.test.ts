@@ -156,4 +156,66 @@ describe('AiArtifactCard', () => {
     expect(button?.classList.contains('artifact-card--grouped')).to.be.false;
     expect(el.hasAttribute('role')).to.be.false;
   });
+
+  it('should render a default icon when none is slotted', async () => {
+    const el = await fixture<AiArtifactCardComponent>(html`<forge-ai-artifact-card></forge-ai-artifact-card>`);
+
+    const iconSlot = el.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="icon"]');
+
+    expect(iconSlot?.assignedElements()).to.have.lengthOf(0);
+    expect(iconSlot?.querySelector('svg')).to.exist;
+  });
+
+  it('should replace the default arrow with a slotted action icon', async () => {
+    const el = await fixture<AiArtifactCardComponent>(
+      html`<forge-ai-artifact-card active>
+        <svg slot="action-icon"></svg>
+      </forge-ai-artifact-card>`
+    );
+
+    const actionSlot = el.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="action-icon"]');
+    const slotted = actionSlot?.assignedElements()[0] as SVGElement;
+
+    expect(slotted).to.exist;
+    expect(getComputedStyle(slotted).visibility).to.equal('visible');
+  });
+
+  it('should append the action label to the accessible name only when provided', async () => {
+    const el = await fixture<AiArtifactCardComponent>(
+      html`<forge-ai-artifact-card title-text="Crash totals"></forge-ai-artifact-card>`
+    );
+
+    expect(el.shadowRoot?.querySelector('.sr-only')).to.not.exist;
+
+    el.actionLabel = 'Collapse report';
+    await el.updateComplete;
+
+    expect(el.shadowRoot?.querySelector('.sr-only')?.textContent).to.equal('Collapse report');
+    expect(el.shadowRoot?.querySelector('.artifact-card')?.textContent?.replace(/\s+/g, ' ').trim()).to.equal(
+      'Crash totals Collapse report'
+    );
+  });
+
+  it('should drop the list row role and collapsed marker when moved out of a group', async () => {
+    const container = await fixture<HTMLDivElement>(
+      html`<div>
+        <forge-ai-artifact-card-group visible-count="1">
+          <forge-ai-artifact-card></forge-ai-artifact-card>
+          <forge-ai-artifact-card></forge-ai-artifact-card>
+        </forge-ai-artifact-card-group>
+      </div>`
+    );
+    const card = container.querySelectorAll<AiArtifactCardComponent>('forge-ai-artifact-card')[1];
+    await card.updateComplete;
+
+    expect(card.getAttribute('role')).to.equal('listitem');
+    expect(card.hasAttribute('data-collapsed')).to.be.true;
+
+    container.append(card);
+    await card.updateComplete;
+
+    expect(card.hasAttribute('role')).to.be.false;
+    expect(card.hasAttribute('data-collapsed')).to.be.false;
+    expect(card.shadowRoot?.querySelector('.artifact-card')?.classList.contains('artifact-card--grouped')).to.be.false;
+  });
 });

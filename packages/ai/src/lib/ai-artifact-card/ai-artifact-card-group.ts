@@ -1,6 +1,8 @@
 import { LitElement, PropertyValues, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js';
 
+import { AI_ARTIFACT_CARD_COLLAPSED_ATTRIBUTE, type AiArtifactCardComponent } from './ai-artifact-card';
+
 import styles from './ai-artifact-card-group.scss?inline';
 
 declare global {
@@ -19,6 +21,8 @@ export interface ForgeAiArtifactCardGroupToggleEventData {
 
 export const AiArtifactCardGroupComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-artifact-card-group';
 
+const DEFAULT_VISIBLE_COUNT = 3;
+
 /**
  * @tag forge-ai-artifact-card-group
  *
@@ -27,10 +31,12 @@ export const AiArtifactCardGroupComponentTagName: keyof HTMLElementTagNameMap = 
  * @description
  * Wraps `forge-ai-artifact-card` elements in one bordered container with dividers between them.
  * Cards inside a group switch to a flatter row style on their own. When there are more cards than
- * `visibleCount`, the extras are hidden behind a toggle that expands and collapses the list. Each
- * card still emits its own open event.
+ * `visibleCount`, the extras are collapsed behind a toggle that expands and collapses the list. Each
+ * card still emits its own open event. Cards a consumer has set `hidden` on stay hidden and are not
+ * counted; collapsing uses a separate marker so the two never clobber each other.
  *
- * @slot - The `forge-ai-artifact-card` elements to list.
+ * @slot - The `forge-ai-artifact-card` elements to list. Other elements are not styled as rows and
+ * break the list semantics, so keep the slot to cards.
  *
  * @event {CustomEvent<ForgeAiArtifactCardGroupToggleEventData>} forge-ai-artifact-card-group-toggle -
  * Fired when the user expands or collapses the list with the toggle.
@@ -42,10 +48,11 @@ export class AiArtifactCardGroupComponent extends LitElement {
   public static override styles = unsafeCSS(styles);
 
   /**
-   * How many cards show while the list is collapsed. Values below 1 are treated as 1.
+   * How many cards show while the list is collapsed. Values below 1 are treated as 1, and
+   * non-numeric values fall back to the default of 3.
    */
   @property({ type: Number, attribute: 'visible-count' })
-  public visibleCount = 3;
+  public visibleCount = DEFAULT_VISIBLE_COUNT;
 
   /**
    * Whether every card is showing.
@@ -66,14 +73,21 @@ export class AiArtifactCardGroupComponent extends LitElement {
   public showLessText = 'Show less';
 
   @queryAssignedElements({ selector: 'forge-ai-artifact-card' })
-  private _cards!: HTMLElement[];
+  private _cards!: AiArtifactCardComponent[];
+
+  get #visibleCards(): AiArtifactCardComponent[] {
+    return this._cards.filter(card => !card.hidden);
+  }
 
   get #collapsedCount(): number {
-    return Math.max(1, this.visibleCount);
+    if (!Number.isFinite(this.visibleCount)) {
+      return DEFAULT_VISIBLE_COUNT;
+    }
+    return Math.max(1, Math.floor(this.visibleCount));
   }
 
   get #overflowCount(): number {
-    return Math.max(0, this._cards.length - this.#collapsedCount);
+    return Math.max(0, this.#visibleCards.length - this.#collapsedCount);
   }
 
   readonly #chevronDownIcon = html`
@@ -104,8 +118,8 @@ export class AiArtifactCardGroupComponent extends LitElement {
   }
 
   #syncCardVisibility(): void {
-    this._cards.forEach((card, index) => {
-      card.hidden = !this.expanded && index >= this.#collapsedCount;
+    this.#visibleCards.forEach((card, index) => {
+      card.toggleAttribute(AI_ARTIFACT_CARD_COLLAPSED_ATTRIBUTE, !this.expanded && index >= this.#collapsedCount);
     });
   }
 

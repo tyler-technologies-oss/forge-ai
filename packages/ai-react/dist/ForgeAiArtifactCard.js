@@ -9,6 +9,7 @@ export const ForgeAiArtifactCard = forwardRef((props, forwardedRef) => {
     disabled,
     titleText,
     subtitleText,
+    actionLabel,
     assetId,
     ...filteredProps
   } = props;
@@ -34,6 +35,7 @@ export const ForgeAiArtifactCard = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       "title-text": props.titleText || props["title-text"],
       "subtitle-text": props.subtitleText || props["subtitle-text"],
+      "action-label": props.actionLabel || props["action-label"],
       "asset-id": props.assetId || props["asset-id"],
       class: props.className,
       exportparts: props.exportparts,

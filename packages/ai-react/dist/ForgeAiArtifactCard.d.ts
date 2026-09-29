@@ -31,6 +31,12 @@ assistive technology as `aria-current`. */
   /** The secondary line of text. Truncates to a single line. */
   subtitleText?: ForgeAiArtifactCardElement["subtitleText"];
 
+  /** Describes what activating the card does, for assistive technology only. Appended to the button's
+accessible name after the title and subtitle. Set it when activation does something other than
+open, such as collapsing an already-open artifact ("Collapse report"). Omit it and the name is
+just the card text. */
+  actionLabel?: ForgeAiArtifactCardElement["actionLabel"];
+
   /** An opaque identifier echoed back in the open event detail. The component never
 interprets it. */
   assetId?: ForgeAiArtifactCardElement["assetId"];
@@ -71,10 +77,11 @@ interprets it. */
  *  - **forge-ai-artifact-card-open** - Fired when the card is activated by click, Enter, or Space. Not fired while disabled.
  *
  * ### **Slots:**
- *  - **icon** - The leading icon, shown inside a bordered tile. Consumers supply their own.
+ *  - **icon** - The leading icon, shown inside a bordered tile. Replaces the default artifact glyph.
+ * - **action-icon** - The trailing action glyph. Replaces the default arrow, and unlike the arrow stays visible while `active`, so consumers that collapse on a second activation can show a matching glyph.
  *
  * ### **CSS Properties:**
- *  - **--forge-ai-artifact-card-accent-color** - Color of the active border and ring, and the focus outline _(default: undefined)_
+ *  - **--forge-ai-artifact-card-accent-color** - Color of the active border and ring, and the focus indicator _(default: undefined)_
  * - **--forge-ai-artifact-card-background** - Background color of the card _(default: undefined)_
  * - **--forge-ai-artifact-card-border-radius** - Corner radius of the card _(default: undefined)_
  * - **--forge-ai-artifact-card-padding** - Padding inside the card _(default: undefined)_

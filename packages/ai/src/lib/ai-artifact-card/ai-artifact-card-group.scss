@@ -22,7 +22,15 @@
   background: #{forge-theme.variable(surface)};
 }
 
-::slotted(:not(:first-child)) {
+/*
+ * Every row carries a top divider and the list is pulled up by one pixel so the first visible row's
+ * divider hides under the group border, whichever row that is once cards are hidden or collapsed.
+ */
+.list {
+  margin-top: -1px;
+}
+
+::slotted(*) {
   border-top: 1px solid #{forge-theme.variable(outline)};
 }
 

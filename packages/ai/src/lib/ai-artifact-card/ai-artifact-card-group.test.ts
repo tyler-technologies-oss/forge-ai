@@ -22,6 +22,10 @@ function getToggle(el: AiArtifactCardGroupComponent): HTMLButtonElement | null |
   return el.shadowRoot?.querySelector<HTMLButtonElement>('.toggle');
 }
 
+function getCollapsed(el: AiArtifactCardGroupComponent): boolean[] {
+  return getCards(el).map(card => card.hasAttribute('data-collapsed'));
+}
+
 describe('AiArtifactCardGroup', () => {
   it('should contain shadow root', async () => {
     const el = await fixture<AiArtifactCardGroupComponent>(
@@ -37,17 +41,66 @@ describe('AiArtifactCardGroup', () => {
     );
 
     expect(getToggle(el)).to.not.exist;
-    expect(getCards(el).every(card => !card.hidden)).to.be.true;
+    expect(getCollapsed(el)).to.deep.equal([false, false, false]);
   });
 
-  it('should hide cards past the visible count while collapsed', async () => {
+  it('should collapse cards past the visible count', async () => {
     const el = await fixture<AiArtifactCardGroupComponent>(
       html`<forge-ai-artifact-card-group>${cardsTemplate(5)}</forge-ai-artifact-card-group>`
     );
 
-    const hidden = getCards(el).map(card => card.hidden);
+    expect(getCollapsed(el)).to.deep.equal([false, false, false, true, true]);
+  });
 
-    expect(hidden).to.deep.equal([false, false, false, true, true]);
+  it('should take collapsed cards out of layout', async () => {
+    const el = await fixture<AiArtifactCardGroupComponent>(
+      html`<forge-ai-artifact-card-group>${cardsTemplate(5)}</forge-ai-artifact-card-group>`
+    );
+
+    expect(getComputedStyle(getCards(el)[4]).display).to.equal('none');
+  });
+
+  it('should show every card when expanded from the start', async () => {
+    const el = await fixture<AiArtifactCardGroupComponent>(
+      html`<forge-ai-artifact-card-group expanded>${cardsTemplate(5)}</forge-ai-artifact-card-group>`
+    );
+
+    expect(getCollapsed(el)).to.deep.equal([false, false, false, false, false]);
+    expect(getToggle(el)?.textContent?.trim()).to.equal('Show less');
+  });
+
+  it('should leave consumer-hidden cards hidden and not count them', async () => {
+    const el = await fixture<AiArtifactCardGroupComponent>(
+      html`<forge-ai-artifact-card-group>
+        <forge-ai-artifact-card hidden></forge-ai-artifact-card>
+        ${cardsTemplate(4)}
+      </forge-ai-artifact-card-group>`
+    );
+
+    const cards = getCards(el);
+
+    expect(cards[0].hidden).to.be.true;
+    expect(cards[0].hasAttribute('data-collapsed')).to.be.false;
+    expect(getCollapsed(el)).to.deep.equal([false, false, false, false, true]);
+    expect(getToggle(el)?.textContent?.trim()).to.equal('1 more');
+  });
+
+  it('should treat a visible count below one as one', async () => {
+    const el = await fixture<AiArtifactCardGroupComponent>(
+      html`<forge-ai-artifact-card-group visible-count="0">${cardsTemplate(3)}</forge-ai-artifact-card-group>`
+    );
+
+    expect(getCollapsed(el)).to.deep.equal([false, true, true]);
+    expect(getToggle(el)?.textContent?.trim()).to.equal('2 more');
+  });
+
+  it('should fall back to the default visible count when the value is not a number', async () => {
+    const el = await fixture<AiArtifactCardGroupComponent>(
+      html`<forge-ai-artifact-card-group visible-count="three">${cardsTemplate(5)}</forge-ai-artifact-card-group>`
+    );
+
+    expect(getCollapsed(el)).to.deep.equal([false, false, false, true, true]);
+    expect(getToggle(el)?.textContent?.trim()).to.equal('2 more');
   });
 
   it('should label the toggle with the number of hidden cards', async () => {
@@ -68,7 +121,7 @@ describe('AiArtifactCardGroup', () => {
     await el.updateComplete;
 
     expect(el.expanded).to.be.true;
-    expect(getCards(el).every(card => !card.hidden)).to.be.true;
+    expect(getCollapsed(el)).to.deep.equal([false, false, false, false, false]);
     expect(getToggle(el)?.textContent?.trim()).to.equal('Show less');
     expect(getToggle(el)?.getAttribute('aria-expanded')).to.equal('true');
   });
@@ -93,9 +146,7 @@ describe('AiArtifactCardGroup', () => {
       html`<forge-ai-artifact-card-group visible-count="1">${cardsTemplate(3)}</forge-ai-artifact-card-group>`
     );
 
-    const hidden = getCards(el).map(card => card.hidden);
-
-    expect(hidden).to.deep.equal([false, true, true]);
+    expect(getCollapsed(el)).to.deep.equal([false, true, true]);
     expect(getToggle(el)?.textContent?.trim()).to.equal('2 more');
   });
 
@@ -124,7 +175,7 @@ describe('AiArtifactCardGroup', () => {
     await el.updateComplete;
 
     expect(getToggle(el)?.textContent?.trim()).to.equal('1 more');
-    expect(getCards(el)[3].hidden).to.be.true;
+    expect(getCards(el)[3].hasAttribute('data-collapsed')).to.be.true;
   });
 
   it('should expose the cards as a list', async () => {
