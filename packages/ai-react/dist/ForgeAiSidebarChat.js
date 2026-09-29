@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiSidebarChat = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, expanded, resizable, ...filteredProps } = props;
+  const { open, expanded, resizable, width, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(
@@ -27,6 +27,11 @@ export const ForgeAiSidebarChat = forwardRef((props, forwardedRef) => {
     "forge-ai-sidebar-chat-collapse",
     props.onForgeAiSidebarChatCollapse,
   );
+  useEventListener(
+    ref,
+    "forge-ai-sidebar-chat-resize",
+    props.onForgeAiSidebarChatResize,
+  );
 
   return React.createElement(
     "forge-ai-sidebar-chat",
@@ -40,6 +45,8 @@ export const ForgeAiSidebarChat = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
+      resizable: props.resizable,
+      width: props.width,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
@@ -47,7 +54,6 @@ export const ForgeAiSidebarChat = forwardRef((props, forwardedRef) => {
       tabindex: props.tabIndex,
       open: props.open ? true : undefined,
       expanded: props.expanded ? true : undefined,
-      resizable: props.resizable ? true : undefined,
       style: { ...props.style },
     },
     props.children,
