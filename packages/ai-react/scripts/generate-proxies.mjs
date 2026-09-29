@@ -12,6 +12,9 @@ const filteredManifest = {
   })
 };
 
+// The manifest glob order is non-deterministic, so sort to keep generated exports stable.
+filteredManifest.modules.sort((a, b) => a.path.localeCompare(b.path));
+
 // We need to rename the React component classes to better match the HTML element tag names.
 // The plugin doesn't support that. So we'll modify the manifest in memory by renaming the
 // element declaration class names to be based on the tag name instead.
