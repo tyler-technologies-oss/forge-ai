@@ -21,7 +21,7 @@ import type {
   SlashCommand,
   SlashCommandId,
   ThreadState,
-  ToolDefinition
+  AnyToolDefinition
 } from './types.js';
 import {
   createChatExportFilename,
@@ -105,7 +105,7 @@ export abstract class AiChatbotBase extends LitElement {
     return this._coreController?.isUploading ?? false;
   }
 
-  protected get _tools(): Map<string, ToolDefinition> {
+  protected get _tools(): Map<string, AnyToolDefinition> {
     return this._coreController?.tools ?? new Map();
   }
 

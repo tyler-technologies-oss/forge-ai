@@ -7,10 +7,11 @@ import '$lib/ai-chatbot-launcher';
 import type { Suggestion } from '$lib/ai-suggestions';
 import type { Thread } from '$lib/ai-threads';
 import type { AiChatbotLauncherComponent } from '$lib/ai-chatbot-launcher';
-import type { ChatMessage } from '$lib/ai-chatbot/types';
+import type { AnyToolDefinition, ChatMessage, ToolDefinition } from '$lib/ai-chatbot/types';
+import { displayDataTableTool, type DataTableArgs } from '$lib/tools/ai-data-table';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { standaloneStoryParams } from '../../../utils';
-import { defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
+import { defineButtonComponent, defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
 import { tylIconHistory, tylIconSettings } from '@tylertech/tyler-icons';
 
 const component = 'forge-ai-chatbot-launcher';
@@ -83,6 +84,10 @@ const meta = {
       control: 'text',
       description:
         'Message describing a failed chat history load. Badges the history button and shows the message with a retry in the popover/view'
+    },
+    canvasTitle: {
+      control: 'text',
+      description: 'Default title for the canvas header when an open request does not supply one'
     }
   },
   args: {
@@ -686,4 +691,168 @@ export const WithHeaderActions: Story = {
       </div>
     `;
   }
+};
+
+const canvasContainerStyle =
+  'width: 100%; height: 640px; max-width: 1200px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;';
+
+const canvasSeedMessages: ChatMessage[] = [
+  {
+    id: 'canvas-user-1',
+    role: 'user',
+    content: 'Can you pull up the release notes for the latest version?',
+    timestamp: Date.now() - 60000,
+    status: 'complete'
+  },
+  {
+    id: 'canvas-assistant-1',
+    role: 'assistant',
+    content: 'Sure. Use the **Open canvas** button in the header to view them alongside our conversation.',
+    timestamp: Date.now() - 30000,
+    status: 'complete'
+  }
+];
+
+const salesTableArgs = {
+  title: 'Regional sales, Q3',
+  headers: ['Region', 'Revenue', 'Growth', 'Top product', 'Accounts'],
+  rows: [
+    ['Northeast', '$1.24M', '+8.2%', 'Permitting', 312],
+    ['Mid-Atlantic', '$980K', '+4.1%', 'Licensing', 241],
+    ['Southeast', '$1.61M', '+12.7%', 'Utility billing', 402],
+    ['Great Lakes', '$870K', '-1.3%', 'Court case management', 198],
+    ['Plains', '$540K', '+2.9%', 'Tax & assessment', 133],
+    ['Gulf Coast', '$1.05M', '+9.8%', 'Permitting', 276],
+    ['Mountain', '$690K', '+6.4%', 'Public safety', 164],
+    ['Southwest', '$1.12M', '+10.5%', 'Utility billing', 289],
+    ['Pacific Northwest', '$830K', '+3.6%', 'Licensing', 205],
+    ['California', '$2.03M', '+7.9%', 'Tax & assessment', 511],
+    ['Alaska', '$120K', '+0.8%', 'Public safety', 27],
+    ['Hawaii', '$210K', '+5.2%', 'Permitting', 44]
+  ]
+};
+
+function seedConversation(el: Element | undefined): void {
+  const launcher = el as AiChatbotLauncherComponent | undefined;
+  void launcher?.updateComplete.then(() => {
+    if (!launcher.getMessages().length) {
+      launcher.setMessages(canvasSeedMessages);
+    }
+  });
+}
+
+export const WithCanvas: Story = {
+  ...standaloneStoryParams,
+  render: () => {
+    defineButtonComponent();
+    const adapter = new MockAdapter({ simulateStreaming: true, streamingDelay: 50, responseDelay: 500 });
+    const onCanvasOpen = action('forge-ai-chatbot-launcher-canvas-open');
+    const onCanvasClose = action('forge-ai-chatbot-launcher-canvas-close');
+
+    const openReleaseNotes = (evt: Event): void => {
+      const launcher = (evt.target as HTMLElement).closest('forge-ai-chatbot-launcher');
+      launcher?.openCanvas({ title: 'Release notes' });
+    };
+
+    return html`
+      <div style=${canvasContainerStyle}>
+        <forge-ai-chatbot-launcher
+          ${ref(seedConversation)}
+          .adapter=${adapter}
+          canvas-title="Canvas"
+          @forge-ai-chatbot-launcher-canvas-open=${(evt: CustomEvent) => onCanvasOpen(evt.detail)}
+          @forge-ai-chatbot-launcher-canvas-close=${onCanvasClose}>
+          <forge-button slot="header-actions" variant="outlined" @click=${openReleaseNotes}>Open canvas</forge-button>
+          <div slot="canvas">
+            <h3>Version 2.4.0</h3>
+            <ul>
+              <li>Chat history popover now supports search and infinite scroll.</li>
+              <li>Sidebar width is remembered between sessions.</li>
+              <li>Artifacts can open in a canvas beside the conversation.</li>
+            </ul>
+            <h3>Version 2.3.1</h3>
+            <ul>
+              <li>Fixed focus restoration when dismissing the history popover with Escape.</li>
+              <li>Corrected nested popover toggle handling.</li>
+            </ul>
+          </div>
+        </forge-ai-chatbot-launcher>
+      </div>
+    `;
+  }
+};
+
+function renderCanvasToolStory(tool: AnyToolDefinition): ReturnType<typeof html> {
+  const adapter = new MockAdapter({
+    simulateStreaming: true,
+    simulateTools: true,
+    streamingDelay: 30,
+    responseDelay: 400,
+    tools: [tool],
+    simulatedToolCall: { name: tool.name, args: salesTableArgs }
+  });
+
+  return html`
+    <div style=${canvasContainerStyle}>
+      <forge-ai-chatbot-launcher
+        .adapter=${adapter}
+        .suggestions=${[{ text: 'Show me Q3 sales by region', value: 'Show me Q3 sales by region' }] satisfies Suggestion[]}
+        @forge-ai-chatbot-launcher-canvas-open=${(evt: CustomEvent) =>
+          action('forge-ai-chatbot-launcher-canvas-open')(evt.detail)}
+        @forge-ai-chatbot-launcher-canvas-close=${action('forge-ai-chatbot-launcher-canvas-close')}>
+      </forge-ai-chatbot-launcher>
+    </div>
+  `;
+}
+
+/** Data table renders inline; its expand button opens the same table in the canvas. */
+export const CanvasOnRequest: Story = {
+  ...standaloneStoryParams,
+  render: () => renderCanvasToolStory(displayDataTableTool)
+};
+
+/** Data table opens straight into the canvas, leaving an artifact card in the thread. */
+export const CanvasAutoOpen: Story = {
+  ...standaloneStoryParams,
+  render: () =>
+    renderCanvasToolStory({
+      ...displayDataTableTool,
+      canvas: { ...displayDataTableTool.canvas, open: 'auto' }
+    })
+};
+
+const tableIconSvg =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 10.02h5V21h-5zM17 21h3c1.1 0 2-.9 2-2v-9h-5v11zm3-18H5c-1.1 0-2 .9-2 2v3h19V5c0-1.1-.9-2-2-2zM3 19c0 1.1.9 2 2 2h3V10H3v9z"/></svg>';
+
+/**
+ * Data table is represented by an artifact card in the thread; clicking the card opens it in the canvas.
+ * The card's icon and labels are mapped from the typed tool call via the `canvas` block.
+ */
+export const CanvasCard: Story = {
+  ...standaloneStoryParams,
+  render: () => {
+    const tool: ToolDefinition<DataTableArgs> = {
+      ...displayDataTableTool,
+      canvas: {
+        ...displayDataTableTool.canvas,
+        inline: 'card',
+        icon: tableIconSvg,
+        actionLabel: toolCall => ({
+          open: `Open ${toolCall.args.title ?? 'table'}`,
+          collapse: `Collapse ${toolCall.args.title ?? 'table'}`
+        })
+      }
+    };
+    return renderCanvasToolStory(tool);
+  }
+};
+
+/** Data table renders inline until it is opened in the canvas, then swaps to an artifact card until the canvas closes. */
+export const CanvasCardWhileOpen: Story = {
+  ...standaloneStoryParams,
+  render: () =>
+    renderCanvasToolStory({
+      ...displayDataTableTool,
+      canvas: { ...displayDataTableTool.canvas, inline: 'card-while-open' }
+    })
 };

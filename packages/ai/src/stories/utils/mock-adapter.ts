@@ -1,5 +1,5 @@
 import { AgentAdapter } from '$lib/ai-chatbot/agent-adapter.js';
-import type { ChatMessage, ToolDefinition, UploadedFileMetadata } from '$lib/ai-chatbot/types.js';
+import type { ChatMessage, AnyToolDefinition, UploadedFileMetadata } from '$lib/ai-chatbot/types.js';
 import { generateId } from '$lib/ai-chatbot/utils.js';
 
 export interface MockAdapterOptions {
@@ -9,7 +9,9 @@ export interface MockAdapterOptions {
   streamingDelay?: number;
   responseDelay?: number;
   mockResponses?: string[];
-  tools?: ToolDefinition[];
+  tools?: AnyToolDefinition[];
+  /** Tool call emitted when `simulateTools` is on. Defaults to a `getCurrentWeather` call. */
+  simulatedToolCall?: { name: string; args: Record<string, unknown> };
 }
 
 export class MockAdapter extends AgentAdapter {
@@ -154,8 +156,10 @@ export class MockAdapter extends AgentAdapter {
 
   #simulateToolCall(messageId: string): void {
     const toolCallId = generateId();
-    const toolName = 'getCurrentWeather';
-    const args = { location: 'San Francisco' };
+    const { name: toolName, args } = this.#options.simulatedToolCall ?? {
+      name: 'getCurrentWeather',
+      args: { location: 'San Francisco' }
+    };
     const argsJson = JSON.stringify(args);
 
     setTimeout(() => {

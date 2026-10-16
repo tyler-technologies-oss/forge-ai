@@ -2,7 +2,7 @@ import { LitElement, TemplateResult, html, nothing, unsafeCSS, type PropertyValu
 import { customElement, property, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { when } from 'lit/directives/when.js';
-import type { MessageItem, ToolDefinition, ToolCall, AssistantResponse } from '../ai-chatbot/types.js';
+import type { MessageItem, AnyToolDefinition, ToolCall, AssistantResponse } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiAssistantResponseFeedbackEventData } from '../ai-assistant-response';
 import type { FeatureToggle } from '../ai-chatbot/ai-chatbot.js';
@@ -86,7 +86,7 @@ export class AiMessageThreadComponent extends LitElement {
   public messageItems: MessageItem[] = [];
 
   @property({ attribute: false })
-  public tools?: Map<string, ToolDefinition>;
+  public tools?: Map<string, AnyToolDefinition>;
 
   @property({ type: Boolean, attribute: 'enable-reactions' })
   public enableReactions = false;

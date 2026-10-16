@@ -1,8 +1,21 @@
 import { LitElement, html, unsafeCSS, type TemplateResult, nothing, type PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
-import type { ToolCall, ToolDefinition } from './types.js';
+import { ContextConsumer } from '@lit/context';
+import type { IToolRenderer, ToolCall, AnyToolDefinition, ToolPresentation } from './types.js';
+import {
+  requestCanvasClose,
+  requestCanvasOpen,
+  resolveToolCanvasActionLabel,
+  resolveToolCanvasIcon,
+  resolveToolCanvasInline,
+  resolveToolCanvasSubtitle,
+  resolveToolCanvasTitle,
+  toolCanvasHostContext
+} from './tool-canvas.js';
 import { shouldShowToolRenderer } from './utils.js';
+
+import '../ai-artifact-card';
 
 import styles from './ai-chatbot-tool-call.scss?inline';
 
@@ -25,13 +38,74 @@ export class AiChatbotToolCallComponent extends LitElement {
   public toolCall!: ToolCall;
 
   @property({ attribute: false })
-  public toolDefinition?: ToolDefinition;
+  public toolDefinition?: AnyToolDefinition;
 
   #customRendererRef = createRef<HTMLDivElement>();
   #renderedElement?: HTMLElement | DocumentFragment;
 
+  #canvasHostConsumer = new ContextConsumer(this, {
+    context: toolCanvasHostContext,
+    subscribe: true,
+    callback: () => this.requestUpdate()
+  });
+
   get #shouldRenderCustom(): boolean {
     return shouldShowToolRenderer(this.toolCall, this.toolDefinition);
+  }
+
+  /** Tools without a canvas config stay plain `inline` even when the host offers a canvas. */
+  get #presentation(): ToolPresentation {
+    if (!this.toolDefinition?.canvas) {
+      return 'inline';
+    }
+    return this.#canvasHostConsumer.value?.presentation ?? 'inline';
+  }
+
+  get #isOpenInCanvas(): boolean {
+    return this.#canvasHostConsumer.value?.openToolCallId === this.toolCall.id;
+  }
+
+  get #showsArtifactCard(): boolean {
+    if (!this.toolDefinition || this.#presentation !== 'inline-expandable') {
+      return false;
+    }
+    switch (resolveToolCanvasInline(this.toolDefinition)) {
+      case 'card':
+        return true;
+      case 'card-while-open':
+        return this.#isOpenInCanvas;
+      default:
+        return false;
+    }
+  }
+
+  #handleArtifactCardToggle(toolDefinition: AnyToolDefinition): void {
+    if (this.#isOpenInCanvas) {
+      requestCanvasClose(this, { toolCallId: this.toolCall.id });
+      return;
+    }
+    requestCanvasOpen(this, {
+      toolCallId: this.toolCall.id,
+      toolName: this.toolCall.name,
+      title: resolveToolCanvasTitle(this.toolCall, toolDefinition)
+    });
+  }
+
+  #artifactCard(toolDefinition: AnyToolDefinition): TemplateResult {
+    const active = this.#isOpenInCanvas;
+    const icon = resolveToolCanvasIcon(this.toolCall, toolDefinition);
+    icon?.setAttribute('slot', 'icon');
+    return html`
+      <forge-ai-artifact-card
+        title-text=${resolveToolCanvasTitle(this.toolCall, toolDefinition)}
+        .subtitleText=${resolveToolCanvasSubtitle(this.toolCall, toolDefinition) ?? ''}
+        action-label=${resolveToolCanvasActionLabel(this.toolCall, toolDefinition, active)}
+        asset-id=${this.toolCall.id}
+        ?active=${active}
+        @forge-ai-artifact-card-open=${() => this.#handleArtifactCardToggle(toolDefinition)}>
+        ${icon ?? nothing}
+      </forge-ai-artifact-card>
+    `;
   }
 
   #dispatchScrollRequest(): void {
@@ -44,9 +118,14 @@ export class AiChatbotToolCallComponent extends LitElement {
   }
 
   get #customRenderer(): TemplateResult | typeof nothing {
-    const renderer = this.toolDefinition?.renderer;
-    if (!renderer || !this.#shouldRenderCustom) {
+    const toolDefinition = this.toolDefinition;
+    const renderer = toolDefinition?.renderer;
+    if (!toolDefinition || !renderer || !this.#shouldRenderCustom) {
       return nothing;
+    }
+
+    if (this.#showsArtifactCard) {
+      return this.#artifactCard(toolDefinition);
     }
 
     if (renderer.elementTag || renderer.render) {
@@ -59,16 +138,16 @@ export class AiChatbotToolCallComponent extends LitElement {
   public override updated(changedProperties: PropertyValues<this>): void {
     super.updated(changedProperties);
 
-    if (!changedProperties.has('toolCall') && !changedProperties.has('toolDefinition')) {
-      return;
-    }
-
     const container = this.#customRendererRef.value;
     if (!container || !this.#shouldRenderCustom) {
       return;
     }
 
     const renderer = this.toolDefinition?.renderer;
+    // The container is recreated whenever the artifact card swaps back to the renderer, so mount
+    // state is derived from the DOM rather than from which properties changed.
+    const mounted = container.childNodes.length > 0;
+    const changed = changedProperties.has('toolCall') || changedProperties.has('toolDefinition');
 
     if (renderer?.elementTag) {
       // Update the existing element in place rather than tearing it down and recreating it on
@@ -76,17 +155,21 @@ export class AiChatbotToolCallComponent extends LitElement {
       // disconnection as abandonment, so churning it while the tool call is still in flight can
       // reject work the renderer is actively waiting on.
       if (
+        mounted &&
         this.#renderedElement instanceof HTMLElement &&
         this.#renderedElement.tagName.toLowerCase() === renderer.elementTag
       ) {
-        (this.#renderedElement as HTMLElement & { toolCall: ToolCall }).toolCall = this.toolCall;
+        const existing = this.#renderedElement as HTMLElement & IToolRenderer;
+        existing.toolCall = this.toolCall;
+        existing.presentation = this.#presentation;
         return;
       }
 
-      const element = document.createElement(renderer.elementTag) as HTMLElement & { toolCall: ToolCall };
+      const element = document.createElement(renderer.elementTag) as HTMLElement & IToolRenderer;
       element.toolCall = this.toolCall;
+      element.presentation = this.#presentation;
       this.#replaceRenderedElement(container, element);
-    } else if (renderer?.render) {
+    } else if (renderer?.render && (changed || !mounted)) {
       this.#replaceRenderedElement(container, renderer.render(this.toolCall));
     }
   }

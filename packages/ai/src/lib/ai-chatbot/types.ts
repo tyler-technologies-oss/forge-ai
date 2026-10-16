@@ -26,17 +26,82 @@ export interface ForgeAiSlashCommandMenuSelectEventData {
   index: number;
 }
 
-export interface ToolRenderer {
+/**
+ * Function of a tool call whose parameter stays bivariant, so a `ToolDefinition<MyArgs>` can be stored in a
+ * `ToolDefinition[]` alongside untyped tools without casts.
+ */
+export type ToolCallMapper<TReturn, TArgs = Record<string, unknown>, TResult = unknown> = {
+  bivarianceHack(toolCall: ToolCall<TArgs, TResult>): TReturn;
+}['bivarianceHack'];
+
+/** A static value, or one derived from the tool call. */
+export type ToolCallValue<TValue, TArgs = Record<string, unknown>, TResult = unknown> =
+  TValue | ToolCallMapper<TValue, TArgs, TResult>;
+
+export interface ToolRenderer<TArgs = Record<string, unknown>, TResult = unknown> {
   elementTag?: string;
-  render?: (toolCall: ToolCall) => HTMLElement | DocumentFragment;
+  render?: ToolCallMapper<HTMLElement | DocumentFragment, TArgs, TResult>;
 }
+
+/**
+ * Where a tool renderer instance is displayed. Set by the host on the elements it creates.
+ * - `inline`: in the message thread with no canvas available
+ * - `inline-expandable`: in the message thread; a canvas is available and the renderer may request it
+ * - `canvas`: inside the canvas panel
+ */
+export type ToolPresentation = 'inline' | 'inline-expandable' | 'canvas';
+
+/** Artifact card icon: an `<svg>` element, or SVG markup reduced to static shape elements and attributes. */
+export type ToolCanvasIcon = SVGElement | string;
+
+/** Artifact card labels for each state; shown as the tooltip and read by assistive technology. */
+export interface ToolCanvasActionLabel {
+  /** Label while the artifact is not in the canvas, e.g. "Open report". */
+  open: string;
+  /** Label while the artifact is in the canvas, e.g. "Collapse report". */
+  collapse: string;
+}
+
+/**
+ * Opts a tool into the canvas panel of hosts that provide one (e.g. `forge-ai-chatbot-launcher`).
+ * Hosts without a canvas ignore this and render the tool inline as usual. Every mapper receives the
+ * `ToolCall`, so values can come from the agent's `args` or the handler's `result`.
+ */
+export interface ToolCanvasConfig<TArgs = Record<string, unknown>, TResult = unknown> {
+  /**
+   * When the canvas opens. `auto`: as soon as the tool call renders. `on-request` (default): only when the
+   * renderer or artifact card asks for it.
+   */
+  open?: 'auto' | 'on-request';
+  /**
+   * What the thread shows for the tool call. `renderer`: the inline renderer. `card`: an artifact card that
+   * opens the canvas. `card-while-open`: the renderer, swapped for the card while this call is in the canvas.
+   * Defaults to `card` when `open` is `auto`, otherwise `renderer`.
+   */
+  inline?: ToolCanvasInline;
+  /** Renderer used inside the canvas. Defaults to the tool's `renderer`. */
+  renderer?: ToolRenderer<TArgs, TResult> | ToolRenderer;
+  /** Canvas and artifact card title. Defaults to `displayName`, then `name`. */
+  title?: ToolCallValue<string, TArgs, TResult>;
+  /** Artifact card subtitle, e.g. a row count. */
+  subtitle?: ToolCallValue<string, TArgs, TResult>;
+  /** Artifact card icon. Defaults to a generic artifact glyph. */
+  icon?: ToolCallValue<ToolCanvasIcon, TArgs, TResult>;
+  /** Artifact card action labels. Defaults to "Open in canvas" / "Collapse canvas". */
+  actionLabel?: ToolCallValue<ToolCanvasActionLabel, TArgs, TResult>;
+}
+
+export type ToolCanvasInline = 'renderer' | 'card' | 'card-while-open';
 
 /**
  * Interface that tool renderer components should implement for type-safe tool call handling.
  * @template TArgs - Type of the tool call arguments
+ * @template TResult - Type returned by the tool's handler
  */
-export interface IToolRenderer<TArgs = Record<string, unknown>> {
-  toolCall: ToolCall<TArgs>;
+export interface IToolRenderer<TArgs = Record<string, unknown>, TResult = unknown> {
+  toolCall: ToolCall<TArgs, TResult>;
+  /** Assigned by the host to tell the renderer where it is displayed. */
+  presentation?: ToolPresentation;
 }
 
 /**
@@ -87,9 +152,10 @@ export type ToolType = 'client' | 'agent';
 
 /**
  * Tool definition with optional type-safe handler.
- * @template TArgs - Type of the tool call arguments for type-safe handler context
+ * @template TArgs - Type of the tool call arguments, typed through the handler, renderer, and canvas mappers
+ * @template TResult - Type returned by `handler`, available as `toolCall.result`
  */
-export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
+export interface ToolDefinition<TArgs = Record<string, unknown>, TResult = unknown> {
   name: string;
   displayName?: string;
   description?: string;
@@ -98,24 +164,33 @@ export interface ToolDefinition<THandlerArgs = Record<string, unknown>> {
     properties?: Record<string, unknown>;
     required?: string[];
   };
-  /** Optional renderer for displaying tool call results within the chat UI. */
-  renderer?: ToolRenderer;
+  /**
+   * Optional renderer for displaying tool call results within the chat UI. An untyped `ToolRenderer` is
+   * accepted on typed definitions so `render` callbacks annotated with plain `ToolCall` keep working.
+   */
+  renderer?: ToolRenderer<TArgs, TResult> | ToolRenderer;
   /** If true, renderer shows immediately on tool call start (default: false). */
   renderOnStart?: boolean;
+  /** Canvas behavior for hosts that provide a canvas panel. Requires `renderer`. */
+  canvas?: ToolCanvasConfig<TArgs, TResult>;
   /** Called when tool call starts (before args stream). */
-  onStart?: (context: ToolStartContext) => void;
+  onStart?(context: ToolStartContext): void;
   /** Called during streaming with partial args. */
-  onDelta?: (context: ToolDeltaContext<THandlerArgs>) => void;
+  onDelta?(context: ToolDeltaContext<TArgs>): void;
   /** Called when args are complete (before handler execution). */
-  onEnd?: (context: ToolEndContext<THandlerArgs>) => void;
+  onEnd?(context: ToolEndContext<TArgs>): void;
   /**
    * Optional handler function invoked when tool is called.
-   * Can return a string, object, or void. Strings and objects are used directly as tool results.
+   * Strings and objects are used directly as the tool result; `void` yields a generic success message.
    */
-  handler?: (
-    context: HandlerContext<THandlerArgs>
-  ) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void;
+  handler?(context: HandlerContext<TArgs>): Promise<TResult | void> | TResult | void;
 }
+
+/**
+ * Type-erased tool definition for collections that mix tools with different argument types, e.g. the
+ * `tools` passed to an adapter. Any `ToolDefinition<TArgs, TResult>` is assignable to it.
+ */
+export type AnyToolDefinition = ToolDefinition<object, unknown>;
 
 export interface ChatMessage {
   id: string;
@@ -158,13 +233,14 @@ export interface ClientMessageInput {
   actions?: ClientMessageAction[];
 }
 
-export interface ToolCall<TArgs = Record<string, unknown>> {
+export interface ToolCall<TArgs = Record<string, unknown>, TResult = unknown> {
   id: string;
   messageId: string;
   name: string;
   args: TArgs;
   argsBuffer?: string;
-  result?: unknown;
+  /** Handler return value once the call completes; an `{ error }` object if the handler threw. */
+  result?: TResult;
   status: 'pending' | 'parsing' | 'executing' | 'complete' | 'error';
   type: ToolType;
   startTimestamp?: number;

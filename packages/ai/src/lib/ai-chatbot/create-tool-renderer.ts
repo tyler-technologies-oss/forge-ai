@@ -1,20 +1,25 @@
-import type { ToolCall, ToolRenderer } from './types.js';
+import type { ToolCallMapper, ToolRenderer } from './types.js';
 
 export interface CreateToolRendererElementConfig {
   elementTag: keyof HTMLElementTagNameMap;
 }
 
-export interface CreateToolRendererFunctionConfig {
-  render: (toolCall: ToolCall) => HTMLElement | DocumentFragment;
+export interface CreateToolRendererFunctionConfig<TArgs = Record<string, unknown>, TResult = unknown> {
+  render: ToolCallMapper<HTMLElement | DocumentFragment, TArgs, TResult>;
 }
 
-export type CreateToolRendererConfig = CreateToolRendererElementConfig | CreateToolRendererFunctionConfig;
+export type CreateToolRendererConfig<TArgs = Record<string, unknown>, TResult = unknown> =
+  CreateToolRendererElementConfig | CreateToolRendererFunctionConfig<TArgs, TResult>;
 
-function isElementConfig(config: CreateToolRendererConfig): config is CreateToolRendererElementConfig {
+function isElementConfig<TArgs, TResult>(
+  config: CreateToolRendererConfig<TArgs, TResult>
+): config is CreateToolRendererElementConfig {
   return 'elementTag' in config;
 }
 
-export function createToolRenderer(config: CreateToolRendererConfig): ToolRenderer {
+export function createToolRenderer<TArgs = Record<string, unknown>, TResult = unknown>(
+  config: CreateToolRendererConfig<TArgs, TResult>
+): ToolRenderer<TArgs, TResult> {
   if (isElementConfig(config)) {
     return {
       elementTag: config.elementTag

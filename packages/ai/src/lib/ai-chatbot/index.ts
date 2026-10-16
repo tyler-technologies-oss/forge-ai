@@ -46,8 +46,16 @@ export type {
   ClientMessageKind,
   ContextItem,
   ToolDefinition,
+  AnyToolDefinition,
   ToolCall,
   ToolRenderer,
+  ToolPresentation,
+  ToolCanvasConfig,
+  ToolCanvasInline,
+  ToolCanvasIcon,
+  ToolCanvasActionLabel,
+  ToolCallMapper,
+  ToolCallValue,
   IToolRenderer,
   HandlerContext,
   ToolStartContext,
@@ -82,6 +90,9 @@ export * from './agent-runner.js';
 
 // Tool renderer helper
 export * from './create-tool-renderer.js';
+
+// Canvas integration for tool renderers
+export * from './tool-canvas.js';
 
 // Controllers and managers
 export { MessageStateController, type MessageStateControllerConfig } from './message-state-controller.js';

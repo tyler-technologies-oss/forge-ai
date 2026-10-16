@@ -4,7 +4,7 @@ import { useProperties } from "./react-utils.js";
 
 export const ForgeAiToolDataTable = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { toolCall, ...filteredProps } = props;
+  const { presentation, toolCall, ...filteredProps } = props;
 
   /** Properties - run whenever a property has changed */
   useProperties(ref, "toolCall", props.toolCall);
@@ -21,6 +21,7 @@ export const ForgeAiToolDataTable = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
+      presentation: props.presentation,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

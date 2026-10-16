@@ -18,6 +18,9 @@ export interface ForgeAiToolDataTableProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
+  /** Where the host is displaying this instance. In the canvas all rows are shown without paging. */
+  presentation?: ForgeAiToolDataTableElement["presentation"];
+
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
 

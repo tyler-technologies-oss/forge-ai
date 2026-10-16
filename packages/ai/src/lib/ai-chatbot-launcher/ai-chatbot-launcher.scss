@@ -11,17 +11,49 @@
 @use '../utils/error-badge' as error-badge;
 
 $_max-content-width: 768px;
+$_canvas-transition: #{forge-animation.variable(duration-medium2)} #{forge-animation.variable(easing-standard)};
 
 :host {
   display: block;
   height: 100%;
 }
 
+$_chat-width: var(--forge-ai-chatbot-launcher-chat-width, 420px);
+
+// Only the chat track interpolates (100% -> fixed width); the canvas track is leftover space in both
+// states. The panel itself is laid out at its final width from the first frame and pinned to the start
+// edge, so it moves with the chat's edge (pushed in/out) and is clipped by the track, never reflowed.
 .launcher {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 100% minmax(0, 1fr);
   height: 100%;
   box-sizing: border-box;
+  container-type: inline-size;
+  transition: grid-template-columns $_canvas-transition;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.canvas-track {
+  position: relative;
+  min-inline-size: 0;
+  // clip, not hidden: focusing the close button mid-transition must not scroll the panel into view.
+  overflow: clip;
+  visibility: hidden;
+  transition: visibility 0s linear #{forge-animation.variable(duration-medium2)};
+}
+
+.canvas {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: max(0px, calc(100cqi - #{$_chat-width}));
 }
 
 .welcome {
@@ -241,7 +273,7 @@ $_max-content-width: 768px;
 :host(:state(welcome)) {
   --_ai-chatbot-launcher-align: var(--forge-ai-chatbot-launcher-align, center);
 
-  .launcher {
+  .chat {
     align-items: center;
     justify-content: var(--_ai-chatbot-launcher-align);
     gap: #{forge-spacing.variable(xxsmall)};
@@ -328,12 +360,28 @@ $_max-content-width: 768px;
   }
 }
 
+:host(:state(conversation):state(canvas-open)) {
+  .launcher {
+    grid-template-columns: #{$_chat-width} minmax(0, 1fr);
+  }
+
+  .canvas-track {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+}
+
 .launcher.skip-animation {
   .welcome,
   .conversation forge-ai-message-thread,
   .history,
   .prompt-section {
     animation: none;
+  }
+
+  &,
+  .canvas-track {
+    transition: none;
   }
 }
 
@@ -344,6 +392,11 @@ $_max-content-width: 768px;
     .history,
     .prompt-section {
       animation: none;
+    }
+
+    &,
+    .canvas-track {
+      transition: none;
     }
   }
 }

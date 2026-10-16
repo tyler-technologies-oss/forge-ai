@@ -124,3 +124,16 @@ forge-ai-empty-state {
   height: 48px;
   fill: #{forge-theme.variable(outline)};
 }
+
+:host([presentation='canvas']) {
+  height: 100%;
+
+  .artifact {
+    border: none;
+    border-radius: 0;
+  }
+
+  .table-container {
+    border-radius: 0;
+  }
+}

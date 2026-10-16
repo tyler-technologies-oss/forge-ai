@@ -21,14 +21,14 @@ import type {
   ActivityMessage as AgUiActivityMessage
 } from '@ag-ui/core';
 import { AgentAdapter } from './agent-adapter.js';
-import type { ChatMessage, ToolDefinition } from './types.js';
+import type { ChatMessage, AnyToolDefinition } from './types.js';
 import { generateId } from './utils.js';
 
 export interface AgUiAdapterConfig {
   url: string;
   context?: Record<string, unknown>;
   headers?: Record<string, string>;
-  tools?: ToolDefinition[];
+  tools?: AnyToolDefinition[];
 }
 
 interface ToolCallState {
@@ -400,7 +400,7 @@ export class AgUiAdapter extends AgentAdapter {
     return toolCall ?? null;
   }
 
-  #findToolDefinition(name: string): ToolDefinition | undefined {
+  #findToolDefinition(name: string): AnyToolDefinition | undefined {
     return this._tools?.find(t => t.name === name);
   }
 
@@ -410,7 +410,7 @@ export class AgUiAdapter extends AgentAdapter {
     this._updateState({ isRunning: false });
   }
 
-  #transformTools(tools: ToolDefinition[]): AgUiTool[] | undefined {
+  #transformTools(tools: AnyToolDefinition[]): AgUiTool[] | undefined {
     if (!tools || tools.length === 0) {
       return undefined;
     }
@@ -496,7 +496,7 @@ export class AgUiAdapter extends AgentAdapter {
       });
   }
 
-  #validateToolArgs(toolName: string, args: Record<string, unknown>, toolDef: ToolDefinition): string | null {
+  #validateToolArgs(toolName: string, args: Record<string, unknown>, toolDef: AnyToolDefinition): string | null {
     const { parameters } = toolDef;
     if (!parameters || parameters.type !== 'object') {
       return null;

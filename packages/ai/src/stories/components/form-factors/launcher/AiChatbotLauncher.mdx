@@ -14,6 +14,7 @@ The AI Chatbot Launcher provides a page-embedded chat experience featuring a cen
 - **Conversation view**: Full chat interface with header controls (clear, export, agent selection)
 - **History view**: Full-height chat history browser with search, infinite scroll, and a keyboard-accessible "Load more" action, reached via the prompt bar's history button
 - **Animated transitions**: Smooth state changes between welcome, conversation, and history modes
+- **Artifact canvas**: A panel beside the conversation for tool output or app-provided content, with the thread narrowing to a sidebar-style column
 
 ## When to Use
 
@@ -115,6 +116,59 @@ Always fall back to your own copy rather than assigning `error.message` directly
 ### Moving Between Views
 
 `viewState` is read-only; each view has a method that navigates to it. `startConversation()` and `showHistory()` move to the conversation and full history views, and `showWelcome()` returns to the welcome view. All three change only the view — use `startNewChat()` when the conversation itself should be reset, since it also clears messages, nulls `selectedThreadId`, and resets the adapter's thread.
+
+### Artifact Canvas
+
+The canvas is a panel that opens to the right of the conversation for content that deserves more room than a message: a large table, a document, a chart, or later an MCP App. When it opens, the conversation animates into a sidebar-style column (`--forge-ai-chatbot-launcher-chat-width`, 420px by default) and the canvas takes the remaining width. It is only available in the conversation view; leaving that view closes it.
+
+There are three ways to put content in the canvas.
+
+**From your app.** Call `openCanvas()` while in the conversation view. Without `content` the `canvas` slot is shown; pass a `Node` as `content` to mount something built on the fly. `title` overrides `canvasTitle` for that content, and `canvas-actions` adds buttons to the canvas header. `closeCanvas()` and the `canvasOpen` getter round out the API. Both open and close dispatch cancelable events (`forge-ai-chatbot-launcher-canvas-open` / `-canvas-close`); a close forced by leaving the conversation view is not cancelable.
+
+```ts
+launcher.openCanvas({ title: 'Release notes' }); // shows the `canvas` slot
+launcher.openCanvas({ title: 'Report', content: buildReportElement() });
+launcher.closeCanvas();
+```
+
+<Canvas of={AiChatbotLauncherStories.WithCanvas} />
+
+**From a tool definition.** Add a `canvas` block to a tool that already has a `renderer`. With `open: 'on-request'` (the default) the tool renders inline as usual, and its renderer is told a canvas is available via `presentation = 'inline-expandable'` so it can show an expand affordance. The bundled data table does this.
+
+<Canvas of={AiChatbotLauncherStories.CanvasOnRequest} />
+
+With `open: 'auto'` the canvas opens as soon as the tool call renders, and the thread shows a compact `<forge-ai-artifact-card>` in place of the renderer so the artifact can be reopened, or collapsed, from the thread. The card's `title`, `subtitle`, `icon`, and `actionLabel` come from the `canvas` block, each a static value or a function of the typed tool call, so the agent supplies them through whatever `args` you expose (or your handler's `result`). `title` also names the canvas. The mapping is documented in full under [Getting Started → Client-Side Tools](?path=/docs/getting-started-client-side-tools--docs).
+
+```ts
+const tool: ToolDefinition<DataTableArgs> = {
+  ...displayDataTableTool,
+  canvas: {
+    open: 'auto',
+    title: toolCall => toolCall.args.title ?? 'Data table',
+    subtitle: toolCall => `${toolCall.args.rows.length} rows`,
+    actionLabel: { open: 'Open table in canvas', collapse: 'Collapse table' }
+  }
+};
+```
+
+<Canvas of={AiChatbotLauncherStories.CanvasAutoOpen} />
+
+`inline` controls what the thread shows independently of when the canvas opens: `renderer` (default for `on-request`), `card` (default for `auto`), or `card-while-open`. Combining `card` with the default `on-request` puts the card in the thread first and opens the canvas only when the user clicks it, which suits large artifacts that should not open unprompted.
+
+<Canvas of={AiChatbotLauncherStories.CanvasCard} />
+
+`card-while-open` keeps the renderer inline and swaps it for the card only while that tool call is the one in the canvas. The card is marked `active` for the duration, clicking it again collapses the canvas, and the renderer returns when the canvas closes. This is the opt-in for any tool whose inline output would just duplicate the canvas.
+
+```ts
+const tool: ToolDefinition = {
+  ...displayDataTableTool,
+  canvas: { ...displayDataTableTool.canvas, inline: 'card-while-open' }
+};
+```
+
+<Canvas of={AiChatbotLauncherStories.CanvasCardWhileOpen} />
+
+**From a renderer component.** Any tool renderer can ask for the canvas by calling `requestCanvasOpen(this, { toolCallId, toolName, title })` from `@tylertech/forge-ai`. The launcher creates a fresh instance of the tool's renderer (or `canvas.renderer` when provided) with `presentation = 'canvas'`. Hosts without a canvas leave the request unhandled, so renderers should only show the affordance when `presentation` is `inline-expandable`.
 
 ## Customization
 
