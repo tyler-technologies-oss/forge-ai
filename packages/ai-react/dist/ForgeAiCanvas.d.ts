@@ -18,11 +18,14 @@ export interface ForgeAiCanvasProps extends Pick<
   | "onFocus"
   | "onBlur"
 > {
-  /** Title shown in the panel header */
+  /** Title shown in the panel header. Also names the panel region for assistive technology, including when the `title` slot replaces the heading */
   titleText?: ForgeAiCanvasElement["titleText"];
 
   /** Heading level applied to the default title (default: 2) */
   headingLevel?: ForgeAiCanvasElement["headingLevel"];
+
+  /** Accessible label and tooltip for the close button (default: 'Close canvas') */
+  closeLabel?: ForgeAiCanvasElement["closeLabel"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;

@@ -4,7 +4,7 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiCanvas = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { titleText, headingLevel, ...filteredProps } = props;
+  const { titleText, headingLevel, closeLabel, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(ref, "forge-ai-canvas-close", props.onForgeAiCanvasClose);
@@ -23,6 +23,7 @@ export const ForgeAiCanvas = forwardRef((props, forwardedRef) => {
       ...filteredProps,
       "title-text": props.titleText || props["title-text"],
       "heading-level": props.headingLevel || props["heading-level"],
+      "close-label": props.closeLabel || props["close-label"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
