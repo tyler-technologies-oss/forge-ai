@@ -121,6 +121,10 @@ interface CanvasContent {
   title?: string;
   node?: Node;
   toolCall?: ToolCall;
+  /** Set for tool-driven content so it can follow the tool call as it updates. */
+  toolDefinition?: AnyToolDefinition;
+  /** Title supplied with the open request; otherwise the title is re-derived from the tool call. */
+  titleOverride?: string;
 }
 
 declare global {
@@ -381,6 +385,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     if (changedProperties.has('chatWidth') && this.chatWidth !== this.#resizeController.currentWidth) {
       this.#resizeController.setWidth(this.chatWidth);
     }
+    this.#syncCanvasToolCall();
     this.#autoOpenPendingToolCalls();
   }
 
@@ -901,8 +906,38 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
       id: toolCall.id,
       title: title ?? resolveToolCanvasTitle(toolCall, toolDefinition),
       node: this.#createCanvasRenderer(toolCall, toolDefinition),
-      toolCall
+      toolCall,
+      toolDefinition,
+      titleOverride: title
     });
+  }
+
+  // The tool call object is replaced on every args or status update, so the canvas follows it by id.
+  #syncCanvasToolCall(): void {
+    const content = this._canvasContent;
+    if (!this._canvasOpen || !content?.toolCall || !content.toolDefinition) {
+      return;
+    }
+    const latest = this.#findToolCall(content.toolCall.id);
+    if (!latest || latest === content.toolCall) {
+      return;
+    }
+
+    const { toolDefinition } = content;
+    const renderer = toolDefinition.canvas?.renderer ?? toolDefinition.renderer;
+    let node = content.node;
+    if (renderer?.elementTag && node) {
+      (node as HTMLElement & IToolRenderer).toolCall = latest;
+    } else {
+      node = this.#createCanvasRenderer(latest, toolDefinition);
+    }
+
+    this._canvasContent = {
+      ...content,
+      node,
+      toolCall: latest,
+      title: content.titleOverride ?? resolveToolCanvasTitle(latest, toolDefinition)
+    };
   }
 
   #createCanvasControls(toolCall: ToolCall, toolDefinition: AnyToolDefinition): ToolCanvas {
