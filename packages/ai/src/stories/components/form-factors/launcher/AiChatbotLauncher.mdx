@@ -119,7 +119,15 @@ Always fall back to your own copy rather than assigning `error.message` directly
 
 ### Artifact Canvas
 
-The canvas is a panel that opens to the right of the conversation for content that deserves more room than a message: a large table, a document, a chart, or later an MCP App. When it opens, the conversation animates into a sidebar-style column (`--forge-ai-chatbot-launcher-chat-width`, 420px by default) and the canvas takes the remaining width. It is only available in the conversation view; leaving that view closes it.
+The canvas is a panel that opens to the right of the conversation for content that deserves more room than a message: a large table, a document, a chart, or later an MCP App. When it opens, the conversation animates into a sidebar-style column (`chatWidth`, 420px by default) and the canvas takes the remaining width. It is only available in the conversation view; leaving that view closes it.
+
+#### Resizing
+
+A handle between the conversation and the canvas lets users drag, or use the left and right arrow keys, to choose how the width is split. The conversation never gets narrower than 360px, and the canvas keeps at least 320px while the launcher is wide enough. Resizing is on by default; set `canvas-resizable="off"` to hide the handle and keep the conversation at `chat-width`.
+
+`chatWidth` follows the user's drag and `forge-ai-chatbot-launcher-canvas-resize` fires with the new `chatWidth` when a drag or key step finishes. Resized widths are saved per tab in `sessionStorage` and shared across tabs through `localStorage`, so the next launcher starts at the last width. A launcher given an explicit `chat-width` attribute ignores the saved value.
+
+#### Opening the canvas
 
 There are three ways to put content in the canvas.
 

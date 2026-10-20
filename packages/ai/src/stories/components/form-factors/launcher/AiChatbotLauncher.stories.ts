@@ -88,6 +88,15 @@ const meta = {
     canvasTitle: {
       control: 'text',
       description: 'Default title for the canvas header when an open request does not supply one'
+    },
+    canvasResizable: {
+      control: 'select',
+      options: ['on', 'off'],
+      description: 'Show the drag handle between the conversation and the canvas'
+    },
+    chatWidth: {
+      control: { type: 'number', min: 360, step: 20 },
+      description: 'Width in pixels of the conversation column while the canvas is open'
     }
   },
   args: {

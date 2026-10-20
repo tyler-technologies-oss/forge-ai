@@ -54,6 +54,12 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
   /** Default title for the canvas header, used when the open request does not supply one */
   canvasTitle?: ForgeAiChatbotLauncherElement["canvasTitle"];
 
+  /** Controls the drag handle between the conversation and the canvas. `'on'` (default) lets users resize with a pointer or the arrow keys; `'off'` hides it, so the conversation stays at `chatWidth`. */
+  canvasResizable?: ForgeAiChatbotLauncherElement["canvasResizable"];
+
+  /** Width in pixels of the conversation column while the canvas is open (default: 420). Updated as the user resizes, clamped to at least 360px and to leave the canvas at least 320px when there is room. Resized widths are persisted per tab in sessionStorage and shared across tabs via localStorage; on load the session value is preferred, then the local value, then the default. */
+  chatWidth?: ForgeAiChatbotLauncherElement["chatWidth"];
+
   /** undefined */
   fileUpload?: ForgeAiChatbotLauncherElement["fileUpload"];
 
@@ -221,6 +227,13 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
     event: CustomEvent<CustomEvent<ForgeAiChatbotLauncherCanvasOpenEventData>>,
   ) => void;
 
+  /** Fired when a resize is committed via pointer release or keyboard step. Detail has the new `chatWidth` */
+  onForgeAiChatbotLauncherCanvasResize?: (
+    event: CustomEvent<
+      CustomEvent<ForgeAiChatbotLauncherCanvasResizeEventData>
+    >,
+  ) => void;
+
   /** Fired when the canvas closes. Cancelable only for user or `closeCanvas()` initiated closes; closes caused by leaving the conversation view cannot be prevented */
   onForgeAiChatbotLauncherCanvasClose?: (
     event: CustomEvent<CustomEvent<void>>,
@@ -252,6 +265,7 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
  * - **forge-ai-chatbot-launcher-new-chat** - Fired when "New chat" is clicked from the full history view. Cancelable - prevents startNewChat() from being called
  * - **forge-ai-chatbot-launcher-thread-retry** - Fired when the retry button in the history error state is clicked. Re-request the chats and clear threadsError once the load succeeds
  * - **forge-ai-chatbot-launcher-canvas-open** - Fired before the canvas opens or replaces its content. Cancelable - prevents the canvas from opening
+ * - **forge-ai-chatbot-launcher-canvas-resize** - Fired when a resize is committed via pointer release or keyboard step. Detail has the new `chatWidth`
  * - **forge-ai-chatbot-launcher-canvas-close** - Fired when the canvas closes. Cancelable only for user or `closeCanvas()` initiated closes; closes caused by leaving the conversation view cannot be prevented
  *
  * ### **Methods:**
@@ -301,6 +315,5 @@ export interface ForgeAiChatbotLauncherProps extends Pick<
  *
  * ### **CSS Properties:**
  *  - **--forge-ai-chatbot-launcher-icon-color** - The fill color for the AI icon. _(default: undefined)_
- * - **--forge-ai-chatbot-launcher-chat-width** - Width of the conversation column while the canvas is open (default: 420px). _(default: undefined)_
  */
 export const ForgeAiChatbotLauncher: React.ForwardRefExoticComponent<ForgeAiChatbotLauncherProps>;

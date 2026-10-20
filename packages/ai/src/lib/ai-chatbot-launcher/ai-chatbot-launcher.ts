@@ -3,6 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import { ContextProvider } from '@lit/context';
 import type { AiCanvasComponent } from '../ai-canvas';
 import type { AiChatHeaderComponent } from '../ai-chat-header';
@@ -18,7 +19,7 @@ import type {
   ForgeAiThreadsSearchDeleteEventData,
   ForgeAiThreadsSearchDeleteConfirmEventData
 } from '../ai-threads-search';
-import { AiChatbotBase } from '../ai-chatbot/ai-chatbot-base.js';
+import { AiChatbotBase, type FeatureToggle } from '../ai-chatbot/ai-chatbot-base.js';
 import type {
   ChatMessage,
   IToolRenderer,
@@ -35,7 +36,9 @@ import {
   type ForgeAiCanvasOpenRequestEventData
 } from '../ai-chatbot/tool-canvas.js';
 import { shouldShowToolRenderer } from '../ai-chatbot/utils.js';
+import { ResizeController } from '../core/resize-controller.js';
 import { DeleteThreadController } from '../utils/delete-thread-controller';
+import { readStoredNumber, writeStoredNumber, type StorageKind } from '../utils/storage-utils';
 import { forwardCancelableEvent, toggleState } from '../utils.js';
 import type { Thread } from '../ai-threads/ai-threads';
 
@@ -92,6 +95,11 @@ export interface ForgeAiChatbotLauncherThreadLoadMoreEventData {
   appendResults: (results: Thread[]) => void;
 }
 
+export interface ForgeAiChatbotLauncherCanvasResizeEventData {
+  /** Width of the conversation column in pixels; the canvas takes the remaining width. */
+  chatWidth: number;
+}
+
 export interface OpenCanvasOptions {
   /** Identifies the artifact; tool-driven opens use the tool call id. */
   id?: string;
@@ -133,10 +141,17 @@ declare global {
     'forge-ai-chatbot-launcher-thread-retry': CustomEvent<void>;
     'forge-ai-chatbot-launcher-canvas-open': CustomEvent<ForgeAiChatbotLauncherCanvasOpenEventData>;
     'forge-ai-chatbot-launcher-canvas-close': CustomEvent<void>;
+    'forge-ai-chatbot-launcher-canvas-resize': CustomEvent<ForgeAiChatbotLauncherCanvasResizeEventData>;
   }
 }
 
 export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-chatbot-launcher';
+
+const DEFAULT_CHAT_WIDTH = 420;
+const MIN_CHAT_WIDTH = 360;
+const MIN_CANVAS_WIDTH = 320;
+const CHAT_WIDTH_STORAGE_KEY = 'forge-ai-chatbot-launcher-chat-width';
+const CHAT_WIDTH_STORAGE_KINDS: readonly StorageKind[] = ['session', 'local'];
 
 /**
  * @tag forge-ai-chatbot-launcher
@@ -176,9 +191,10 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @property {string | undefined} threadsError - Message describing a failed chat history load. When set, the history popover/view shows the message with a retry button instead of the empty state, and the history button shows an error badge so the failure is visible with the popover closed. If chats are already loaded the list stays visible and the message renders as a compact single line with a retry - at the bottom of the list when a page was in flight, otherwise above it. Clear it once a load succeeds.
  * @property {string | null} selectedThreadId - The id of the currently selected thread, highlighted in the history popover/view. Updated internally when a thread is selected or a new chat starts.
  * @property {string} canvasTitle - Default title for the canvas header, used when the open request does not supply one
+ * @property {FeatureToggle} canvasResizable - Controls the drag handle between the conversation and the canvas. `'on'` (default) lets users resize with a pointer or the arrow keys; `'off'` hides it, so the conversation stays at `chatWidth`.
+ * @property {number} chatWidth - Width in pixels of the conversation column while the canvas is open (default: 420). Updated as the user resizes, clamped to at least 360px and to leave the canvas at least 320px when there is room. Resized widths are persisted per tab in sessionStorage and shared across tabs via localStorage; on load the session value is preferred, then the local value, then the default.
  *
  * @cssproperty --forge-ai-chatbot-launcher-icon-color - The fill color for the AI icon.
- * @cssproperty --forge-ai-chatbot-launcher-chat-width - Width of the conversation column while the canvas is open (default: 420px).
  *
  * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
  * @event {CustomEvent<ForgeAiChatbotMessageEventData>} forge-ai-chatbot-message-sent - Fired when user sends a message
@@ -199,6 +215,7 @@ export const AiChatbotLauncherComponentTagName: keyof HTMLElementTagNameMap = 'f
  * @event {CustomEvent<void>} forge-ai-chatbot-launcher-new-chat - Fired when "New chat" is clicked from the full history view. Cancelable - prevents startNewChat() from being called
  * @event {CustomEvent<void>} forge-ai-chatbot-launcher-thread-retry - Fired when the retry button in the history error state is clicked. Re-request the chats and clear threadsError once the load succeeds
  * @event {CustomEvent<ForgeAiChatbotLauncherCanvasOpenEventData>} forge-ai-chatbot-launcher-canvas-open - Fired before the canvas opens or replaces its content. Cancelable - prevents the canvas from opening
+ * @event {CustomEvent<ForgeAiChatbotLauncherCanvasResizeEventData>} forge-ai-chatbot-launcher-canvas-resize - Fired when a resize is committed via pointer release or keyboard step. Detail has the new `chatWidth`
  * @event {CustomEvent<void>} forge-ai-chatbot-launcher-canvas-close - Fired when the canvas closes. Cancelable only for user or `closeCanvas()` initiated closes; closes caused by leaving the conversation view cannot be prevented
  */
 @customElement(AiChatbotLauncherComponentTagName)
@@ -240,6 +257,12 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   @property({ attribute: 'canvas-title' })
   public canvasTitle?: string;
 
+  @property({ attribute: 'canvas-resizable' })
+  public canvasResizable: FeatureToggle = 'on';
+
+  @property({ type: Number, attribute: 'chat-width' })
+  public chatWidth = DEFAULT_CHAT_WIDTH;
+
   @state()
   private _viewState: LauncherViewState = 'welcome';
 
@@ -248,6 +271,9 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
   @state()
   private _canvasContent: CanvasContent | null = null;
+
+  @state()
+  private _isResizing = false;
 
   @state()
   private _skipAnimation = false;
@@ -266,6 +292,9 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   #historyPopoverSearchRef = createRef<AiThreadsSearchComponent>();
   #historyViewSearchRef = createRef<AiThreadsSearchComponent>();
   #canvasRef = createRef<AiCanvasComponent>();
+  #launcherRef = createRef<HTMLElement>();
+  #resizeHandleRef = createRef<HTMLElement>();
+  readonly #resizeController: ResizeController;
   #canvasHost: ContextProvider<typeof toolCanvasHostContext>;
   #internals!: ElementInternals;
   #pendingThreadDeleteSource: AiThreadsSearchComponent | null = null;
@@ -316,6 +345,28 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
       context: toolCanvasHostContext,
       initialValue: { presentation: 'inline-expandable' }
     });
+    this.#resizeController = new ResizeController(this, {
+      targetElementRef: this.#launcherRef,
+      resizeHandleRef: this.#resizeHandleRef,
+      minWidth: MIN_CHAT_WIDTH,
+      maxWidth: Infinity,
+      defaultWidth: DEFAULT_CHAT_WIDTH,
+      // The handle sits on the chat column's inline-end edge, so dragging toward inline-end widens it.
+      growDirection: () => (getComputedStyle(this).direction === 'rtl' ? 'left' : 'right'),
+      getAvailableWidth: () => this.#availableChatWidth ?? Number.MAX_SAFE_INTEGER,
+      onResize: width => {
+        this.chatWidth = width;
+      },
+      onResizeStart: () => {
+        this._isResizing = true;
+      },
+      onResizeEnd: () => {
+        this._isResizing = false;
+      },
+      onCommit: width => {
+        this.#handleResizeCommit(width);
+      }
+    });
   }
 
   protected override _onConnected(): void {
@@ -324,6 +375,12 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
   public override willUpdate(changedProperties: PropertyValues<this>): void {
     super.willUpdate(changedProperties);
+    if (!this.hasUpdated && this.#shouldRestoreChatWidth) {
+      this.chatWidth = this.#readPersistedChatWidth() ?? this.chatWidth;
+    }
+    if (changedProperties.has('chatWidth') && this.chatWidth !== this.#resizeController.currentWidth) {
+      this.#resizeController.setWidth(this.chatWidth);
+    }
     this.#autoOpenPendingToolCalls();
   }
 
@@ -699,12 +756,42 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
     this._canvasContent = content;
     if (!this._canvasOpen) {
+      // A width saved in a wider container (or tab) could otherwise leave no room for the canvas.
+      this.#resizeController.setWidth(this.chatWidth);
       this._canvasOpen = true;
       toggleState(this.#internals, 'canvas-open', true);
       void this.#focusAfterUpdate(() => this.#canvasRef.value);
     }
     this.#syncCanvasHost();
     return true;
+  }
+
+  /** Widest the chat column may be while leaving room for the canvas; undefined until the launcher is laid out. */
+  get #availableChatWidth(): number | undefined {
+    const width = this.#launcherRef.value?.clientWidth ?? 0;
+    return width > 0 ? width - MIN_CANVAS_WIDTH : undefined;
+  }
+
+  #handleResizeCommit(width: number): void {
+    this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-canvas-resize', detail: { chatWidth: width } });
+    for (const kind of CHAT_WIDTH_STORAGE_KINDS) {
+      writeStoredNumber({ kind, key: CHAT_WIDTH_STORAGE_KEY, value: width });
+    }
+  }
+
+  #readPersistedChatWidth(): number | undefined {
+    for (const kind of CHAT_WIDTH_STORAGE_KINDS) {
+      const width = readStoredNumber({ kind, key: CHAT_WIDTH_STORAGE_KEY });
+      if (width !== undefined) {
+        return width;
+      }
+    }
+    return undefined;
+  }
+
+  // A saved width only fills in for a launcher that was not given an explicit one, and never when resizing is off.
+  get #shouldRestoreChatWidth(): boolean {
+    return this.canvasResizable === 'on' && this.chatWidth === DEFAULT_CHAT_WIDTH && !this.hasAttribute('chat-width');
   }
 
   // Content is kept until the next open so it stays visible while the panel collapses.
@@ -1213,6 +1300,35 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     `;
   }
 
+  get #resizeHandle(): TemplateResult | typeof nothing {
+    if (this.canvasResizable !== 'on') {
+      return nothing;
+    }
+    const max = Math.max(this.chatWidth, this.#availableChatWidth ?? this.chatWidth);
+    return html`
+      <div
+        ${ref(this.#resizeHandleRef)}
+        class=${classMap({ 'resize-handle': true, 'resize-handle--active': this._isResizing })}
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize canvas, use left and right arrow keys"
+        aria-valuemin=${MIN_CHAT_WIDTH}
+        aria-valuemax=${max}
+        aria-valuenow=${this.chatWidth}
+        aria-valuetext="Conversation ${this.chatWidth} pixels wide"
+        tabindex="0"
+        @pointerdown=${(evt: PointerEvent) => this.#resizeController.handlePointerDown(evt)}
+        @keydown=${(evt: KeyboardEvent) => this.#resizeController.handleKeyDown(evt)}>
+        <span class="resize-handle__grip" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2" />
+          </svg>
+        </span>
+      </div>
+    `;
+  }
+
   get #canvasTemplate(): TemplateResult {
     const title = this._canvasContent?.title ?? this.canvasTitle ?? '';
     return html`
@@ -1233,11 +1349,14 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   public override render(): TemplateResult {
     const classes = {
       launcher: true,
-      'skip-animation': this._skipAnimation
+      'skip-animation': this._skipAnimation,
+      resizing: this._isResizing
     };
     return html`
       <div
+        ${ref(this.#launcherRef)}
         class=${classMap(classes)}
+        style=${styleMap({ '--_chat-width': `${this.chatWidth}px` })}
         role="region"
         aria-label="AI chatbot launcher"
         aria-busy=${this._isStreaming}
@@ -1247,7 +1366,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           ${this.#mainContentTemplate} ${this.#promptSectionTemplate}
           ${this._viewState === 'welcome' ? this.#welcomeSuggestionsTemplate : nothing}
         </div>
-        <div class="canvas-track">${this.#canvasTemplate}</div>
+        <div class="canvas-track">${this.#resizeHandle} ${this.#canvasTemplate}</div>
       </div>
       ${when(this.showHistoryButton, () => this.#historyPopoverTemplate)} ${this.#deleteThreadController.template}
     `;
