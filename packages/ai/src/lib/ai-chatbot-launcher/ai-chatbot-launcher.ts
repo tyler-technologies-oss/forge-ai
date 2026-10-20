@@ -297,6 +297,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   #historyViewSearchRef = createRef<AiThreadsSearchComponent>();
   #canvasRef = createRef<AiCanvasComponent>();
   #launcherRef = createRef<HTMLElement>();
+  #canvasTrackRef = createRef<HTMLElement>();
   #resizeHandleRef = createRef<HTMLElement>();
   readonly #resizeController: ResizeController;
   #canvasHost: ContextProvider<typeof toolCanvasHostContext>;
@@ -386,6 +387,11 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
       this.#resizeController.setWidth(this.chatWidth);
     }
     this.#syncCanvasToolCall();
+  }
+
+  // Auto-open dispatches a cancelable event, so it runs after render where listeners can safely call launcher APIs.
+  public override updated(changedProperties: PropertyValues<this>): void {
+    super.updated(changedProperties);
     this.#autoOpenPendingToolCalls();
   }
 
@@ -799,11 +805,25 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     return this.canvasResizable === 'on' && this.chatWidth === DEFAULT_CHAT_WIDTH && !this.hasAttribute('chat-width');
   }
 
-  // Content is kept until the next open so it stays visible while the panel collapses.
+  // Content stays mounted while the panel collapses, then is released so hidden iframes and timers stop.
   #hideCanvas(): void {
     this._canvasOpen = false;
     toggleState(this.#internals, 'canvas-open', false);
     this.#syncCanvasHost();
+    void this.#releaseCanvasContentAfterCollapse();
+  }
+
+  async #releaseCanvasContentAfterCollapse(): Promise<void> {
+    const content = this._canvasContent;
+    await this.updateComplete;
+    // Only transitions: they are finite, and cover every case where no transition runs (reduced motion, dragging).
+    const transitions = [this.#launcherRef.value, this.#canvasTrackRef.value]
+      .flatMap(element => element?.getAnimations() ?? [])
+      .filter(animation => animation instanceof CSSTransition);
+    await Promise.allSettled(transitions.map(transition => transition.finished));
+    if (!this._canvasOpen && this._canvasContent === content) {
+      this._canvasContent = null;
+    }
   }
 
   #syncCanvasHost(): void {
@@ -882,8 +902,12 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     if (this._viewState !== 'conversation') {
       return;
     }
+    const tools = this._tools;
+    if (![...tools.values()].some(tool => tool.canvas?.open === 'auto')) {
+      return;
+    }
     for (const toolCall of this.#toolCalls) {
-      const toolDefinition = this._tools.get(toolCall.name);
+      const toolDefinition = tools.get(toolCall.name);
       if (
         toolDefinition?.canvas?.open !== 'auto' ||
         this.#autoOpenedToolCallIds.has(toolCall.id) ||
@@ -1401,7 +1425,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           ${this.#mainContentTemplate} ${this.#promptSectionTemplate}
           ${this._viewState === 'welcome' ? this.#welcomeSuggestionsTemplate : nothing}
         </div>
-        <div class="canvas-track">${this.#resizeHandle} ${this.#canvasTemplate}</div>
+        <div ${ref(this.#canvasTrackRef)} class="canvas-track">${this.#resizeHandle} ${this.#canvasTemplate}</div>
       </div>
       ${when(this.showHistoryButton, () => this.#historyPopoverTemplate)} ${this.#deleteThreadController.template}
     `;
