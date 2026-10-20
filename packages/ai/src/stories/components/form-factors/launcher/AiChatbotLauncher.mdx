@@ -163,7 +163,7 @@ With `open: 'auto'` the canvas also opens as soon as the tool call renders, and 
 
 <Canvas of={AiChatbotLauncherStories.CanvasCardWhileOpen} />
 
-**From a renderer component.** Tool renderers receive a `canvas` property (`ToolCanvas`) alongside `toolCall`, and `render` functions receive it as `render(toolCall, { canvas })`.
+**From a renderer component.** Tool renderers receive a `canvas` property (`ToolCanvas`) alongside `toolCall`, and `render` functions receive it as an optional second argument, `render(toolCall, { canvas })`, which hosts always pass.
 
 | Member      | Description                                                                                                                    |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------ |

@@ -45,15 +45,21 @@ export interface ToolRenderContext {
   canvas: ToolCanvas;
 }
 
-/** Bivariant like `ToolCallMapper`; a `render` that only takes the tool call remains valid. */
+/**
+ * Bivariant like `ToolCallMapper`. `context` is optional so existing `render(toolCall)` implementations and
+ * callers keep compiling; hosts always pass it.
+ */
 export type ToolRenderFunction<TArgs = Record<string, unknown>, TResult = unknown> = {
-  bivarianceHack(toolCall: ToolCall<TArgs, TResult>, context: ToolRenderContext): HTMLElement | DocumentFragment;
+  bivarianceHack(toolCall: ToolCall<TArgs, TResult>, context?: ToolRenderContext): HTMLElement | DocumentFragment;
 }['bivarianceHack'];
 
-export interface ToolRenderer<TArgs = Record<string, unknown>, TResult = unknown> {
+// `any` defaults keep `ToolRenderer` assignable on any `ToolDefinition<TArgs>`, as it was before it became generic.
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface ToolRenderer<TArgs = any, TResult = any> {
   elementTag?: string;
   render?: ToolRenderFunction<TArgs, TResult>;
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 /**
  * Where a tool renderer instance is displayed. Set by the host on the elements it creates.
@@ -92,7 +98,7 @@ export interface ToolCanvasConfig<TArgs = Record<string, unknown>, TResult = unk
    */
   inline?: ToolCanvasInline;
   /** Renderer used inside the canvas. Defaults to the tool's `renderer`. */
-  renderer?: ToolRenderer<TArgs, TResult> | ToolRenderer;
+  renderer?: ToolRenderer<TArgs, TResult>;
   /** Canvas and artifact card title. Defaults to `displayName`, then `name`. */
   title?: ToolCallValue<string, TArgs, TResult>;
   /** Artifact card subtitle, e.g. a row count. */
@@ -187,7 +193,7 @@ export type ToolType = 'client' | 'agent';
  * @template TArgs - Type of the tool call arguments, typed through the handler, renderer, and canvas mappers
  * @template TResult - Type returned by `handler`, available as `toolCall.result`
  */
-export interface ToolDefinition<TArgs = Record<string, unknown>, TResult = unknown> {
+export interface ToolDefinition<TArgs = Record<string, unknown>, TResult = string | Record<string, unknown>> {
   name: string;
   displayName?: string;
   description?: string;
@@ -197,10 +203,11 @@ export interface ToolDefinition<TArgs = Record<string, unknown>, TResult = unkno
     required?: string[];
   };
   /**
-   * Optional renderer for displaying tool call results within the chat UI. An untyped `ToolRenderer` is
-   * accepted on typed definitions so `render` callbacks annotated with plain `ToolCall` keep working.
+   * Optional renderer for displaying tool call results within the chat UI. Deliberately untyped (`any`
+   * arguments) so renderers written before `ToolDefinition` had a `TResult`, including `render` callbacks
+   * annotated with plain `ToolCall`, keep compiling on any `ToolDefinition<TArgs>`.
    */
-  renderer?: ToolRenderer<TArgs, TResult> | ToolRenderer;
+  renderer?: ToolRenderer;
   /** If true, renderer shows immediately on tool call start (default: false). */
   renderOnStart?: boolean;
   /** Canvas behavior for hosts that provide a canvas panel. Requires `renderer`. */
@@ -222,7 +229,8 @@ export interface ToolDefinition<TArgs = Record<string, unknown>, TResult = unkno
  * Type-erased tool definition for collections that mix tools with different argument types, e.g. the
  * `tools` passed to an adapter. Any `ToolDefinition<TArgs, TResult>` is assignable to it.
  */
-export type AnyToolDefinition = ToolDefinition<object, unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyToolDefinition = ToolDefinition<object, any>;
 
 export interface ChatMessage {
   id: string;
