@@ -2,8 +2,9 @@ import { LitElement, html, unsafeCSS, type TemplateResult, nothing, type Propert
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { ContextConsumer } from '@lit/context';
-import type { IToolRenderer, ToolCall, AnyToolDefinition, ToolPresentation } from './types.js';
+import type { IToolRenderer, ToolCall, ToolCanvas, AnyToolDefinition, ToolPresentation } from './types.js';
 import {
+  createToolCanvas,
   requestCanvasClose,
   requestCanvasOpen,
   resolveToolCanvasActionLabel,
@@ -42,6 +43,7 @@ export class AiChatbotToolCallComponent extends LitElement {
 
   #customRendererRef = createRef<HTMLDivElement>();
   #renderedElement?: HTMLElement | DocumentFragment;
+  #renderedCanvas?: ToolCanvas;
 
   #canvasHostConsumer = new ContextConsumer(this, {
     context: toolCanvasHostContext,
@@ -65,6 +67,28 @@ export class AiChatbotToolCallComponent extends LitElement {
     return this.#canvasHostConsumer.value?.openToolCallId === this.toolCall.id;
   }
 
+  #canvasControls?: ToolCanvas;
+
+  // Rebuilt only when `available` or `isOpen` changes so renderers with a reactive `canvas` property re-render.
+  get #canvas(): ToolCanvas {
+    const available = this.#presentation === 'inline-expandable';
+    const isOpen = this.#isOpenInCanvas;
+    if (this.#canvasControls?.available !== available || this.#canvasControls.isOpen !== isOpen) {
+      this.#canvasControls = createToolCanvas({
+        available,
+        isOpen: () => this.#isOpenInCanvas,
+        open: options =>
+          requestCanvasOpen(this, {
+            toolCallId: this.toolCall.id,
+            toolName: this.toolCall.name,
+            title: options?.title
+          }),
+        close: () => requestCanvasClose(this, { toolCallId: this.toolCall.id })
+      });
+    }
+    return this.#canvasControls;
+  }
+
   get #showsArtifactCard(): boolean {
     if (!this.toolDefinition || this.#presentation !== 'inline-expandable') {
       return false;
@@ -79,18 +103,6 @@ export class AiChatbotToolCallComponent extends LitElement {
     }
   }
 
-  #handleArtifactCardToggle(toolDefinition: AnyToolDefinition): void {
-    if (this.#isOpenInCanvas) {
-      requestCanvasClose(this, { toolCallId: this.toolCall.id });
-      return;
-    }
-    requestCanvasOpen(this, {
-      toolCallId: this.toolCall.id,
-      toolName: this.toolCall.name,
-      title: resolveToolCanvasTitle(this.toolCall, toolDefinition)
-    });
-  }
-
   #artifactCard(toolDefinition: AnyToolDefinition): TemplateResult {
     const active = this.#isOpenInCanvas;
     const icon = resolveToolCanvasIcon(this.toolCall, toolDefinition);
@@ -102,7 +114,7 @@ export class AiChatbotToolCallComponent extends LitElement {
         action-label=${resolveToolCanvasActionLabel(this.toolCall, toolDefinition, active)}
         asset-id=${this.toolCall.id}
         ?active=${active}
-        @forge-ai-artifact-card-open=${() => this.#handleArtifactCardToggle(toolDefinition)}>
+        @forge-ai-artifact-card-open=${() => this.#canvas.toggle()}>
         ${icon ?? nothing}
       </forge-ai-artifact-card>
     `;
@@ -144,6 +156,7 @@ export class AiChatbotToolCallComponent extends LitElement {
     }
 
     const renderer = this.toolDefinition?.renderer;
+    const canvas = this.#canvas;
     // The container is recreated whenever the artifact card swaps back to the renderer, so mount
     // state is derived from the DOM rather than from which properties changed.
     const mounted = container.childNodes.length > 0;
@@ -162,15 +175,21 @@ export class AiChatbotToolCallComponent extends LitElement {
         const existing = this.#renderedElement as HTMLElement & IToolRenderer;
         existing.toolCall = this.toolCall;
         existing.presentation = this.#presentation;
+        existing.canvas = canvas;
         return;
       }
 
       const element = document.createElement(renderer.elementTag) as HTMLElement & IToolRenderer;
       element.toolCall = this.toolCall;
       element.presentation = this.#presentation;
+      element.canvas = canvas;
       this.#replaceRenderedElement(container, element);
-    } else if (renderer?.render && (changed || !mounted)) {
-      this.#replaceRenderedElement(container, renderer.render(this.toolCall));
+    } else if (renderer?.render && (changed || !mounted || canvas !== this.#renderedCanvas)) {
+      this.#renderedCanvas = canvas;
+      this.#replaceRenderedElement(
+        container,
+        renderer.render(this.toolCall, { presentation: this.#presentation, canvas })
+      );
     }
   }
 

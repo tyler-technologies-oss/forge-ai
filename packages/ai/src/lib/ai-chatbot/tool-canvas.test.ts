@@ -1,5 +1,12 @@
 import { expect } from '@open-wc/testing';
-import { resolveToolCanvasActionLabel, resolveToolCanvasIcon, resolveToolCanvasTitle } from './tool-canvas.js';
+import {
+  createToolCanvas,
+  requestCanvasClose,
+  requestCanvasOpen,
+  resolveToolCanvasActionLabel,
+  resolveToolCanvasIcon,
+  resolveToolCanvasTitle
+} from './tool-canvas.js';
 import type { ToolCall, ToolDefinition } from './types.js';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -84,6 +91,72 @@ describe('tool-canvas', () => {
 
       expect(resolveToolCanvasActionLabel(toolCall, def, false)).to.equal('Open report');
       expect(resolveToolCanvasActionLabel(toolCall, def, true)).to.equal('Collapse report');
+    });
+  });
+
+  describe('requests', () => {
+    it('should report unhandled when no host answers', () => {
+      const target = document.createElement('div');
+
+      expect(requestCanvasOpen(target, { toolCallId: 'call-1', toolName: 'report' })).to.be.false;
+      expect(requestCanvasClose(target, { toolCallId: 'call-1' })).to.be.false;
+    });
+
+    it('should report handled when a host marks the request', () => {
+      const target = document.createElement('div');
+      target.addEventListener('forge-ai-canvas-open-request', evt => {
+        evt.detail.handled = true;
+      });
+
+      expect(requestCanvasOpen(target, { toolCallId: 'call-1', toolName: 'report' })).to.be.true;
+    });
+  });
+
+  describe('createToolCanvas', () => {
+    function controls(options: { available?: boolean; open?: boolean } = {}): {
+      canvas: ReturnType<typeof createToolCanvas>;
+      calls: string[];
+      state: { open: boolean };
+    } {
+      const calls: string[] = [];
+      const state = { open: options.open ?? false };
+      const canvas = createToolCanvas({
+        available: options.available ?? true,
+        isOpen: () => state.open,
+        open: () => {
+          calls.push('open');
+          state.open = true;
+          return true;
+        },
+        close: () => {
+          calls.push('close');
+          state.open = false;
+          return true;
+        }
+      });
+      return { canvas, calls, state };
+    }
+
+    it('should expose a snapshot of the open state', () => {
+      expect(controls({ open: true }).canvas.isOpen).to.be.true;
+      expect(controls({ open: false }).canvas.isOpen).to.be.false;
+    });
+
+    it('should open when closed and close when open on toggle', () => {
+      const { canvas, calls } = controls();
+
+      expect(canvas.toggle()).to.be.true;
+      expect(canvas.toggle()).to.be.true;
+      expect(calls).to.deep.equal(['open', 'close']);
+    });
+
+    it('should do nothing and return false when unavailable', () => {
+      const { canvas, calls } = controls({ available: false });
+
+      expect(canvas.open()).to.be.false;
+      expect(canvas.close()).to.be.false;
+      expect(canvas.toggle()).to.be.false;
+      expect(calls).to.be.empty;
     });
   });
 });

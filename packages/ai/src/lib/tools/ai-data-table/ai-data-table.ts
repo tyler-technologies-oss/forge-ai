@@ -2,9 +2,7 @@ import { LitElement, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import type { IToolRenderer, ToolCall, ToolPresentation } from '../../ai-chatbot';
-import { requestCanvasOpen } from '../../ai-chatbot/tool-canvas.js';
-import type { DataTableArgs } from './ai-data-table-definition.js';
+import type { IToolRenderer, ToolCall } from '../../ai-chatbot';
 import { buildCSVContent, downloadCSV, sanitizeFilename } from '../../utils/csv-utils';
 import { renderInlineMarkdown } from '../../utils/markdown';
 
@@ -21,6 +19,13 @@ declare global {
   }
 }
 
+interface TableData {
+  title?: string;
+  headers: string[];
+  rows: (string | number)[][];
+  maxNumberOfRows?: number;
+}
+
 const DEFAULT_MAX_ROWS = 10;
 const MIN_ROWS_FOR_FILTER = 5;
 
@@ -31,18 +36,14 @@ const MIN_ROWS_FOR_FILTER = 5;
  * @internal
  */
 @customElement('forge-ai-tool-data-table')
-export class DataTableToolElement extends LitElement implements IToolRenderer<DataTableArgs> {
+export class DataTableToolElement extends LitElement implements IToolRenderer<TableData> {
   public static styles = unsafeCSS(styles);
 
   /**
    * Tool call data containing table configuration and data
    */
   @property({ attribute: false })
-  public toolCall!: ToolCall<DataTableArgs>;
-
-  /** Where the host is displaying this instance. In the canvas all rows are shown without paging. */
-  @property({ reflect: true })
-  public presentation: ToolPresentation = 'inline';
+  public toolCall!: ToolCall<TableData>;
 
   /** Current page number for pagination */
   @state()
@@ -52,14 +53,11 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Da
   @state()
   private _filterValue = '';
 
-  get #tableData(): DataTableArgs | null {
+  get #tableData(): TableData | null {
     return this.toolCall.args;
   }
 
   get #maxNumberOfRows(): number {
-    if (this.presentation === 'canvas') {
-      return Infinity;
-    }
     const data = this.#tableData;
     return data?.maxNumberOfRows || DEFAULT_MAX_ROWS;
   }
@@ -116,18 +114,6 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Da
     return this._filterValue.trim() !== '' && this.#filteredRows.length === 0;
   }
 
-  get #shouldShowExpand(): boolean {
-    return this.presentation === 'inline-expandable' && this.#totalRows > 0;
-  }
-
-  #handleExpand(): void {
-    requestCanvasOpen(this, {
-      toolCallId: this.toolCall.id,
-      toolName: this.toolCall.name,
-      title: this.#tableData?.title
-    });
-  }
-
   #handlePageChange(event: CustomEvent): void {
     this._currentPage = event.detail.currentPage;
   }
@@ -171,22 +157,6 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Da
     `;
   }
 
-  readonly #expandButton = html`
-    <div>
-      <button
-        type="button"
-        id="expand-button"
-        class="forge-icon-button forge-icon-button--medium"
-        @click=${this.#handleExpand}
-        aria-label="Open table in canvas">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
-          <path d="M21 11V3h-8l3.29 3.29-10 10L3 13v8h8l-3.29-3.29 10-10z" />
-        </svg>
-      </button>
-      <forge-ai-tooltip for="expand-button" placement="bottom">Open in canvas</forge-ai-tooltip>
-    </div>
-  `;
-
   readonly #filterInputField = html`
     <label for="data-table-filter-input" class="sr-only">Filter table data</label>
     <div class="forge-field forge-field--small icon-field">
@@ -207,17 +177,13 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Da
   get #actionButtons(): TemplateResult | typeof nothing {
     const showFilter = this.#shouldShowFilter;
     const showExport = this.#tableData?.headers?.length && this.#tableData?.rows?.length;
-    const showExpand = this.#shouldShowExpand;
 
-    if (!showFilter && !showExport && !showExpand) {
+    if (!showFilter && !showExport) {
       return nothing;
     }
 
     return html`
-      <div class="actions" slot="actions">
-        ${when(showFilter, () => this.#filterInputField)} ${this.#exportButton}
-        ${when(showExpand, () => this.#expandButton)}
-      </div>
+      <div class="actions" slot="actions">${when(showFilter, () => this.#filterInputField)} ${this.#exportButton}</div>
     `;
   }
 
@@ -286,10 +252,9 @@ export class DataTableToolElement extends LitElement implements IToolRenderer<Da
     `;
   }
 
-  // The canvas header already shows the title, so skip repeating it inside the panel.
   get #header(): TemplateResult | typeof nothing {
     const data = this.#tableData;
-    if (!data?.title || this.presentation === 'canvas') {
+    if (!data?.title) {
       return nothing;
     }
     return html`<h2 class="title" slot="start">${data.title}</h2>`;

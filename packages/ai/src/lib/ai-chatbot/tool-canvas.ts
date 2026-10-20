@@ -1,6 +1,7 @@
 import { createContext } from '@lit/context';
 import type {
   ToolCall,
+  ToolCanvas,
   ToolCallValue,
   ToolCanvasActionLabel,
   ToolCanvasInline,
@@ -12,10 +13,14 @@ export interface ForgeAiCanvasOpenRequestEventData {
   toolCallId: string;
   toolName: string;
   title?: string;
+  /** Set to true by the host once the tool call is showing in the canvas. */
+  handled?: boolean;
 }
 
 export interface ForgeAiCanvasCloseRequestEventData {
   toolCallId: string;
+  /** Set to true by the host once the canvas has closed. */
+  handled?: boolean;
 }
 
 declare global {
@@ -40,28 +45,51 @@ export interface ToolCanvasHostState {
 export const toolCanvasHostContext = createContext<ToolCanvasHostState>(Symbol('forge-ai-tool-canvas-host'));
 
 /**
- * Asks the nearest canvas host to show the given tool call. Renderers call this from their
- * expand affordance; hosts without a canvas leave the event unhandled.
+ * Asks the nearest canvas host to show the given tool call. Hosts without a canvas leave the event
+ * unhandled. Returns whether the tool call is now showing.
  */
-export function requestCanvasOpen(target: EventTarget, detail: ForgeAiCanvasOpenRequestEventData): void {
+export function requestCanvasOpen(target: EventTarget, detail: ForgeAiCanvasOpenRequestEventData): boolean {
+  const request = { ...detail, handled: false };
   target.dispatchEvent(
     new CustomEvent<ForgeAiCanvasOpenRequestEventData>('forge-ai-canvas-open-request', {
-      detail,
+      detail: request,
       bubbles: true,
       composed: true
     })
   );
+  return request.handled;
 }
 
-/** Asks the nearest canvas host to close the canvas if it is showing the given tool call. */
-export function requestCanvasClose(target: EventTarget, detail: ForgeAiCanvasCloseRequestEventData): void {
+/** Asks the nearest canvas host to close the canvas if it is showing the given tool call. Returns whether it closed. */
+export function requestCanvasClose(target: EventTarget, detail: ForgeAiCanvasCloseRequestEventData): boolean {
+  const request = { ...detail, handled: false };
   target.dispatchEvent(
     new CustomEvent<ForgeAiCanvasCloseRequestEventData>('forge-ai-canvas-close-request', {
-      detail,
+      detail: request,
       bubbles: true,
       composed: true
     })
   );
+  return request.handled;
+}
+
+export interface CreateToolCanvasConfig {
+  available: boolean;
+  /** Read live by `toggle()`; `isOpen` on the result is a snapshot taken when the controls are built. */
+  isOpen: () => boolean;
+  open: (options?: { title?: string }) => boolean;
+  close: () => boolean;
+}
+
+/** Builds the `canvas` controls a host injects into a tool renderer. */
+export function createToolCanvas({ available, isOpen, open, close }: CreateToolCanvasConfig): ToolCanvas {
+  return {
+    available,
+    isOpen: isOpen(),
+    open: options => available && open(options),
+    close: () => available && close(),
+    toggle: () => available && (isOpen() ? close() : open())
+  };
 }
 
 const DEFAULT_ACTION_LABEL: ToolCanvasActionLabel = { open: 'Open in canvas', collapse: 'Collapse canvas' };

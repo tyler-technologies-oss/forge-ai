@@ -19,8 +19,16 @@ import type {
   ForgeAiThreadsSearchDeleteConfirmEventData
 } from '../ai-threads-search';
 import { AiChatbotBase } from '../ai-chatbot/ai-chatbot-base.js';
-import type { ChatMessage, IToolRenderer, ThreadState, ToolCall, AnyToolDefinition } from '../ai-chatbot/types.js';
+import type {
+  ChatMessage,
+  IToolRenderer,
+  ThreadState,
+  ToolCall,
+  ToolCanvas,
+  AnyToolDefinition
+} from '../ai-chatbot/types.js';
 import {
+  createToolCanvas,
   resolveToolCanvasTitle,
   toolCanvasHostContext,
   type ForgeAiCanvasCloseRequestEventData,
@@ -746,16 +754,20 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     if (!toolCall || !toolDefinition) {
       return;
     }
-    this.#openToolCallInCanvas(toolCall, toolDefinition, evt.detail.title);
+    evt.detail.handled = this.#openToolCallInCanvas(toolCall, toolDefinition, evt.detail.title);
   }
 
   // Initiated from the thread (e.g. an active artifact card), so focus stays where the user clicked.
   #handleCanvasCloseRequest(evt: CustomEvent<ForgeAiCanvasCloseRequestEventData>): void {
     evt.stopPropagation();
-    if (this._canvasContent?.toolCall?.id !== evt.detail.toolCallId) {
-      return;
+    evt.detail.handled = this.#closeToolCallCanvas(evt.detail.toolCallId);
+  }
+
+  #closeToolCallCanvas(toolCallId: string): boolean {
+    if (this._canvasContent?.toolCall?.id !== toolCallId) {
+      return false;
     }
-    this.#requestCanvasClose();
+    return this.#requestCanvasClose();
   }
 
   get #toolCalls(): ToolCall[] {
@@ -806,15 +818,27 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     });
   }
 
+  #createCanvasControls(toolCall: ToolCall, toolDefinition: AnyToolDefinition): ToolCanvas {
+    return createToolCanvas({
+      available: true,
+      // This instance only exists to be shown in the canvas, and is created before the canvas finishes opening.
+      isOpen: () => true,
+      open: options => this.#openToolCallInCanvas(toolCall, toolDefinition, options?.title),
+      close: () => this.#closeToolCallCanvas(toolCall.id)
+    });
+  }
+
   #createCanvasRenderer(toolCall: ToolCall, toolDefinition: AnyToolDefinition): Node | undefined {
     const renderer = toolDefinition.canvas?.renderer ?? toolDefinition.renderer;
+    const canvas = this.#createCanvasControls(toolCall, toolDefinition);
     if (renderer?.elementTag) {
       const element = document.createElement(renderer.elementTag) as HTMLElement & IToolRenderer;
       element.toolCall = toolCall;
       element.presentation = 'canvas';
+      element.canvas = canvas;
       return element;
     }
-    return renderer?.render?.(toolCall);
+    return renderer?.render?.(toolCall, { presentation: 'canvas', canvas });
   }
 
   /** Tool calls restored from history are marked as seen so loading a thread never auto-opens the canvas. */

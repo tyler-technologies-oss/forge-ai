@@ -133,42 +133,60 @@ launcher.closeCanvas();
 
 <Canvas of={AiChatbotLauncherStories.WithCanvas} />
 
-**From a tool definition.** Add a `canvas` block to a tool that already has a `renderer`. With `open: 'on-request'` (the default) the tool renders inline as usual, and its renderer is told a canvas is available via `presentation = 'inline-expandable'` so it can show an expand affordance. The bundled data table does this.
+**From a tool definition.** Add a `canvas` block to a tool that already has a `renderer`. The two have different jobs: `renderer` is the tool's inline UI in the thread, which can be any design you like, and `canvas.renderer` draws the full artifact in the canvas. The host injects a `canvas` object into the inline renderer, next to `toolCall`, so it can show an "open" affordance only where one will work and toggle the canvas from its own UI (see below).
 
-<Canvas of={AiChatbotLauncherStories.CanvasOnRequest} />
-
-With `open: 'auto'` the canvas opens as soon as the tool call renders, and the thread shows a compact `<forge-ai-artifact-card>` in place of the renderer so the artifact can be reopened, or collapsed, from the thread. The card's `title`, `subtitle`, `icon`, and `actionLabel` come from the `canvas` block, each a static value or a function of the typed tool call, so the agent supplies them through whatever `args` you expose (or your handler's `result`). `title` also names the canvas. The mapping is documented in full under [Getting Started → Client-Side Tools](?path=/docs/getting-started-client-side-tools--docs).
+The demo tool in `stories/utils/canvas-table-tool.ts` shows the pattern. The agent sends a `title`, a short `summary`, and the table data. Inline, `demo-table-overview-card` shows an overview with a preview of the first rows and a button that calls `canvas.toggle()`. The button opens `demo-canvas-table`, the full table, in the canvas, and reads "Close table" while that table is open. Without `canvas.available` the button is not shown.
 
 ```ts
-const tool: ToolDefinition<DataTableArgs> = {
-  ...displayDataTableTool,
+const tableTool: ToolDefinition<TableArgs> = {
+  name: 'displayTable',
+  parameters: {/* title, summary, headers, rows */},
+  renderer: createToolRenderer({ elementTag: 'my-table-overview' }),
   canvas: {
-    open: 'auto',
-    title: toolCall => toolCall.args.title ?? 'Data table',
-    subtitle: toolCall => `${toolCall.args.rows.length} rows`,
-    actionLabel: { open: 'Open table in canvas', collapse: 'Collapse table' }
+    renderer: createToolRenderer({ elementTag: 'my-table' }),
+    title: toolCall => toolCall.args.title
   }
 };
 ```
 
-<Canvas of={AiChatbotLauncherStories.CanvasAutoOpen} />
+<Canvas of={AiChatbotLauncherStories.CanvasOnRequest} />
 
-`inline` controls what the thread shows independently of when the canvas opens: `renderer` (default for `on-request`), `card` (default for `auto`), or `card-while-open`. Combining `card` with the default `on-request` puts the card in the thread first and opens the canvas only when the user clicks it, which suits large artifacts that should not open unprompted.
+If you would rather not build the inline UI, set `inline: 'card'` and the thread shows a compact `<forge-ai-artifact-card>` instead, built from the `canvas` block's `title`, `subtitle`, `icon`, and `actionLabel`. Each is a static value or a function of the typed tool call, so the agent supplies them through whatever `args` you expose (or your handler's `result`). The mapping is documented in full under [Getting Started → Client-Side Tools](?path=/docs/getting-started-client-side-tools--docs).
 
 <Canvas of={AiChatbotLauncherStories.CanvasCard} />
 
-`card-while-open` keeps the renderer inline and swaps it for the card only while that tool call is the one in the canvas. The card is marked `active` for the duration, clicking it again collapses the canvas, and the renderer returns when the canvas closes. This is the opt-in for any tool whose inline output would just duplicate the canvas.
+With `open: 'auto'` the canvas also opens as soon as the tool call renders, and the thread shows the artifact card (the default `inline` for `auto`) to reopen or collapse it. Tool calls loaded from history never auto-open.
 
-```ts
-const tool: ToolDefinition = {
-  ...displayDataTableTool,
-  canvas: { ...displayDataTableTool.canvas, inline: 'card-while-open' }
-};
-```
+<Canvas of={AiChatbotLauncherStories.CanvasAutoOpen} />
+
+`card-while-open` keeps the tool's own renderer inline and swaps it for the artifact card only while that tool call is the one in the canvas. The card is marked `active` for the duration, clicking it again collapses the canvas, and the renderer returns when the canvas closes. Use it when the inline UI would just duplicate the canvas.
 
 <Canvas of={AiChatbotLauncherStories.CanvasCardWhileOpen} />
 
-**From a renderer component.** Any tool renderer can ask for the canvas by calling `requestCanvasOpen(this, { toolCallId, toolName, title })` from `@tylertech/forge-ai`. The launcher creates a fresh instance of the tool's renderer (or `canvas.renderer` when provided) with `presentation = 'canvas'`. Hosts without a canvas leave the request unhandled, so renderers should only show the affordance when `presentation` is `inline-expandable`.
+**From a renderer component.** Tool renderers receive a `canvas` property (`ToolCanvas`) alongside `toolCall`, and `render` functions receive it as `render(toolCall, { canvas })`.
+
+| Member      | Description                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `available` | Whether the host can show this tool call in a canvas. False for tools without a `canvas` config and in hosts without a canvas. |
+| `isOpen`    | Whether this tool call is the one currently in the canvas.                                                                     |
+| `open()`    | Shows this tool call in the canvas. Accepts `{ title }`. Returns false if it could not.                                        |
+| `close()`   | Closes the canvas if it is showing this tool call.                                                                             |
+| `toggle()`  | Closes the canvas when this tool call is open, otherwise opens it.                                                             |
+
+The host assigns a new `canvas` object whenever `available` or `isOpen` changes, so declaring it as a reactive property re-renders the renderer:
+
+```ts
+@property({ attribute: false }) public canvas?: ToolCanvas;
+
+render() {
+  if (!this.canvas?.available) {
+    return nothing;
+  }
+  return html`<button @click=${() => this.canvas.toggle()}>${this.canvas.isOpen ? 'Close table' : 'Open table'}</button>`;
+}
+```
+
+The launcher creates a fresh instance of the tool's renderer (or `canvas.renderer` when provided) for the canvas. That instance has `presentation = 'canvas'`, and its `canvas.isOpen` is always true. `render` functions run once per change to `toolCall` or `canvas`, so they get a snapshot of `isOpen`; use an element renderer for UI that must track it. `requestCanvasOpen(target, { toolCallId, toolName, title })` and `requestCanvasClose` remain available for code outside a renderer and now return whether the host handled the request.
 
 ## Customization
 

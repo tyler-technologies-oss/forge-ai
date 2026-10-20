@@ -1,11 +1,11 @@
-import type { ToolCallMapper, ToolRenderer } from './types.js';
+import type { ToolRenderFunction, ToolRenderer } from './types.js';
 
 export interface CreateToolRendererElementConfig {
   elementTag: keyof HTMLElementTagNameMap;
 }
 
 export interface CreateToolRendererFunctionConfig<TArgs = Record<string, unknown>, TResult = unknown> {
-  render: ToolCallMapper<HTMLElement | DocumentFragment, TArgs, TResult>;
+  render: ToolRenderFunction<TArgs, TResult>;
 }
 
 export type CreateToolRendererConfig<TArgs = Record<string, unknown>, TResult = unknown> =

@@ -1,20 +1,6 @@
 import { type ToolDefinition, createToolRenderer } from '../../ai-chatbot';
 
-// A type alias rather than an interface so the tool stays assignable to a plain `ToolDefinition`.
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type DataTableArgs = {
-  title?: string;
-  headers: string[];
-  rows: (string | number)[][];
-  maxNumberOfRows?: number;
-};
-
-function rowCountLabel(rows: unknown[] | undefined): string {
-  const count = rows?.length ?? 0;
-  return `${count} ${count === 1 ? 'row' : 'rows'}`;
-}
-
-export const displayDataTableTool: ToolDefinition<DataTableArgs> = {
+export const displayDataTableTool: ToolDefinition = {
   name: 'displayDataTable',
   displayName: 'Display Data Table',
   description:
@@ -45,11 +31,5 @@ export const displayDataTableTool: ToolDefinition<DataTableArgs> = {
   },
   renderer: createToolRenderer({
     elementTag: 'forge-ai-tool-data-table'
-  }),
-  canvas: {
-    open: 'on-request',
-    title: toolCall => toolCall.args.title ?? 'Data table',
-    subtitle: toolCall => rowCountLabel(toolCall.args.rows),
-    actionLabel: { open: 'Open table in canvas', collapse: 'Collapse table' }
-  }
+  })
 };

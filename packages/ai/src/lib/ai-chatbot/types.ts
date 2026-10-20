@@ -38,9 +38,21 @@ export type ToolCallMapper<TReturn, TArgs = Record<string, unknown>, TResult = u
 export type ToolCallValue<TValue, TArgs = Record<string, unknown>, TResult = unknown> =
   TValue | ToolCallMapper<TValue, TArgs, TResult>;
 
+/** Host-provided context passed to a tool renderer's `render` function. */
+export interface ToolRenderContext {
+  presentation: ToolPresentation;
+  /** Controls captured when `render` runs; element renderers receive a reactive `canvas` property instead. */
+  canvas: ToolCanvas;
+}
+
+/** Bivariant like `ToolCallMapper`; a `render` that only takes the tool call remains valid. */
+export type ToolRenderFunction<TArgs = Record<string, unknown>, TResult = unknown> = {
+  bivarianceHack(toolCall: ToolCall<TArgs, TResult>, context: ToolRenderContext): HTMLElement | DocumentFragment;
+}['bivarianceHack'];
+
 export interface ToolRenderer<TArgs = Record<string, unknown>, TResult = unknown> {
   elementTag?: string;
-  render?: ToolCallMapper<HTMLElement | DocumentFragment, TArgs, TResult>;
+  render?: ToolRenderFunction<TArgs, TResult>;
 }
 
 /**
@@ -94,6 +106,24 @@ export interface ToolCanvasConfig<TArgs = Record<string, unknown>, TResult = unk
 export type ToolCanvasInline = 'renderer' | 'card' | 'card-while-open';
 
 /**
+ * Canvas controls the host injects into a tool renderer as `canvas`. A new object is assigned whenever
+ * `available` or `isOpen` changes, so declaring `canvas` as a reactive property re-renders the renderer.
+ * Hosts without a canvas inject one with `available: false` whose methods return `false`.
+ */
+export interface ToolCanvas {
+  /** Whether the host can show this tool call in a canvas. */
+  readonly available: boolean;
+  /** Whether this tool call is the one currently shown in the canvas. */
+  readonly isOpen: boolean;
+  /** Shows this tool call in the canvas. Returns false when unavailable or the host declined. */
+  open(options?: { title?: string }): boolean;
+  /** Closes the canvas if it is showing this tool call. Returns false when it was not or the host declined. */
+  close(): boolean;
+  /** Closes the canvas when this tool call is open, otherwise opens it. */
+  toggle(): boolean;
+}
+
+/**
  * Interface that tool renderer components should implement for type-safe tool call handling.
  * @template TArgs - Type of the tool call arguments
  * @template TResult - Type returned by the tool's handler
@@ -102,6 +132,8 @@ export interface IToolRenderer<TArgs = Record<string, unknown>, TResult = unknow
   toolCall: ToolCall<TArgs, TResult>;
   /** Assigned by the host to tell the renderer where it is displayed. */
   presentation?: ToolPresentation;
+  /** Assigned by the host to let the renderer open and close the canvas. */
+  canvas?: ToolCanvas;
 }
 
 /**

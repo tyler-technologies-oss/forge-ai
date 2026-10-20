@@ -7,8 +7,8 @@ import '$lib/ai-chatbot-launcher';
 import type { Suggestion } from '$lib/ai-suggestions';
 import type { Thread } from '$lib/ai-threads';
 import type { AiChatbotLauncherComponent } from '$lib/ai-chatbot-launcher';
-import type { AnyToolDefinition, ChatMessage, ToolDefinition } from '$lib/ai-chatbot/types';
-import { displayDataTableTool, type DataTableArgs } from '$lib/tools/ai-data-table';
+import type { AnyToolDefinition, ChatMessage } from '$lib/ai-chatbot/types';
+import { canvasTableTool } from '../../../utils/canvas-table-tool';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { standaloneStoryParams } from '../../../utils';
 import { defineButtonComponent, defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
@@ -715,6 +715,7 @@ const canvasSeedMessages: ChatMessage[] = [
 
 const salesTableArgs = {
   title: 'Regional sales, Q3',
+  summary: 'Revenue grew in 11 of 12 regions. Southeast led at $1.61M (+12.7%); Great Lakes was the only decline.',
   headers: ['Region', 'Revenue', 'Growth', 'Top product', 'Accounts'],
   rows: [
     ['Northeast', '$1.24M', '+8.2%', 'Permitting', 312],
@@ -805,54 +806,41 @@ function renderCanvasToolStory(tool: AnyToolDefinition): ReturnType<typeof html>
   `;
 }
 
-/** Data table renders inline; its expand button opens the same table in the canvas. */
+/**
+ * The tool's own renderer draws an overview card in the thread. Its "View all rows" button opens the full table,
+ * a separate `canvas.renderer`, beside the conversation.
+ */
 export const CanvasOnRequest: Story = {
   ...standaloneStoryParams,
-  render: () => renderCanvasToolStory(displayDataTableTool)
+  render: () => renderCanvasToolStory(canvasTableTool)
 };
 
-/** Data table opens straight into the canvas, leaving an artifact card in the thread. */
+/** The canvas opens as soon as the tool call renders, leaving the built-in artifact card in the thread to reopen or collapse it. */
 export const CanvasAutoOpen: Story = {
   ...standaloneStoryParams,
   render: () =>
     renderCanvasToolStory({
-      ...displayDataTableTool,
-      canvas: { ...displayDataTableTool.canvas, open: 'auto' }
+      ...canvasTableTool,
+      canvas: { ...canvasTableTool.canvas, open: 'auto' }
     })
 };
 
-const tableIconSvg =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 10.02h5V21h-5zM17 21h3c1.1 0 2-.9 2-2v-9h-5v11zm3-18H5c-1.1 0-2 .9-2 2v3h19V5c0-1.1-.9-2-2-2zM3 19c0 1.1.9 2 2 2h3V10H3v9z"/></svg>';
-
-/**
- * Data table is represented by an artifact card in the thread; clicking the card opens it in the canvas.
- * The card's icon and labels are mapped from the typed tool call via the `canvas` block.
- */
+/** The built-in artifact card replaces the tool's own UI in the thread; clicking it opens the table in the canvas. */
 export const CanvasCard: Story = {
   ...standaloneStoryParams,
-  render: () => {
-    const tool: ToolDefinition<DataTableArgs> = {
-      ...displayDataTableTool,
-      canvas: {
-        ...displayDataTableTool.canvas,
-        inline: 'card',
-        icon: tableIconSvg,
-        actionLabel: toolCall => ({
-          open: `Open ${toolCall.args.title ?? 'table'}`,
-          collapse: `Collapse ${toolCall.args.title ?? 'table'}`
-        })
-      }
-    };
-    return renderCanvasToolStory(tool);
-  }
+  render: () =>
+    renderCanvasToolStory({
+      ...canvasTableTool,
+      canvas: { ...canvasTableTool.canvas, inline: 'card' }
+    })
 };
 
-/** Data table renders inline until it is opened in the canvas, then swaps to an artifact card until the canvas closes. */
+/** The overview card renders inline until it is opened in the canvas, then swaps to an artifact card until the canvas closes. */
 export const CanvasCardWhileOpen: Story = {
   ...standaloneStoryParams,
   render: () =>
     renderCanvasToolStory({
-      ...displayDataTableTool,
-      canvas: { ...displayDataTableTool.canvas, inline: 'card-while-open' }
+      ...canvasTableTool,
+      canvas: { ...canvasTableTool.canvas, inline: 'card-while-open' }
     })
 };
