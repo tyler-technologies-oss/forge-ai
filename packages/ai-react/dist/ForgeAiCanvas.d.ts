@@ -67,5 +67,6 @@ export interface ForgeAiCanvasProps extends Pick<
  *
  * ### **CSS Properties:**
  *  - **--forge-ai-canvas-body-padding** - Padding around the body content _(default: undefined)_
+ * - **--forge-ai-canvas-border-inline-start** - Border on the panel's leading edge (default: 1px solid outline) _(default: undefined)_
  */
 export const ForgeAiCanvas: React.ForwardRefExoticComponent<ForgeAiCanvasProps>;

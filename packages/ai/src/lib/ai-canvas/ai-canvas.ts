@@ -40,6 +40,7 @@ export const AiCanvasComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-c
  * @property {string} closeLabel - Accessible label and tooltip for the close button (default: 'Close canvas')
  *
  * @cssproperty --forge-ai-canvas-body-padding - Padding around the body content
+ * @cssproperty --forge-ai-canvas-border-inline-start - Border on the panel's leading edge (default: 1px solid outline)
  *
  * @event {CustomEvent<void>} forge-ai-canvas-close - Fired when the close button is clicked
  */

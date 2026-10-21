@@ -49,6 +49,12 @@ const chatbot = floatingChat.chatbot;
 chatbot.sendMessage('Hello!');
 ```
 
+### Artifact Canvas
+
+Artifacts open in a modal over the floating chat, using the slotted chatbot's canvas API (`openCanvas()`, `closeCanvas()`, the `forge-ai-chatbot-canvas-open` and `-canvas-close` events). The floating chat stays open underneath. See [Chatbot → Artifact Canvas](?path=/docs/ai-components-primitives-chatbot--docs) for the details.
+
+<Canvas of={AiFloatingChatStories.WithArtifactCanvas} />
+
 ## API
 
 <CustomArgTypes />

@@ -73,3 +73,13 @@ forge-ai-chat-header {
   --forge-dialog-shape: 0;
   --forge-dialog-nonmodal-elevation: #{forge-elevation.value(1)};
 }
+
+.canvas-modal {
+  --forge-ai-modal-width: var(--forge-ai-chatbot-canvas-width, 80vw);
+  --forge-ai-modal-height: var(--forge-ai-chatbot-canvas-height, 80vh);
+}
+
+// The modal supplies its own frame, so the canvas drops the side-panel divider.
+.canvas {
+  --forge-ai-canvas-border-inline-start: none;
+}

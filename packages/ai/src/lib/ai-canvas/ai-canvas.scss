@@ -18,7 +18,7 @@
   min-inline-size: 0;
   box-sizing: border-box;
   background-color: #{forge-theme.variable(surface)};
-  border-inline-start: 1px solid #{forge-theme.variable(outline)};
+  border-inline-start: var(--forge-ai-canvas-border-inline-start, 1px solid #{forge-theme.variable(outline)});
 }
 
 .header {

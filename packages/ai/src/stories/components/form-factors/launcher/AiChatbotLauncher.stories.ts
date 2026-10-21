@@ -8,7 +8,7 @@ import type { Suggestion } from '$lib/ai-suggestions';
 import type { Thread } from '$lib/ai-threads';
 import type { AiChatbotLauncherComponent } from '$lib/ai-chatbot-launcher';
 import type { AnyToolDefinition, ChatMessage } from '$lib/ai-chatbot/types';
-import { canvasTableTool } from '../../../utils/canvas-table-tool';
+import { canvasTableTool, salesTableArgs } from '../../../utils/canvas-table-tool';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { standaloneStoryParams } from '../../../utils';
 import { defineButtonComponent, defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
@@ -721,26 +721,6 @@ const canvasSeedMessages: ChatMessage[] = [
     status: 'complete'
   }
 ];
-
-const salesTableArgs = {
-  title: 'Regional sales, Q3',
-  summary: 'Revenue grew in 11 of 12 regions. Southeast led at $1.61M (+12.7%); Great Lakes was the only decline.',
-  headers: ['Region', 'Revenue', 'Growth', 'Top product', 'Accounts'],
-  rows: [
-    ['Northeast', '$1.24M', '+8.2%', 'Permitting', 312],
-    ['Mid-Atlantic', '$980K', '+4.1%', 'Licensing', 241],
-    ['Southeast', '$1.61M', '+12.7%', 'Utility billing', 402],
-    ['Great Lakes', '$870K', '-1.3%', 'Court case management', 198],
-    ['Plains', '$540K', '+2.9%', 'Tax & assessment', 133],
-    ['Gulf Coast', '$1.05M', '+9.8%', 'Permitting', 276],
-    ['Mountain', '$690K', '+6.4%', 'Public safety', 164],
-    ['Southwest', '$1.12M', '+10.5%', 'Utility billing', 289],
-    ['Pacific Northwest', '$830K', '+3.6%', 'Licensing', 205],
-    ['California', '$2.03M', '+7.9%', 'Tax & assessment', 511],
-    ['Alaska', '$120K', '+0.8%', 'Public safety', 27],
-    ['Hawaii', '$210K', '+5.2%', 'Permitting', 44]
-  ]
-};
 
 function seedConversation(el: Element | undefined): void {
   const launcher = el as AiChatbotLauncherComponent | undefined;
