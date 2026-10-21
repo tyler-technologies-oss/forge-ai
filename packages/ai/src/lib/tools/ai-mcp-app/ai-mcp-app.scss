@@ -1,0 +1,66 @@
+@use '@tylertech/forge/sass/core/styles/theme' as forge-theme;
+@use '@tylertech/forge/sass/core/styles/shape' as forge-shape;
+@use '@tylertech/forge/sass/core/styles/spacing' as forge-spacing;
+@use '@tylertech/forge/sass/core/styles/elevation' as forge-elevation;
+
+:host {
+  display: block;
+  margin-block: #{forge-spacing.variable(medium)};
+}
+
+.container {
+  // Every mode uses the same `popover="manual"` element (Popover API top-layer
+  // promotion in place, never a DOM move) so the iframe/bridge survive mode changes.
+  // The UA popover stylesheet forces `display: none` + `position: fixed` on
+  // `[popover]` regardless of `:popover-open` state; override both so the inline
+  // (non-promoted) mode renders as normal flow.
+  position: static;
+  inset: auto;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  padding: 0;
+  border: none;
+  background: inherit;
+  color: inherit;
+
+  &.bordered {
+    border: 1px solid #{forge-theme.variable(outline)};
+    border-radius: #{forge-shape.variable(large)};
+    overflow: hidden;
+  }
+
+  &:popover-open {
+    position: fixed;
+  }
+
+  &.fullscreen:popover-open {
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  &.pip:popover-open {
+    inset: auto;
+    bottom: #{forge-spacing.variable(medium)};
+    right: #{forge-spacing.variable(medium)};
+    width: 360px;
+    height: 240px;
+    box-shadow: #{forge-elevation.value(4)};
+  }
+}
+
+iframe {
+  display: block;
+  border: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.error-icon {
+  width: 48px;
+  height: 48px;
+  fill: #{forge-theme.variable(outline)};
+}

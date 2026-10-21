@@ -2,6 +2,7 @@ import { LitElement, TemplateResult, html, unsafeCSS, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { keyed } from 'lit/directives/keyed.js';
 import type { AssistantResponse, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-response-message-toolbar';
@@ -10,6 +11,7 @@ import '../ai-response-message-toolbar';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
 import '../ai-tool-call-indicator';
 import '../ai-thinking-indicator';
+import '../tools/ai-mcp-app/ai-mcp-app.js';
 
 import styles from './ai-assistant-response.scss?inline';
 
@@ -102,7 +104,19 @@ export class AiAssistantResponseComponent extends LitElement {
     return html`<div class="text-chunk">${unsafeHTML(renderedHtml)}</div>`;
   }
 
-  #renderToolCall(toolCall: ToolCall): TemplateResult | typeof nothing {
+  #isMcpAppToolCall(toolCall: ToolCall): boolean {
+    return !!toolCall.uiResource || this.tools?.get(toolCall.name)?.mcpApp !== undefined;
+  }
+
+  #renderToolCall(toolCall: ToolCall): unknown {
+    if (toolCall.uiResource) {
+      return keyed(toolCall.id, html`<forge-ai-mcp-app .toolCall=${toolCall}></forge-ai-mcp-app>`);
+    }
+
+    if (this.#isMcpAppToolCall(toolCall)) {
+      return nothing;
+    }
+
     const toolDefinition = this.tools?.get(toolCall.name);
 
     if (!toolDefinition?.renderer) {
@@ -114,8 +128,8 @@ export class AiAssistantResponseComponent extends LitElement {
       .toolDefinition=${toolDefinition}></forge-ai-chatbot-tool-call>`;
   }
 
-  get #children(): (TemplateResult | typeof nothing)[] {
-    const results: (TemplateResult | typeof nothing)[] = [];
+  get #children(): unknown[] {
+    const results: unknown[] = [];
     let toolBuffer: ToolCall[] = [];
 
     const flushIndicator = (): void => {
@@ -142,6 +156,11 @@ export class AiAssistantResponseComponent extends LitElement {
       if (child.type === 'text') {
         flushIndicator();
         results.push(this.#renderTextChunk(child));
+      } else if (this.#isMcpAppToolCall(child.data)) {
+        // MCP-app tool calls never go through the tool-call indicator — the widget itself
+        // (once mounted) is the visible signal; before that, the thinking indicator covers it.
+        flushIndicator();
+        results.push(this.#renderToolCall(child.data));
       } else {
         toolBuffer.push(child.data);
       }
@@ -224,9 +243,14 @@ export class AiAssistantResponseComponent extends LitElement {
     // This is intentionally based on the tool call's real status, not on whether its renderer
     // has mounted: a renderOnStart tool awaiting user input should keep this hidden, while a
     // truly settled tool call should let the indicator reappear to signal a gap before the next step.
+    // MCP-app tool calls never render an indicator of their own, so they instead stay covered
+    // until the widget mounts (uiResource stamped) — after that the widget is the visible signal.
     const hasActiveToolCall = this.response.children.some(child => {
       if (child.type !== 'toolCall') {
         return false;
+      }
+      if (this.#isMcpAppToolCall(child.data)) {
+        return !!child.data.uiResource;
       }
       return child.data.status === 'parsing' || child.data.status === 'executing' || child.data.status === 'pending';
     });

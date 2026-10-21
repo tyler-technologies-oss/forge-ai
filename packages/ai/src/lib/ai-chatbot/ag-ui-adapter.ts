@@ -110,7 +110,7 @@ export class AgUiAdapter extends AgentAdapter {
 
     this.#agent.setMessages(transformedMessages);
 
-    const tools = this.#transformTools(this._tools);
+    const tools = this.#transformTools(this.getModelFacingTools());
 
     this.#agent.runAgent({ tools, context });
   }
