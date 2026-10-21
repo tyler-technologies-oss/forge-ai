@@ -20,7 +20,7 @@ Tools can have both capabilities if needed.
 Every tool is defined using the `ToolDefinition` interface:
 
 ```typescript
-interface ToolDefinition<TArgs = Record<string, unknown>> {
+interface ToolDefinition<TArgs = Record<string, unknown>, TResult = string | Record<string, unknown>> {
   name: string; // Unique identifier
   displayName?: string; // Human-readable name (for tool debugging UI)
   description?: string; // Tells the LLM what this tool does
@@ -30,12 +30,16 @@ interface ToolDefinition<TArgs = Record<string, unknown>> {
     properties?: Record<string, unknown>;
     required?: string[];
   };
-  // Execution handler
-  handler?: (context: HandlerContext<TArgs>) => Promise<string | object | void> | string | object | void;
+  // Execution handler; its return value becomes `toolCall.result`
+  handler?(context: HandlerContext<TArgs>): Promise<TResult | void> | TResult | void;
   // For displaying UI in the chat
   renderer?: ToolRenderer;
+  // Opt-in to the artifact canvas in hosts that provide one (see below)
+  canvas?: ToolCanvasConfig<TArgs, TResult>;
 }
 ```
+
+`TArgs` is the shape of the arguments the LLM sends and `TResult` is what your handler returns. Both flow through the handler and the canvas mappers, so a fully typed tool never needs a cast. Both are optional, and tools written without them keep compiling. `renderer` is intentionally loosely typed so any `ToolRenderer`, including one whose `render` takes a plain `ToolCall`, fits on any `ToolDefinition<TArgs>`; annotate `render` with `ToolCall<TArgs, TResult>` when you want its argument typed.
 
 ## Registering Tools
 
@@ -188,7 +192,7 @@ interface UserData {
   avatar: string;
 }
 
-const userLookupTool: ToolDefinition<UserLookupArgs> = {
+const userLookupTool: ToolDefinition<UserLookupArgs, UserData> = {
   name: 'lookupUser',
   description: 'Fetch and display user information',
   parameters: {
@@ -203,7 +207,7 @@ const userLookupTool: ToolDefinition<UserLookupArgs> = {
     const response = await fetch(`/api/users/${context.args.userId}`);
     const userData: UserData = await response.json();
 
-    // Return fetched data
+    // Return fetched data; typed as UserData, so a wrong shape is a compile error
     return userData;
   },
   renderer: createToolRenderer({
@@ -214,20 +218,20 @@ const userLookupTool: ToolDefinition<UserLookupArgs> = {
 
 ### Accessing Handler Results in Renderer
 
-The renderer component can access both the original arguments and the handler's return value:
+The renderer component can access both the original arguments and the handler's return value. Pass the same two type parameters to `IToolRenderer` and `ToolCall` and `result` is typed too:
 
 ```typescript
 @customElement('user-profile-card')
-export class UserProfileCard extends LitElement implements IToolRenderer<UserLookupArgs> {
+export class UserProfileCard extends LitElement implements IToolRenderer<UserLookupArgs, UserData> {
   @property({ attribute: false })
-  public toolCall!: ToolCall<UserLookupArgs>;
+  public toolCall!: ToolCall<UserLookupArgs, UserData>;
 
   render() {
     // Access original LLM arguments
     const userId = this.toolCall.args.userId;
 
-    // Access data returned by handler
-    const userData = this.toolCall.result as UserData;
+    // Access data returned by handler (undefined until the handler resolves)
+    const userData = this.toolCall.result;
 
     if (!userData) {
       return html`<p>Loading user ${userId}...</p>`;
@@ -294,6 +298,67 @@ export class MyElement extends LitElement implements IToolRenderer<GreetingArgs>
   }
 }
 ```
+
+### Registering Typed Tools
+
+Adapters and components accept `AnyToolDefinition[]`, a type-erased alias that every `ToolDefinition<TArgs, TResult>` is assignable to. Typed and untyped tools mix freely in one list:
+
+```typescript
+import { AgUiAdapter, type AnyToolDefinition } from '@tylertech/forge-ai';
+
+const tools: AnyToolDefinition[] = [typedHelloTool, userLookupTool, displayDataTableTool];
+const adapter = new AgUiAdapter({ url: 'your-api-url', tools });
+```
+
+Callbacks on a tool definition are deliberately bivariant in their argument type so this works. Inside the library the tool call is dispatched by `name`, so the erasure is a typing convenience, not a runtime change.
+
+Existing code needs no changes: `TResult` defaults to the union handlers could return before it was a parameter, and `ToolDefinition<TArgs>` with a single type argument behaves as it always has. Declaring argument types with `type` rather than `interface` is still what lets a `ToolDefinition<TArgs>` be stored in a plain `ToolDefinition[]`; `AnyToolDefinition[]` removes that restriction.
+
+## Canvas and Artifact Card
+
+Hosts with an artifact canvas (currently `<forge-ai-chatbot-launcher>`) can show a tool's output in a panel beside the conversation and represent it in the thread with a compact `<forge-ai-artifact-card>`. A tool opts in with the `canvas` block. Every value in it is either static or a function of the `ToolCall`, so it can come from the agent's `args` or from your handler's `result`:
+
+| Field         | Type                                        | Used for                                    | Default                                |
+| ------------- | ------------------------------------------- | ------------------------------------------- | -------------------------------------- |
+| `open`        | `'auto' \| 'on-request'`                    | When the canvas opens                       | `'on-request'`                         |
+| `inline`      | `'renderer' \| 'card' \| 'card-while-open'` | What the thread shows                       | `'card'` for `auto`, else `'renderer'` |
+| `renderer`    | `ToolRenderer`                              | Renderer used inside the canvas             | The tool's `renderer`                  |
+| `title`       | `string \| (toolCall) => string`            | Canvas header and card title                | `displayName`, then `name`             |
+| `subtitle`    | `string \| (toolCall) => string`            | Card subtitle                               | none                                   |
+| `icon`        | `SVGElement \| string \| (toolCall) => …`   | Card icon; markup strings are sanitized     | Generic artifact glyph                 |
+| `actionLabel` | `{ open, collapse } \| (toolCall) => …`     | Card tooltip and accessible label per state | "Open in canvas" / "Collapse canvas"   |
+
+```typescript
+interface ReportArgs {
+  title: string;
+  kind: 'report' | 'query';
+  summary?: string; // Ask the agent for a one-line summary in `parameters`
+}
+
+interface ReportResult {
+  chartCount: number;
+}
+
+const reportTool: ToolDefinition<ReportArgs, ReportResult> = {
+  name: 'buildReport',
+  parameters: {/* title, kind, summary */},
+  handler: async context => generateReport(context.args),
+  renderer: createToolRenderer({ elementTag: 'my-report-view' }),
+  canvas: {
+    inline: 'card-while-open',
+    title: toolCall => toolCall.args.title,
+    subtitle: toolCall => toolCall.args.summary ?? `${toolCall.result?.chartCount ?? 0} charts`,
+    icon: toolCall => (toolCall.args.kind === 'report' ? reportIconSvg : queryIconSvg),
+    actionLabel: toolCall => ({ open: `Open ${toolCall.args.kind}`, collapse: `Collapse ${toolCall.args.kind}` })
+  }
+};
+```
+
+Because `ToolDefinition<ReportArgs, ReportResult>` is typed, `toolCall.args` and `toolCall.result` are typed inside every mapper with no casts. Result-derived values are `undefined` until the handler resolves, so give them a fallback as above.
+
+Icons may be an `<svg>` element or an SVG markup string. Strings are parsed and reduced to an allowlist before being slotted: only `svg`, `g`, `path`, `circle`, `ellipse`, `rect`, `line`, `polyline`, and `polygon` elements survive, with geometry and presentation attributes such as `viewBox`, `d`, `fill`, `stroke`, and `transform`. Scripts, styles, animation, references, and event handlers are dropped. That makes agent-supplied markup safe to slot, but prefer mapping an agent-chosen `kind` to icons you own. Keep the artifact type in `actionLabel` ("Open report" rather than "Open") so users comparing several cards can tell them apart.
+
+See the [Launcher docs](?path=/docs/ai-components-form-factors-launcher--docs) for how the canvas behaves and the [Artifact Card docs](?path=/docs/ai-components-primitives-artifact-card--docs) for the card itself.
 
 ## Real-World Use Cases
 

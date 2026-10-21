@@ -18,6 +18,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     minimizeIcon,
     selectedThreadId,
     threadsError,
+    canvasTitle,
     fileUpload,
     maxFileSize,
     acceptedFileTypes,
@@ -140,6 +141,16 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
     "forge-ai-chatbot-thread-retry",
     props.onForgeAiChatbotThreadRetry,
   );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-canvas-open",
+    props.onForgeAiChatbotCanvasOpen,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-canvas-close",
+    props.onForgeAiChatbotCanvasClose,
+  );
 
   /** Properties - run whenever a property has changed */
   useProperties(ref, "agentInfo", props.agentInfo);
@@ -162,6 +173,7 @@ export const ForgeAiChatbot = forwardRef((props, forwardedRef) => {
       "selected-thread-id":
         props.selectedThreadId || props["selected-thread-id"],
       "threads-error": props.threadsError || props["threads-error"],
+      "canvas-title": props.canvasTitle || props["canvas-title"],
       "file-upload": props.fileUpload || props["file-upload"],
       "max-file-size": props.maxFileSize || props["max-file-size"],
       "accepted-file-types":

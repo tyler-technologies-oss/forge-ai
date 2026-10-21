@@ -1,8 +1,10 @@
-import { html, unsafeCSS, type TemplateResult } from 'lit';
+import { html, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
+import type { AiCanvasComponent } from '../ai-canvas';
 import type { AiChatInterfaceComponent } from '../ai-chat-interface';
+import type { AiModalComponent } from '../ai-modal';
 import type { AiMessageThreadComponent } from '../ai-message-thread';
 import type { AiPromptComponent } from '../ai-prompt';
 import type {
@@ -13,6 +15,7 @@ import type {
   ForgeAiConversationsPanelDeleteEventData
 } from '../ai-conversations-panel';
 import { AiChatbotBase } from './ai-chatbot-base.js';
+import { CanvasController, type CanvasOpenEventData, type OpenCanvasOptions } from '../core/canvas-controller.js';
 import type {
   Agent,
   ChatMessage,
@@ -27,12 +30,14 @@ import type {
 import { forwardCancelableEvent } from '../utils.js';
 
 import '../ai-attachment';
+import '../ai-canvas';
 import '../ai-chat-header';
 import '../ai-chat-interface';
 import '../ai-context-chip';
 import '../ai-conversations-panel';
 import '../ai-file-picker';
 import '../ai-message-thread';
+import '../ai-modal';
 import '../ai-prompt';
 import '../ai-spinner';
 import '../ai-suggestions';
@@ -73,6 +78,8 @@ declare global {
     'forge-ai-chatbot-thread-delete': CustomEvent<ForgeAiChatbotThreadDeleteEventData>;
     'forge-ai-chatbot-context-remove': CustomEvent<ForgeAiChatbotContextRemoveEventData>;
     'forge-ai-chatbot-thread-retry': CustomEvent<void>;
+    'forge-ai-chatbot-canvas-open': CustomEvent<CanvasOpenEventData>;
+    'forge-ai-chatbot-canvas-close': CustomEvent<void>;
   }
 }
 
@@ -146,12 +153,15 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @property {FeatureToggle} exportOption - Controls the export-conversation header action. `'on'` (default) shows it when messages exist; `'off'` hides it entirely.
  * @property {string | null} selectedThreadId - The id of the currently selected thread. Set this to highlight a thread in the conversations panel (e.g. when restoring a conversation loaded from the backend). Updated internally when a thread is selected or a new chat starts.
  * @property {boolean} threadsLoading - When true, shows a loading indicator in the conversations panel's recent chats list while threads are loading (default: false)
+ * @property {string} canvasTitle - Default title for the artifact canvas modal, used when the open request does not supply one
  * @property {string | undefined} threadsError - Message describing a failed thread load. When set, the conversations panel shows the message with a retry button instead of its empty state or loading indicator. The conversations button also shows an error badge so the failure is visible with the panel closed. If threads are already loaded the list stays visible and the message renders as a compact single line with a retry - at the bottom of the list when a page was in flight, otherwise above it. Clear it once a load succeeds.
  *
  * @cssproperty --forge-ai-chatbot-icon-color - The fill color for the AI icon. Defaults to `tertiary`.
  * @cssproperty --forge-ai-chatbot-suggestion-background - The background color for suggestion buttons. Defaults to `tertiary-container`.
  * @cssproperty --forge-ai-chatbot-suggestion-foreground - The text color for suggestion buttons. Defaults to `on-tertiary-container`.
  * @cssproperty --forge-ai-chatbot-header-title-color - The color of the header title text. Defaults to `currentColor`.
+ * @cssproperty --forge-ai-chatbot-canvas-width - Width of the artifact canvas modal (default: 80vw).
+ * @cssproperty --forge-ai-chatbot-canvas-height - Height of the artifact canvas modal (default: 80vh).
  *
  * @event {CustomEvent<void>} forge-ai-chatbot-connected - Fired when adapter connects
  * @event {CustomEvent<void>} forge-ai-chatbot-disconnected - Fired when adapter disconnects
@@ -176,6 +186,8 @@ export const AiChatbotComponentTagName: keyof HTMLElementTagNameMap = 'forge-ai-
  * @event {CustomEvent<ForgeAiChatbotThreadRenameEventData>} forge-ai-chatbot-thread-rename - Fired when user renames a thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
  * @event {CustomEvent<ForgeAiChatbotThreadDeleteEventData>} forge-ai-chatbot-thread-delete - Fired when user deletes a thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
  * @event {CustomEvent<void>} forge-ai-chatbot-thread-retry - Fired when the retry button in the conversations panel's error state is clicked. Re-request the threads and clear threadsError once the load succeeds
+ * @event {CustomEvent<CanvasOpenEventData>} forge-ai-chatbot-canvas-open - Fired before the canvas modal opens or replaces its content. Cancelable - prevents the canvas from opening
+ * @event {CustomEvent<void>} forge-ai-chatbot-canvas-close - Fired when the canvas modal closes. Cancelable only for user or `closeCanvas()` initiated closes; closes caused by clearing the thread cannot be prevented
  */
 @customElement(AiChatbotComponentTagName)
 export class AiChatbotComponent extends AiChatbotBase {
@@ -216,6 +228,20 @@ export class AiChatbotComponent extends AiChatbotBase {
 
   @property({ type: String, attribute: 'threads-error' })
   public threadsError?: string;
+
+  @property({ attribute: 'canvas-title' })
+  public canvasTitle?: string;
+
+  #canvasModalRef = createRef<AiModalComponent>();
+  #canvasRef = createRef<AiCanvasComponent>();
+  readonly #canvas = new CanvasController(this, {
+    openEvent: 'forge-ai-chatbot-canvas-open',
+    closeEvent: 'forge-ai-chatbot-canvas-close',
+    dispatchHostEvent: config => this._dispatchHostEvent(config),
+    getToolCalls: () => this._toolCalls,
+    getTools: () => this._tools,
+    onRefocus: () => this.#canvasRef.value?.focus()
+  });
 
   #chatInterfaceRef = createRef<AiChatInterfaceComponent>();
   protected override _messageThreadRef = createRef<AiMessageThreadComponent>();
@@ -258,6 +284,95 @@ export class AiChatbotComponent extends AiChatbotBase {
     this._promptRef.value?.focus();
   }
 
+  public override willUpdate(changedProperties: PropertyValues<this>): void {
+    super.willUpdate(changedProperties);
+    this.#canvas.syncToolCall();
+  }
+
+  // Auto-open dispatches a cancelable event, so it runs after render where listeners can safely call chatbot APIs.
+  public override updated(changedProperties: PropertyValues<this>): void {
+    super.updated(changedProperties);
+    this.#syncCanvasModal();
+    this.#canvas.autoOpenPending();
+  }
+
+  public get canvasOpen(): boolean {
+    return this.#canvas.isOpen;
+  }
+
+  /**
+   * Opens the artifact canvas in a modal over the chatbot, or swaps its content if already open.
+   * Returns false when the open event is prevented.
+   */
+  public openCanvas(options: OpenCanvasOptions = {}): boolean {
+    return this.#canvas.open(options);
+  }
+
+  /**
+   * Closes the artifact canvas. Returns false if it was not open or the close event was prevented.
+   */
+  public closeCanvas(): boolean {
+    return this.#canvas.close();
+  }
+
+  public override clearMessages(): boolean {
+    if (super.clearMessages()) {
+      this.#canvas.reset();
+      return true;
+    }
+    return false;
+  }
+
+  public override setMessages(messages: ChatMessage[]): void {
+    this.#canvas.reset();
+    this.#canvas.markSeen(messages);
+    super.setMessages(messages);
+  }
+
+  // The native <dialog> owns its open state; mirror the controller's state onto it after each render.
+  #syncCanvasModal(): void {
+    const modal = this.#canvasModalRef.value;
+    if (modal && modal.open !== this.#canvas.isOpen) {
+      modal.open = this.#canvas.isOpen;
+    }
+  }
+
+  // Escape and backdrop clicks close the dialog natively; route them through the cancelable close event.
+  #handleCanvasModalClose(evt: CustomEvent<{ reason: string }>): void {
+    evt.stopPropagation();
+    if (evt.detail.reason === 'programmatic' || !this.#canvas.isOpen) {
+      return;
+    }
+    if (!this.#canvas.close()) {
+      this.#syncCanvasModal();
+    }
+  }
+
+  get #canvasModal(): TemplateResult {
+    const title = this.#canvas.content?.title ?? this.canvasTitle ?? '';
+    return html`
+      <forge-ai-modal
+        ${ref(this.#canvasModalRef)}
+        class="canvas-modal"
+        label=${title || 'Canvas'}
+        @forge-ai-modal-close=${this.#handleCanvasModalClose}>
+        <forge-ai-canvas
+          ${ref(this.#canvasRef)}
+          class="canvas"
+          .titleText=${title}
+          .headingLevel=${this.headingLevel}
+          @forge-ai-canvas-close=${this.#handleCanvasCloseClick}>
+          <slot name="canvas-actions" slot="actions"></slot>
+          ${this.#canvas.content?.node ?? html`<slot name="canvas"></slot>`}
+        </forge-ai-canvas>
+      </forge-ai-modal>
+    `;
+  }
+
+  #handleCanvasCloseClick(): void {
+    this.#canvas.close();
+  }
+
   public showConversations(): void {
     const dialog = this.#conversationsDialogRef.value;
     if (dialog && !dialog.open) {
@@ -292,6 +407,7 @@ export class AiChatbotComponent extends AiChatbotBase {
   public override startNewChat(): void {
     super.startNewChat();
     this.selectedThreadId = null;
+    this.#canvas.reset();
   }
 
   #handleConversationsDialogClose(): void {
@@ -468,7 +584,10 @@ export class AiChatbotComponent extends AiChatbotBase {
 
   public override render(): TemplateResult {
     return html`
-      <div class="chatbot-container">
+      <div
+        class="chatbot-container"
+        @forge-ai-canvas-open-request=${this.#canvas.handleOpenRequest}
+        @forge-ai-canvas-close-request=${this.#canvas.handleCloseRequest}>
         <forge-ai-chat-interface
           ${ref(this.#chatInterfaceRef)}
           role="region"
@@ -542,6 +661,7 @@ export class AiChatbotComponent extends AiChatbotBase {
             </dialog>
           `
         )}
+        ${this.#canvasModal}
       </div>
     `;
   }

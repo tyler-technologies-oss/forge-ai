@@ -16,6 +16,9 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
     totalThreads,
     threadsError,
     selectedThreadId,
+    canvasTitle,
+    canvasResizable,
+    chatWidth,
     fileUpload,
     maxFileSize,
     acceptedFileTypes,
@@ -117,6 +120,21 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
     "forge-ai-chatbot-launcher-thread-retry",
     props.onForgeAiChatbotLauncherThreadRetry,
   );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-canvas-open",
+    props.onForgeAiChatbotLauncherCanvasOpen,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-canvas-resize",
+    props.onForgeAiChatbotLauncherCanvasResize,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-chatbot-launcher-canvas-close",
+    props.onForgeAiChatbotLauncherCanvasClose,
+  );
 
   /** Properties - run whenever a property has changed */
   useProperties(ref, "threads", props.threads);
@@ -141,6 +159,9 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       "threads-error": props.threadsError || props["threads-error"],
       "selected-thread-id":
         props.selectedThreadId || props["selected-thread-id"],
+      "canvas-title": props.canvasTitle || props["canvas-title"],
+      "canvas-resizable": props.canvasResizable || props["canvas-resizable"],
+      "chat-width": props.chatWidth || props["chat-width"],
       "file-upload": props.fileUpload || props["file-upload"],
       "max-file-size": props.maxFileSize || props["max-file-size"],
       "accepted-file-types":
