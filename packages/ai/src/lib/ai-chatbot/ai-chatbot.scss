@@ -82,4 +82,7 @@ forge-ai-chat-header {
 // The modal supplies its own frame, so the canvas drops the side-panel divider.
 .canvas {
   --forge-ai-canvas-border-inline-start: none;
+
+  flex: 1;
+  min-inline-size: 0;
 }

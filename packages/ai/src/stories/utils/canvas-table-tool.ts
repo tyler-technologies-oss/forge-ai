@@ -242,7 +242,7 @@ declare global {
  */
 export const canvasTableTool: ToolDefinition<CanvasTableArgs> = {
   name: 'displayCanvasTable',
-  displayName: 'Display Table',
+  displayName: 'Sales Data',
   description:
     'Presents tabular data as an overview with a full table. Provide a short summary of what the data shows and order each row as [label, value, ...].',
   parameters: {
