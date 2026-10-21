@@ -75,7 +75,7 @@ export const AiThreadsSearchComponentTagName: keyof HTMLElementTagNameMap = 'for
  * @slot header-actions - Slot for a persistent action pinned to the top-right of the header, alongside the "New chat" button (e.g. a "View all" button).
  *
  * @event {CustomEvent<ForgeAiThreadsSearchQueryEventData>} forge-ai-threads-search-query - Fired when search query changes (debounced).
- * @event {CustomEvent<ForgeAiThreadsSearchLoadMoreEventData>} forge-ai-threads-search-load-more - Fired when user scrolls near bottom for pagination.
+ * @event {CustomEvent<ForgeAiThreadsSearchLoadMoreEventData>} forge-ai-threads-search-load-more - Fired when the user scrolls near the bottom or clicks "Load more" for pagination.
  * @event {CustomEvent<ForgeAiThreadsSearchSelectEventData>} forge-ai-threads-search-select - Fired when a thread is selected.
  * @event {CustomEvent} forge-ai-threads-search-new-chat - Fired when new chat button clicked.
  * @event {CustomEvent<ForgeAiThreadsSearchRenameEventData>} forge-ai-threads-search-rename - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
@@ -158,6 +158,9 @@ export class AiThreadsSearchComponent extends LitElement {
   @query('.results-container')
   private _resultsContainer!: HTMLElement;
 
+  @query('#threads-search-input')
+  private _searchInput?: HTMLInputElement;
+
   @state() private _searchQuery = '';
   @state() private _isSearching = false;
   @state() private _searchResults: Thread[] = [];
@@ -166,6 +169,7 @@ export class AiThreadsSearchComponent extends LitElement {
   @state() private _openMenuThreadId: string | null = null;
 
   private _searchTimeout?: number;
+  #focusRowIndexAfterLoad: number | null = null;
 
   #deleteThreadController = new DeleteThreadController(this, {
     onConfirm: thread => this.#confirmDelete(thread)
@@ -220,6 +224,7 @@ export class AiThreadsSearchComponent extends LitElement {
 
   #performSearch(): void {
     const searchQuery = this._searchQuery.trim();
+    this.#focusRowIndexAfterLoad = null;
     this.#infiniteScrollController.reset();
 
     const searchEvent = new CustomEvent<ForgeAiThreadsSearchQueryEventData>('forge-ai-threads-search-query', {
@@ -247,11 +252,28 @@ export class AiThreadsSearchComponent extends LitElement {
     }
   }
 
+  #handleLoadMoreClick(): void {
+    if (this.#infiniteScrollController.isLoadingMore) {
+      return;
+    }
+    this.#focusRowIndexAfterLoad = this.#displayedThreads.length;
+    this.#infiniteScrollController.setLoadingState(true);
+    this.#loadMore();
+  }
+
+  #focusRow(index: number): void {
+    const rows = this.shadowRoot?.querySelectorAll<HTMLElement>('.forge-list-item > button') ?? [];
+    rows[index]?.focus();
+  }
+
   #loadMore(): void {
     const loadMoreEvent = new CustomEvent<ForgeAiThreadsSearchLoadMoreEventData>('forge-ai-threads-search-load-more', {
       detail: {
         query: this._searchQuery,
         appendResults: (results: Thread[]) => {
+          const focusRowIndex = this.#focusRowIndexAfterLoad;
+          this.#focusRowIndexAfterLoad = null;
+
           if (results.length === 0) {
             this.#infiniteScrollController.setHasMore(false);
           } else {
@@ -259,6 +281,9 @@ export class AiThreadsSearchComponent extends LitElement {
               this._searchResults = [...this._searchResults, ...results];
             } else {
               this.threads = [...this.threads, ...results];
+            }
+            if (focusRowIndex !== null) {
+              void this.updateComplete.then(() => this.#focusRow(focusRowIndex));
             }
           }
           this.#infiniteScrollController.setLoadingState(false);
@@ -297,6 +322,11 @@ export class AiThreadsSearchComponent extends LitElement {
   }
 
   #handleRetryClick(): void {
+    if (this._searchQuery.trim()) {
+      this.#performSearch();
+      return;
+    }
+
     const event = new CustomEvent<void>('forge-ai-threads-search-retry', {
       bubbles: true,
       composed: true
@@ -418,10 +448,34 @@ export class AiThreadsSearchComponent extends LitElement {
   }
 
   #handleClearSearch(): void {
+    this.resetSearch();
+    this._searchInput?.focus();
+  }
+
+  /**
+   * Discards the current query and its results so the list shows every loaded chat again.
+   * Dispatches no search event and moves no focus, so a host may call it on a surface that is
+   * currently hidden (e.g. a popover that stays mounted between opens).
+   */
+  public resetSearch(): void {
+    clearTimeout(this._searchTimeout);
     this._searchQuery = '';
     this._searchResults = [];
     this._isSearching = false;
+    this.#focusRowIndexAfterLoad = null;
     this.#infiniteScrollController.reset();
+  }
+
+  /**
+   * Moves focus into the component: the search input when shown, otherwise the first chat in
+   * the list, otherwise the first header button.
+   */
+  public override focus(): void {
+    const target =
+      this._searchInput ??
+      this.shadowRoot?.querySelector<HTMLElement>('.forge-list-item > button') ??
+      this.shadowRoot?.querySelector<HTMLElement>('button');
+    target?.focus();
   }
 
   get #displayedThreads(): Thread[] {
@@ -489,7 +543,11 @@ export class AiThreadsSearchComponent extends LitElement {
         ${when(
           this._searchQuery.length,
           () => html`
-            <button class="forge-icon-button forge-icon-button--small" type="button" @click=${this.#handleClearSearch}>
+            <button
+              class="forge-icon-button forge-icon-button--small"
+              type="button"
+              aria-label="Clear search"
+              @click=${this.#handleClearSearch}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="forge-icon" aria-hidden="true">
                 <path
                   d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
@@ -614,15 +672,30 @@ export class AiThreadsSearchComponent extends LitElement {
       return this.#compactError;
     }
 
-    if (!this.#infiniteScrollController.isLoadingMore) {
-      return nothing;
+    if (this.#infiniteScrollController.isLoadingMore) {
+      return html`
+        <div class="loading-more-indicator">
+          <forge-ai-spinner></forge-ai-spinner>
+        </div>
+      `;
     }
 
-    return html`
-      <div class="loading-more-indicator">
-        <forge-ai-spinner></forge-ai-spinner>
-      </div>
-    `;
+    // A tall viewport may fit the whole first page so scrolling never requests the next one,
+    // and keyboard users need an explicit paging action.
+    if (this.#shouldEnablePagination && this.#infiniteScrollController.hasMoreResults) {
+      return html`
+        <div class="loading-more-indicator">
+          <button
+            type="button"
+            class="forge-button forge-button--dense load-more-button"
+            @click=${this.#handleLoadMoreClick}>
+            Load more
+          </button>
+        </div>
+      `;
+    }
+
+    return nothing;
   }
 
   get #resultsList(): TemplateResult {

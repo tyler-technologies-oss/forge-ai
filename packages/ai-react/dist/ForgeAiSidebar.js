@@ -4,11 +4,16 @@ import { useEventListener } from "./react-utils.js";
 
 export const ForgeAiSidebar = forwardRef((props, forwardedRef) => {
   const ref = useRef(null);
-  const { open, resizable, ...filteredProps } = props;
+  const { open, resizable, width, ...filteredProps } = props;
 
   /** Event listeners - run once */
   useEventListener(ref, "forge-ai-sidebar-open", props.onForgeAiSidebarOpen);
   useEventListener(ref, "forge-ai-sidebar-close", props.onForgeAiSidebarClose);
+  useEventListener(
+    ref,
+    "forge-ai-sidebar-resize",
+    props.onForgeAiSidebarResize,
+  );
 
   return React.createElement(
     "forge-ai-sidebar",
@@ -22,13 +27,14 @@ export const ForgeAiSidebar = forwardRef((props, forwardedRef) => {
         }
       },
       ...filteredProps,
+      resizable: props.resizable,
+      width: props.width,
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,
       part: props.part,
       tabindex: props.tabIndex,
       open: props.open ? true : undefined,
-      resizable: props.resizable ? true : undefined,
       style: { ...props.style },
     },
     props.children,

@@ -86,7 +86,7 @@ was in flight, otherwise above it. The host owns this value and should clear it 
     event: CustomEvent<CustomEvent<ForgeAiThreadsSearchQueryEventData>>,
   ) => void;
 
-  /** Fired when user scrolls near bottom for pagination. */
+  /** Fired when the user scrolls near the bottom or clicks "Load more" for pagination. */
   onForgeAiThreadsSearchLoadMore?: (
     event: CustomEvent<CustomEvent<ForgeAiThreadsSearchLoadMoreEventData>>,
   ) => void;
@@ -128,7 +128,7 @@ was in flight, otherwise above it. The host owns this value and should clear it 
  *
  * ### **Events:**
  *  - **forge-ai-threads-search-query** - Fired when search query changes (debounced).
- * - **forge-ai-threads-search-load-more** - Fired when user scrolls near bottom for pagination.
+ * - **forge-ai-threads-search-load-more** - Fired when the user scrolls near the bottom or clicks "Load more" for pagination.
  * - **forge-ai-threads-search-select** - Fired when a thread is selected.
  * - **forge-ai-threads-search-new-chat** - Fired when new chat button clicked.
  * - **forge-ai-threads-search-rename** - Fired when thread renamed. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
@@ -141,6 +141,11 @@ was in flight, otherwise above it. The host owns this value and should clear it 
  *  - **confirmThreadDelete(thread: _Thread_): _void_** - Completes a delete that a host intercepted via `forge-ai-threads-search-delete-confirm`
  * (calling preventDefault() to show its own confirmation instead of this component's
  * built-in one). Call once the host's own confirmation has been accepted.
+ * - **resetSearch(): _void_** - Discards the current query and its results so the list shows every loaded chat again.
+ * Dispatches no search event and moves no focus, so a host may call it on a surface that is
+ * currently hidden (e.g. a popover that stays mounted between opens).
+ * - **focus(): _void_** - Moves focus into the component: the search input when shown, otherwise the first chat in
+ * the list, otherwise the first header button.
  *
  * ### **Slots:**
  *  - **header-actions** - Slot for a persistent action pinned to the top-right of the header, alongside the "New chat" button (e.g. a "View all" button).

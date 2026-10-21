@@ -1,4 +1,4 @@
-import { html, nothing, unsafeCSS, type TemplateResult } from 'lit';
+import { LitElement, html, nothing, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, ref } from 'lit/directives/ref.js';
@@ -200,6 +200,9 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   protected override _promptRef = createRef<AiPromptComponent>();
   #headerRef = createRef<AiChatHeaderComponent>();
   #gradientContainerRef = createRef<HTMLElement>();
+  #historyButtonRef = createRef<HTMLButtonElement>();
+  #historyPopoverSearchRef = createRef<AiThreadsSearchComponent>();
+  #historyViewSearchRef = createRef<AiThreadsSearchComponent>();
   #internals!: ElementInternals;
   #pendingThreadDeleteSource: AiThreadsSearchComponent | null = null;
 
@@ -260,9 +263,29 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
     if (next === 'history') {
       this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-history-open' });
+      void this.#focusAfterUpdate(() => this.#historyViewSearchRef.value);
     } else if (previous === 'history') {
       this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-history-close' });
+      void this.#focusAfterUpdate(() => this);
     }
+  }
+
+  /**
+   * Focuses the element resolved by `resolve` once the render that shows it (and its own
+   * update, for Lit children) has completed. Skips if the launcher has since moved on.
+   */
+  async #focusAfterUpdate(resolve: () => HTMLElement | undefined | null): Promise<void> {
+    const viewState = this._viewState;
+    const popoverOpen = this._historyPopoverOpen;
+    await this.updateComplete;
+    const target = resolve();
+    if (target instanceof LitElement) {
+      await target.updateComplete;
+    }
+    if (!this.isConnected || this._viewState !== viewState || this._historyPopoverOpen !== popoverOpen) {
+      return;
+    }
+    target?.focus();
   }
 
   #transitionToConversation(): void {
@@ -390,11 +413,45 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   }
 
   #handleHistoryButtonClick(): void {
+    if (!this._historyPopoverOpen) {
+      // The popover stays mounted between opens, so drop the previous query before reopening.
+      this.#historyPopoverSearchRef.value?.resetSearch();
+    }
     this._historyPopoverOpen = !this._historyPopoverOpen;
   }
 
   #handleHistoryPopoverToggle(evt: CustomEvent<{ open: boolean }>): void {
+    if (evt.target !== evt.currentTarget) {
+      return;
+    }
     this._historyPopoverOpen = evt.detail.open;
+
+    if (evt.detail.open) {
+      void this.#focusAfterUpdate(() => this.#historyPopoverSearchRef.value);
+      return;
+    }
+
+    // Escape/light dismiss leaves focus on a control inside the now-hidden popover; the browser
+    // only moves it to the body after this event. Return it to the trigger in either state, but
+    // never steal it from a control the user deliberately clicked.
+    const activeElement = this.shadowRoot?.activeElement ?? null;
+    const focusInsidePopover = (evt.currentTarget as HTMLElement).contains(activeElement);
+    const focusLost = this.ownerDocument.activeElement === this.ownerDocument.body;
+    if ((focusInsidePopover || focusLost) && this._viewState !== 'history') {
+      this.#historyButtonRef.value?.focus();
+    }
+  }
+
+  // Closing here instead of via native light dismiss keeps the hide and the refocus in one
+  // update, so focus never rests on a control inside the hidden popover.
+  #handleHistoryPopoverKeydown(evt: KeyboardEvent): void {
+    if (evt.key !== 'Escape' || evt.defaultPrevented) {
+      return;
+    }
+    evt.preventDefault();
+    evt.stopPropagation();
+    this._historyPopoverOpen = false;
+    void this.#focusAfterUpdate(() => this.#historyButtonRef.value);
   }
 
   #handleViewAllClick(): void {
@@ -620,7 +677,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
           isEditing,
           () => html`
             <forge-ai-edit-thread
-              density="medium"
               .thread=${{
                 id: threadId,
                 title: this.threadName || '',
@@ -665,7 +721,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
     return html`
       <forge-ai-thread-actions-menu
-        density="medium"
         .thread=${thread}
         ?show-rename=${this.showThreadRename}
         ?show-delete=${this.showThreadDelete}
@@ -730,6 +785,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     return html`
       <div class="history">
         <forge-ai-threads-search
+          ${ref(this.#historyViewSearchRef)}
           header-title="Chat history"
           ?show-back-button=${true}
           .threads=${this.threads}
@@ -775,6 +831,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
     return html`
       <button
+        ${ref(this.#historyButtonRef)}
         id="history-button"
         slot="actions-start"
         type="button"
@@ -821,9 +878,11 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
         .flip=${true}
         .autoSize=${true}
         ?open=${this._historyPopoverOpen}
+        @keydown=${this.#handleHistoryPopoverKeydown}
         @forge-ai-popover-toggle=${this.#handleHistoryPopoverToggle}>
         <div class="history-popover" style=${popoverWidth ? `width: ${popoverWidth}px` : ''}>
           <forge-ai-threads-search
+            ${ref(this.#historyPopoverSearchRef)}
             header-title="Chat history"
             .showNewChatButton=${false}
             .showSearch=${chatCount > 5}

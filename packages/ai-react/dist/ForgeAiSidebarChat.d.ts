@@ -24,8 +24,11 @@ export interface ForgeAiSidebarChatProps extends Pick<
   /** undefined */
   expanded?: boolean;
 
-  /** undefined */
-  resizable?: boolean;
+  /** Enables sidebar resizing. Set to `'off'` to disable. */
+  resizable?: ForgeAiSidebarChatElement["resizable"];
+
+  /** The current width of the sidebar in pixels. Retained across expand/collapse. */
+  width?: ForgeAiSidebarChatElement["width"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;
@@ -59,6 +62,9 @@ export interface ForgeAiSidebarChatProps extends Pick<
 
   /** Fired when the sidebar chat is collapsed from modal */
   onForgeAiSidebarChatCollapse?: (event: CustomEvent) => void;
+
+  /** Fired when the sidebar width is resized */
+  onForgeAiSidebarChatResize?: (event: CustomEvent) => void;
 }
 
 /**
@@ -71,6 +77,7 @@ export interface ForgeAiSidebarChatProps extends Pick<
  * - **forge-ai-sidebar-chat-close** - Fired when the sidebar chat is closed
  * - **forge-ai-sidebar-chat-expand** - Fired when the sidebar chat is expanded to modal
  * - **forge-ai-sidebar-chat-collapse** - Fired when the sidebar chat is collapsed from modal
+ * - **forge-ai-sidebar-chat-resize** - Fired when the sidebar width is resized
  *
  * ### **Slots:**
  *  - _default_ - Default slot for chatbot component

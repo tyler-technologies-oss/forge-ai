@@ -1,5 +1,6 @@
 import { type Meta, type StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { action } from 'storybook/actions';
 import { IconRegistry } from '@tylertech/forge';
 import {
@@ -53,18 +54,25 @@ const meta = {
       description: 'Controls whether the sidebar is displayed in an expanded state'
     },
     resizable: {
-      control: { type: 'boolean' },
+      control: { type: 'select' },
+      options: ['on', 'off'],
       description: 'Enables sidebar resizing'
+    },
+    width: {
+      control: { type: 'number' },
+      description: 'The current width of the sidebar in pixels. When set, overrides the persisted width.'
     }
   },
   args: {
     open: false,
     expanded: false,
-    resizable: true
+    resizable: 'on',
+    width: undefined
   },
   render: args => {
     const handleOpen = action('forge-ai-sidebar-open');
     const handleClose = action('forge-ai-sidebar-close');
+    const handleResize = action('forge-ai-sidebar-resize');
 
     const handleExpandClick = () => {
       const chatInterface = document.querySelector('forge-ai-chat-interface') as any;
@@ -103,9 +111,11 @@ const meta = {
         <forge-ai-sidebar
           slot="body-right"
           ?open=${args.open}
-          ?resizable=${args.resizable}
+          resizable=${args.resizable}
+          width=${ifDefined(args.width)}
           @forge-ai-sidebar-open=${handleOpen}
-          @forge-ai-sidebar-close=${handleClose}>
+          @forge-ai-sidebar-close=${handleClose}
+          @forge-ai-sidebar-resize=${handleResize}>
           <forge-ai-chat-interface>
             <forge-ai-chat-header
               slot="header"

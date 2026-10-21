@@ -13,6 +13,7 @@ export interface ResizeControllerOptions {
   onResize?: (width: number) => void;
   onResizeStart?: () => void;
   onResizeEnd?: () => void;
+  onCommit?: (width: number) => void;
 }
 
 export class ResizeController implements ReactiveController {
@@ -36,6 +37,7 @@ export class ResizeController implements ReactiveController {
       onResize: () => {},
       onResizeStart: () => {},
       onResizeEnd: () => {},
+      onCommit: () => {},
       ...options
     };
     this.#currentWidth = this.#options.defaultWidth;
@@ -105,9 +107,10 @@ export class ResizeController implements ReactiveController {
 
     event.preventDefault();
 
-    const newWidth = this.#currentWidth + delta;
-    this.#currentWidth = this.#constrainWidth(newWidth);
+    const previousWidth = this.#currentWidth;
+    this.#currentWidth = this.#constrainWidth(previousWidth + delta);
     this.#applyWidth();
+    this.#commitIfChanged(previousWidth);
   };
 
   #handlePointerMove = (event: PointerEvent): void => {
@@ -138,9 +141,16 @@ export class ResizeController implements ReactiveController {
     this.#isResizing = false;
     this.#host.requestUpdate();
     this.#options.onResizeEnd();
+    this.#commitIfChanged(this.#dragStartWidth);
 
     this.#removeResizeListeners();
   };
+
+  #commitIfChanged(previousWidth: number): void {
+    if (this.#currentWidth !== previousWidth) {
+      this.#options.onCommit(this.#currentWidth);
+    }
+  }
 
   #constrainWidth(width: number): number {
     const availableWidth = window.innerWidth - RESIZE_SCREEN_BUFFER;
