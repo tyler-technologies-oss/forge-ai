@@ -21,6 +21,7 @@ import type {
   SlashCommand,
   SlashCommandId,
   ThreadState,
+  ToolCall,
   AnyToolDefinition
 } from './types.js';
 import {
@@ -111,6 +112,18 @@ export abstract class AiChatbotBase extends LitElement {
 
   protected get _messageItems(): MessageItem[] {
     return this._coreController?.messageItems ?? [];
+  }
+
+  protected get _toolCalls(): ToolCall[] {
+    return this._messageItems.flatMap(item => {
+      if (item.type === 'toolCall') {
+        return [item.data];
+      }
+      if (item.type === 'assistant') {
+        return item.data.children.flatMap(child => (child.type === 'toolCall' ? [child.data] : []));
+      }
+      return [];
+    });
   }
 
   protected get _hasMessages(): boolean {

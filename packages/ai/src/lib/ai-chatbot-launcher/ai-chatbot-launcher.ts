@@ -4,7 +4,6 @@ import { classMap } from 'lit/directives/class-map.js';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { when } from 'lit/directives/when.js';
 import { styleMap } from 'lit/directives/style-map.js';
-import { ContextProvider } from '@lit/context';
 import type { AiCanvasComponent } from '../ai-canvas';
 import type { AiChatHeaderComponent } from '../ai-chat-header';
 import type { AiMessageThreadComponent } from '../ai-message-thread';
@@ -20,22 +19,8 @@ import type {
   ForgeAiThreadsSearchDeleteConfirmEventData
 } from '../ai-threads-search';
 import { AiChatbotBase, type FeatureToggle } from '../ai-chatbot/ai-chatbot-base.js';
-import type {
-  ChatMessage,
-  IToolRenderer,
-  ThreadState,
-  ToolCall,
-  ToolCanvas,
-  AnyToolDefinition
-} from '../ai-chatbot/types.js';
-import {
-  createToolCanvas,
-  resolveToolCanvasTitle,
-  toolCanvasHostContext,
-  type ForgeAiCanvasCloseRequestEventData,
-  type ForgeAiCanvasOpenRequestEventData
-} from '../ai-chatbot/tool-canvas.js';
-import { shouldShowToolRenderer } from '../ai-chatbot/utils.js';
+import type { ChatMessage, ThreadState } from '../ai-chatbot/types.js';
+import { CanvasController, type CanvasOpenEventData, type OpenCanvasOptions } from '../core/canvas-controller.js';
 import { ResizeController } from '../core/resize-controller.js';
 import { DeleteThreadController } from '../utils/delete-thread-controller';
 import { readStoredNumber, writeStoredNumber, type StorageKind } from '../utils/storage-utils';
@@ -95,36 +80,12 @@ export interface ForgeAiChatbotLauncherThreadLoadMoreEventData {
   appendResults: (results: Thread[]) => void;
 }
 
+export type { OpenCanvasOptions };
+export type ForgeAiChatbotLauncherCanvasOpenEventData = CanvasOpenEventData;
+
 export interface ForgeAiChatbotLauncherCanvasResizeEventData {
   /** Width of the conversation column in pixels; the canvas takes the remaining width. */
   chatWidth: number;
-}
-
-export interface OpenCanvasOptions {
-  /** Identifies the artifact; tool-driven opens use the tool call id. */
-  id?: string;
-  /** Overrides `canvasTitle` while this content is shown. */
-  title?: string;
-  /** Content mounted in the canvas body. Omit to show the `canvas` slot instead. */
-  content?: Node;
-}
-
-export interface ForgeAiChatbotLauncherCanvasOpenEventData {
-  id?: string;
-  title?: string;
-  /** Present when the canvas was opened for a tool call. */
-  toolCall?: ToolCall;
-}
-
-interface CanvasContent {
-  id?: string;
-  title?: string;
-  node?: Node;
-  toolCall?: ToolCall;
-  /** Set for tool-driven content so it can follow the tool call as it updates. */
-  toolDefinition?: AnyToolDefinition;
-  /** Title supplied with the open request; otherwise the title is re-derived from the tool call. */
-  titleOverride?: string;
 }
 
 declare global {
@@ -271,12 +232,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   private _viewState: LauncherViewState = 'welcome';
 
   @state()
-  private _canvasOpen = false;
-
-  @state()
-  private _canvasContent: CanvasContent | null = null;
-
-  @state()
   private _isResizing = false;
 
   @state()
@@ -300,10 +255,8 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   #canvasTrackRef = createRef<HTMLElement>();
   #resizeHandleRef = createRef<HTMLElement>();
   readonly #resizeController: ResizeController;
-  #canvasHost: ContextProvider<typeof toolCanvasHostContext>;
   #internals!: ElementInternals;
   #pendingThreadDeleteSource: AiThreadsSearchComponent | null = null;
-  #autoOpenedToolCallIds = new Set<string>();
 
   #deleteThreadController = new DeleteThreadController(this, {
     onConfirm: thread => {
@@ -342,14 +295,33 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     }
   });
 
+  readonly #canvas = new CanvasController(this, {
+    openEvent: 'forge-ai-chatbot-launcher-canvas-open',
+    closeEvent: 'forge-ai-chatbot-launcher-canvas-close',
+    dispatchHostEvent: config => this._dispatchHostEvent(config),
+    getToolCalls: () => this._toolCalls,
+    getTools: () => this._tools,
+    canOpen: () => this._viewState === 'conversation',
+    onOpen: () => {
+      // A width saved in a wider container (or tab) could otherwise leave no room for the canvas.
+      this.#resizeController.setWidth(this.chatWidth);
+      toggleState(this.#internals, 'canvas-open', true);
+      void this.#focusAfterUpdate(() => this.#canvasRef.value);
+    },
+    onClose: () => toggleState(this.#internals, 'canvas-open', false),
+    onRefocus: () => this.#canvasRef.value?.focus(),
+    collapsed: async () => {
+      // Only transitions: they are finite, and cover every case where none runs (reduced motion, dragging).
+      const transitions = [this.#launcherRef.value, this.#canvasTrackRef.value]
+        .flatMap(element => element?.getAnimations() ?? [])
+        .filter(animation => animation instanceof CSSTransition);
+      await Promise.allSettled(transitions.map(transition => transition.finished));
+    }
+  });
+
   constructor() {
     super();
     this.#internals = this.attachInternals();
-    // Tells inline tool renderers a canvas is available so canvas-enabled tools show their expand affordance.
-    this.#canvasHost = new ContextProvider(this, {
-      context: toolCanvasHostContext,
-      initialValue: { presentation: 'inline-expandable' }
-    });
     this.#resizeController = new ResizeController(this, {
       targetElementRef: this.#launcherRef,
       resizeHandleRef: this.#resizeHandleRef,
@@ -386,13 +358,13 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     if (changedProperties.has('chatWidth') && this.chatWidth !== this.#resizeController.currentWidth) {
       this.#resizeController.setWidth(this.chatWidth);
     }
-    this.#syncCanvasToolCall();
+    this.#canvas.syncToolCall();
   }
 
   // Auto-open dispatches a cancelable event, so it runs after render where listeners can safely call launcher APIs.
   public override updated(changedProperties: PropertyValues<this>): void {
     super.updated(changedProperties);
-    this.#autoOpenPendingToolCalls();
+    this.#canvas.autoOpenPending();
   }
 
   #setViewState(next: LauncherViewState): void {
@@ -400,7 +372,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
       return;
     }
     if (next !== 'conversation') {
-      this.#forceCloseCanvas();
+      this.#canvas.forceClose();
     }
     const previous = this._viewState;
     toggleState(this.#internals, previous, false);
@@ -672,7 +644,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
 
   public override clearMessages(): boolean {
     if (super.clearMessages()) {
-      this.#resetCanvas();
+      this.#canvas.reset();
       this.#transitionToWelcome();
       return true;
     }
@@ -682,13 +654,13 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   public override startNewChat(): void {
     super.startNewChat();
     this.selectedThreadId = null;
-    this.#resetCanvas();
+    this.#canvas.reset();
     this.#transitionToWelcome();
   }
 
   public override setMessages(messages: ChatMessage[]): void {
-    this.#resetCanvas();
-    this.#markToolCallsSeen(messages);
+    this.#canvas.reset();
+    this.#canvas.markSeen(messages);
     super.setMessages(messages);
     if (messages.length > 0) {
       this.#transitionToConversation();
@@ -715,7 +687,7 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   }
 
   public get canvasOpen(): boolean {
-    return this._canvasOpen;
+    return this.#canvas.isOpen;
   }
 
   /**
@@ -723,57 +695,17 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
    * conversation view; returns false elsewhere or when the open event is prevented.
    */
   public openCanvas(options: OpenCanvasOptions = {}): boolean {
-    return this.#commitCanvasOpen({ id: options.id, title: options.title, node: options.content });
+    return this.#canvas.open(options);
   }
 
   /**
    * Closes the canvas. Returns false if it was not open or the close event was prevented.
    */
   public closeCanvas(): boolean {
-    if (!this.#requestCanvasClose()) {
+    if (!this.#canvas.close()) {
       return false;
     }
     void this.#focusAfterUpdate(() => this._promptRef.value);
-    return true;
-  }
-
-  #requestCanvasClose(): boolean {
-    if (!this._canvasOpen) {
-      return false;
-    }
-
-    const event = this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-canvas-close', cancelable: true });
-    if (event.defaultPrevented) {
-      return false;
-    }
-
-    this.#hideCanvas();
-    return true;
-  }
-
-  #commitCanvasOpen(content: CanvasContent): boolean {
-    if (this._viewState !== 'conversation') {
-      return false;
-    }
-
-    const event = this._dispatchHostEvent({
-      type: 'forge-ai-chatbot-launcher-canvas-open',
-      detail: { id: content.id, title: content.title, toolCall: content.toolCall },
-      cancelable: true
-    });
-    if (event.defaultPrevented) {
-      return false;
-    }
-
-    this._canvasContent = content;
-    if (!this._canvasOpen) {
-      // A width saved in a wider container (or tab) could otherwise leave no room for the canvas.
-      this.#resizeController.setWidth(this.chatWidth);
-      this._canvasOpen = true;
-      toggleState(this.#internals, 'canvas-open', true);
-      void this.#focusAfterUpdate(() => this.#canvasRef.value);
-    }
-    this.#syncCanvasHost();
     return true;
   }
 
@@ -805,48 +737,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     return this.canvasResizable === 'on' && this.chatWidth === DEFAULT_CHAT_WIDTH && !this.hasAttribute('chat-width');
   }
 
-  // Content stays mounted while the panel collapses, then is released so hidden iframes and timers stop.
-  #hideCanvas(): void {
-    this._canvasOpen = false;
-    toggleState(this.#internals, 'canvas-open', false);
-    this.#syncCanvasHost();
-    void this.#releaseCanvasContentAfterCollapse();
-  }
-
-  async #releaseCanvasContentAfterCollapse(): Promise<void> {
-    const content = this._canvasContent;
-    await this.updateComplete;
-    // Only transitions: they are finite, and cover every case where no transition runs (reduced motion, dragging).
-    const transitions = [this.#launcherRef.value, this.#canvasTrackRef.value]
-      .flatMap(element => element?.getAnimations() ?? [])
-      .filter(animation => animation instanceof CSSTransition);
-    await Promise.allSettled(transitions.map(transition => transition.finished));
-    if (!this._canvasOpen && this._canvasContent === content) {
-      this._canvasContent = null;
-    }
-  }
-
-  #syncCanvasHost(): void {
-    this.#canvasHost.setValue({
-      presentation: 'inline-expandable',
-      openToolCallId: this._canvasOpen ? this._canvasContent?.toolCall?.id : undefined
-    });
-  }
-
-  #forceCloseCanvas(): void {
-    if (!this._canvasOpen) {
-      return;
-    }
-    this.#hideCanvas();
-    this._dispatchHostEvent({ type: 'forge-ai-chatbot-launcher-canvas-close' });
-  }
-
-  #resetCanvas(): void {
-    this.#forceCloseCanvas();
-    this._canvasContent = null;
-    this.#autoOpenedToolCallIds.clear();
-  }
-
   #handleCanvasClose(): void {
     this.closeCanvas();
   }
@@ -857,143 +747,6 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     }
     evt.preventDefault();
     this.closeCanvas();
-  }
-
-  #handleCanvasOpenRequest(evt: CustomEvent<ForgeAiCanvasOpenRequestEventData>): void {
-    evt.stopPropagation();
-    const toolCall = this.#findToolCall(evt.detail.toolCallId);
-    const toolDefinition = this._tools.get(evt.detail.toolName);
-    if (!toolCall || !toolDefinition) {
-      return;
-    }
-    evt.detail.handled = this.#openToolCallInCanvas(toolCall, toolDefinition, evt.detail.title);
-  }
-
-  // Initiated from the thread (e.g. an active artifact card), so focus stays where the user clicked.
-  #handleCanvasCloseRequest(evt: CustomEvent<ForgeAiCanvasCloseRequestEventData>): void {
-    evt.stopPropagation();
-    evt.detail.handled = this.#closeToolCallCanvas(evt.detail.toolCallId);
-  }
-
-  #closeToolCallCanvas(toolCallId: string): boolean {
-    if (this._canvasContent?.toolCall?.id !== toolCallId) {
-      return false;
-    }
-    return this.#requestCanvasClose();
-  }
-
-  get #toolCalls(): ToolCall[] {
-    return this._messageItems.flatMap(item => {
-      if (item.type === 'toolCall') {
-        return [item.data];
-      }
-      if (item.type === 'assistant') {
-        return item.data.children.flatMap(child => (child.type === 'toolCall' ? [child.data] : []));
-      }
-      return [];
-    });
-  }
-
-  #findToolCall(id: string): ToolCall | undefined {
-    return this.#toolCalls.find(toolCall => toolCall.id === id);
-  }
-
-  #autoOpenPendingToolCalls(): void {
-    if (this._viewState !== 'conversation') {
-      return;
-    }
-    const tools = this._tools;
-    if (![...tools.values()].some(tool => tool.canvas?.open === 'auto')) {
-      return;
-    }
-    for (const toolCall of this.#toolCalls) {
-      const toolDefinition = tools.get(toolCall.name);
-      if (
-        toolDefinition?.canvas?.open !== 'auto' ||
-        this.#autoOpenedToolCallIds.has(toolCall.id) ||
-        !shouldShowToolRenderer(toolCall, toolDefinition)
-      ) {
-        continue;
-      }
-      this.#autoOpenedToolCallIds.add(toolCall.id);
-      this.#openToolCallInCanvas(toolCall, toolDefinition);
-    }
-  }
-
-  #openToolCallInCanvas(toolCall: ToolCall, toolDefinition: AnyToolDefinition, title?: string): boolean {
-    // Re-requesting the artifact already on display just refocuses it, preserving renderer state.
-    if (this._canvasOpen && this._canvasContent?.toolCall?.id === toolCall.id) {
-      this.#canvasRef.value?.focus();
-      return true;
-    }
-    return this.#commitCanvasOpen({
-      id: toolCall.id,
-      title: title ?? resolveToolCanvasTitle(toolCall, toolDefinition),
-      node: this.#createCanvasRenderer(toolCall, toolDefinition),
-      toolCall,
-      toolDefinition,
-      titleOverride: title
-    });
-  }
-
-  // The tool call object is replaced on every args or status update, so the canvas follows it by id.
-  #syncCanvasToolCall(): void {
-    const content = this._canvasContent;
-    if (!this._canvasOpen || !content?.toolCall || !content.toolDefinition) {
-      return;
-    }
-    const latest = this.#findToolCall(content.toolCall.id);
-    if (!latest || latest === content.toolCall) {
-      return;
-    }
-
-    const { toolDefinition } = content;
-    const renderer = toolDefinition.canvas?.renderer ?? toolDefinition.renderer;
-    let node = content.node;
-    if (renderer?.elementTag && node) {
-      (node as HTMLElement & IToolRenderer).toolCall = latest;
-    } else {
-      node = this.#createCanvasRenderer(latest, toolDefinition);
-    }
-
-    this._canvasContent = {
-      ...content,
-      node,
-      toolCall: latest,
-      title: content.titleOverride ?? resolveToolCanvasTitle(latest, toolDefinition)
-    };
-  }
-
-  #createCanvasControls(toolCall: ToolCall, toolDefinition: AnyToolDefinition): ToolCanvas {
-    return createToolCanvas({
-      available: true,
-      // This instance only exists to be shown in the canvas, and is created before the canvas finishes opening.
-      isOpen: () => true,
-      open: options => this.#openToolCallInCanvas(toolCall, toolDefinition, options?.title),
-      close: () => this.#closeToolCallCanvas(toolCall.id)
-    });
-  }
-
-  #createCanvasRenderer(toolCall: ToolCall, toolDefinition: AnyToolDefinition): Node | undefined {
-    const renderer = toolDefinition.canvas?.renderer ?? toolDefinition.renderer;
-    const canvas = this.#createCanvasControls(toolCall, toolDefinition);
-    if (renderer?.elementTag) {
-      const element = document.createElement(renderer.elementTag) as HTMLElement & IToolRenderer;
-      element.toolCall = toolCall;
-      element.presentation = 'canvas';
-      element.canvas = canvas;
-      return element;
-    }
-    return renderer?.render?.(toolCall, { presentation: 'canvas', canvas });
-  }
-
-  /** Tool calls restored from history are marked as seen so loading a thread never auto-opens the canvas. */
-  #markToolCallsSeen(messages: ChatMessage[]): void {
-    for (const message of messages) {
-      for (const toolCall of message.toolCalls ?? []) {
-        this.#autoOpenedToolCallIds.add(toolCall.id);
-      }
-    }
   }
 
   public override focus(): void {
@@ -1389,18 +1142,18 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
   }
 
   get #canvasTemplate(): TemplateResult {
-    const title = this._canvasContent?.title ?? this.canvasTitle ?? '';
+    const title = this.#canvas.content?.title ?? this.canvasTitle ?? '';
     return html`
       <forge-ai-canvas
         ${ref(this.#canvasRef)}
         class="canvas"
         .titleText=${title}
         .headingLevel=${this.headingLevel}
-        ?inert=${!this._canvasOpen}
+        ?inert=${!this.#canvas.isOpen}
         @forge-ai-canvas-close=${this.#handleCanvasClose}
         @keydown=${this.#handleCanvasKeydown}>
         <slot name="canvas-actions" slot="actions"></slot>
-        ${this._canvasContent?.node ?? html`<slot name="canvas"></slot>`}
+        ${this.#canvas.content?.node ?? html`<slot name="canvas"></slot>`}
       </forge-ai-canvas>
     `;
   }
@@ -1419,8 +1172,8 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
         role="region"
         aria-label="AI chatbot launcher"
         aria-busy=${this._isStreaming}
-        @forge-ai-canvas-open-request=${this.#handleCanvasOpenRequest}
-        @forge-ai-canvas-close-request=${this.#handleCanvasCloseRequest}>
+        @forge-ai-canvas-open-request=${this.#canvas.handleOpenRequest}
+        @forge-ai-canvas-close-request=${this.#canvas.handleCloseRequest}>
         <div class="chat">
           ${this.#mainContentTemplate} ${this.#promptSectionTemplate}
           ${this._viewState === 'welcome' ? this.#welcomeSuggestionsTemplate : nothing}
