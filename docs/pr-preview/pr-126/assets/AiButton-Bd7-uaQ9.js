@@ -1,0 +1,6 @@
+import{j as t,M as s,T as r,C as m}from"./blocks-BRTFfZTW.js";import{useMDXComponents as i}from"./index-CFIrZNWx.js";import{C as a}from"./CustomArgTypes-Di7JqghJ.js";import{A as p,D as c}from"./AiButton.stories-wvCF8UOX.js";import"./preload-helper-PPVm8Dsz.js";import"./_commonjsHelpers-CqkleIqs.js";import"./iframe-B0FAvQxw.js";import"./utils-CIN-DptI.js";import"./ai-button-DzE2OBmI.js";import"./custom-element-UsVr97OX.js";import"./property-BcVae0nA.js";import"./utils-DIqd7FWX.js";import"./ai-icon-OdUJk7Rx.js";import"./when-CI7b_ccM.js";import"./ai-gradient-container-mNAtvNn7.js";function e(o){const n={h2:"h2",p:"p",...i(),...o.components};return t.jsxs(t.Fragment,{children:[t.jsx(s,{of:p}),`
+`,t.jsx(r,{}),`
+`,t.jsx(n.p,{children:"The AI Button is a specialized button component built on top of Tyler Forge's button component, designed specifically for AI-themed interfaces. It provides enhanced styling with a signature shimmer animation and consistent integration with AI chat widgets."}),`
+`,t.jsx(m,{of:c}),`
+`,t.jsx(n.h2,{id:"api",children:"API"}),`
+`,t.jsx(a,{})]})}function w(o={}){const{wrapper:n}={...i(),...o.components};return n?t.jsx(n,{...o,children:t.jsx(e,{...o})}):e(o)}export{w as default};

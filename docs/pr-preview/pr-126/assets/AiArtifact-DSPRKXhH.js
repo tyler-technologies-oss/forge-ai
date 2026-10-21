@@ -1,0 +1,14 @@
+import{j as t,M as e,T as s,C as a}from"./blocks-BRTFfZTW.js";import{useMDXComponents as r}from"./index-CFIrZNWx.js";import{C as p}from"./CustomArgTypes-Di7JqghJ.js";import{A as c,D as m}from"./AiArtifact.stories-8ZBD3I9Q.js";import"./preload-helper-PPVm8Dsz.js";import"./_commonjsHelpers-CqkleIqs.js";import"./iframe-B0FAvQxw.js";import"./utils-CIN-DptI.js";import"./scaffold-D7npUdzY.js";import"./class-map-D0yJruiV.js";import"./custom-element-UsVr97OX.js";import"./property-BcVae0nA.js";import"./ref-DFNpC9p1.js";import"./query-Dco82qd-.js";import"./style-map-BckEYuWK.js";import"./floating-ui.dom-CHtvoTQ1.js";import"./split-button-BQxL9Ps8.js";import"./query-assigned-elements-CqfNGEkr.js";import"./query-assigned-nodes-XGC4ql_x.js";import"./context-consumer-CIN_xSLl.js";import"./if-defined-zmP3W5JS.js";import"./context-provider-NnzmXA_k.js";import"./index-D6vXD9Ym.js";import"./ai-artifact-BXvjUEv1.js";function n(i){const o={code:"code",h2:"h2",li:"li",p:"p",ul:"ul",...r(),...i.components};return t.jsxs(t.Fragment,{children:[t.jsx(e,{of:c}),`
+`,t.jsx(s,{}),`
+`,t.jsxs(o.p,{children:["The ",t.jsx(o.code,{children:"forge-ai-artifact"})," component provides a structured shell with a toolbar and actions for rendering various data types. It's designed to display content like code snippets, data tables, charts, or other artifacts with common actions such as copy, download, refresh, and export."]}),`
+`,t.jsx(o.h2,{id:"use-cases",children:"Use Cases"}),`
+`,t.jsxs(o.ul,{children:[`
+`,t.jsx(o.li,{children:"Code snippet displays with copy/download actions"}),`
+`,t.jsx(o.li,{children:"Data table presentations with export functionality"}),`
+`,t.jsx(o.li,{children:"Chart or visualization containers with refresh capabilities"}),`
+`,t.jsx(o.li,{children:"Document previews with various action buttons"}),`
+`,t.jsx(o.li,{children:"Any content that benefits from a consistent toolbar and action pattern"}),`
+`]}),`
+`,t.jsx(a,{of:m}),`
+`,t.jsx(o.h2,{id:"api",children:"API"}),`
+`,t.jsx(p,{})]})}function L(i={}){const{wrapper:o}={...r(),...i.components};return o?t.jsx(o,{...i,children:t.jsx(n,{...i})}):n(i)}export{L as default};
