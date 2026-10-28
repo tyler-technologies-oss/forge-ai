@@ -302,13 +302,22 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
     getToolCalls: () => this._toolCalls,
     getTools: () => this._tools,
     canOpen: () => this._viewState === 'conversation',
-    onOpen: () => {
+    onOpen: ({ reason }) => {
       // A width saved in a wider container (or tab) could otherwise leave no room for the canvas.
       this.#resizeController.setWidth(this.chatWidth);
       toggleState(this.#internals, 'canvas-open', true);
-      void this.#focusAfterUpdate(() => this.#canvasRef.value);
+      // Auto-opens can land while the user is typing, so they leave focus where it is.
+      if (reason === 'request') {
+        void this.#focusAfterUpdate(() => this.#canvasRef.value);
+      }
     },
-    onClose: () => toggleState(this.#internals, 'canvas-open', false),
+    onClose: () => {
+      // The canvas goes inert once hidden, so focus inside it (close button, renderer controls) would drop to <body>.
+      if (this.#hasFocusInCanvas()) {
+        void this.#focusAfterUpdate(() => this._promptRef.value);
+      }
+      toggleState(this.#internals, 'canvas-open', false);
+    },
     onRefocus: () => this.#canvasRef.value?.focus(),
     collapsed: async () => {
       // Only transitions: they are finite, and cover every case where none runs (reduced motion, dragging).
@@ -702,11 +711,18 @@ export class AiChatbotLauncherComponent extends AiChatbotBase {
    * Closes the canvas. Returns false if it was not open or the close event was prevented.
    */
   public closeCanvas(): boolean {
-    if (!this.#canvas.close()) {
-      return false;
+    return this.#canvas.close();
+  }
+
+  // Covers both canvas content rendered in this shadow root and light DOM slotted into the canvas.
+  #hasFocusInCanvas(): boolean {
+    const active = this.shadowRoot?.activeElement;
+    if (active) {
+      return !!this.#canvasRef.value?.contains(active);
     }
-    void this.#focusAfterUpdate(() => this._promptRef.value);
-    return true;
+    const root = this.getRootNode() as Document | ShadowRoot;
+    const slotted = root.activeElement?.closest('[slot="canvas"], [slot="canvas-actions"]');
+    return slotted?.parentElement === this;
   }
 
   /** Widest the chat column may be while leaving room for the canvas; undefined until the launcher is laid out. */

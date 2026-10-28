@@ -318,15 +318,15 @@ Existing code needs no changes: `TResult` defaults to the union handlers could r
 
 Hosts with an artifact canvas (currently `<forge-ai-chatbot-launcher>`) can show a tool's output in a panel beside the conversation and represent it in the thread with a compact `<forge-ai-artifact-card>`. A tool opts in with the `canvas` block. Every value in it is either static or a function of the `ToolCall`, so it can come from the agent's `args` or from your handler's `result`:
 
-| Field         | Type                                        | Used for                                    | Default                                |
-| ------------- | ------------------------------------------- | ------------------------------------------- | -------------------------------------- |
-| `open`        | `'auto' \| 'on-request'`                    | When the canvas opens                       | `'on-request'`                         |
-| `inline`      | `'renderer' \| 'card' \| 'card-while-open'` | What the thread shows                       | `'card'` for `auto`, else `'renderer'` |
-| `renderer`    | `ToolRenderer`                              | Renderer used inside the canvas             | The tool's `renderer`                  |
-| `title`       | `string \| (toolCall) => string`            | Canvas header and card title                | `displayName`, then `name`             |
-| `subtitle`    | `string \| (toolCall) => string`            | Card subtitle                               | none                                   |
-| `icon`        | `SVGElement \| string \| (toolCall) => …`   | Card icon; markup strings are sanitized     | Generic artifact glyph                 |
-| `actionLabel` | `{ open, collapse } \| (toolCall) => …`     | Card tooltip and accessible label per state | "Open in canvas" / "Collapse canvas"   |
+| Field         | Type                                        | Used for                                      | Default                                |
+| ------------- | ------------------------------------------- | --------------------------------------------- | -------------------------------------- |
+| `open`        | `'auto' \| 'on-request'`                    | When the canvas opens (`auto`: launcher only) | `'on-request'`                         |
+| `inline`      | `'renderer' \| 'card' \| 'card-while-open'` | What the thread shows                         | `'card'` for `auto`, else `'renderer'` |
+| `renderer`    | `ToolRenderer`                              | Renderer used inside the canvas               | The tool's `renderer`                  |
+| `title`       | `string \| (toolCall) => string`            | Canvas header and card title                  | `displayName`, then `name`             |
+| `subtitle`    | `string \| (toolCall) => string`            | Card subtitle                                 | none                                   |
+| `icon`        | `SVGElement \| string \| (toolCall) => …`   | Card icon; markup strings are sanitized       | Generic artifact glyph                 |
+| `actionLabel` | `{ open, collapse } \| (toolCall) => …`     | Card tooltip and accessible label per state   | "Open in canvas" / "Collapse canvas"   |
 
 ```typescript
 interface ReportArgs {

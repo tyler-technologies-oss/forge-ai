@@ -240,6 +240,8 @@ export class AiChatbotComponent extends AiChatbotBase {
     dispatchHostEvent: config => this._dispatchHostEvent(config),
     getToolCalls: () => this._toolCalls,
     getTools: () => this._tools,
+    // A modal opened while the chat is hidden (closed floating chat, collapsed sidebar) is invisible but still makes the page inert.
+    canOpen: () => this.checkVisibility() && this.getBoundingClientRect().width > 0,
     onRefocus: () => this.#canvasRef.value?.focus()
   });
 
@@ -289,11 +291,10 @@ export class AiChatbotComponent extends AiChatbotBase {
     this.#canvas.syncToolCall();
   }
 
-  // Auto-open dispatches a cancelable event, so it runs after render where listeners can safely call chatbot APIs.
+  // No `canvas.open: 'auto'` here: a modal popping over the chat mid-conversation is too disruptive, so only the launcher auto-opens.
   public override updated(changedProperties: PropertyValues<this>): void {
     super.updated(changedProperties);
     this.#syncCanvasModal();
-    this.#canvas.autoOpenPending();
   }
 
   public get canvasOpen(): boolean {
@@ -325,7 +326,6 @@ export class AiChatbotComponent extends AiChatbotBase {
 
   public override setMessages(messages: ChatMessage[]): void {
     this.#canvas.reset();
-    this.#canvas.markSeen(messages);
     super.setMessages(messages);
   }
 

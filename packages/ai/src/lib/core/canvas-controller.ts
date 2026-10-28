@@ -26,6 +26,9 @@ export interface CanvasOpenEventData {
   toolCall?: ToolCall;
 }
 
+/** `auto`: opened by `canvas.open: 'auto'` rather than a user or API request. */
+export type CanvasOpenReason = 'auto' | 'request';
+
 export interface CanvasContent {
   id?: string;
   title?: string;
@@ -48,7 +51,7 @@ export interface CanvasControllerConfig {
   /** Whether the host can show the canvas right now. Defaults to always. */
   canOpen?: () => boolean;
   /** Called once the canvas has gone from closed to open, not when its content is swapped. */
-  onOpen?: () => void;
+  onOpen?: (config: { reason: CanvasOpenReason }) => void;
   /** Called after the canvas is hidden for any reason. */
   onClose?: () => void;
   /** Called when the requested tool call is already showing, so the host can draw attention to it. */
@@ -141,7 +144,7 @@ export class CanvasController implements ReactiveController {
     if (!toolCall || !toolDefinition) {
       return;
     }
-    evt.detail.handled = this.#openToolCall(toolCall, toolDefinition, evt.detail.title);
+    evt.detail.handled = this.#openToolCall({ toolCall, toolDefinition, title: evt.detail.title });
   };
 
   public readonly handleCloseRequest = (evt: CustomEvent<ForgeAiCanvasCloseRequestEventData>): void => {
@@ -193,7 +196,7 @@ export class CanvasController implements ReactiveController {
         continue;
       }
       this.#autoOpenedToolCallIds.add(toolCall.id);
-      this.#openToolCall(toolCall, toolDefinition);
+      this.#openToolCall({ toolCall, toolDefinition, reason: 'auto' });
     }
   }
 
@@ -201,7 +204,7 @@ export class CanvasController implements ReactiveController {
     return this.#config.getToolCalls().find(toolCall => toolCall.id === id);
   }
 
-  #commitOpen(content: CanvasContent): boolean {
+  #commitOpen(content: CanvasContent, reason: CanvasOpenReason = 'request'): boolean {
     if (this.#config.canOpen && !this.#config.canOpen()) {
       return false;
     }
@@ -218,7 +221,7 @@ export class CanvasController implements ReactiveController {
     this.#content = content;
     if (!this.#isOpen) {
       this.#isOpen = true;
-      this.#config.onOpen?.();
+      this.#config.onOpen?.({ reason });
     }
     this.#syncProvider();
     this.#host.requestUpdate();
@@ -258,20 +261,33 @@ export class CanvasController implements ReactiveController {
     return this.close();
   }
 
-  #openToolCall(toolCall: ToolCall, toolDefinition: AnyToolDefinition, title?: string): boolean {
+  #openToolCall({
+    toolCall,
+    toolDefinition,
+    title,
+    reason
+  }: {
+    toolCall: ToolCall;
+    toolDefinition: AnyToolDefinition;
+    title?: string;
+    reason?: CanvasOpenReason;
+  }): boolean {
     // Re-requesting the artifact already on display just refocuses it, preserving renderer state.
     if (this.#isOpen && this.#content?.toolCall?.id === toolCall.id) {
       this.#config.onRefocus?.();
       return true;
     }
-    return this.#commitOpen({
-      id: toolCall.id,
-      title: title ?? resolveToolCanvasTitle(toolCall, toolDefinition),
-      node: this.#createRenderer(toolCall, toolDefinition),
-      toolCall,
-      toolDefinition,
-      titleOverride: title
-    });
+    return this.#commitOpen(
+      {
+        id: toolCall.id,
+        title: title ?? resolveToolCanvasTitle(toolCall, toolDefinition),
+        node: this.#createRenderer(toolCall, toolDefinition),
+        toolCall,
+        toolDefinition,
+        titleOverride: title
+      },
+      reason
+    );
   }
 
   #createControls(toolCall: ToolCall, toolDefinition: AnyToolDefinition): ToolCanvas {
@@ -279,7 +295,7 @@ export class CanvasController implements ReactiveController {
       available: true,
       // This instance only exists to be shown in the canvas, and is created before the canvas finishes opening.
       isOpen: () => true,
-      open: options => this.#openToolCall(toolCall, toolDefinition, options?.title),
+      open: options => this.#openToolCall({ toolCall, toolDefinition, title: options?.title }),
       close: () => this.#closeToolCall(toolCall.id)
     });
   }

@@ -87,8 +87,8 @@ export interface ToolCanvasActionLabel {
  */
 export interface ToolCanvasConfig<TArgs = Record<string, unknown>, TResult = unknown> {
   /**
-   * When the canvas opens. `auto`: as soon as the tool call renders. `on-request` (default): only when the
-   * renderer or artifact card asks for it.
+   * When the canvas opens. `auto`: as soon as the tool call renders (launcher only; other hosts treat it as
+   * `on-request`). `on-request` (default): only when the renderer or artifact card asks for it.
    */
   open?: 'auto' | 'on-request';
   /**
