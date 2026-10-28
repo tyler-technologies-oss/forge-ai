@@ -46,7 +46,7 @@ interface ToolDefinition<TArgs = Record<string, unknown>, TResult = string | Rec
 Register tools with your adapter by passing them in the configuration:
 
 ```typescript
-import { AgUiAdapter } from '@tylertech/forge-ai';
+import { AgUiAdapter } from '@tylertech/forge-ai/ag-ui';
 
 const adapter = new AgUiAdapter({
   url: 'your-api-url',
@@ -304,7 +304,8 @@ export class MyElement extends LitElement implements IToolRenderer<GreetingArgs>
 Adapters and components accept `AnyToolDefinition[]`, a type-erased alias that every `ToolDefinition<TArgs, TResult>` is assignable to. Typed and untyped tools mix freely in one list:
 
 ```typescript
-import { AgUiAdapter, type AnyToolDefinition } from '@tylertech/forge-ai';
+import type { AnyToolDefinition } from '@tylertech/forge-ai';
+import { AgUiAdapter } from '@tylertech/forge-ai/ag-ui';
 
 const tools: AnyToolDefinition[] = [typedHelloTool, userLookupTool, displayDataTableTool];
 const adapter = new AgUiAdapter({ url: 'your-api-url', tools });

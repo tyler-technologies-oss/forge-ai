@@ -23,8 +23,11 @@ The AI Chatbot component provides a complete, self-contained chat interface that
 
 ## Basic Usage
 
+`AgUiAdapter` is exported from `@tylertech/forge-ai/ag-ui`. It needs `@ag-ui/client` and `@ag-ui/core`, which are optional peer dependencies, so install them alongside `@tylertech/forge-ai` to use it.
+
 ```typescript
-import { AgUiAdapter, generateId } from '@tylertech/forge-ai';
+import { generateId } from '@tylertech/forge-ai';
+import { AgUiAdapter } from '@tylertech/forge-ai/ag-ui';
 
 const adapter = new AgUiAdapter(
   {
