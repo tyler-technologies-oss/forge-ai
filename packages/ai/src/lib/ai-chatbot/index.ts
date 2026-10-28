@@ -37,7 +37,10 @@ export {
   type ActivityDeltaAgentEvent,
   type McpUiResourceEvent,
   type McpToolCallParams,
-  type McpResourceReadParams
+  type McpResourceReadParams,
+  type McpAppResourceResolveParams,
+  type McpModelContextUpdateParams,
+  type ToolResultEvent
 } from './agent-adapter.js';
 
 // Chatbot types
@@ -50,6 +53,7 @@ export type {
   ContextItem,
   ToolDefinition,
   ToolCall,
+  ToolCallStatus,
   ToolRenderer,
   IToolRenderer,
   HandlerContext,
@@ -76,7 +80,9 @@ export type {
   McpAppResourcePermissions,
   McpAppHostContext,
   McpAppHostCapabilities,
-  McpAppDisplayMode
+  McpAppSandboxCapabilities,
+  McpAppDisplayMode,
+  McpToolResult
 } from './types.js';
 
 // AG-UI adapter

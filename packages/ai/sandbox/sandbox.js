@@ -24,7 +24,8 @@ const DEFAULT_SANDBOX = 'allow-scripts allow-same-origin';
 
 /**
  * Map MCP-app resource permission keys to iframe `allow` (Permissions-Policy) tokens.
- * Accepts either an array of raw feature tokens or an object of boolean flags.
+ * Accepts the spec object shape (`{ camera: {} }`, key present = requested; `false`/`null`
+ * ignored) or an array of raw feature tokens.
  */
 const PERMISSION_FEATURE_MAP = {
   camera: 'camera',

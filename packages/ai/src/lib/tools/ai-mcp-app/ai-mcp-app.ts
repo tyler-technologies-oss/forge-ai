@@ -2,10 +2,17 @@ import { consume } from '@lit/context';
 import { LitElement, PropertyValues, TemplateResult, html, unsafeCSS } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
-import type { IToolRenderer, McpAppDisplayMode, McpAppHostContext, ToolCall } from '../../ai-chatbot';
+import type {
+  IToolRenderer,
+  McpAppDisplayMode,
+  McpAppHostCapabilities,
+  McpAppHostContext,
+  McpModelContextUpdateParams,
+  ToolCall
+} from '../../ai-chatbot';
 import { McpAppBridge } from './mcp-app-bridge.js';
 import { mcpAppHostContext, type McpAppHost } from './mcp-app-context.js';
-import { McpAppBridgeController, type McpAppHandlers } from './mcp-app-bridge-controller.js';
+import { McpAppBridgeController, enforcedPermissions, type McpAppHandlers } from './mcp-app-bridge-controller.js';
 
 import '../../ai-empty-state/ai-empty-state.js';
 
@@ -21,7 +28,7 @@ declare global {
     'forge-ai-mcp-app-message': CustomEvent<{ content: unknown; role: string }>;
     'forge-ai-mcp-app-logging-message': CustomEvent<unknown>;
     'forge-ai-mcp-app-request-display-mode': CustomEvent<{ mode: McpAppDisplayMode }>;
-    'forge-ai-mcp-app-update-model-context': CustomEvent<{ content: unknown }>;
+    'forge-ai-mcp-app-update-model-context': CustomEvent<McpModelContextUpdateParams>;
   }
 }
 
@@ -43,7 +50,7 @@ const HOST_INFO = { name: 'forge-ai', version: '1.0.0' } as const;
  * @event {CustomEvent<{ content: unknown; role: string }>} forge-ai-mcp-app-message - Fired when the app sends a message
  * @event {CustomEvent<unknown>} forge-ai-mcp-app-logging-message - Fired when the app sends a logging message
  * @event {CustomEvent<{ mode: McpAppDisplayMode }>} forge-ai-mcp-app-request-display-mode - Fired when the app's display mode changes
- * @event {CustomEvent<{ content: unknown }>} forge-ai-mcp-app-update-model-context - Fired when the app updates model context
+ * @event {CustomEvent<McpModelContextUpdateParams>} forge-ai-mcp-app-update-model-context - Fired when the app updates model context; detail carries `toolCallId`, `content` and `structuredContent`
  */
 @customElement('forge-ai-mcp-app')
 export class McpAppToolElement extends LitElement implements IToolRenderer {
@@ -67,17 +74,18 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
 
   #controller: McpAppBridgeController | null = null;
   #lastHostContext: McpAppHostContext | null = null;
+  #unregisterView: (() => void) | null = null;
 
   get #uiResource(): ToolCall['uiResource'] {
     return this.toolCall?.uiResource;
   }
 
   /**
-   * The sandbox needs an explicit `csp` + `permissions` policy to set the CSP header and
-   * the iframe `allow` attribute. On rehydration these come from persistence, not a fresh
-   * `mcp-ui-resource` event — a dropped policy must fail visibly rather than run the
-   * widget under an empty/wrong policy. Presence (not truthiness) is the gate: an explicit
-   * empty policy is valid.
+   * The sandbox needs an explicit `csp` + `permissions` policy (from the template's
+   * `_meta.ui`, via `resolveMcpAppResource`) to set the CSP header and the iframe `allow`
+   * attribute. A missing policy must fail visibly rather than run the widget under an
+   * empty/wrong policy. Presence (not truthiness) is the gate: an explicit empty policy
+   * is valid.
    */
   get #hasPolicy(): boolean {
     const resource = this.#uiResource;
@@ -95,27 +103,47 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return "This interactive app can't be shown because its security policy is missing.";
   }
 
-  get #handlers(): McpAppHandlers {
+  /** Host context as seen by this widget: the chatbot's context plus its own display mode. */
+  get #hostContext(): McpAppHostContext {
+    return { ...(this.host?.hostContext ?? { theme: 'light' }), displayMode: this._displayMode };
+  }
+
+  /** Host capabilities plus the sandbox policy this widget is actually enforced under. */
+  get #hostCapabilities(): McpAppHostCapabilities {
+    const resource = this.#uiResource;
     return {
-      oncalltool: params => this.host?.callTool(params) ?? Promise.resolve({ content: [] }),
-      onreadresource: params => this.host?.readResource(params) ?? Promise.resolve({ contents: [] }),
+      ...this.host?.hostCapabilities,
+      sandbox: {
+        csp: resource?.csp ?? {},
+        permissions: enforcedPermissions(resource?.permissions ?? {})
+      }
+    };
+  }
+
+  get #handlers(): McpAppHandlers {
+    const unavailable = (): Promise<never> => Promise.reject(new Error('MCP app host is unavailable'));
+    return {
+      oncalltool: params => this.host?.callTool({ ...params, toolCallId: this.toolCall.id }) ?? unavailable(),
+      onreadresource: params => this.host?.readResource({ ...params, toolCallId: this.toolCall.id }) ?? unavailable(),
       onopenlink: ({ url }) => this.#dispatchOpenLink(url),
       onmessage: async ({ content, role }) => {
-        this.#dispatchMessage(content, role);
+        this.#dispatchMessage(content, role ?? 'user');
       },
       onloggingmessage: message => this.#dispatchLoggingMessage(message),
       onsizechange: ({ height }) => {
-        if (height) {
+        if (height && this._displayMode === 'inline') {
           this.style.height = `${height}px`;
         }
       },
-      onrequestdisplaymode: async ({ mode }) => {
-        const resultMode = this.#setDisplayMode(mode);
+      onrequestdisplaymode: async ({ mode, appDisplayModes }) => {
+        const resultMode = this.#setDisplayMode(mode, appDisplayModes);
         this.#dispatchRequestDisplayMode(resultMode);
         return { mode: resultMode };
       },
-      onupdatemodelcontext: async ({ content }) => {
-        this.#dispatchUpdateModelContext(content);
+      onupdatemodelcontext: async ({ content, structuredContent }) => {
+        const params: McpModelContextUpdateParams = { toolCallId: this.toolCall.id, content, structuredContent };
+        this.#dispatchUpdateModelContext(params);
+        await this.host?.updateModelContext(params);
       }
     };
   }
@@ -130,30 +158,53 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       return;
     }
     this.#controller.syncToolCall(this.toolCall);
-    this.#syncHostContext();
+    this.#syncHostContext(changedProperties);
 
     if (changedProperties.has('_displayMode')) {
       this.#applyDisplayMode();
     }
   }
 
+  public override connectedCallback(): void {
+    super.connectedCallback();
+    if (this.hasUpdated && !this.#controller) {
+      this.requestUpdate();
+    }
+  }
+
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
-    void this.#controller?.teardown();
-    this.#controller = null;
+    void this.teardown();
   }
 
   /**
-   * Only promote to a mode the widget declared support for in its `ui/initialize`
-   * handshake (`hostContext.availableDisplayModes`) — echoes back the mode actually
-   * applied, per spec. Uses the native Popover API (`popover` attribute +
+   * Send `ui/resource-teardown` to the View and wait (bounded) for its ack. The chatbot
+   * calls this before removing widgets so the View can save state; it also runs on
+   * disconnect as a fallback. A later `toolCall` update remounts the widget.
+   */
+  public async teardown(): Promise<void> {
+    this.#unregisterView?.();
+    this.#unregisterView = null;
+    const controller = this.#controller;
+    this.#controller = null;
+    await controller?.teardown();
+  }
+
+  /**
+   * Switch only to a mode both the host offers (`hostContext.availableDisplayModes`) and
+   * the View declared in `ui/initialize`; otherwise keep the current mode. `inline` is the
+   * baseline every widget starts in, so returning to it is always allowed. Echoes back the
+   * mode actually applied, per spec. Uses the native Popover API (`popover` attribute +
    * `showPopover()`) rather than CSS `position`/`z-index` or DOM re-parenting: it
    * promotes the container to the top layer in place, so the iframe never moves and the
    * bridge/widget state survive the mode change.
    */
-  #setDisplayMode(requested: McpAppDisplayMode): McpAppDisplayMode {
-    const available = this.host?.hostContext.availableDisplayModes ?? [];
-    this._displayMode = requested === 'inline' || available.includes(requested) ? requested : 'inline';
+  #setDisplayMode(requested: McpAppDisplayMode, appDisplayModes: McpAppDisplayMode[]): McpAppDisplayMode {
+    const hostModes = this.host?.hostContext.availableDisplayModes ?? [];
+    const allowed = requested === 'inline' || (hostModes.includes(requested) && appDisplayModes.includes(requested));
+    if (allowed) {
+      this._displayMode = requested;
+    }
     return this._displayMode;
   }
 
@@ -183,28 +234,31 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       return;
     }
 
-    const controller = new McpAppBridgeController(new McpAppBridge(HOST_INFO, host.hostCapabilities ?? {}));
+    const controller = new McpAppBridgeController(new McpAppBridge(HOST_INFO));
     this.#controller = controller;
     this.#lastHostContext = host.hostContext;
+    this.#unregisterView = host.registerView({ toolCallId: this.toolCall.id, teardown: () => this.teardown() });
 
-    void controller
+    controller
       .connect({
         iframe,
         sandboxUrl: host.sandboxUrl,
         html: resource.html,
-        hostContext: host.hostContext,
+        hostContext: this.#hostContext,
+        hostCapabilities: this.#hostCapabilities,
         csp: resource.csp,
         permissions: resource.permissions,
         handlers: this.#handlers
       })
-      .then(() => controller.syncToolCall(this.toolCall));
+      .then(() => controller.syncToolCall(this.toolCall))
+      .catch(error => console.warn('[forge-ai-mcp-app] Failed to connect widget:', error));
   }
 
-  #syncHostContext(): void {
+  #syncHostContext(changedProperties: PropertyValues): void {
     const next = this.host?.hostContext;
-    if (next && next !== this.#lastHostContext) {
+    if (next && (next !== this.#lastHostContext || changedProperties.has('_displayMode'))) {
       this.#lastHostContext = next;
-      this.#controller?.sendHostContextChange(next);
+      this.#controller?.sendHostContextChange(this.#hostContext);
     }
   }
 
@@ -232,9 +286,9 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     );
   }
 
-  #dispatchUpdateModelContext(content: unknown): void {
+  #dispatchUpdateModelContext(detail: McpModelContextUpdateParams): void {
     this.dispatchEvent(
-      new CustomEvent('forge-ai-mcp-app-update-model-context', { detail: { content }, bubbles: true, composed: true })
+      new CustomEvent('forge-ai-mcp-app-update-model-context', { detail, bubbles: true, composed: true })
     );
   }
 

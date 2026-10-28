@@ -10,7 +10,11 @@ import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData 
 import type { AiPromptComponent, ForgeAiPromptCommandEventData, ForgeAiPromptSendEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData, Suggestion } from '../ai-suggestions';
 import type { ForgeAiVoiceInputResultEvent } from '../ai-voice-input';
-import { mcpAppHostContext, type McpAppHost } from '../tools/ai-mcp-app/mcp-app-context.js';
+import {
+  mcpAppHostContext,
+  type McpAppHost,
+  type McpAppViewRegistration
+} from '../tools/ai-mcp-app/mcp-app-context.js';
 import { AgentAdapter } from './agent-adapter.js';
 import { ChatbotCoreController } from '../core/chatbot-core-controller.js';
 import type {
@@ -37,7 +41,6 @@ import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
 const MCP_APP_HOST_CAPABILITIES = {
   openLinks: {},
   serverTools: {},
-  serverResources: {},
   logging: {}
 } as const;
 
@@ -124,16 +127,52 @@ export abstract class AiChatbotBase extends LitElement {
     return this.theme ?? (this.#themeMediaQuery.matches ? 'dark' : 'light');
   }
 
+  readonly #mcpAppViews = new Map<string, McpAppViewRegistration>();
+
   @provide({ context: mcpAppHostContext })
   @property({ attribute: false })
   private _mcpAppHost: McpAppHost = {
-    callTool: params => this._coreController?.adapter?.callMcpTool?.(params) ?? Promise.resolve({ content: [] }),
+    callTool: params =>
+      this._coreController?.adapter?.callMcpTool?.(params) ??
+      Promise.reject(new Error('tools/call is not supported by this host')),
     readResource: params =>
-      this._coreController?.adapter?.readMcpResource?.(params) ?? Promise.resolve({ contents: [] }),
-    hostContext: { theme: this.#effectiveTheme, availableDisplayModes: ['fullscreen'] },
+      this._coreController?.adapter?.readMcpResource?.(params) ??
+      Promise.reject(new Error('resources/read is not supported by this host')),
+    updateModelContext: params => this._coreController?.adapter?.updateMcpModelContext?.(params) ?? Promise.resolve(),
+    registerView: view => {
+      this.#mcpAppViews.set(view.toolCallId, view);
+      return () => {
+        if (this.#mcpAppViews.get(view.toolCallId) === view) {
+          this.#mcpAppViews.delete(view.toolCallId);
+        }
+      };
+    },
+    hostContext: { theme: this.#effectiveTheme, availableDisplayModes: ['inline', 'fullscreen', 'pip'] },
     sandboxUrl: undefined,
     hostCapabilities: MCP_APP_HOST_CAPABILITIES
   };
+
+  /**
+   * Sends `ui/resource-teardown` to mounted MCP-app widgets (all, or only `toolCallIds`) and
+   * waits (bounded) for their acks, so Views can save state before their iframes are removed.
+   * The adapter then drops any state it holds for them (e.g. a pending model context).
+   */
+  protected async _teardownMcpAppViews({ toolCallIds }: { toolCallIds?: string[] } = {}): Promise<void> {
+    const views = [...this.#mcpAppViews.values()].filter(view => toolCallIds?.includes(view.toolCallId) ?? true);
+    views.forEach(view => this.#mcpAppViews.delete(view.toolCallId));
+    await Promise.all(
+      views.map(async view => {
+        await view.teardown();
+        this._coreController?.adapter?.disposeMcpAppView?.({ toolCallId: view.toolCallId });
+      })
+    );
+  }
+
+  /** Tears down widgets rendered at or after `index`, then removes those items. */
+  async #removeMessageItemsFrom(index: number): Promise<void> {
+    await this._teardownMcpAppViews({ toolCallIds: this._coreController.getToolCallIdsFrom(index) });
+    this._coreController.removeMessageItemsFrom(index);
+  }
 
   #handleThemeChange = (): void => {
     this._mcpAppHost = {
@@ -411,7 +450,7 @@ export abstract class AiChatbotBase extends LitElement {
     }
   }
 
-  protected _handleUserResend(evt: CustomEvent<{ messageId: string }>): void {
+  protected async _handleUserResend(evt: CustomEvent<{ messageId: string }>): Promise<void> {
     const adapter = this._coreController.adapter;
     if (!adapter) {
       return;
@@ -426,13 +465,13 @@ export abstract class AiChatbotBase extends LitElement {
 
     const responseIndex = messageIndex + 1;
     if (responseIndex < this._messageItems.length) {
-      this._coreController.removeMessageItemsFrom(responseIndex);
+      await this.#removeMessageItemsFrom(responseIndex);
     }
 
     adapter.sendMessage(this.getMessages());
   }
 
-  protected _handleUserEdit(evt: CustomEvent<{ messageId: string; content: string }>): void {
+  protected async _handleUserEdit(evt: CustomEvent<{ messageId: string; content: string }>): Promise<void> {
     const adapter = this._coreController.adapter;
     if (!adapter) {
       return;
@@ -449,13 +488,13 @@ export abstract class AiChatbotBase extends LitElement {
 
     const responseIndex = messageIndex + 1;
     if (responseIndex < this._messageItems.length) {
-      this._coreController.removeMessageItemsFrom(responseIndex);
+      await this.#removeMessageItemsFrom(responseIndex);
     }
 
     adapter.sendMessage(this.getMessages());
   }
 
-  protected _handleResend(evt: CustomEvent<{ messageId: string }>): void {
+  protected async _handleResend(evt: CustomEvent<{ messageId: string }>): Promise<void> {
     const adapter = this._coreController.adapter;
     if (!adapter) {
       return;
@@ -470,7 +509,7 @@ export abstract class AiChatbotBase extends LitElement {
       return;
     }
 
-    this._coreController.removeMessageItemsFrom(responseIndex);
+    await this.#removeMessageItemsFrom(responseIndex);
     adapter.sendMessage(this.getMessages());
   }
 
@@ -561,6 +600,7 @@ export abstract class AiChatbotBase extends LitElement {
       return false;
     }
 
+    void this._teardownMcpAppViews();
     this._coreController.clearMessages();
     return true;
   }
@@ -579,6 +619,7 @@ export abstract class AiChatbotBase extends LitElement {
    * resetting thread IDs or closing panels.
    */
   public startNewChat(): void {
+    void this._teardownMcpAppViews();
     this._coreController.clearMessages();
   }
 
@@ -676,6 +717,7 @@ export abstract class AiChatbotBase extends LitElement {
   }
 
   public async setThreadState(threadState: ThreadState): Promise<void> {
+    await this._teardownMcpAppViews();
     this.setMessages(threadState.messages);
     this.selectedAgentId = threadState.selectedAgentId;
 

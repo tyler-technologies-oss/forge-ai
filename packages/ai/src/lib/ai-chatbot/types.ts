@@ -144,38 +144,38 @@ export interface McpAppResourceCsp {
 }
 
 /**
- * Iframe permission policy for an MCP-app resource. Either a list of raw
- * Permissions-Policy feature tokens or a map of boolean flags the sandbox proxy
- * translates into the inner-iframe `allow` attribute.
+ * Iframe permission policy for an MCP-app resource, mirroring the spec's
+ * `_meta.ui.permissions` shape (2026-01-26): a key being present (with an empty object
+ * value) means the permission is requested. The sandbox maps requested keys onto the
+ * iframe `allow` attribute.
  *
  * Local type — not aliased from ext-apps.
  */
-export type McpAppResourcePermissions =
-  | string[]
-  | {
-      camera?: boolean;
-      microphone?: boolean;
-      geolocation?: boolean;
-      clipboardRead?: boolean;
-      clipboardWrite?: boolean;
-      displayCapture?: boolean;
-      fullscreen?: boolean;
-    };
+export interface McpAppResourcePermissions {
+  camera?: Record<string, never>;
+  microphone?: Record<string, never>;
+  geolocation?: Record<string, never>;
+  clipboardWrite?: Record<string, never>;
+}
 
 /**
  * The resolved UI resource stamped onto a {@link ToolCall} once a `mcp-ui-resource`
  * event arrives. Presence of this on a tool call is the single render discriminator for
  * mounting `<forge-ai-mcp-app>`.
  *
+ * Returned by `AgentAdapter.resolveMcpAppResource`, which fills `csp`/`permissions` from
+ * the template response's `_meta.ui` (pass `{}` when the template declares none). The
+ * widget refuses to render when either is missing.
+ *
  * Local type — not aliased from ext-apps.
  */
 export interface McpAppUiResource {
   /** The complete standalone app HTML document, resolved server-side. */
   html: string;
-  /** CSP domain allow-lists to enforce in the sandbox. */
-  csp?: McpAppResourceCsp;
+  /** CSP domain allow-lists to enforce in the sandbox. Empty → restrictive default. */
+  csp: McpAppResourceCsp;
   /** Iframe permission policy for the sandbox inner frame. */
-  permissions?: McpAppResourcePermissions;
+  permissions: McpAppResourcePermissions;
   /** The concrete resolved `ui://` resource URI (never a template). */
   resourceUri?: string;
   /**
@@ -187,6 +187,17 @@ export interface McpAppUiResource {
 
 /** Display modes an MCP-app widget can be presented in (spec 2026-01-26). */
 export type McpAppDisplayMode = 'inline' | 'fullscreen' | 'pip';
+
+/**
+ * The raw MCP `CallToolResult` (minus `structuredContent`) for an MCP-app tool call. The
+ * View's `ui/notifications/tool-result` is built from this plus
+ * {@link ToolCall.structuredContent} — never from the model-facing `result`.
+ */
+export interface McpToolResult {
+  content: unknown[];
+  isError?: boolean;
+  _meta?: Record<string, unknown>;
+}
 
 /**
  * Host context projected into an MCP-app widget. Deliberately narrow for the MVP:
@@ -202,8 +213,16 @@ export interface McpAppHostContext {
     width: number;
     height: number;
   };
+  /** The widget's current display mode. */
+  displayMode?: McpAppDisplayMode;
   /** Display modes the host is able to present. */
   availableDisplayModes?: McpAppDisplayMode[];
+}
+
+/** The sandbox policy the host enforces for a widget, echoed in its host capabilities. */
+export interface McpAppSandboxCapabilities {
+  csp?: McpAppResourceCsp;
+  permissions?: McpAppResourcePermissions;
 }
 
 /**
@@ -218,7 +237,7 @@ export interface McpAppHostCapabilities {
   serverTools?: { listChanged?: boolean };
   serverResources?: { listChanged?: boolean };
   logging?: Record<string, never>;
-  sandbox?: Record<string, unknown>;
+  sandbox?: McpAppSandboxCapabilities;
 }
 
 export interface ChatMessage {
@@ -269,7 +288,7 @@ export interface ToolCall<TArgs = Record<string, unknown>> {
   args: TArgs;
   argsBuffer?: string;
   result?: unknown;
-  status: 'pending' | 'parsing' | 'executing' | 'complete' | 'error';
+  status: ToolCallStatus;
   type: ToolType;
   startTimestamp?: number;
   endTimestamp?: number;
@@ -281,7 +300,19 @@ export interface ToolCall<TArgs = Record<string, unknown>> {
   uiResource?: McpAppUiResource;
   /** Companion structured payload for the widget, stripped from LLM context. */
   structuredContent?: unknown;
+  /** `true` when `structuredContent` was dropped by the backend (size caps). */
+  structuredContentOmitted?: boolean;
+  /** Raw MCP result for an MCP-app tool call; the source of the View's `tool-result`. */
+  mcpResult?: McpToolResult;
+  /** `true` when `mcpResult` was dropped by the backend (size caps). */
+  mcpResultOmitted?: boolean;
 }
+
+/**
+ * Tool call lifecycle. `cancelled` means the call ended without a result (run aborted,
+ * stream ended/errored, or the adapter reported `cancelled: true`).
+ */
+export type ToolCallStatus = 'pending' | 'parsing' | 'executing' | 'complete' | 'error' | 'cancelled';
 
 export type ResponseItem =
   | { type: 'text'; messageId: string; content: string; status: 'streaming' | 'complete' }

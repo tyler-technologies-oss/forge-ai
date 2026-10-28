@@ -31,7 +31,7 @@ export function transformCssPropsToControls(tagName: string) {
   const declaration = cem.modules
     .flatMap((module: any) => module.declarations)
     .find((declaration: any) => declaration.tagName === tagName);
-  return declaration.cssProperties.reduce((acc: object, prop: any) => {
+  return declaration.cssProperties.reduce((acc: Record<string, unknown>, prop: any) => {
     acc[prop.name] = { control: 'text' };
     return acc;
   }, {});
@@ -84,7 +84,7 @@ export function getCssVariableArgs(args: Args): Args | null {
       acc[key] = value;
     }
     return acc;
-  }, {});
+  }, {} as Args);
   return Object.entries(cssVarArgs).length ? cssVarArgs : null;
 }
 
@@ -158,7 +158,7 @@ export function generateCustomElementArgTypes({
 }
 
 function generateArgTypesFrom(items: TagItem[], category: string, controlType?: ControlType): object {
-  return items.reduce((acc: object, property: any) => {
+  return items.reduce((acc: Record<string, unknown>, property: any) => {
     acc[property.name] = {
       control: controlType ?? getControlFromType(property.type.text),
       defaultValue: property.default,
@@ -182,7 +182,7 @@ export function getCustomElementsTagDeclaration(tagName: string): Declaration {
 
 /** Attempts to retrieve the Forge type information for the provided type string. */
 export function getCustomElementType(type: string) {
-  return cem.forgeTypes[type];
+  return (cem.forgeTypes as Record<string, unknown>)[type];
 }
 
 /** Gets the branch name that the custom elements manifest was generated with. */

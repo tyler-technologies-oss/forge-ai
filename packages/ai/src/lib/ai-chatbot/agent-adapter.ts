@@ -1,11 +1,4 @@
-import type {
-  ChatMessage,
-  FileUploadCallbacks,
-  McpAppResourceCsp,
-  McpAppResourcePermissions,
-  McpAppUiResource,
-  ToolDefinition
-} from './types.js';
+import type { ChatMessage, FileUploadCallbacks, McpAppUiResource, McpToolResult, ToolDefinition } from './types.js';
 import { EventEmitter, type Subscription } from './event-emitter.js';
 
 export interface MessageStartEvent {
@@ -59,18 +52,31 @@ export interface ToolCallEndEvent {
 
 export interface ToolResultEvent {
   toolCallId: string;
+  /** Model-facing result. Never delivered to an MCP-app View. */
   result: unknown;
   message: ChatMessage;
   /** Companion structured payload delivered to an MCP-app widget, stripped from LLM context. */
   structuredContent?: unknown;
+  /** `true` when the backend dropped `structuredContent` (size caps). */
+  structuredContentOmitted?: boolean;
+  /** Raw MCP result for an MCP-app tool call; the View's `tool-result` is built from it. */
+  mcpResult?: McpToolResult;
+  /** `true` when the backend dropped `mcpResult` (size caps). */
+  mcpResultOmitted?: boolean;
   isError?: boolean;
+  /** `true` when the tool call was cancelled rather than failed; takes precedence over `isError`. */
+  cancelled?: boolean;
   rawEvent?: unknown;
 }
 
 /**
  * Emitted when the backend signals that a tool call is backed by an MCP-app UI
- * resource. Carries the resolved resource URI + policy (never a template); the core
- * controller resolves the HTML and stamps a {@link McpAppUiResource} onto the tool call.
+ * resource. Carries only the widget binding — the HTML and the `csp`/`permissions`
+ * policy come from {@link AgentAdapter.resolveMcpAppResource}. The core controller
+ * resolves the resource and stamps a {@link McpAppUiResource} onto the tool call.
+ *
+ * May be emitted before or after the matching `tool-call` chunk, and also after
+ * `setMessages`/`setThreadState` to remount widgets restored from history.
  */
 export interface McpUiResourceEvent {
   toolCallId: string;
@@ -79,9 +85,15 @@ export interface McpUiResourceEvent {
   resourceUri: string;
   serverId?: string;
   mimeType?: string;
-  csp?: McpAppResourceCsp;
-  permissions?: McpAppResourcePermissions;
   rawEvent?: unknown;
+}
+
+/** Parameters for {@link AgentAdapter.resolveMcpAppResource}. */
+export interface McpAppResourceResolveParams {
+  /** The concrete resolved `ui://` URI from the `mcp-ui-resource` event. */
+  resourceUri: string;
+  /** The widget's tool call id; template reads are bound to it. */
+  toolCallId: string;
 }
 
 /**
@@ -91,11 +103,23 @@ export interface McpUiResourceEvent {
 export interface McpToolCallParams {
   name: string;
   arguments?: Record<string, unknown>;
+  /** The calling widget's tool call id; the backend derives the MCP server from it. */
+  toolCallId: string;
 }
 
 /** Parameters for an MCP-app widget-initiated `resources/read`. */
 export interface McpResourceReadParams {
   uri: string;
+  /** The calling widget's tool call id. */
+  toolCallId: string;
+}
+
+/** Payload of a widget's `ui/update-model-context`, forwarded to the adapter. */
+export interface McpModelContextUpdateParams {
+  /** The widget's tool call id. */
+  toolCallId: string;
+  content?: unknown[];
+  structuredContent?: unknown;
 }
 
 export interface AdapterState {
@@ -211,22 +235,39 @@ export abstract class AgentAdapter {
   public clearMemory?(): Promise<void>;
 
   /**
-   * Resolve the MCP-app UI resource for an already-resolved `resourceUri`. The adapter
-   * fetches the HTML for that concrete URI and passes through the `csp`/`permissions`
-   * from the `mcp-ui-resource` event — it MUST NOT re-derive the URI or the policy
-   * (templated-URI interpolation is server-side only).
+   * Resolve the MCP-app UI resource for an already-resolved `resourceUri`, bound to the
+   * widget's `toolCallId`. The adapter fetches the template for that concrete URI and
+   * fills `csp`/`permissions` from the template response's `_meta.ui` (`{}` when absent).
+   * It MUST NOT re-derive the URI (templated-URI interpolation is server-side only).
    */
-  public resolveMcpAppResource?(params: {
-    resourceUri: string;
-    csp?: McpAppResourceCsp;
-    permissions?: McpAppResourcePermissions;
-  }): Promise<McpAppUiResource | undefined>;
+  public resolveMcpAppResource?(params: McpAppResourceResolveParams): Promise<McpAppUiResource | undefined>;
 
-  /** Forward a widget-initiated `tools/call` to the MCP server. */
+  /**
+   * Forward a widget-initiated `tools/call` to the MCP server. Resolve with the View's
+   * `CallToolResult` (tool-level errors resolve with `isError: true`); reject for
+   * transport/HTTP errors (e.g. a 403 for a tool without `"app"` visibility) — the
+   * rejection is returned to the View as a JSON-RPC error.
+   */
   public callMcpTool?(params: McpToolCallParams): Promise<unknown>;
 
-  /** Forward a widget-initiated `resources/read` to the MCP server. */
+  /**
+   * Forward a widget-initiated `resources/read` to the MCP server. When not implemented
+   * the View's request is rejected with a JSON-RPC error.
+   */
   public readMcpResource?(params: McpResourceReadParams): Promise<unknown>;
+
+  /**
+   * Called when a widget sends `ui/update-model-context`. Each call replaces the previous
+   * context for that `toolCallId`; adapters should debounce and may hold the latest value
+   * until the run ends.
+   */
+  public updateMcpModelContext?(params: McpModelContextUpdateParams): Promise<void>;
+
+  /**
+   * Called after a widget is torn down (its turn left the visible thread, or the thread was
+   * cleared/replaced). Drop any state held for that `toolCallId`, e.g. a pending model context.
+   */
+  public disposeMcpAppView?(params: { toolCallId: string }): void;
 
   public setTools(tools: ToolDefinition[]): void {
     this._tools = tools;
@@ -405,6 +446,13 @@ export abstract class AgentAdapter {
     this._events.toolResult.emit({ ...event, rawEvent });
   }
 
+  /**
+   * Announce that a tool call renders as an MCP-app widget. Also the way to remount
+   * widgets restored from history: call it per widget after `setMessages`/`setThreadState`
+   * — the resource is resolved and stamped onto the restored (already finalized) tool
+   * call. If the tool call isn't in state yet, the resource is held and applied when it
+   * arrives.
+   */
   protected _emitMcpUiResource(event: McpUiResourceEvent, rawEvent?: unknown): void {
     this._events.mcpUiResource.emit({ ...event, rawEvent });
   }

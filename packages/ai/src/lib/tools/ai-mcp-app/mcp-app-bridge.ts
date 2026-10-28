@@ -1,8 +1,12 @@
 import type { McpAppDisplayMode, McpAppHostCapabilities, McpAppHostContext } from '../../ai-chatbot';
-import type { IMcpAppBridge, McpAppBridgeConnectConfig } from './mcp-app-bridge-types.js';
+import type { IMcpAppBridge, McpAppBridgeConnectConfig, McpAppViewToolResult } from './mcp-app-bridge-types.js';
 
 const PROTOCOL_VERSION = '2026-01-26';
-const TEARDOWN_TIMEOUT_MS = 5000;
+const TEARDOWN_TIMEOUT_MS = 1000;
+const DISPLAY_MODES: McpAppDisplayMode[] = ['inline', 'fullscreen', 'pip'];
+
+/** `connecting` until the View sends `initialized`; nothing but responses is sent before `ready`. */
+type BridgePhase = 'idle' | 'connecting' | 'ready' | 'disposed';
 
 type JsonRpcId = number | string;
 
@@ -23,6 +27,10 @@ function asJsonRpc(data: unknown): JsonRpcPayload | null {
   return payload.jsonrpc === '2.0' ? payload : null;
 }
 
+function asDisplayModes(value: unknown): McpAppDisplayMode[] {
+  return Array.isArray(value) ? DISPLAY_MODES.filter(mode => value.includes(mode)) : [];
+}
+
 /**
  * Hand-rolled, zero-dependency {@link IMcpAppBridge}. A `postMessage` listener speaking
  * JSON-RPC 2.0 directly: no SDK, no zod, no schema validation. The cross-origin sandbox
@@ -37,11 +45,15 @@ function asJsonRpc(data: unknown): JsonRpcPayload | null {
  */
 export class McpAppBridge implements IMcpAppBridge {
   readonly #hostInfo: { name: string; version: string };
-  readonly #capabilities: McpAppHostCapabilities;
 
+  #capabilities: McpAppHostCapabilities = {};
+  #phase: BridgePhase = 'idle';
   #sandboxWindow: Window | null = null;
   #sandboxOrigin: string | null = null;
   #hostContext: McpAppHostContext = { theme: 'light' };
+  /** The host context the View last received (in the `ui/initialize` result or a change notification). */
+  #deliveredHostContext: McpAppHostContext | null = null;
+  #appDisplayModes: McpAppDisplayMode[] = [];
   #nextId = 1;
   readonly #pending = new Map<JsonRpcId, { resolve: (value: unknown) => void; reject: (reason: Error) => void }>();
   #resolveProxyReady?: () => void;
@@ -57,16 +69,17 @@ export class McpAppBridge implements IMcpAppBridge {
   public onrequestdisplaymode?: IMcpAppBridge['onrequestdisplaymode'];
   public onupdatemodelcontext?: IMcpAppBridge['onupdatemodelcontext'];
 
-  constructor(hostInfo: { name: string; version: string }, capabilities: McpAppHostCapabilities) {
+  constructor(hostInfo: { name: string; version: string }) {
     this.#hostInfo = hostInfo;
-    this.#capabilities = capabilities;
   }
 
   public connect(config: McpAppBridgeConnectConfig): Promise<void> {
-    if (this.#sandboxWindow) {
-      throw new Error('Bridge is already connected. Call sendTeardown() before connecting again.');
+    if (this.#phase !== 'idle') {
+      throw new Error('Bridge has already been connected; create a new bridge per widget.');
     }
 
+    this.#phase = 'connecting';
+    this.#capabilities = config.hostCapabilities;
     this.#hostContext = config.hostContext;
     this.#sandboxWindow = config.sandboxWindow;
     window.addEventListener('message', this.#handleMessage);
@@ -76,6 +89,9 @@ export class McpAppBridge implements IMcpAppBridge {
     });
     this.#initialized = new Promise<void>(resolve => {
       this.#resolveInitialized = resolve;
+    }).then(() => {
+      this.#phase = 'ready';
+      this.#flushHostContext();
     });
 
     return proxyReady
@@ -97,10 +113,8 @@ export class McpAppBridge implements IMcpAppBridge {
     this.#sendNotification('ui/notifications/tool-input', { arguments: args });
   }
 
-  public sendToolResult(result: unknown, structuredContent?: unknown): void {
-    const base = (result && typeof result === 'object' ? result : { content: [] }) as Record<string, unknown>;
-    const params = structuredContent !== undefined ? { ...base, structuredContent } : base;
-    this.#sendNotification('ui/notifications/tool-result', params);
+  public sendToolResult(result: McpAppViewToolResult): void {
+    this.#sendNotification('ui/notifications/tool-result', result);
   }
 
   public sendToolCancelled(reason?: string): void {
@@ -109,17 +123,36 @@ export class McpAppBridge implements IMcpAppBridge {
 
   public sendHostContextChange(hostContext: McpAppHostContext): void {
     this.#hostContext = hostContext;
-    this.#sendNotification('ui/notifications/host-context-changed', this.#toWireHostContext(hostContext));
+    if (this.#phase === 'ready') {
+      this.#flushHostContext();
+    }
   }
 
+  /**
+   * Request `ui/resource-teardown` and wait (bounded) for the View's ack. A View that never
+   * initialized is disposed without being messaged.
+   */
   public sendTeardown(): Promise<void> {
+    if (this.#phase !== 'ready') {
+      this.#dispose();
+      return Promise.resolve();
+    }
     const ack = this.#sendRequest('ui/resource-teardown', {}).catch(() => undefined);
     const timeout = new Promise<void>(resolve => setTimeout(resolve, TEARDOWN_TIMEOUT_MS));
     return Promise.race([ack, timeout]).then(() => this.#dispose());
   }
 
+  #flushHostContext(): void {
+    if (this.#hostContext === this.#deliveredHostContext) {
+      return;
+    }
+    this.#deliveredHostContext = this.#hostContext;
+    this.#sendNotification('ui/notifications/host-context-changed', this.#toWireHostContext(this.#hostContext));
+  }
+
   /** Release the `message` listener + reject any in-flight requests. Idempotent. */
   #dispose(): void {
+    this.#phase = 'disposed';
     window.removeEventListener('message', this.#handleMessage);
     for (const pending of this.#pending.values()) {
       pending.reject(new Error('Bridge disposed'));
@@ -185,13 +218,17 @@ export class McpAppBridge implements IMcpAppBridge {
   async #dispatchRequest(method: string, params: unknown): Promise<unknown> {
     const p = (params ?? {}) as Record<string, unknown>;
     switch (method) {
-      case 'ui/initialize':
+      case 'ui/initialize': {
+        const appCapabilities = (p.appCapabilities ?? {}) as Record<string, unknown>;
+        this.#appDisplayModes = asDisplayModes(appCapabilities.availableDisplayModes);
+        this.#deliveredHostContext = this.#hostContext;
         return {
           protocolVersion: PROTOCOL_VERSION,
           hostInfo: this.#hostInfo,
           hostCapabilities: this.#capabilities,
           hostContext: this.#toWireHostContext(this.#hostContext)
         };
+      }
       case 'ui/open-link':
         this.onopenlink?.({ url: typeof p.url === 'string' ? p.url : '' });
         return {};
@@ -207,25 +244,35 @@ export class McpAppBridge implements IMcpAppBridge {
         return {};
       }
       case 'ui/update-model-context':
-        await this.onupdatemodelcontext?.({ content: p.content ?? p.structuredContent });
+        await this.onupdatemodelcontext?.({
+          content: Array.isArray(p.content) ? p.content : undefined,
+          structuredContent: p.structuredContent
+        });
         return {};
       case 'ui/request-display-mode': {
-        const mode = (typeof p.mode === 'string' ? p.mode : 'inline') as McpAppDisplayMode;
-        const result = await this.onrequestdisplaymode?.({ mode });
-        return { mode: result?.mode ?? mode };
+        const current = this.#hostContext.displayMode ?? 'inline';
+        const [mode] = asDisplayModes([p.mode]);
+        if (!mode || !this.onrequestdisplaymode) {
+          return { mode: current };
+        }
+        return this.onrequestdisplaymode({ mode, appDisplayModes: this.#appDisplayModes });
       }
       case 'ui/resource-teardown':
       case 'ping':
         return {};
       case 'tools/call':
-        return (
-          (await this.oncalltool?.({
-            name: typeof p.name === 'string' ? p.name : '',
-            arguments: (p.arguments as Record<string, unknown>) ?? {}
-          })) ?? { content: [] }
-        );
+        if (!this.oncalltool || !this.#capabilities.serverTools) {
+          throw new Error('tools/call is not supported by this host');
+        }
+        return this.oncalltool({
+          name: typeof p.name === 'string' ? p.name : '',
+          arguments: (p.arguments as Record<string, unknown>) ?? {}
+        });
       case 'resources/read':
-        return (await this.onreadresource?.({ uri: typeof p.uri === 'string' ? p.uri : '' })) ?? { contents: [] };
+        if (!this.onreadresource) {
+          throw new Error('resources/read is not supported by this host');
+        }
+        return this.onreadresource({ uri: typeof p.uri === 'string' ? p.uri : '' });
       default:
         console.warn(`[forge-ai-mcp-app] Unhandled request method: ${method}`);
         throw new Error(`Unhandled request method: ${method}`);
@@ -279,6 +326,7 @@ export class McpAppBridge implements IMcpAppBridge {
   #toWireHostContext(hostContext: McpAppHostContext): Record<string, unknown> {
     return {
       theme: hostContext.theme,
+      displayMode: hostContext.displayMode,
       availableDisplayModes: hostContext.availableDisplayModes,
       ...(hostContext.container
         ? { containerDimensions: { width: hostContext.container.width, height: hostContext.container.height } }

@@ -1,10 +1,10 @@
-import type { McpResourceReadParams, McpToolCallParams } from '$lib/ai-chatbot/agent-adapter.js';
 import type {
-  ChatMessage,
-  McpAppResourceCsp,
-  McpAppResourcePermissions,
-  McpAppUiResource
-} from '$lib/ai-chatbot/types.js';
+  McpAppResourceResolveParams,
+  McpModelContextUpdateParams,
+  McpResourceReadParams,
+  McpToolCallParams
+} from '$lib/ai-chatbot/agent-adapter.js';
+import type { ChatMessage, McpAppUiResource, McpToolResult } from '$lib/ai-chatbot/types.js';
 import { generateId } from '$lib/ai-chatbot/utils.js';
 import { MockAdapter } from './mock-adapter.js';
 
@@ -46,8 +46,11 @@ const SCENARIOS: Record<
 };
 
 /**
- * Drives one of three realistic MCP-app demos end to end (intro text -> tool call ->
- * `mcp-ui-resource` -> streamed args -> tool result -> follow-up text), exercising a
+ * Drives one of three realistic MCP-app demos end to end (intro text -> streamed tool
+ * call -> `tool-call` chunk -> `mcp-ui-resource` -> tool result -> follow-up text), shaped
+ * like a Foundry stream: no client-side tool definition, the model-facing `result` is
+ * plain text, and the widget's payload travels as `mcpResult` + `structuredContent`.
+ * Policy (`csp`/`permissions`) comes from `resolveMcpAppResource`. Exercises a
  * distinct slice of the app<->host surface per scenario:
  *
  * - `weather` — read-only widget. No app->host interactivity; exists to prove a widget
@@ -64,8 +67,7 @@ export class McpAppDemoAdapter extends MockAdapter {
   #hasRunToolCall = false;
 
   constructor(options: McpAppDemoAdapterOptions) {
-    const config = SCENARIOS[options.scenario];
-    super({ tools: [{ name: config.toolName, displayName: config.displayName, mcpApp: {} }] });
+    super();
     this.#scenario = options.scenario;
   }
 
@@ -113,56 +115,86 @@ export class McpAppDemoAdapter extends MockAdapter {
     const messageId = generateId();
     const args = config.args;
 
-    setTimeout(() => {
-      this._emitToolCallStart({ id: toolCallId, messageId, name: config.toolName });
-
-      setTimeout(() => {
+    const emitResource = (): void => {
+      this._emitMcpUiResource({
+        toolCallId,
+        toolName: config.toolName,
+        resourceUri: `ui://${this.#scenario}`,
+        mimeType: 'text/html;profile=mcp-app'
+      });
+    };
+    const emitToolCall = [
+      (): void => this._emitToolCallStart({ id: toolCallId, messageId, name: config.toolName }),
+      (): void =>
         this._emitToolCallArgs({
           id: toolCallId,
           messageId,
           name: config.toolName,
           argsBuffer: JSON.stringify(args),
           partialArgs: args
-        });
+        }),
+      (): void => {
+        this._emitToolCallEnd({ id: toolCallId, messageId, name: config.toolName, args });
+        this._emitToolCall({ id: toolCallId, messageId, name: config.toolName, args });
+      }
+    ];
+    const emitResult = (): void => {
+      const modelText = this.#modelText();
+      this._emitToolResult({
+        toolCallId,
+        result: modelText,
+        mcpResult: this.#mcpResult(),
+        structuredContent: this.#structuredContent(),
+        message: {
+          id: generateId(),
+          role: 'tool',
+          content: modelText,
+          timestamp: Date.now(),
+          status: 'complete',
+          toolCallId
+        }
+      });
+      this.#hasRunToolCall = true;
+    };
 
-        setTimeout(() => {
-          this._emitToolCallEnd({ id: toolCallId, messageId, name: config.toolName, args });
+    // The store locator announces its widget before the tool-call chunks; the others after.
+    const steps =
+      this.#scenario === 'store-locator'
+        ? [emitResource, ...emitToolCall, emitResult]
+        : [...emitToolCall, emitResource, emitResult];
+    this.#runSteps(steps, () => this.#runFollowUp());
+  }
 
-          setTimeout(() => {
-            this._emitMcpUiResource({ toolCallId, resourceUri: `ui://${this.#scenario}`, csp: {}, permissions: [] });
-
-            setTimeout(() => {
-              this._emitToolResult({
-                toolCallId,
-                result: this.#toolResult(),
-                structuredContent: this.#structuredContent(),
-                message: {
-                  id: generateId(),
-                  role: 'tool',
-                  content: '',
-                  timestamp: Date.now(),
-                  status: 'complete',
-                  toolCallId
-                }
-              });
-              this.#hasRunToolCall = true;
-              this.#runFollowUp();
-            }, STEP_DELAY);
-          }, STEP_DELAY);
-        }, STEP_DELAY);
-      }, STEP_DELAY);
+  #runSteps(steps: Array<() => void>, onDone: () => void): void {
+    const [step, ...rest] = steps;
+    if (!step) {
+      onDone();
+      return;
+    }
+    setTimeout(() => {
+      step();
+      this.#runSteps(rest, onDone);
     }, STEP_DELAY);
   }
 
-  #toolResult(): unknown {
+  #resultText(): string {
     switch (this.#scenario) {
       case 'weather':
-        return { content: [{ type: 'text', text: '72°F, partly cloudy in Columbus, OH.' }] };
+        return '72°F, partly cloudy in Columbus, OH.';
       case 'form':
-        return { content: [{ type: 'text', text: 'Trip details form ready — waiting on user input.' }] };
+        return 'Trip details form ready — waiting on user input.';
       case 'store-locator':
-        return { content: [{ type: 'text', text: 'Found 3 coffee shops within a mile of downtown.' }] };
+        return 'Found 3 coffee shops within a mile of downtown.';
     }
+  }
+
+  /** Model-facing text; deliberately distinct from the View's `mcpResult`. */
+  #modelText(): string {
+    return `[model-facing] ${SCENARIOS[this.#scenario].toolName} succeeded: ${this.#resultText()}`;
+  }
+
+  #mcpResult(): McpToolResult {
+    return { content: [{ type: 'text', text: this.#resultText() }] };
   }
 
   #structuredContent(): unknown {
@@ -218,20 +250,30 @@ export class McpAppDemoAdapter extends MockAdapter {
     stream();
   }
 
-  public override resolveMcpAppResource(params: {
-    resourceUri: string;
-    csp?: McpAppResourceCsp;
-    permissions?: McpAppResourcePermissions;
-  }): Promise<McpAppUiResource | undefined> {
+  public override updateMcpModelContext(params: McpModelContextUpdateParams): Promise<void> {
+    console.log(`[mcp-app-demo:${this.#scenario}] host: updateMcpModelContext`, params);
+    return Promise.resolve();
+  }
+
+  public override resolveMcpAppResource(params: McpAppResourceResolveParams): Promise<McpAppUiResource | undefined> {
     console.log(`[mcp-app-demo:${this.#scenario}] host: resolveMcpAppResource`, params);
-    const html = buildWidgetHtml(this.#scenario);
     return Promise.resolve({
-      html,
-      csp: {},
-      permissions: [],
+      html: buildWidgetHtml(this.#scenario),
+      ...this.#resourcePolicy(),
       resourceUri: params.resourceUri,
       prefersBorder: this.#scenario !== 'weather'
     });
+  }
+
+  /** Mirrors the template response's `_meta.ui`: always present, possibly empty. */
+  #resourcePolicy(): Pick<McpAppUiResource, 'csp' | 'permissions'> {
+    if (this.#scenario === 'store-locator') {
+      return {
+        csp: { resourceDomains: ['https://maps.example.com'], connectDomains: ['https://api.maps.example.com'] },
+        permissions: { geolocation: {} }
+      };
+    }
+    return { csp: {}, permissions: {} };
   }
 
   public override callMcpTool(params: McpToolCallParams): Promise<unknown> {

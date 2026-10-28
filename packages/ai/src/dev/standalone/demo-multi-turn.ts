@@ -2,11 +2,10 @@ import { IDatePickerComponent } from '@tylertech/forge';
 import {
   AgentRunner,
   type ToolDefinition,
-  type AgUiAdapterConfig,
   renderMarkdown,
   HandlerContext
 } from '../../lib/ai-chatbot';
-import { MastraStreamAdapter } from '../shared/mastra-stream-adapter';
+import { MastraStreamAdapter, type MastraStreamAdapterConfig } from '../shared/mastra-stream-adapter';
 
 type ShowToastFn = (message: string, theme?: 'error' | 'success' | 'warning' | 'info') => void;
 
@@ -245,7 +244,7 @@ export function createMultiTurnTools(): Array<ToolDefinition<any>> {
   return [getWeatherTool, findRestaurantsTool, findHotelsTool, presentTripInfoTool];
 }
 
-export function initMultiTurnDemo(config: AgUiAdapterConfig, tools: ToolDefinition[], showToast: ShowToastFn): void {
+export function initMultiTurnDemo(config: MastraStreamAdapterConfig, tools: ToolDefinition[], showToast: ShowToastFn): void {
   const planBtn = document.getElementById('mtPlanBtn') as HTMLButtonElement;
   const progress = document.getElementById('mtProgress') as HTMLElement;
   const destinationInput = document.getElementById('mt-destination') as HTMLInputElement;

@@ -1,5 +1,5 @@
-import { AgentRunner, type ToolDefinition, type AgUiAdapterConfig, HandlerContext } from '../../lib/ai-chatbot';
-import { MastraStreamAdapter } from '../shared/mastra-stream-adapter';
+import { AgentRunner, type ToolDefinition, HandlerContext } from '../../lib/ai-chatbot';
+import { MastraStreamAdapter, type MastraStreamAdapterConfig } from '../shared/mastra-stream-adapter';
 
 interface CompanyFormData {
   industry?: string;
@@ -49,7 +49,7 @@ export function createSmartCompleteTools(showToast: ShowToastFn): Array<ToolDefi
 }
 
 export function initSmartCompleteDemo(
-  config: AgUiAdapterConfig,
+  config: MastraStreamAdapterConfig,
   tools: ToolDefinition[],
   showToast: ShowToastFn
 ): void {

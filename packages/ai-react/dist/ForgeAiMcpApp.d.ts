@@ -59,9 +59,9 @@ export interface ForgeAiMcpAppProps extends Pick<
     event: CustomEvent<CustomEvent<{ mode: McpAppDisplayMode }>>,
   ) => void;
 
-  /** Fired when the app updates model context */
+  /** Fired when the app updates model context; detail carries `toolCallId`, `content` and `structuredContent` */
   onForgeAiMcpAppUpdateModelContext?: (
-    event: CustomEvent<CustomEvent<{ content: unknown }>>,
+    event: CustomEvent<CustomEvent<McpModelContextUpdateParams>>,
   ) => void;
 }
 
@@ -81,6 +81,11 @@ export interface ForgeAiMcpAppProps extends Pick<
  * - **forge-ai-mcp-app-message** - Fired when the app sends a message
  * - **forge-ai-mcp-app-logging-message** - Fired when the app sends a logging message
  * - **forge-ai-mcp-app-request-display-mode** - Fired when the app's display mode changes
- * - **forge-ai-mcp-app-update-model-context** - Fired when the app updates model context
+ * - **forge-ai-mcp-app-update-model-context** - Fired when the app updates model context; detail carries `toolCallId`, `content` and `structuredContent`
+ *
+ * ### **Methods:**
+ *  - **teardown(): _Promise<void>_** - Send `ui/resource-teardown` to the View and wait (bounded) for its ack. The chatbot
+ * calls this before removing widgets so the View can save state; it also runs on
+ * disconnect as a fallback. A later `toolCall` update remounts the widget.
  */
 export const ForgeAiMcpApp: React.ForwardRefExoticComponent<ForgeAiMcpAppProps>;

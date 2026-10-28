@@ -24,6 +24,7 @@ import type {
   FileAttachment,
   FileUploadCallbacks,
   HandlerContext,
+  McpAppUiResource,
   MessageItem,
   ThreadState,
   ToolCall,
@@ -42,6 +43,8 @@ export interface ChatbotCoreControllerConfig {
   callbacks: ChatbotCoreCallbacks;
 }
 
+const UNSETTLED_TOOL_CALL_STATUSES: ToolCall['status'][] = ['pending', 'parsing', 'executing'];
+
 export class ChatbotCoreController implements ReactiveController {
   #host: ReactiveControllerHost;
   #callbacks: ChatbotCoreCallbacks;
@@ -50,6 +53,12 @@ export class ChatbotCoreController implements ReactiveController {
   #adapterSubscriptions?: SubscriptionManager;
   #adapter?: AgentAdapter;
   #executingToolHandlers = 0;
+  /** Tool calls announced by an `mcp-ui-resource` event; they only settle via a tool result. */
+  readonly #mcpAppToolCallIds = new Set<string>();
+  /** Agent tool calls marked complete on their `tool-call` chunk, before any result arrived. */
+  readonly #presumedCompleteToolCallIds = new Set<string>();
+  /** Resolved UI resources whose tool call is not in state yet. */
+  readonly #pendingUiResources = new Map<string, McpAppUiResource>();
 
   constructor(host: ReactiveControllerHost, config: ChatbotCoreControllerConfig) {
     this.#host = host;
@@ -182,10 +191,30 @@ export class ChatbotCoreController implements ReactiveController {
     this.#tryCompleteResponse();
   }
 
+  /**
+   * A run ended (finished, aborted, or errored) without delivering a result for an
+   * MCP-app tool call: mark it cancelled so the widget receives `tool-cancelled`.
+   */
+  #cancelUnsettledMcpAppToolCalls(): void {
+    for (const id of this.#mcpAppToolCallIds) {
+      const toolCall = this.#messageStateController.getToolCall(id);
+      if (toolCall && UNSETTLED_TOOL_CALL_STATUSES.includes(toolCall.status)) {
+        this.#messageStateController.updateToolCallInResponse(id, { status: 'cancelled' });
+      }
+    }
+    this.#mcpAppToolCallIds.clear();
+    this.#presumedCompleteToolCallIds.clear();
+  }
+
+  /**
+   * Finalizes once the run is truly over. An executing client-tool handler or a running
+   * adapter means a continuation follows, so widgets stay open for it to settle (§2).
+   */
   #tryCompleteResponse(): void {
     if (this.#executingToolHandlers > 0 || this.#adapter?.isRunning) {
       return;
     }
+    this.#cancelUnsettledMcpAppToolCalls();
     this.#messageStateController.tryFinalizeResponse();
     const messages = this.getMessages();
     const lastMessage = messages[messages.length - 1];
@@ -202,7 +231,8 @@ export class ChatbotCoreController implements ReactiveController {
       args: {},
       argsBuffer: '',
       status: 'parsing',
-      type: this.tools.has(event.name) ? 'client' : 'agent'
+      type: this.tools.has(event.name) ? 'client' : 'agent',
+      ...this.#takePendingUiResource(event.id)
     };
 
     this.#messageStateController.addToolCallToResponse(toolCall);
@@ -271,7 +301,8 @@ export class ChatbotCoreController implements ReactiveController {
         name: event.name,
         args: event.args,
         status: 'executing',
-        type: this.tools.has(event.name) ? 'client' : 'agent'
+        type: this.tools.has(event.name) ? 'client' : 'agent',
+        ...this.#takePendingUiResource(event.id)
       };
       this.#messageStateController.addToolCallToResponse(toolCall);
     }
@@ -290,7 +321,8 @@ export class ChatbotCoreController implements ReactiveController {
       } else {
         this.#sendToolResult(event.id, this.#createToolResponse(event.name));
       }
-    } else if (!toolCall.uiResource) {
+    } else if (!this.#mcpAppToolCallIds.has(event.id)) {
+      this.#presumedCompleteToolCallIds.add(event.id);
       this.#messageStateController.updateToolCallInResponse(event.id, { status: 'complete' });
     }
   }
@@ -339,6 +371,7 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   #handleError(event: ErrorEvent): void {
+    this.#cancelUnsettledMcpAppToolCalls();
     const errorMessage: ChatMessage = {
       id: generateId(),
       role: 'assistant',
@@ -353,6 +386,7 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   #handleRunAborted(): void {
+    this.#cancelUnsettledMcpAppToolCalls();
     // Explicit finalize (rather than addMessage's implicit one) so the abort
     // banner can go through the client-message path, which never touches
     // `_activeResponse` on its own.
@@ -369,25 +403,64 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   #handleToolCallResult(event: ToolResultEvent): void {
+    this.#presumedCompleteToolCallIds.delete(event.toolCallId);
     this.#messageStateController.completeToolCallInResponse(event.toolCallId, event.result, event);
   }
 
+  /**
+   * Resolves and stamps the UI resource. Works whether the event arrives before or after
+   * the tool call's chunks, mid-run, after the run ended, or after `setMessages` for
+   * tool calls restored from history.
+   */
   async #handleMcpUiResource(event: McpUiResourceEvent): Promise<void> {
     if (!this.#adapter?.resolveMcpAppResource) {
       return;
     }
 
-    const uiResource = await this.#adapter.resolveMcpAppResource({
-      resourceUri: event.resourceUri,
-      csp: event.csp,
-      permissions: event.permissions
-    });
+    const { toolCallId, resourceUri } = event;
+    this.#mcpAppToolCallIds.add(toolCallId);
+    if (this.#presumedCompleteToolCallIds.delete(toolCallId)) {
+      this.#messageStateController.updateToolCallInResponse(toolCallId, {
+        status: 'executing',
+        endTimestamp: undefined
+      });
+    }
+
+    let uiResource: McpAppUiResource | undefined;
+    try {
+      uiResource = await this.#adapter.resolveMcpAppResource({ resourceUri, toolCallId });
+    } catch (error) {
+      console.warn(`[forge-ai-mcp-app] Failed to resolve UI resource for tool call ${toolCallId}:`, error);
+      return;
+    }
 
     if (!uiResource) {
       return;
     }
 
-    this.#messageStateController.updateToolCallInResponse(event.toolCallId, { uiResource });
+    if (this.#messageStateController.getToolCall(toolCallId)) {
+      this.#messageStateController.updateToolCallInResponse(toolCallId, { uiResource });
+    } else {
+      this.#pendingUiResources.set(toolCallId, uiResource);
+    }
+  }
+
+  #takePendingUiResource(toolCallId: string): Pick<ToolCall, 'uiResource'> {
+    const uiResource = this.#pendingUiResources.get(toolCallId);
+    if (!uiResource) {
+      return {};
+    }
+    this.#pendingUiResources.delete(toolCallId);
+    return { uiResource };
+  }
+
+  #applyPendingUiResources(): void {
+    for (const [toolCallId, uiResource] of this.#pendingUiResources) {
+      if (this.#messageStateController.getToolCall(toolCallId)) {
+        this.#pendingUiResources.delete(toolCallId);
+        this.#messageStateController.updateToolCallInResponse(toolCallId, { uiResource });
+      }
+    }
   }
 
   async #sendToolResult(toolCallId: string, result: unknown): Promise<void> {
@@ -502,6 +575,9 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   public clearMessages(): void {
+    this.#mcpAppToolCallIds.clear();
+    this.#presumedCompleteToolCallIds.clear();
+    this.#pendingUiResources.clear();
     this.#messageStateController.clearMessages();
     this.#fileUploadManager.clear();
   }
@@ -512,14 +588,24 @@ export class ChatbotCoreController implements ReactiveController {
 
   public setMessages(messages: ChatMessage[]): void {
     this.#messageStateController.setMessages(messages);
+    this.#applyPendingUiResources();
   }
 
   public updateMessageContent(id: string, content: string): void {
     this.#messageStateController.updateMessageContent(id, content);
   }
 
+  /** Tool call ids rendered at or after `index` in {@link messageItems}. */
+  public getToolCallIdsFrom(index: number): string[] {
+    return this.#messageStateController.getToolCallIdsFrom(index);
+  }
+
   public removeMessageItemsFrom(index: number): void {
-    this.#messageStateController.removeMessageItemsFrom(index);
+    for (const id of this.#messageStateController.removeMessageItemsFrom(index)) {
+      this.#mcpAppToolCallIds.delete(id);
+      this.#presumedCompleteToolCallIds.delete(id);
+      this.#pendingUiResources.delete(id);
+    }
   }
 
   public setResponseFeedback(responseId: string, feedback: { type: 'positive' | 'negative'; reason?: string }): void {

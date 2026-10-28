@@ -24,7 +24,10 @@ export function shouldShowToolRenderer(toolCall: ToolCall, toolDefinition?: Tool
  */
 export function isToolCallSettled(toolCall: ToolCall, toolDefinition?: ToolDefinition): boolean {
   return (
-    toolCall.status === 'complete' || toolCall.status === 'error' || shouldShowToolRenderer(toolCall, toolDefinition)
+    toolCall.status === 'complete' ||
+    toolCall.status === 'error' ||
+    toolCall.status === 'cancelled' ||
+    shouldShowToolRenderer(toolCall, toolDefinition)
   );
 }
 
@@ -89,6 +92,8 @@ export function formatToolCallForExport(toolCall: ToolCall): string {
         ? (toolCall.result as { error: string }).error
         : 'Unknown error';
     lines.push(`    Error: ${errorMsg}`);
+  } else if (toolCall.status === 'cancelled') {
+    lines.push('    Cancelled');
   } else if (toolCall.result !== undefined) {
     lines.push(`    Result: ${JSON.stringify(toolCall.result)}`);
   }
