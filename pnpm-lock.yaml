@@ -173,12 +173,6 @@ importers:
 
   packages/ai:
     dependencies:
-      '@ag-ui/client':
-        specifier: ^0.0.57
-        version: 0.0.57
-      '@ag-ui/core':
-        specifier: ^0.0.57
-        version: 0.0.57
       '@floating-ui/dom':
         specifier: ^1.8.0
         version: 1.8.0
@@ -201,6 +195,12 @@ importers:
         specifier: ^14.0.1
         version: 14.0.1
     devDependencies:
+      '@ag-ui/client':
+        specifier: ^0.0.57
+        version: 0.0.57
+      '@ag-ui/core':
+        specifier: ^0.0.57
+        version: 0.0.57
       '@custom-elements-manifest/analyzer':
         specifier: 'catalog:'
         version: 0.11.0

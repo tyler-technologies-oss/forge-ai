@@ -70,10 +70,6 @@ export type {
   ForgeAiChatbotThreadDeleteEventData
 } from './types.js';
 
-// AG-UI adapter
-export * from './ag-ui-adapter.js';
-export * from './http-agent-with-credentials.js';
-
 // Event system
 export * from './event-emitter.js';
 
