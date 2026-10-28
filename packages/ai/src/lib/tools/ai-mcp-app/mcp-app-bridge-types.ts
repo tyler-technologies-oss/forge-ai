@@ -33,10 +33,19 @@ export interface McpAppOpenLinkParams {
   url: string;
 }
 
-/** Parameters a widget passes to `ui/message`. */
+/**
+ * Result of a View request the host may decline (`ui/open-link`, `ui/message`): `{}` on
+ * success, `{ isError: true }` when the host refused or could not deliver it.
+ */
+export interface McpAppRequestResult {
+  isError?: boolean;
+}
+
+/** Parameters a widget passes to `ui/message`. `role` is always `user` (never trusted from the View). */
 export interface McpAppMessageParams {
-  content: string;
-  role?: 'user' | 'assistant';
+  /** The View's MCP content blocks, unvalidated. */
+  content: unknown[];
+  role: 'user';
 }
 
 /** Parameters a widget passes to `ui/update-model-context` (no widget identity). */
@@ -79,6 +88,8 @@ export interface McpAppSizeChange {
 export interface McpAppBridgeConnectConfig {
   /** The loaded outer sandbox proxy iframe's window; the bridge scopes its transport here. */
   sandboxWindow: Window;
+  /** Origin of the sandbox proxy; only messages from it are accepted and all posts target it. */
+  sandboxOrigin: string;
   /** The complete standalone app HTML to inject into the inner sandboxed frame. */
   html: string;
   /** Initial host context sent to the widget on `ui/initialize`. */
@@ -130,10 +141,10 @@ export interface IMcpAppBridge {
   oncalltool?: (params: McpAppToolCallRequest) => Promise<unknown>;
   /** Widget forwarded a `resources/read` to the server. Rejections become JSON-RPC errors. */
   onreadresource?: (params: McpAppResourceReadRequest) => Promise<unknown>;
-  /** Widget requested opening an external link. */
-  onopenlink?: (params: McpAppOpenLinkParams) => void;
-  /** Widget sent a chat message (`ui/message`). Resolves once accepted/queued. */
-  onmessage?: (params: McpAppMessageParams) => Promise<void>;
+  /** Widget requested opening an external link. Absent → `{ isError: true }`. */
+  onopenlink?: (params: McpAppOpenLinkParams) => Promise<McpAppRequestResult>;
+  /** Widget sent a chat message (`ui/message`). Absent → `{ isError: true }`. */
+  onmessage?: (params: McpAppMessageParams) => Promise<McpAppRequestResult>;
   /** Widget emitted a logging message (`notifications/message`). */
   onloggingmessage?: (params: McpAppLoggingMessage) => void;
   /** Widget reported a size change. */
@@ -142,4 +153,6 @@ export interface IMcpAppBridge {
   onrequestdisplaymode?: (params: McpAppRequestDisplayModeParams) => Promise<McpAppRequestDisplayModeResult>;
   /** Widget requested a silent model-context update. */
   onupdatemodelcontext?: (params: McpAppUpdateModelContextParams) => Promise<void>;
+  /** Widget asked the host to tear it down (`ui/notifications/request-teardown`). */
+  onrequestteardown?: () => void;
 }

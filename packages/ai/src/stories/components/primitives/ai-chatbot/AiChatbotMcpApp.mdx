@@ -56,12 +56,10 @@ different slice of the app-to-host surface:
   tool list), then renders the server's response inline. Exercises `oncalltool`.
 - **`StoreLocator`** — exercises `ui/request-display-mode` (the "Expand" button
   promotes the widget to fullscreen via the Popover API — same DOM node, no iframe
-  reload) and `ui/open-link` (the "Directions" button opens a host-validated link in a
-  new tab; the host's `handleOpenLink` allowlists `http`/`https` before calling
-  `window.open`, since the URL comes from an untrusted widget). Also exercises
-  `ui/message` — "Ask about hours" re-enters the normal chat stream with a
-  widget-authored user message, which the mock adapter answers as a natural follow-up
-  rather than re-running the tool call.
+  reload) and `ui/open-link` (the "Directions" button; the host opens the link in a new
+  tab by default). Also exercises `ui/message` — "Ask about hours" is posted into the
+  chat as a user message, which the mock adapter answers as a natural follow-up rather
+  than re-running the tool call.
 
 <Canvas of={AiChatbotMcpAppStories.WeatherCard} />
 <Canvas of={AiChatbotMcpAppStories.TripDetailsForm} />
@@ -80,6 +78,12 @@ the host passes on every call).
   widget receives `ui/notifications/tool-cancelled` instead of a result.
 - **`CancelledNoResult`** — the run finishes with no `tool-result` (agent-stream style).
   The unsettled tool call is marked `cancelled` and the widget gets `tool-cancelled`.
+- **`HandRolledWidget`** / **`RealAppSdkWidget`** — once the result arrives the widget
+  also has "Open link" (opens `https://example.com/` in a new tab), "Open javascript:
+  link" (refused with `{ isError: true }`), "Send message" (posted into the chat as a user
+  message; `{ isError: true }` while a response is streaming), "Unknown method" (a raw
+  `tools/list` that gets JSON-RPC `-32601`) and "Request teardown" buttons. The widget
+  shows each response.
 - **`ModelContext`** — click "Update model context" in the widget. `ui/update-model-context`
   carries `content` and `structuredContent`; the host logs both with the widget's
   `toolCallId` from `updateMcpModelContext`.
@@ -148,6 +152,63 @@ Widgets get `ui/resource-teardown` (and a bounded wait for the ack) before their
 removed: on `clearMessages`, `startNewChat`, `setThreadState`, and when editing or resending a
 message removes the turns that rendered them. Only the removed turns' widgets are torn down;
 the adapter's `disposeMcpAppView` is called for each.
+
+### Host capabilities
+
+The `ui/initialize` result advertises only what is actually implemented:
+
+- Always: `openLinks`, `logging`, `message: { text: {} }`.
+- `serverTools` — only when the adapter implements `callMcpTool`.
+- `updateModelContext: { text: {}, structuredContent: {} }` — only when the adapter
+  implements `updateMcpModelContext`.
+- `sandbox` — the widget's enforced `csp`/`permissions`.
+- Never: `serverResources`, `downloadFile`, `sampling`.
+
+Requests for unsupported methods (`tools/list`, `resources/list`, `prompts/list`,
+`sampling/createMessage`, `ui/download-file`, …) get JSON-RPC `-32601` (method not
+found); malformed params get `-32602`; adapter rejections get `-32000`. A request the
+adapter resolves with `undefined` is answered with `{}`.
+
+### Host context
+
+Every widget gets `theme`, `displayMode`, `availableDisplayModes`, `toolInfo`
+(`{ id: toolCallId, tool: { name, inputSchema } }`), `containerDimensions`
+(`{ width, maxHeight: 2000 }` inline; fixed `width`/`height` in fullscreen/pip), `locale`,
+`timeZone`, `userAgent`, `platform: 'web'`, `deviceCapabilities` (`touch`/`hover`) and
+zero `safeAreaInsets`. A container resize sends `ui/notifications/host-context-changed`
+(throttled to one per frame, only after `initialized`). `styles` (CSS variables/fonts) is
+not sent. Inline heights from `size-changed` are capped at 2000px.
+
+### Links
+
+`ui/open-link` accepts `http:`, `https:` and `mailto:` URLs; anything else (e.g.
+`javascript:`, `data:`) is refused with `{ isError: true }`. For an accepted URL the
+cancelable `forge-ai-mcp-app-open-link` event fires first; unless a listener calls
+`preventDefault()` the host opens the URL in a new tab with `noopener,noreferrer`. The
+widget gets `{}` either way.
+
+### Messages
+
+`ui/message` text blocks are joined and posted into the chat as a user message through
+`sendMessage` — the same path as the prompt — so they show up in the thread and start a
+model turn. Other block types (image, audio, resource) are dropped; a message with no text
+is refused with `{ isError: true }`. Messages are not queued: while a response is
+streaming, an upload is pending or no adapter is set, the widget gets `{ isError: true }`
+and can retry. `forge-ai-mcp-app-message` fires first (informational).
+
+### Teardown requests
+
+`ui/notifications/request-teardown` fires the cancelable
+`forge-ai-mcp-app-request-teardown` event (`{ toolCallId }`). Unless a listener calls
+`preventDefault()`, the widget goes through the normal per-widget teardown
+(`ui/resource-teardown`, then `disposeMcpAppView`) and its iframe is removed. The tool call
+and the rest of the turn stay in the thread; the widget is not remounted.
+
+### Logging
+
+`notifications/message` fires the cancelable `forge-ai-mcp-app-logging-message` event;
+unless a listener calls `preventDefault()` it is written to the console at the matching
+level.
 
 ### Events
 

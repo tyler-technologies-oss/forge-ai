@@ -80,6 +80,9 @@ export type {
   McpAppResourcePermissions,
   McpAppHostContext,
   McpAppHostCapabilities,
+  McpAppContainerDimensions,
+  McpAppContentModalities,
+  McpAppToolInfo,
   McpAppSandboxCapabilities,
   McpAppDisplayMode,
   McpToolResult

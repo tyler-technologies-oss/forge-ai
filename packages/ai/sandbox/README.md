@@ -24,7 +24,9 @@ Point a story's `sandboxUrl` at `http://localhost:6017/sandbox.html`.
   the inner-iframe `allow` from permissions, applies the `sandbox` attribute (host may
   override), `document.write`s the app HTML into an inner iframe, and relays every
   non-`ui/notifications/sandbox-*` message bidirectionally. Self-tests that `window.top`
-  is inaccessible and validates the host origin via `document.referrer`.
+  is inaccessible and validates the host origin via `document.referrer` (without a
+  referrer, it pins the origin of the first host message; only the data-free
+  `sandbox-proxy-ready` is ever posted to `'*'`).
 - `server.mjs` — sets the CSP as a real HTTP `Content-Security-Policy` response header
   on `sandbox.html`, read from the `?csp=` query param (spec-faithful, tamper-proof).
   Applies the restrictive default block when `?csp=` is absent.

@@ -336,6 +336,11 @@ const WIDGET_BODY = `
     <div id="actions" hidden>
       <button id="refresh" type="button">Refresh via app tool call</button>
       <button id="context" type="button">Update model context</button>
+      <button id="open-link" type="button">Open link</button>
+      <button id="open-blocked-link" type="button">Open javascript: link</button>
+      <button id="send-message" type="button">Send message</button>
+      <button id="unknown-method" type="button">Unknown method</button>
+      <button id="request-teardown" type="button">Request teardown</button>
     </div>
     <pre id="output"></pre>
   </div>
@@ -374,6 +379,12 @@ const WIDGET_UI_SCRIPT = `
       },
       onContext(handler) {
         $('context').addEventListener('click', handler);
+      },
+      onAction(id, handler) {
+        $(id).addEventListener('click', handler);
+      },
+      messageText() {
+        return 'Tell me more about ' + label;
       },
       applyTheme(theme) {
         document.body.dataset.theme = theme || 'light';
@@ -425,14 +436,29 @@ function buildHandRolledWidgetHtml(): string {
           ui.setOutput('Model context sent.');
         });
 
+        const showResponse = name => response => ui.setOutput(name + ': ' + JSON.stringify(response));
+        ui.onAction('open-link', () => request('ui/open-link', { url: 'https://example.com/' }).then(showResponse('open-link')));
+        ui.onAction('open-blocked-link', () =>
+          request('ui/open-link', { url: 'javascript:alert(1)' }).then(showResponse('open-link (javascript:)'))
+        );
+        ui.onAction('send-message', () =>
+          request('ui/message', { role: 'user', content: [{ type: 'text', text: ui.messageText() }] }).then(showResponse('ui/message'))
+        );
+        ui.onAction('unknown-method', () => request('tools/list', {}).then(showResponse('tools/list')));
+        ui.onAction('request-teardown', () => send({ jsonrpc: '2.0', method: 'ui/notifications/request-teardown', params: {} }));
+
         window.addEventListener('message', event => {
           const data = event.data;
           if (!data || typeof data !== 'object') {
             return;
           }
           if (data.id !== undefined && pending.has(data.id)) {
-            pending.get(data.id)(data.result);
+            pending.get(data.id)(data.error ? { error: data.error } : data.result);
             pending.delete(data.id);
+            return;
+          }
+          if (data.id !== undefined && data.method === 'ui/resource-teardown') {
+            send({ jsonrpc: '2.0', id: data.id, result: {} });
             return;
           }
           switch (data.method) {
@@ -474,6 +500,7 @@ function buildHandRolledWidgetHtml(): string {
           appCapabilities: {},
           protocolVersion: '2026-01-26'
         }).then(result => {
+          window.__mcpInitializeResult = result;
           send({ jsonrpc: '2.0', method: 'ui/notifications/initialized' });
           ui.applyTheme(result && result.hostContext && result.hostContext.theme);
         });
@@ -544,6 +571,36 @@ function buildSdkWidgetHtml(): string {
         await app.updateModelContext(ui.contextPayload());
         ui.setOutput('Model context sent.');
       });
+
+      const showResult = async (name, call) => {
+        try {
+          ui.setOutput(name + ': ' + JSON.stringify(await call()));
+        } catch (error) {
+          ui.setOutput(name + ' failed: ' + (error && error.message));
+        }
+      };
+      ui.onAction('open-link', () => showResult('openLink', () => app.openLink({ url: 'https://example.com/' })));
+      ui.onAction('open-blocked-link', () =>
+        showResult('openLink (javascript:)', () => app.openLink({ url: 'javascript:alert(1)' }))
+      );
+      ui.onAction('send-message', () =>
+        showResult('sendMessage', () => app.sendMessage({ role: 'user', content: [{ type: 'text', text: ui.messageText() }] }))
+      );
+      // Raw probe (outside the SDK, which only sends known methods); a string id never collides with the SDK's numeric ids.
+      ui.onAction('unknown-method', () =>
+        showResult('tools/list', () => new Promise(resolve => {
+          const id = 'probe-' + Date.now();
+          const onReply = event => {
+            if (event.data && event.data.id === id) {
+              window.removeEventListener('message', onReply);
+              resolve(event.data.error ? { error: event.data.error } : event.data.result);
+            }
+          };
+          window.addEventListener('message', onReply);
+          window.parent.postMessage({ jsonrpc: '2.0', id, method: 'tools/list', params: {} }, '*');
+        }))
+      );
+      ui.onAction('request-teardown', () => showResult('requestTeardown', () => app.requestTeardown()));
 
       app.connect(new PostMessageTransport(window.parent, window.parent)).then(() => {
         ui.applyTheme(app.getHostContext()?.theme);

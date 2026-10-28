@@ -1,9 +1,10 @@
 import { consume } from '@lit/context';
-import { LitElement, PropertyValues, TemplateResult, html, unsafeCSS } from 'lit';
+import { LitElement, PropertyValues, TemplateResult, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
 import type {
   IToolRenderer,
+  McpAppContainerDimensions,
   McpAppDisplayMode,
   McpAppHostCapabilities,
   McpAppHostContext,
@@ -11,6 +12,7 @@ import type {
   ToolCall
 } from '../../ai-chatbot';
 import { McpAppBridge } from './mcp-app-bridge.js';
+import type { McpAppLoggingMessage, McpAppRequestResult } from './mcp-app-bridge-types.js';
 import { mcpAppHostContext, type McpAppHost } from './mcp-app-context.js';
 import { McpAppBridgeController, enforcedPermissions, type McpAppHandlers } from './mcp-app-bridge-controller.js';
 
@@ -25,14 +27,44 @@ declare global {
 
   interface HTMLElementEventMap {
     'forge-ai-mcp-app-open-link': CustomEvent<{ url: string }>;
-    'forge-ai-mcp-app-message': CustomEvent<{ content: unknown; role: string }>;
-    'forge-ai-mcp-app-logging-message': CustomEvent<unknown>;
+    'forge-ai-mcp-app-message': CustomEvent<{ content: unknown[]; role: 'user' }>;
+    'forge-ai-mcp-app-logging-message': CustomEvent<McpAppLoggingMessage>;
+    'forge-ai-mcp-app-request-teardown': CustomEvent<{ toolCallId: string }>;
     'forge-ai-mcp-app-request-display-mode': CustomEvent<{ mode: McpAppDisplayMode }>;
     'forge-ai-mcp-app-update-model-context': CustomEvent<McpModelContextUpdateParams>;
   }
 }
 
 const HOST_INFO = { name: 'forge-ai', version: '1.0.0' } as const;
+
+/** Upper bound for an inline widget's height; advertised as `containerDimensions.maxHeight`. */
+const MAX_INLINE_HEIGHT = 2000;
+
+const OPEN_LINK_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+
+/** MCP logging levels (RFC 5424) mapped onto console methods. */
+const CONSOLE_LEVELS: Record<string, 'debug' | 'info' | 'warn' | 'error'> = {
+  debug: 'debug',
+  info: 'info',
+  notice: 'info',
+  warning: 'warn',
+  error: 'error',
+  critical: 'error',
+  alert: 'error',
+  emergency: 'error'
+};
+
+/** `live` until the View asks to be torn down; `closing` while its teardown runs; `closed` after. */
+type McpAppLifecycle = 'live' | 'closing' | 'closed';
+
+function asOpenableUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    return OPEN_LINK_PROTOCOLS.includes(parsed.protocol) ? parsed.href : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Renders an MCP-app UI resource stamped onto a {@link ToolCall} as a sandboxed,
@@ -46,9 +78,10 @@ const HOST_INFO = { name: 'forge-ai', version: '1.0.0' } as const;
  * @tag forge-ai-mcp-app
  * @internal
  *
- * @event {CustomEvent<{ url: string }>} forge-ai-mcp-app-open-link - Fired when the app requests to open a link
- * @event {CustomEvent<{ content: unknown; role: string }>} forge-ai-mcp-app-message - Fired when the app sends a message
- * @event {CustomEvent<unknown>} forge-ai-mcp-app-logging-message - Fired when the app sends a logging message
+ * @event {CustomEvent<{ url: string }>} forge-ai-mcp-app-open-link - Fired (cancelable) when the app requests to open an http(s)/mailto link; the host opens it in a new tab unless `preventDefault()` is called
+ * @event {CustomEvent<{ content: unknown[]; role: 'user' }>} forge-ai-mcp-app-message - Fired when the app sends a `ui/message`, before its text is posted into the chat as a user message
+ * @event {CustomEvent<McpAppLoggingMessage>} forge-ai-mcp-app-logging-message - Fired (cancelable) when the app sends a logging message; logged to the console unless `preventDefault()` is called
+ * @event {CustomEvent<{ toolCallId: string }>} forge-ai-mcp-app-request-teardown - Fired (cancelable) when the app asks to be torn down; the host tears the widget down unless `preventDefault()` is called
  * @event {CustomEvent<{ mode: McpAppDisplayMode }>} forge-ai-mcp-app-request-display-mode - Fired when the app's display mode changes
  * @event {CustomEvent<McpModelContextUpdateParams>} forge-ai-mcp-app-update-model-context - Fired when the app updates model context; detail carries `toolCallId`, `content` and `structuredContent`
  */
@@ -72,9 +105,15 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
   @state()
   private _displayMode: McpAppDisplayMode = 'inline';
 
+  @state()
+  private _lifecycle: McpAppLifecycle = 'live';
+
   #controller: McpAppBridgeController | null = null;
   #lastHostContext: McpAppHostContext | null = null;
   #unregisterView: (() => void) | null = null;
+  #containerDimensions: McpAppContainerDimensions = { maxHeight: MAX_INLINE_HEIGHT };
+  #resizeFrame: number | null = null;
+  readonly #resizeObserver = new ResizeObserver(() => this.#scheduleContainerMeasure());
 
   get #uiResource(): ToolCall['uiResource'] {
     return this.toolCall?.uiResource;
@@ -96,6 +135,10 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return !!this.#uiResource?.html && !!this.host?.sandboxUrl && this.#hasPolicy;
   }
 
+  get #canConnect(): boolean {
+    return this._lifecycle === 'live' && this.#canRender;
+  }
+
   get #errorBody(): string {
     if (!this.host?.sandboxUrl) {
       return "This interactive app can't be shown because no secure sandbox is configured.";
@@ -103,9 +146,14 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return "This interactive app can't be shown because its security policy is missing.";
   }
 
-  /** Host context as seen by this widget: the chatbot's context plus its own display mode. */
+  /** Host context as seen by this widget: the chatbot's context plus its own tool call, size and display mode. */
   get #hostContext(): McpAppHostContext {
-    return { ...(this.host?.hostContext ?? { theme: 'light' }), displayMode: this._displayMode };
+    return {
+      ...(this.host?.hostContext ?? { theme: 'light' }),
+      toolInfo: { id: this.toolCall.id, tool: { name: this.toolCall.name, inputSchema: { type: 'object' } } },
+      containerDimensions: this.#containerDimensions,
+      displayMode: this._displayMode
+    };
   }
 
   /** Host capabilities plus the sandbox policy this widget is actually enforced under. */
@@ -125,14 +173,15 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return {
       oncalltool: params => this.host?.callTool({ ...params, toolCallId: this.toolCall.id }) ?? unavailable(),
       onreadresource: params => this.host?.readResource({ ...params, toolCallId: this.toolCall.id }) ?? unavailable(),
-      onopenlink: ({ url }) => this.#dispatchOpenLink(url),
+      onopenlink: async ({ url }) => this.#openLink(url),
       onmessage: async ({ content, role }) => {
-        this.#dispatchMessage(content, role ?? 'user');
+        this.#dispatchMessage(content, role);
+        return this.host?.sendMessage({ toolCallId: this.toolCall.id, content }) ?? { isError: true };
       },
-      onloggingmessage: message => this.#dispatchLoggingMessage(message),
+      onloggingmessage: message => this.#handleLoggingMessage(message),
       onsizechange: ({ height }) => {
-        if (height && this._displayMode === 'inline') {
-          this.style.height = `${height}px`;
+        if (height > 0 && this._displayMode === 'inline') {
+          this.style.height = `${Math.min(height, MAX_INLINE_HEIGHT)}px`;
         }
       },
       onrequestdisplaymode: async ({ mode, appDisplayModes }) => {
@@ -144,7 +193,8 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
         const params: McpModelContextUpdateParams = { toolCallId: this.toolCall.id, content, structuredContent };
         this.#dispatchUpdateModelContext(params);
         await this.host?.updateModelContext(params);
-      }
+      },
+      onrequestteardown: () => void this.#handleRequestTeardown()
     };
   }
 
@@ -158,11 +208,12 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       return;
     }
     this.#controller.syncToolCall(this.toolCall);
-    this.#syncHostContext(changedProperties);
 
     if (changedProperties.has('_displayMode')) {
       this.#applyDisplayMode();
+      this.#containerDimensions = this.#readContainerDimensions() ?? this.#containerDimensions;
     }
+    this.#syncHostContext(changedProperties);
   }
 
   public override connectedCallback(): void {
@@ -174,6 +225,8 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
+    this.#resizeObserver.disconnect();
+    this.#cancelContainerMeasure();
     void this.teardown();
   }
 
@@ -223,7 +276,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
   }
 
   #connect(): void {
-    if (this.#controller || !this.#canRender) {
+    if (this.#controller || !this.#canConnect) {
       return;
     }
 
@@ -236,6 +289,10 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
 
     const controller = new McpAppBridgeController(new McpAppBridge(HOST_INFO));
     this.#controller = controller;
+    this.#containerDimensions = this.#readContainerDimensions() ?? this.#containerDimensions;
+    if (this._container) {
+      this.#resizeObserver.observe(this._container);
+    }
     this.#lastHostContext = host.hostContext;
     this.#unregisterView = host.registerView({ toolCallId: this.toolCall.id, teardown: () => this.teardown() });
 
@@ -262,22 +319,111 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     }
   }
 
-  #dispatchOpenLink(url: string): void {
-    this.dispatchEvent(
-      new CustomEvent('forge-ai-mcp-app-open-link', { detail: { url }, bubbles: true, composed: true })
-    );
+  #scheduleContainerMeasure(): void {
+    if (this.#resizeFrame !== null) {
+      return;
+    }
+    this.#resizeFrame = requestAnimationFrame(() => {
+      this.#resizeFrame = null;
+      this.#measureContainer();
+    });
   }
 
-  #dispatchMessage(content: unknown, role: string): void {
+  #cancelContainerMeasure(): void {
+    if (this.#resizeFrame !== null) {
+      cancelAnimationFrame(this.#resizeFrame);
+      this.#resizeFrame = null;
+    }
+  }
+
+  /**
+   * Inline widgets get a fixed width and a `maxHeight` bound (they size themselves via
+   * `size-changed`); promoted (fullscreen/pip) widgets get the container's fixed size.
+   */
+  #readContainerDimensions(): McpAppContainerDimensions | null {
+    const container = this._container;
+    if (!container) {
+      return null;
+    }
+    const width = Math.round(container.clientWidth);
+    return this._displayMode === 'inline'
+      ? { width, maxHeight: MAX_INLINE_HEIGHT }
+      : { width, height: Math.round(container.clientHeight) };
+  }
+
+  /** Sends `host-context-changed` when the container's measured size changed (held by the bridge until `initialized`). */
+  #measureContainer(): void {
+    const next = this.#readContainerDimensions();
+    if (!next || JSON.stringify(next) === JSON.stringify(this.#containerDimensions)) {
+      return;
+    }
+    this.#containerDimensions = next;
+    this.#controller?.sendHostContextChange(this.#hostContext);
+  }
+
+  /** Opens an http(s)/mailto link in a new tab unless a listener handled it via `preventDefault()`. */
+  #openLink(url: string): McpAppRequestResult {
+    const href = asOpenableUrl(url);
+    if (!href) {
+      return { isError: true };
+    }
+    const event = new CustomEvent('forge-ai-mcp-app-open-link', {
+      detail: { url: href },
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    });
+    if (this.dispatchEvent(event)) {
+      window.open(href, '_blank', 'noopener,noreferrer');
+    }
+    return {};
+  }
+
+  #dispatchMessage(content: unknown[], role: 'user'): void {
     this.dispatchEvent(
       new CustomEvent('forge-ai-mcp-app-message', { detail: { content, role }, bubbles: true, composed: true })
     );
   }
 
-  #dispatchLoggingMessage(message: unknown): void {
-    this.dispatchEvent(
-      new CustomEvent('forge-ai-mcp-app-logging-message', { detail: message, bubbles: true, composed: true })
-    );
+  /** Dispatches the logging event; falls back to the matching console method unless a listener handled it. */
+  #handleLoggingMessage(message: McpAppLoggingMessage): void {
+    const event = new CustomEvent('forge-ai-mcp-app-logging-message', {
+      detail: message,
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    });
+    if (this.dispatchEvent(event)) {
+      const method = CONSOLE_LEVELS[message.level] ?? 'info';
+      // eslint-disable-next-line no-console -- surfaces View logs when no listener handles them
+      console[method](`[forge-ai-mcp-app]${message.logger ? ` [${message.logger}]` : ''}`, message.data);
+    }
+  }
+
+  /**
+   * The View asked to be torn down. Unless a listener calls `preventDefault()`, run the
+   * host's normal per-widget teardown (`ui/resource-teardown` + adapter dispose), then stop
+   * rendering the iframe. The tool call stays in the thread; nothing is remounted.
+   */
+  async #handleRequestTeardown(): Promise<void> {
+    if (this._lifecycle !== 'live') {
+      return;
+    }
+    const event = new CustomEvent('forge-ai-mcp-app-request-teardown', {
+      detail: { toolCallId: this.toolCall.id },
+      bubbles: true,
+      composed: true,
+      cancelable: true
+    });
+    if (!this.dispatchEvent(event)) {
+      return;
+    }
+    this._lifecycle = 'closing';
+    this.#resizeObserver.disconnect();
+    this.#cancelContainerMeasure();
+    await (this.host?.teardownView({ toolCallId: this.toolCall.id }) ?? this.teardown());
+    this.style.removeProperty('height');
+    this._lifecycle = 'closed';
   }
 
   #dispatchRequestDisplayMode(mode: McpAppDisplayMode): void {
@@ -313,7 +459,10 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     `;
   }
 
-  public override render(): TemplateResult {
+  public override render(): TemplateResult | typeof nothing {
+    if (this._lifecycle === 'closed') {
+      return nothing;
+    }
     if (!this.#canRender) {
       return this.#errorArtifact;
     }

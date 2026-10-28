@@ -6,6 +6,7 @@ import type {
   McpResourceReadParams,
   McpToolCallParams
 } from '../../ai-chatbot';
+import type { McpAppRequestResult } from './mcp-app-bridge-types.js';
 
 /** A mounted widget, registered so the host can tear it down before removing it. */
 export interface McpAppViewRegistration {
@@ -26,14 +27,21 @@ export interface McpAppHost {
   callTool(params: McpToolCallParams): Promise<unknown>;
   readResource(params: McpResourceReadParams): Promise<unknown>;
   updateModelContext(params: McpModelContextUpdateParams): Promise<void>;
+  /**
+   * Post a widget's `ui/message` into the chat as a user message (starting a model turn).
+   * Resolves `{ isError: true }` when the chat can't accept it right now.
+   */
+  sendMessage(params: { toolCallId: string; content: unknown[] }): Promise<McpAppRequestResult>;
+  /** Tear down one widget through the host's normal per-widget teardown path. */
+  teardownView(params: { toolCallId: string }): Promise<void>;
   /** Register a mounted widget; returns the unregister callback. */
   registerView(view: McpAppViewRegistration): () => void;
   hostContext: McpAppHostContext;
   /** Cross-origin sandbox proxy URL. Absent → the element renders an error artifact. */
   sandboxUrl?: string;
   /**
-   * Advertised to the widget in `McpUiInitializeResult`; gates `serverTools`/`openLinks`/
-   * `logging`. The element adds `sandbox` (the enforced csp/permissions) per widget.
+   * Advertised to the widget in `McpUiInitializeResult`, derived from what the host and
+   * adapter implement. The element adds `sandbox` (the enforced csp/permissions) per widget.
    */
   hostCapabilities: McpAppHostCapabilities;
 }

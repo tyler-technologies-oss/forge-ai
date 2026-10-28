@@ -15,6 +15,7 @@ import {
   type McpAppHost,
   type McpAppViewRegistration
 } from '../tools/ai-mcp-app/mcp-app-context.js';
+import type { McpAppRequestResult } from '../tools/ai-mcp-app/mcp-app-bridge-types.js';
 import { AgentAdapter } from './agent-adapter.js';
 import { ChatbotCoreController } from '../core/chatbot-core-controller.js';
 import type {
@@ -23,6 +24,8 @@ import type {
   ClientMessageInput,
   ContextItem,
   HeadingLevel,
+  McpAppHostCapabilities,
+  McpAppHostContext,
   MessageItem,
   SlashCommand,
   SlashCommandId,
@@ -38,11 +41,52 @@ import {
 } from './utils.js';
 import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
 
-const MCP_APP_HOST_CAPABILITIES = {
-  openLinks: {},
-  serverTools: {},
-  logging: {}
-} as const;
+/**
+ * Capabilities the host implements itself. `serverTools` / `updateModelContext` are added
+ * only when the adapter implements the matching hook; `serverResources` and `downloadFile`
+ * are never advertised.
+ */
+function mcpAppHostCapabilities(adapter: AgentAdapter | undefined): McpAppHostCapabilities {
+  return {
+    openLinks: {},
+    logging: {},
+    message: { text: {} },
+    ...(typeof adapter?.callMcpTool === 'function' ? { serverTools: {} } : {}),
+    ...(typeof adapter?.updateMcpModelContext === 'function'
+      ? { updateModelContext: { text: {}, structuredContent: {} } }
+      : {})
+  };
+}
+
+/** Environment fields of the MCP-app host context shared by every widget. */
+function mcpAppEnvironment(): Omit<McpAppHostContext, 'theme'> {
+  return {
+    availableDisplayModes: ['inline', 'fullscreen', 'pip'],
+    locale: navigator.language,
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    userAgent: navigator.userAgent,
+    platform: 'web',
+    deviceCapabilities: {
+      touch: window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0,
+      hover: window.matchMedia('(hover: hover)').matches
+    },
+    safeAreaInsets: { top: 0, right: 0, bottom: 0, left: 0 }
+  };
+}
+
+/** Joins a `ui/message`'s text blocks; other block types are dropped. */
+function mcpMessageText(content: unknown[]): string {
+  return content
+    .filter(
+      (block): block is { type: 'text'; text: string } =>
+        !!block &&
+        typeof block === 'object' &&
+        (block as { type?: unknown }).type === 'text' &&
+        typeof (block as { text?: unknown }).text === 'string'
+    )
+    .map(block => block.text)
+    .join('\n\n');
+}
 
 export type FeatureToggle = 'on' | 'off';
 
@@ -139,6 +183,8 @@ export abstract class AiChatbotBase extends LitElement {
       this._coreController?.adapter?.readMcpResource?.(params) ??
       Promise.reject(new Error('resources/read is not supported by this host')),
     updateModelContext: params => this._coreController?.adapter?.updateMcpModelContext?.(params) ?? Promise.resolve(),
+    sendMessage: ({ content }) => this.#sendMcpAppMessage(content),
+    teardownView: ({ toolCallId }) => this._teardownMcpAppViews({ toolCallIds: [toolCallId] }),
     registerView: view => {
       this.#mcpAppViews.set(view.toolCallId, view);
       return () => {
@@ -147,10 +193,26 @@ export abstract class AiChatbotBase extends LitElement {
         }
       };
     },
-    hostContext: { theme: this.#effectiveTheme, availableDisplayModes: ['inline', 'fullscreen', 'pip'] },
+    hostContext: { theme: this.#effectiveTheme, ...mcpAppEnvironment() },
     sandboxUrl: undefined,
-    hostCapabilities: MCP_APP_HOST_CAPABILITIES
+    hostCapabilities: mcpAppHostCapabilities(undefined)
   };
+
+  /**
+   * Posts a widget's `ui/message` text as a user message through {@link sendMessage} (the
+   * same path as the prompt), starting a model turn. Rejected (not queued) while a
+   * response is streaming, an upload is pending, no adapter is set, or the message has no
+   * text content.
+   */
+  async #sendMcpAppMessage(content: unknown[]): Promise<McpAppRequestResult> {
+    const text = mcpMessageText(content);
+    const canAccept = !!this._coreController?.adapter && !this._isStreaming && this._coreController.canSendMessage();
+    if (!text.trim() || !canAccept) {
+      return { isError: true };
+    }
+    await this.sendMessage(text);
+    return {};
+  }
 
   /**
    * Sends `ui/resource-teardown` to mounted MCP-app widgets (all, or only `toolCallIds`) and
@@ -241,6 +303,10 @@ export abstract class AiChatbotBase extends LitElement {
   public override willUpdate(changedProperties: PropertyValues<this>): void {
     if (changedProperties.has('adapter') && this._coreController) {
       this._coreController.adapter = this.adapter;
+    }
+
+    if (changedProperties.has('adapter')) {
+      this._mcpAppHost = { ...this._mcpAppHost, hostCapabilities: mcpAppHostCapabilities(this.adapter) };
     }
 
     if (changedProperties.has('mcpAppSandboxUrl')) {

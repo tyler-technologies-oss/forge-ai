@@ -21,6 +21,7 @@ export type McpAppHandlers = Pick<
   | 'onsizechange'
   | 'onrequestdisplaymode'
   | 'onupdatemodelcontext'
+  | 'onrequestteardown'
 >;
 
 export interface McpAppConnectConfig {
@@ -152,10 +153,21 @@ export class McpAppBridgeController {
       return Promise.reject(new Error('sandbox iframe has no contentWindow'));
     }
 
+    let sandboxOrigin: string;
+    try {
+      sandboxOrigin = new URL(sandboxUrl, window.location.href).origin;
+    } catch {
+      return Promise.reject(new Error(`invalid sandbox URL: ${sandboxUrl}`));
+    }
+    if (sandboxOrigin === 'null' || sandboxOrigin === window.location.origin) {
+      return Promise.reject(new Error('sandbox URL must be on a distinct, non-opaque origin'));
+    }
+
     // Register the transport listener (inside connect) BEFORE navigating the iframe so
     // the sandbox's `sandbox-proxy-ready` is never missed.
     this.#connected = this.#bridge.connect({
       sandboxWindow,
+      sandboxOrigin,
       html: config.html,
       hostContext: config.hostContext,
       hostCapabilities: config.hostCapabilities,
@@ -191,12 +203,13 @@ export class McpAppBridgeController {
         return;
       }
 
-      if (!this.#inputSent) {
-        const argsString = toolCall.argsBuffer ?? JSON.stringify(toolCall.args ?? {});
-        if (argsString !== this.#lastArgsSent) {
-          this.#lastArgsSent = argsString;
-          this.#bridge.sendToolInputPartial(this.#coerceArgs(toolCall.args));
-        }
+      const partialArgs = this.#coerceArgs(toolCall.args);
+      const partialString = JSON.stringify(partialArgs);
+      // Only stream parsed partial args that changed; an adapter with no partial parse
+      // reports `{}` on every delta, which carries nothing for the View.
+      if (!this.#inputSent && Object.keys(partialArgs).length && partialString !== this.#lastArgsSent) {
+        this.#lastArgsSent = partialString;
+        this.#bridge.sendToolInputPartial(partialArgs);
       }
 
       const isFinished = toolCall.status === 'complete' || toolCall.status === 'error';

@@ -71,7 +71,8 @@ class SandboxProxy {
     this.#verifyIsolation();
     this.#resolveHostOrigin();
     window.addEventListener('message', this.#handleMessage);
-    this.#post(this.#host, { jsonrpc: '2.0', method: PROXY_READY, params: {} });
+    // The only message ever sent without a known host origin: it carries no data.
+    this.#host.postMessage({ jsonrpc: '2.0', method: PROXY_READY, params: {} }, this.#hostOrigin ?? '*');
   }
 
   /**
@@ -100,18 +101,17 @@ class SandboxProxy {
     }
 
     if (!this.#hostOrigin) {
-      console.warn('[mcp-app-sandbox] no document.referrer origin — cannot validate host messages by origin.');
+      console.warn('[mcp-app-sandbox] no document.referrer origin — adopting the origin of the first host message.');
     }
   }
 
+  /** Without a referrer, the host origin is pinned to the first message from `window.parent`. */
   #isFromHost(event) {
     if (event.source !== this.#host) {
       return false;
     }
-    if (this.#hostOrigin && event.origin !== this.#hostOrigin) {
-      return false;
-    }
-    return true;
+    this.#hostOrigin ??= event.origin;
+    return event.origin === this.#hostOrigin;
   }
 
   #isFromApp(event) {
@@ -185,7 +185,9 @@ class SandboxProxy {
   }
 
   #post(target, data) {
-    target?.postMessage(data, this.#hostOrigin ?? '*');
+    if (this.#hostOrigin) {
+      target?.postMessage(data, this.#hostOrigin);
+    }
   }
 }
 

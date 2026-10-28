@@ -8,18 +8,8 @@ export const ForgeAiMcpApp = forwardRef((props, forwardedRef) => {
   /** Event listeners - run once */
   useEventListener(
     ref,
-    "forge-ai-mcp-app-open-link",
-    props.onForgeAiMcpAppOpenLink,
-  );
-  useEventListener(
-    ref,
     "forge-ai-mcp-app-message",
     props.onForgeAiMcpAppMessage,
-  );
-  useEventListener(
-    ref,
-    "forge-ai-mcp-app-logging-message",
-    props.onForgeAiMcpAppLoggingMessage,
   );
   useEventListener(
     ref,
@@ -30,6 +20,21 @@ export const ForgeAiMcpApp = forwardRef((props, forwardedRef) => {
     ref,
     "forge-ai-mcp-app-update-model-context",
     props.onForgeAiMcpAppUpdateModelContext,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-mcp-app-open-link",
+    props.onForgeAiMcpAppOpenLink,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-mcp-app-logging-message",
+    props.onForgeAiMcpAppLoggingMessage,
+  );
+  useEventListener(
+    ref,
+    "forge-ai-mcp-app-request-teardown",
+    props.onForgeAiMcpAppRequestTeardown,
   );
 
   return React.createElement(

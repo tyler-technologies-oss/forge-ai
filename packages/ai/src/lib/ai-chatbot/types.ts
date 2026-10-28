@@ -200,23 +200,57 @@ export interface McpToolResult {
 }
 
 /**
- * Host context projected into an MCP-app widget. Deliberately narrow for the MVP:
- * `theme` light/dark is the whole theming surface — the ~80 standardized CSS variables
- * and font declarations are NOT propagated, so widgets fall back to their own defaults.
+ * Size of the container holding a widget, in CSS pixels (spec `containerDimensions`): a
+ * fixed `height` or a `maxHeight` bound, and a fixed `width` or a `maxWidth` bound.
+ */
+export type McpAppContainerDimensions = ({ height: number } | { maxHeight?: number }) &
+  ({ width: number } | { maxWidth?: number });
+
+/** The tool call that instantiated a widget (spec `toolInfo`). */
+export interface McpAppToolInfo {
+  id?: string | number;
+  tool: {
+    name: string;
+    inputSchema: { type: 'object'; [key: string]: unknown };
+    [key: string]: unknown;
+  };
+}
+
+/**
+ * Host context projected into an MCP-app widget. The ~80 standardized CSS variables and
+ * font declarations (`styles`) are NOT propagated, so widgets fall back to their own
+ * defaults.
  *
  * Local type — not aliased from ext-apps.
  */
 export interface McpAppHostContext {
   theme: 'light' | 'dark';
-  /** Container dimensions available to the widget, in CSS pixels. */
-  container?: {
-    width: number;
-    height: number;
-  };
+  /** The tool call that instantiated the widget. */
+  toolInfo?: McpAppToolInfo;
+  /** Size of the container holding the widget. */
+  containerDimensions?: McpAppContainerDimensions;
   /** The widget's current display mode. */
   displayMode?: McpAppDisplayMode;
   /** Display modes the host is able to present. */
   availableDisplayModes?: McpAppDisplayMode[];
+  /** BCP 47 language tag. */
+  locale?: string;
+  /** IANA time zone. */
+  timeZone?: string;
+  userAgent?: string;
+  platform?: 'web' | 'desktop' | 'mobile';
+  deviceCapabilities?: { touch?: boolean; hover?: boolean };
+  safeAreaInsets?: { top: number; right: number; bottom: number; left: number };
+}
+
+/** Content-block types a host accepts for `ui/message` / `ui/update-model-context`. */
+export interface McpAppContentModalities {
+  text?: Record<string, never>;
+  image?: Record<string, never>;
+  audio?: Record<string, never>;
+  resource?: Record<string, never>;
+  resourceLink?: Record<string, never>;
+  structuredContent?: Record<string, never>;
 }
 
 /** The sandbox policy the host enforces for a widget, echoed in its host capabilities. */
@@ -237,6 +271,8 @@ export interface McpAppHostCapabilities {
   serverTools?: { listChanged?: boolean };
   serverResources?: { listChanged?: boolean };
   logging?: Record<string, never>;
+  message?: McpAppContentModalities;
+  updateModelContext?: McpAppContentModalities;
   sandbox?: McpAppSandboxCapabilities;
 }
 
