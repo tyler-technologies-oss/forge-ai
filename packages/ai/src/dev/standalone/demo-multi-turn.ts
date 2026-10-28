@@ -1,11 +1,6 @@
 import { IDatePickerComponent } from '@tylertech/forge';
-import {
-  AgentRunner,
-  type ToolDefinition,
-  type AgUiAdapterConfig,
-  renderMarkdown,
-  HandlerContext
-} from '../../lib/ai-chatbot';
+import { AgentRunner, type ToolDefinition, renderMarkdown, HandlerContext } from '../../lib/ai-chatbot';
+import type { AgUiAdapterConfig } from '../../lib/ag-ui';
 import { MastraStreamAdapter } from '../shared/mastra-stream-adapter';
 
 type ShowToastFn = (message: string, theme?: 'error' | 'success' | 'warning' | 'info') => void;

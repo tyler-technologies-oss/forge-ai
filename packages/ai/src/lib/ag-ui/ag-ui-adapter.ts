@@ -20,9 +20,9 @@ import type {
   ActivityDeltaEvent as AgUiActivityDeltaEvent,
   ActivityMessage as AgUiActivityMessage
 } from '@ag-ui/core';
-import { AgentAdapter } from './agent-adapter.js';
-import type { ChatMessage, ToolDefinition } from './types.js';
-import { generateId } from './utils.js';
+import { AgentAdapter } from '../ai-chatbot/agent-adapter.js';
+import type { ChatMessage, ToolDefinition } from '../ai-chatbot/types.js';
+import { generateId } from '../ai-chatbot/utils.js';
 
 export interface AgUiAdapterConfig {
   url: string;
