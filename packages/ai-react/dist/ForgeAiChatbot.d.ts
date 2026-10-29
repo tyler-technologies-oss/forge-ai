@@ -57,6 +57,9 @@ export interface ForgeAiChatbotProps extends Pick<
   /** Message describing a failed thread load. When set, the conversations panel shows the message with a retry button instead of its empty state or loading indicator. The conversations button also shows an error badge so the failure is visible with the panel closed. If threads are already loaded the list stays visible and the message renders as a compact single line with a retry - at the bottom of the list when a page was in flight, otherwise above it. Clear it once a load succeeds. */
   threadsError?: ForgeAiChatbotElement["threadsError"];
 
+  /** Default title for the artifact canvas modal, used when the open request does not supply one */
+  canvasTitle?: ForgeAiChatbotElement["canvasTitle"];
+
   /** undefined */
   fileUpload?: ForgeAiChatbotElement["fileUpload"];
 
@@ -221,6 +224,14 @@ export interface ForgeAiChatbotProps extends Pick<
 
   /** Fired when the retry button in the conversations panel's error state is clicked. Re-request the threads and clear threadsError once the load succeeds */
   onForgeAiChatbotThreadRetry?: (event: CustomEvent<CustomEvent<void>>) => void;
+
+  /** Fired before the canvas modal opens or replaces its content. Cancelable - prevents the canvas from opening */
+  onForgeAiChatbotCanvasOpen?: (
+    event: CustomEvent<CustomEvent<CanvasOpenEventData>>,
+  ) => void;
+
+  /** Fired when the canvas modal closes. Cancelable only for user or `closeCanvas()` initiated closes; closes caused by clearing the thread cannot be prevented */
+  onForgeAiChatbotCanvasClose?: (event: CustomEvent<CustomEvent<void>>) => void;
 }
 
 /**
@@ -252,9 +263,20 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **forge-ai-chatbot-thread-rename** - Fired when user renames a thread. Cancelable - if prevented, call onSuccess() to commit or onError() to revert.
  * - **forge-ai-chatbot-thread-delete** - Fired when user deletes a thread. Cancelable - if prevented, call onSuccess() to commit deletion or onError() to revert. Otherwise optimistically removed.
  * - **forge-ai-chatbot-thread-retry** - Fired when the retry button in the conversations panel's error state is clicked. Re-request the threads and clear threadsError once the load succeeds
+ * - **forge-ai-chatbot-canvas-open** - Fired before the canvas modal opens or replaces its content. Cancelable - prevents the canvas from opening
+ * - **forge-ai-chatbot-canvas-close** - Fired when the canvas modal closes. Cancelable only for user or `closeCanvas()` initiated closes; closes caused by clearing the thread cannot be prevented
  *
  * ### **Methods:**
- *  - **startNewChat(): _void_** - Starts a new chat conversation by clearing messages and resetting conversation state.
+ *  - **openCanvas(options: _OpenCanvasOptions_): _boolean_** - Opens the artifact canvas in a modal over the chatbot, or swaps its content if already open.
+ * Returns false when the open event is prevented.
+ * - **closeCanvas(): _boolean_** - Closes the artifact canvas. Returns false if it was not open or the close event was prevented.
+ * - **clearMessages(): _boolean_** - Clears all messages from the chat.
+ *
+ * This is a lower-level operation that removes message history without
+ * the semantic meaning of "starting a new conversation". For user-facing
+ * "new chat" actions, prefer startNewChat which provides
+ * conversation-level cleanup.
+ * - **startNewChat(): _void_** - Starts a new chat conversation by clearing messages and resetting conversation state.
  *
  * This method:
  * - Clears all messages via the controller
@@ -262,12 +284,6 @@ export interface ForgeAiChatbotProps extends Pick<
  *
  * Does not fire events - meant for programmatic use.
  * For user-initiated actions, the event handler fires the event before calling this.
- * - **clearMessages(): __** - Clears all messages from the chat.
- *
- * This is a lower-level operation that removes message history without
- * the semantic meaning of "starting a new conversation". For user-facing
- * "new chat" actions, prefer startNewChat which provides
- * conversation-level cleanup.
  * - **addClientMessage(message: _ClientMessageInput_): __** - Inserts or upserts a client-only status message into the thread - never sent to
  * the agent adapter and never included in the conversation history the adapter sees.
  * Use this for host-driven UI feedback (e.g. "Your session expired", upload progress)
@@ -292,5 +308,7 @@ export interface ForgeAiChatbotProps extends Pick<
  * - **--forge-ai-chatbot-suggestion-background** - The background color for suggestion buttons. Defaults to `tertiary-container`. _(default: undefined)_
  * - **--forge-ai-chatbot-suggestion-foreground** - The text color for suggestion buttons. Defaults to `on-tertiary-container`. _(default: undefined)_
  * - **--forge-ai-chatbot-header-title-color** - The color of the header title text. Defaults to `currentColor`. _(default: undefined)_
+ * - **--forge-ai-chatbot-canvas-width** - Width of the artifact canvas modal (default: 80vw). _(default: undefined)_
+ * - **--forge-ai-chatbot-canvas-height** - Height of the artifact canvas modal (default: 80vh). _(default: undefined)_
  */
 export const ForgeAiChatbot: React.ForwardRefExoticComponent<ForgeAiChatbotProps>;

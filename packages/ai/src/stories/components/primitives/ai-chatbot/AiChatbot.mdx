@@ -199,6 +199,19 @@ Retry dispatches `forge-ai-chatbot-thread-retry` — a plain notification. Re-re
 
 <Canvas of={AiChatbotStories.WithConversationHistoryError} />
 
+## Artifact Canvas
+
+Tools that opt in with a `canvas` config can present their output as an artifact. `forge-ai-chatbot` shows it in a modal over the chatbot, so the same tool definition works in this component, the floating chat, and the sidebar chat. The launcher shows the same artifact in a resizable panel beside the conversation instead; see [Launcher → Artifact Canvas](?path=/docs/ai-components-form-factors-launcher--docs).
+
+The API mirrors the launcher's, with chatbot-prefixed names:
+
+- `openCanvas({ title, content })`, `closeCanvas()` and the `canvasOpen` getter. Without `content`, the `canvas` slot is shown.
+- `canvas-title` sets the default title, and the `canvas-actions` slot adds buttons to the canvas header.
+- `forge-ai-chatbot-canvas-open` is cancelable and fires before the canvas opens or swaps content. `forge-ai-chatbot-canvas-close` is cancelable for user or `closeCanvas()` initiated closes (the close button, Escape, a click on the backdrop); closing because the thread was cleared cannot be prevented.
+- `--forge-ai-chatbot-canvas-width` and `--forge-ai-chatbot-canvas-height` size the modal (80vw by 80vh by default). It goes full screen on narrow viewports.
+
+Renderers do not change between hosts: they use the injected `canvas` controls (`canvas.available`, `canvas.toggle()`), so a card or button written once works everywhere. A modal covers the chat while it is open, so unlike the launcher the user cannot keep conversing beside the artifact. The modal closes when the thread is cleared or a new chat starts. For the same reason `canvas.open: 'auto'` behaves like `'on-request'` here; only the launcher auto-opens.
+
 ## Keyboard Shortcuts
 
 - **Escape**: Abort the current streaming response

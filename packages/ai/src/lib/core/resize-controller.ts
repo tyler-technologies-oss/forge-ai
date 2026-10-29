@@ -3,6 +3,8 @@ import { Ref } from 'lit/directives/ref.js';
 
 const RESIZE_SCREEN_BUFFER = 100;
 
+export type ResizeGrowDirection = 'left' | 'right';
+
 export interface ResizeControllerOptions {
   targetElementRef: Ref<HTMLElement>;
   resizeHandleRef: Ref<HTMLElement>;
@@ -10,6 +12,10 @@ export interface ResizeControllerOptions {
   maxWidth?: number;
   defaultWidth?: number;
   keyboardStep?: number;
+  /** Screen direction the handle moves to make the width larger. Defaults to `'left'`, for a panel docked to the right. */
+  growDirection?: () => ResizeGrowDirection;
+  /** Widest the target may be given its container. Defaults to the window width minus a small buffer. */
+  getAvailableWidth?: () => number;
   onResize?: (width: number) => void;
   onResizeStart?: () => void;
   onResizeEnd?: () => void;
@@ -34,6 +40,8 @@ export class ResizeController implements ReactiveController {
       maxWidth: 800,
       defaultWidth: 420,
       keyboardStep: 20,
+      growDirection: () => 'left',
+      getAvailableWidth: () => window.innerWidth - RESIZE_SCREEN_BUFFER,
       onResize: () => {},
       onResizeStart: () => {},
       onResizeEnd: () => {},
@@ -92,14 +100,15 @@ export class ResizeController implements ReactiveController {
 
   public handleKeyDown = (event: KeyboardEvent): void => {
     const step = this.#options.keyboardStep;
+    const growSign = this.#options.growDirection() === 'left' ? 1 : -1;
     let delta = 0;
 
     switch (event.key) {
       case 'ArrowLeft':
-        delta = step;
+        delta = step * growSign;
         break;
       case 'ArrowRight':
-        delta = -step;
+        delta = -step * growSign;
         break;
       default:
         return;
@@ -120,7 +129,8 @@ export class ResizeController implements ReactiveController {
 
     event.preventDefault();
 
-    const deltaX = this.#dragStartX - event.clientX;
+    const deltaX =
+      this.#options.growDirection() === 'left' ? this.#dragStartX - event.clientX : event.clientX - this.#dragStartX;
     const newWidth = this.#dragStartWidth + deltaX;
     this.#currentWidth = this.#constrainWidth(newWidth);
     this.#applyWidth();
@@ -153,8 +163,7 @@ export class ResizeController implements ReactiveController {
   }
 
   #constrainWidth(width: number): number {
-    const availableWidth = window.innerWidth - RESIZE_SCREEN_BUFFER;
-    const effectiveMaxWidth = Math.min(this.#options.maxWidth, availableWidth);
+    const effectiveMaxWidth = Math.min(this.#options.maxWidth, this.#options.getAvailableWidth());
     return Math.max(this.#options.minWidth, Math.min(width, effectiveMaxWidth));
   }
 

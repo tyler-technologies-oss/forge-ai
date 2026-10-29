@@ -46,8 +46,19 @@ export type {
   ClientMessageKind,
   ContextItem,
   ToolDefinition,
+  AnyToolDefinition,
   ToolCall,
   ToolRenderer,
+  ToolPresentation,
+  ToolCanvas,
+  ToolRenderContext,
+  ToolRenderFunction,
+  ToolCanvasConfig,
+  ToolCanvasInline,
+  ToolCanvasIcon,
+  ToolCanvasActionLabel,
+  ToolCallMapper,
+  ToolCallValue,
   IToolRenderer,
   HandlerContext,
   ToolStartContext,
@@ -82,6 +93,14 @@ export * from './agent-runner.js';
 
 // Tool renderer helper
 export * from './create-tool-renderer.js';
+
+// Canvas integration for tool renderers. Host-side helpers (context, resolvers, createToolCanvas) stay internal.
+export {
+  requestCanvasOpen,
+  requestCanvasClose,
+  type ForgeAiCanvasOpenRequestEventData,
+  type ForgeAiCanvasCloseRequestEventData
+} from './tool-canvas.js';
 
 // Controllers and managers
 export { MessageStateController, type MessageStateControllerConfig } from './message-state-controller.js';

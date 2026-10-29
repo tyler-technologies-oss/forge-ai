@@ -1,4 +1,4 @@
-import type { ChatMessage, FileUploadCallbacks, ToolDefinition } from './types.js';
+import type { ChatMessage, FileUploadCallbacks, AnyToolDefinition } from './types.js';
 import { EventEmitter, type Subscription } from './event-emitter.js';
 
 export interface MessageStartEvent {
@@ -130,7 +130,7 @@ export interface ActivityDeltaAgentEvent {
 
 export abstract class AgentAdapter {
   protected _state: AdapterState = { isConnected: false, isConnecting: false, isRunning: false };
-  protected _tools: ToolDefinition[] = [];
+  protected _tools: AnyToolDefinition[] = [];
   protected _events = {
     runStarted: new EventEmitter<void>(),
     runFinished: new EventEmitter<void>(),
@@ -169,11 +169,11 @@ export abstract class AgentAdapter {
 
   public clearMemory?(): Promise<void>;
 
-  public setTools(tools: ToolDefinition[]): void {
+  public setTools(tools: AnyToolDefinition[]): void {
     this._tools = tools;
   }
 
-  public getTools(): ToolDefinition[] {
+  public getTools(): AnyToolDefinition[] {
     return [...this._tools];
   }
 

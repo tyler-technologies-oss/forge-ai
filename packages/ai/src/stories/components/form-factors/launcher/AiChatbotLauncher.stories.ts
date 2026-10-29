@@ -7,10 +7,11 @@ import '$lib/ai-chatbot-launcher';
 import type { Suggestion } from '$lib/ai-suggestions';
 import type { Thread } from '$lib/ai-threads';
 import type { AiChatbotLauncherComponent } from '$lib/ai-chatbot-launcher';
-import type { ChatMessage } from '$lib/ai-chatbot/types';
+import type { AnyToolDefinition, ChatMessage } from '$lib/ai-chatbot/types';
+import { canvasTableTool, salesTableArgs } from '../../../utils/canvas-table-tool';
 import { MockAdapter } from '../../../utils/mock-adapter';
 import { standaloneStoryParams } from '../../../utils';
-import { defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
+import { defineButtonComponent, defineIconButtonComponent, defineIconComponent, IconRegistry } from '@tylertech/forge';
 import { tylIconHistory, tylIconSettings } from '@tylertech/tyler-icons';
 
 const component = 'forge-ai-chatbot-launcher';
@@ -83,6 +84,19 @@ const meta = {
       control: 'text',
       description:
         'Message describing a failed chat history load. Badges the history button and shows the message with a retry in the popover/view'
+    },
+    canvasTitle: {
+      control: 'text',
+      description: 'Default title for the canvas header when an open request does not supply one'
+    },
+    canvasResizable: {
+      control: 'select',
+      options: ['on', 'off'],
+      description: 'Show the drag handle between the conversation and the canvas'
+    },
+    chatWidth: {
+      control: { type: 'number', min: 360, step: 20 },
+      description: 'Width in pixels of the conversation column while the canvas is open'
     }
   },
   args: {
@@ -686,4 +700,136 @@ export const WithHeaderActions: Story = {
       </div>
     `;
   }
+};
+
+const canvasContainerStyle =
+  'width: 100%; height: 640px; max-width: 1200px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;';
+
+const canvasSeedMessages: ChatMessage[] = [
+  {
+    id: 'canvas-user-1',
+    role: 'user',
+    content: 'Can you pull up the release notes for the latest version?',
+    timestamp: Date.now() - 60000,
+    status: 'complete'
+  },
+  {
+    id: 'canvas-assistant-1',
+    role: 'assistant',
+    content: 'Sure. Use the **Open canvas** button in the header to view them alongside our conversation.',
+    timestamp: Date.now() - 30000,
+    status: 'complete'
+  }
+];
+
+function seedConversation(el: Element | undefined): void {
+  const launcher = el as AiChatbotLauncherComponent | undefined;
+  void launcher?.updateComplete.then(() => {
+    if (!launcher.getMessages().length) {
+      launcher.setMessages(canvasSeedMessages);
+    }
+  });
+}
+
+export const WithCanvas: Story = {
+  ...standaloneStoryParams,
+  render: () => {
+    defineButtonComponent();
+    const adapter = new MockAdapter({ simulateStreaming: true, streamingDelay: 50, responseDelay: 500 });
+    const onCanvasOpen = action('forge-ai-chatbot-launcher-canvas-open');
+    const onCanvasClose = action('forge-ai-chatbot-launcher-canvas-close');
+
+    const openReleaseNotes = (evt: Event): void => {
+      const launcher = (evt.target as HTMLElement).closest('forge-ai-chatbot-launcher');
+      launcher?.openCanvas({ title: 'Release notes' });
+    };
+
+    return html`
+      <div style=${canvasContainerStyle}>
+        <forge-ai-chatbot-launcher
+          ${ref(seedConversation)}
+          .adapter=${adapter}
+          canvas-title="Canvas"
+          @forge-ai-chatbot-launcher-canvas-open=${(evt: CustomEvent) => onCanvasOpen(evt.detail)}
+          @forge-ai-chatbot-launcher-canvas-close=${onCanvasClose}>
+          <forge-button slot="header-actions" variant="outlined" @click=${openReleaseNotes}>Open canvas</forge-button>
+          <div slot="canvas">
+            <h3>Version 2.4.0</h3>
+            <ul>
+              <li>Chat history popover now supports search and infinite scroll.</li>
+              <li>Sidebar width is remembered between sessions.</li>
+              <li>Artifacts can open in a canvas beside the conversation.</li>
+            </ul>
+            <h3>Version 2.3.1</h3>
+            <ul>
+              <li>Fixed focus restoration when dismissing the history popover with Escape.</li>
+              <li>Corrected nested popover toggle handling.</li>
+            </ul>
+          </div>
+        </forge-ai-chatbot-launcher>
+      </div>
+    `;
+  }
+};
+
+function renderCanvasToolStory(tool: AnyToolDefinition): ReturnType<typeof html> {
+  const adapter = new MockAdapter({
+    simulateStreaming: true,
+    simulateTools: true,
+    streamingDelay: 30,
+    responseDelay: 400,
+    tools: [tool],
+    simulatedToolCall: { name: tool.name, args: salesTableArgs }
+  });
+
+  return html`
+    <div style=${canvasContainerStyle}>
+      <forge-ai-chatbot-launcher
+        .adapter=${adapter}
+        .suggestions=${[{ text: 'Show me Q3 sales by region', value: 'Show me Q3 sales by region' }] satisfies Suggestion[]}
+        @forge-ai-chatbot-launcher-canvas-open=${(evt: CustomEvent) =>
+          action('forge-ai-chatbot-launcher-canvas-open')(evt.detail)}
+        @forge-ai-chatbot-launcher-canvas-close=${action('forge-ai-chatbot-launcher-canvas-close')}>
+      </forge-ai-chatbot-launcher>
+    </div>
+  `;
+}
+
+/**
+ * The tool's own renderer draws an overview card in the thread. Its "View all rows" button opens the full table,
+ * a separate `canvas.renderer`, beside the conversation.
+ */
+export const CanvasOnRequest: Story = {
+  ...standaloneStoryParams,
+  render: () => renderCanvasToolStory(canvasTableTool)
+};
+
+/** The canvas opens as soon as the tool call renders, leaving the built-in artifact card in the thread to reopen or collapse it. */
+export const CanvasAutoOpen: Story = {
+  ...standaloneStoryParams,
+  render: () =>
+    renderCanvasToolStory({
+      ...canvasTableTool,
+      canvas: { ...canvasTableTool.canvas, open: 'auto' }
+    })
+};
+
+/** The built-in artifact card replaces the tool's own UI in the thread; clicking it opens the table in the canvas. */
+export const CanvasCard: Story = {
+  ...standaloneStoryParams,
+  render: () =>
+    renderCanvasToolStory({
+      ...canvasTableTool,
+      canvas: { ...canvasTableTool.canvas, inline: 'card' }
+    })
+};
+
+/** The overview card renders inline until it is opened in the canvas, then swaps to an artifact card until the canvas closes. */
+export const CanvasCardWhileOpen: Story = {
+  ...standaloneStoryParams,
+  render: () =>
+    renderCanvasToolStory({
+      ...canvasTableTool,
+      canvas: { ...canvasTableTool.canvas, inline: 'card-while-open' }
+    })
 };
