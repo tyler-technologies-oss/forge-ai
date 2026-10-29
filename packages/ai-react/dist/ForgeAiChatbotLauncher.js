@@ -31,6 +31,8 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
     exportOption,
     clearOption,
     selectedAgentId,
+    mcpAppSandboxUrl,
+    mcpAppTheme,
     threads,
     agentInfo,
     agents,
@@ -175,6 +177,9 @@ export const ForgeAiChatbotLauncher = forwardRef((props, forwardedRef) => {
       "export-option": props.exportOption || props["export-option"],
       "clear-option": props.clearOption || props["clear-option"],
       "selected-agent-id": props.selectedAgentId || props["selected-agent-id"],
+      "mcp-app-sandbox-url":
+        props.mcpAppSandboxUrl || props["mcp-app-sandbox-url"],
+      "mcp-app-theme": props.mcpAppTheme || props["mcp-app-theme"],
       class: props.className,
       exportparts: props.exportparts,
       for: props.htmlFor,

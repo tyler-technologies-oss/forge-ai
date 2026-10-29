@@ -1,0 +1,273 @@
+import { Meta, Title, Canvas } from '@storybook/addon-docs/blocks';
+import * as AiChatbotMcpAppStories from './AiChatbotMcpApp.stories';
+
+<Meta of={AiChatbotMcpAppStories} />
+
+<Title />
+
+Demonstrates an MCP-app widget rendered inline in `forge-ai-chatbot` as a sandboxed,
+cross-origin iframe. Send any message to trigger the mock adapter's `renderMcpApp` tool
+call — args stream live, then the widget mounts and receives the tool result.
+
+The mock adapters mimic a Foundry stream: no client-side tool definition is registered
+(the `mcp-ui-resource` event alone marks a tool call as a widget), the model-facing
+`result` is plain text, and the widget's payload travels as `mcpResult` +
+`structuredContent`.
+
+## Manual test setup
+
+The widget's sandbox requires a separate-origin proxy running locally, in a second
+terminal alongside Storybook:
+
+```bash
+pnpm --filter=@tylertech/forge-ai sandbox   # proxy on :6017
+pnpm storybook                              # Storybook on :6016
+```
+
+Different ports are different origins, so this exercises real same-origin-policy
+isolation — the same as production.
+
+## Two widget variants
+
+- **`HandRolledWidget`** — a minimal inline `<script>` speaking the `ui/*` JSON-RPC
+  protocol directly, no SDK. Fastest to iterate on.
+- **`RealAppSdkWidget`** — imports the real `@modelcontextprotocol/ext-apps` guest `App`
+  class (via a pre-bundled, dependency-free build) and speaks the full spec handshake.
+
+Both stories run against the same host-side bridge — a hand-rolled, zero-dependency
+`McpAppBridge` implementation (`mcp-app-bridge.ts`). There's no config surface for
+swapping bridge impls; the library only ships this one.
+
+<Canvas of={AiChatbotMcpAppStories.HandRolledWidget} />
+<Canvas of={AiChatbotMcpAppStories.RealAppSdkWidget} />
+
+## Feature demos
+
+Three additional stories, each grounded in a realistic use case and each exercising a
+different slice of the app-to-host surface:
+
+- **`WeatherCard`** — a read-only widget. No app-initiated calls at all; it renders
+  purely from streamed tool args and the final `structuredContent` (temperature,
+  condition, high/low, humidity, wind). Proves a widget can be pure display with zero
+  interactivity.
+- **`TripDetailsForm`** — an interactive widget. The form collects destination + date
+  from the user and forwards them as an app-initiated `tools/call`
+  (`submitTripDetails`, a `visibility:["app"]`-style tool never exposed to the model's
+  tool list), then renders the server's response inline. Exercises `oncalltool`.
+- **`StoreLocator`** — exercises `ui/request-display-mode` (the "Expand" and "Pop out"
+  buttons promote the widget to fullscreen or pip via the Popover API — same DOM node, no iframe
+  reload) and `ui/open-link` (the "Directions" button; the host asks the user to confirm,
+  then opens the link in a new tab). Also exercises `ui/message` — "Ask about hours" fills the prompt; once
+  sent, the mock adapter answers it as a natural follow-up rather than re-running the
+  tool call.
+
+<Canvas of={AiChatbotMcpAppStories.WeatherCard} />
+<Canvas of={AiChatbotMcpAppStories.TripDetailsForm} />
+<Canvas of={AiChatbotMcpAppStories.StoreLocator} />
+
+## Lifecycle scenarios
+
+Each story below drives the mock adapter through one part of the widget lifecycle. Use the
+`widgetVariant` control to run it against the hand-rolled or the real SDK widget, and watch
+the console and the Actions panel (`[mcp-app-mock] host: ...` logs show the `toolCallId`
+the host passes on every call).
+
+- **`ToolErrorResult`** — `tool-result` with `isError`. The widget still receives the
+  result (`isError: true`, error `content` and `_meta`) rather than being left waiting.
+- **`CancelledByAdapter`** — `tool-result` with `cancelled: true` (team-stream style). The
+  widget receives `ui/notifications/tool-cancelled` instead of a result.
+- **`CancelledNoResult`** — the run finishes with no `tool-result` (agent-stream style).
+  The unsettled tool call is marked `cancelled` and the widget gets `tool-cancelled`.
+- **`HandRolledWidget`** / **`RealAppSdkWidget`** — once the result arrives the widget
+  also has "Open link" (opens `https://example.com/` in a new tab), "Open javascript:
+  link" (refused with `{ isError: true }`), "Send message" (posted into the chat as a user
+  message; `{ isError: true }` while a response is streaming), "Unknown method" (a raw
+  `tools/list` that gets JSON-RPC `-32601`) and "Request teardown" buttons. The widget
+  shows each response.
+- **`ModelContext`** — click "Update model context" in the widget. `ui/update-model-context`
+  carries `content` and `structuredContent`; the host logs both with the widget's
+  `toolCallId` from `updateMcpModelContext`.
+- **`ToolCallBeforeResource`** / **`ResourceBeforeToolCall`** — the two valid stream
+  orders of the `tool-call` chunk and the `mcp-ui-resource` event. Both end with the
+  widget mounted and the result delivered.
+- **`MultipleWidgets`** — three widgets in one thread (the last one errors). Each
+  "Refresh via app tool call" echoes its own `toolCallId` and label, proving per-widget
+  isolation.
+- **`RestoredHistory`** — `setMessages` with finalized tool calls (no resource), then one
+  `_emitMcpUiResource` per widget. Each is resolved again and remounted with its stored
+  `mcpResult` + `structuredContent`.
+
+<Canvas of={AiChatbotMcpAppStories.ToolErrorResult} />
+<Canvas of={AiChatbotMcpAppStories.CancelledByAdapter} />
+<Canvas of={AiChatbotMcpAppStories.CancelledNoResult} />
+<Canvas of={AiChatbotMcpAppStories.ModelContext} />
+<Canvas of={AiChatbotMcpAppStories.ToolCallBeforeResource} />
+<Canvas of={AiChatbotMcpAppStories.ResourceBeforeToolCall} />
+<Canvas of={AiChatbotMcpAppStories.MultipleWidgets} />
+<Canvas of={AiChatbotMcpAppStories.RestoredHistory} />
+
+## Adapter contract
+
+An adapter backs MCP-app widgets with these optional `AgentAdapter` members. Every call
+carries the widget's `toolCallId` so host calls are per-widget.
+
+| Member                                                                             | Purpose                                                                                                                                                                 |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_emitMcpUiResource({ toolCallId, resourceUri, toolName?, serverId?, mimeType? })` | Announce a widget. Order relative to the `tool-call` chunk doesn't matter. Call it again after `setMessages`/`setThreadState` to remount widgets restored from history. |
+| `resolveMcpAppResource({ resourceUri, toolCallId })`                               | Fetch the template. Return `{ html, csp, permissions, prefersBorder? }` with `csp`/`permissions` from the template's `_meta.ui` (`{}` when empty).                      |
+| `callMcpTool({ name, arguments, toolCallId })`                                     | View `tools/call`. Resolve tool-level errors with `isError: true`; reject HTTP errors (e.g. 403 for a tool without `"app"` visibility) to return a JSON-RPC error.      |
+| `readMcpResource({ uri, toolCallId })`                                             | View `resources/read`. When absent the request is rejected. `serverResources` is not advertised.                                                                        |
+| `updateMcpModelContext({ toolCallId, content, structuredContent })`                | View `ui/update-model-context`. Each call replaces the widget's context; debounce and hold until the run ends if the backend requires it.                               |
+| `disposeMcpAppView({ toolCallId })`                                                | Called after a widget is torn down. Drop anything held for it (e.g. a pending model context); a removed widget shouldn't steer the model.                               |
+
+`permissions` uses the spec shape — keys present are requested:
+`{ camera: {}, microphone: {}, geolocation: {}, clipboardWrite: {} }`.
+
+### Tool results
+
+Emit the tool result with `_emitToolResult` and the extra MCP fields:
+
+- `result` — model-facing text. **Never** sent to the widget.
+- `mcpResult: { content, isError?, _meta? }` and `structuredContent` — the widget's
+  `ui/notifications/tool-result` is built as `{ content, structuredContent, isError, _meta }`
+  from these.
+- `mcpResultOmitted` / `structuredContentOmitted` — the field was dropped for size. The
+  widget gets whatever remains (`content: []` when `mcpResult` is omitted); if both are
+  missing it still gets `{ content: [] }` (with `isError: true` for an errored call) so it
+  isn't left waiting.
+- `isError: true` — status `error`; the result is still delivered to the widget.
+- `cancelled: true` — status `cancelled`; the widget gets `ui/notifications/tool-cancelled`
+  instead of a result.
+
+A widget tool call only settles through a tool result. If the run finishes, is aborted,
+or errors before one arrives, the tool call is marked `cancelled` and the widget is sent
+`tool-cancelled`. A run that finishes while a client-tool handler is still executing isn't
+over: the handler's result starts a continuation run, and unsettled widgets stay open until
+that continuation finishes. Aborts and errors cancel immediately. Nothing is sent to a widget
+before it sends `ui/notifications/initialized`.
+
+### Teardown
+
+Widgets get `ui/resource-teardown` and their iframes are removed immediately (the host
+doesn't wait for the ack, so Views should persist state as they go): on `clearMessages`, `startNewChat`, `setThreadState`, and when editing or resending a
+message removes the turns that rendered them. Only the removed turns' widgets are torn down;
+the adapter's `disposeMcpAppView` is called for each.
+
+### Host capabilities
+
+The `ui/initialize` result advertises only what is actually implemented:
+
+- Always: `openLinks`, `logging`, `message: { text: {} }`.
+- `serverTools` — only when the adapter implements `callMcpTool`.
+- `updateModelContext: { text: {}, structuredContent: {} }` — only when the adapter
+  implements `updateMcpModelContext`.
+- `sandbox` — the widget's enforced `csp`/`permissions`.
+- Never: `serverResources`, `downloadFile`, `sampling`.
+
+Requests for unsupported methods (`tools/list`, `resources/list`, `prompts/list`,
+`sampling/createMessage`, `ui/download-file`, …) get JSON-RPC `-32601` (method not
+found); malformed params get `-32602`; adapter rejections get `-32000`. A request the
+adapter resolves with `undefined` is answered with `{}`. `tools/call` and `resources/read`
+sent before `ui/notifications/initialized` are rejected with `-32000` and never reach the
+adapter.
+
+### Host context
+
+Every widget gets `theme`, `displayMode`, `availableDisplayModes`, `toolInfo`
+(`{ id: toolCallId, tool: { name, title?, description?, inputSchema } }`, from the
+registered `ToolDefinition` when there is one; otherwise `inputSchema` is `{ type: 'object' }`), `containerDimensions`
+(`{ width, maxHeight: 2000 }` inline; fixed `width`/`height` in fullscreen/pip), `locale`,
+`timeZone`, `userAgent`, `platform: 'web'`, `deviceCapabilities` (`touch`/`hover`) and
+zero `safeAreaInsets`. A container resize sends `ui/notifications/host-context-changed`
+(throttled to one per frame, only after `initialized`). Inline heights from `size-changed`
+are capped at 2000px.
+
+### Theming
+
+`styles.variables` carries the spec's CSS variables (`--color-background-primary`,
+`--color-text-secondary`, `--font-sans`, `--border-radius-md`, `--shadow-md`, …) filled
+from Forge tokens. The widget is cross-origin and can't read the page's custom properties,
+so the host sends each token's resolved value. Token overrides in scope of the chatbot
+(e.g. `--forge-theme-surface`) carry through. Widgets apply them with
+`applyHostStyleVariables` from `@modelcontextprotocol/ext-apps` and keep their own
+fallbacks for anything not sent. Font loading (`styles.css.fonts`) is not sent.
+
+The chatbot can't detect Forge token changes on its own, so tell it when the theme changes:
+
+- **Light/dark switch:** set `mcpAppTheme` (`mcp-app-theme`) from your app's theme
+  mechanism. Widgets get the new `theme` and re-resolved `styles.variables`. When unset,
+  it follows `prefers-color-scheme`.
+- **Other token changes** (e.g. a brand change): call `chatbot.refreshMcpAppStyles()`.
+
+```ts
+themeService.onChange(theme => {
+  chatbot.mcpAppTheme = theme;
+});
+```
+
+### Links
+
+`ui/open-link` accepts `http:`, `https:` and `mailto:` URLs; anything else (e.g.
+`javascript:`, `data:`) is refused with `{ isError: true }`. For an accepted URL the
+cancelable `forge-ai-mcp-app-open-link` event fires first. If a listener calls
+`preventDefault()` it owns the link and the widget gets `{}`. Otherwise the user is
+asked to confirm inside the widget; on confirm the URL opens in a new tab with
+`noopener,noreferrer` (from the click, so it isn't popup-blocked) and the widget gets
+`{}`, on cancel it gets `{ isError: true }`.
+
+### Messages
+
+`ui/message` text blocks are joined and placed in the prompt input for the user to review
+and send; a widget never starts a model turn on its own. Other block types (image, audio,
+resource) are dropped; a message with no text is refused with `{ isError: true }`.
+`forge-ai-mcp-app-message` fires first (informational).
+
+### Teardown requests
+
+`ui/notifications/request-teardown` fires the cancelable
+`forge-ai-mcp-app-request-teardown` event (`{ toolCallId }`). Unless a listener calls
+`preventDefault()`, the widget goes through the normal per-widget teardown
+(`ui/resource-teardown`, then `disposeMcpAppView`) and its iframe is removed. The tool call
+and the rest of the turn stay in the thread; the widget is not remounted.
+
+### Logging
+
+`notifications/message` fires the cancelable `forge-ai-mcp-app-logging-message` event;
+unless a listener calls `preventDefault()` it is written to the console at the matching
+level.
+
+### Events
+
+`forge-ai-mcp-app-update-model-context` bubbles from the widget with
+`{ toolCallId, content, structuredContent }` (same payload as `updateMcpModelContext`).
+
+### Display modes
+
+The host offers `inline`, `fullscreen` and `pip`. A widget is switched only to a mode it
+declared in `ui/initialize` (`appCapabilities.availableDisplayModes`); otherwise the
+current mode is returned unchanged.
+
+Promoted widgets get a host-owned close button; it and Escape return the widget inline.
+Fullscreen is modal: the rest of the page is made `inert` while it's open. Pip stays
+non-modal, so the chat behind it remains usable.
+
+## What to look for
+
+- The iframe mounts **once** — no flicker or remount as tool args stream in.
+- Clicking "Refresh via app tool call" round-trips an app-initiated `tools/call` to
+  `refreshWidgetData` (a `visibility:["app"]`-style tool: callable from the widget, but
+  never exposed to the model's tool list).
+- Auto-resize: the iframe's height tracks the widget's content with no feedback loop.
+- Theme propagation: use the **`theme` control** (`auto` / `light` / `dark`) on any
+  story to feed an explicit theme into the widget's `hostContext.theme` — the spec
+  (2026-01-26) defines only `'light' | 'dark'`, no `'system'`/`'auto'`. This control
+  does **not** change the chatbot's own appearance (that's Forge design tokens,
+  unrelated) — it only demonstrates the widget-facing signal a real consumer would set
+  via `<forge-ai-chatbot mcp-app-theme="dark">`. With `theme` set to `light` or `dark`, that
+  value wins outright. With `theme` left on **`auto`**, the widget instead tracks
+  **Storybook's own dark-mode toolbar icon** (the sun/moon button, top toolbar) live —
+  toggling it flips `hostContext.theme` without a page reload, since both this control
+  and Forge's own dark theme listen to the same `@vueless/storybook-dark-mode` `DARK_MODE`
+  channel event. Watch the console (widgets log every
+  `ui/notifications/host-context-changed` they receive) or the widget's own background
+  color, which flips via `body[data-theme]` in all three feature demos.

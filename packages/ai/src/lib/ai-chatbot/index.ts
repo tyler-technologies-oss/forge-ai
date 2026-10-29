@@ -34,7 +34,13 @@ export {
   type StateSnapshotAgentEvent,
   type StateDeltaAgentEvent,
   type ActivitySnapshotAgentEvent,
-  type ActivityDeltaAgentEvent
+  type ActivityDeltaAgentEvent,
+  type McpUiResourceEvent,
+  type McpToolCallParams,
+  type McpResourceReadParams,
+  type McpAppResourceResolveParams,
+  type McpModelContextUpdateParams,
+  type ToolResultEvent
 } from './agent-adapter.js';
 
 // Chatbot types
@@ -48,6 +54,7 @@ export type {
   ToolDefinition,
   AnyToolDefinition,
   ToolCall,
+  ToolCallStatus,
   ToolRenderer,
   ToolPresentation,
   ToolCanvas,
@@ -78,7 +85,19 @@ export type {
   ForgeAiChatbotThreadSearchEventData,
   ForgeAiChatbotThreadLoadMoreEventData,
   ForgeAiChatbotThreadRenameEventData,
-  ForgeAiChatbotThreadDeleteEventData
+  ForgeAiChatbotThreadDeleteEventData,
+  McpAppUiResource,
+  McpAppResourceCsp,
+  McpAppResourcePermissions,
+  McpAppHostContext,
+  McpAppHostStyles,
+  McpAppHostCapabilities,
+  McpAppContainerDimensions,
+  McpAppContentModalities,
+  McpAppToolInfo,
+  McpAppSandboxCapabilities,
+  McpAppDisplayMode,
+  McpToolResult
 } from './types.js';
 
 // AG-UI adapter

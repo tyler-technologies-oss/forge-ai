@@ -228,7 +228,7 @@ export class AiToolCallIndicatorComponent extends LitElement {
   }
 
   #statusMarker(toolCall: ToolCall): TemplateResult {
-    if (toolCall.status === 'error') {
+    if (toolCall.status === 'error' || toolCall.status === 'cancelled') {
       return html`<span class="row-marker row-marker--error">${this.#errorIcon}</span>`;
     }
     if (isToolCallSettled(toolCall, this.tools?.get(toolCall.name))) {

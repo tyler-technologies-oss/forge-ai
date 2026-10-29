@@ -2,6 +2,7 @@ import { LitElement, TemplateResult, html, nothing, unsafeCSS, type PropertyValu
 import { customElement, property, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { when } from 'lit/directives/when.js';
+import { keyed } from 'lit/directives/keyed.js';
 import type { MessageItem, AnyToolDefinition, ToolCall, AssistantResponse } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiAssistantResponseFeedbackEventData } from '../ai-assistant-response';
@@ -16,6 +17,7 @@ import '../ai-thinking-indicator';
 import '../ai-user-message';
 import '../ai-chatbot/ai-chatbot-tool-call.js';
 import '../core/tooltip/tooltip.js';
+import '../tools/ai-mcp-app/ai-mcp-app.js';
 
 import styles from './ai-message-thread.scss?inline';
 
@@ -103,23 +105,48 @@ export class AiMessageThreadComponent extends LitElement {
   @query('.message-thread')
   private _messageThreadContainer!: HTMLElement;
 
+  @query('.message-thread-content')
+  private _messageThreadContent!: HTMLElement;
+
   #markdownController!: MarkdownStreamController;
   #canAutoScroll = true;
+  #lastScrollTop = 0;
   #resizeObserver?: ResizeObserver;
+  #contentResizeObserver?: ResizeObserver;
 
   public override connectedCallback(): void {
     super.connectedCallback();
     this.#markdownController = new MarkdownStreamController(this);
     this.#resizeObserver = new ResizeObserver(() => this.#checkScrollState());
+    this.#contentResizeObserver = new ResizeObserver(() => this.#handleContentResize());
+    if (this.hasUpdated) {
+      this.#observe();
+    }
   }
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.#resizeObserver?.disconnect();
+    this.#contentResizeObserver?.disconnect();
   }
 
   public override firstUpdated(): void {
+    this.#observe();
+  }
+
+  #observe(): void {
     this.#resizeObserver?.observe(this._messageThreadContainer);
+    this.#contentResizeObserver?.observe(this._messageThreadContent);
+  }
+
+  /**
+   * Content can grow without `messageItems` changing (e.g. an MCP-app widget mounting or
+   * resizing itself), so keep the thread pinned to the bottom while the user hasn't scrolled away.
+   */
+  #handleContentResize(): void {
+    if (this.autoScroll === 'on') {
+      this.scrollToBottom({ behavior: 'instant' });
+    }
   }
 
   public override updated(changedProperties: PropertyValues<this>): void {
@@ -142,8 +169,12 @@ export class AiMessageThreadComponent extends LitElement {
       return;
     }
 
+    // Only an upward scroll releases the pin; content growing mid smooth-scroll also leaves us far from the bottom.
     const { scrollTop, scrollHeight, clientHeight } = container;
-    const canAutoScroll = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+    const scrolledUp = scrollTop < this.#lastScrollTop;
+    this.#lastScrollTop = scrollTop;
+    const canAutoScroll = isNearBottom || (this.#canAutoScroll && !scrolledUp);
     if (canAutoScroll !== this.#canAutoScroll) {
       this.#canAutoScroll = canAutoScroll;
       this.requestUpdate();
@@ -237,7 +268,11 @@ export class AiMessageThreadComponent extends LitElement {
     });
   }
 
-  #renderToolCall(toolCall: ToolCall): TemplateResult {
+  #renderToolCall(toolCall: ToolCall): unknown {
+    if (toolCall.uiResource) {
+      return keyed(toolCall.id, html`<forge-ai-mcp-app .toolCall=${toolCall}></forge-ai-mcp-app>`);
+    }
+
     const toolDefinition = this.tools?.get(toolCall.name);
     return html`<forge-ai-chatbot-tool-call
       .toolCall=${toolCall}
@@ -304,12 +339,15 @@ export class AiMessageThreadComponent extends LitElement {
     </div>`;
   }
 
-  get #messages(): (TemplateResult | typeof nothing)[] {
+  get #messages(): unknown[] {
     const itemsToRender = this.messageItems.filter(item => {
       if (item.type === 'assistant') {
         return true;
       }
       if (item.type === 'toolCall') {
+        if (item.data.uiResource) {
+          return true;
+        }
         const toolDef = this.tools?.get(item.data.name);
         return !!toolDef?.renderer;
       }

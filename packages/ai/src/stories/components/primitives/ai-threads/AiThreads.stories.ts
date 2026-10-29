@@ -4,7 +4,7 @@ import { action } from 'storybook/actions';
 
 import '$lib/ai-threads';
 import '$lib/ai-chatbot-launcher';
-import type { AiThreadsComponent, Thread } from '$lib/ai-threads';
+import type { Thread } from '$lib/ai-threads';
 import { MockAdapter } from '../../../utils/mock-adapter';
 
 const sampleThreads: Thread[] = [

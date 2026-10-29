@@ -67,9 +67,11 @@ let threadId = generateId();
 let adapter: MastraStreamAdapter;
 
 function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
+  const apiOrigin = baseUrl.replace(/\/+$/, '').replace(/\/api\/agents$/, '');
   const newAdapter = new MastraStreamAdapter(
     {
-      url: `${baseUrl}/api/agents/${agentId}/stream`,
+      baseUrl: apiOrigin,
+      agentId,
       context: {
         pageUrl: window.location.href,
         userAgent: navigator.userAgent,
@@ -86,7 +88,7 @@ function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
     threadId
   );
 
-  registerFileUploadHandler(newAdapter, { baseUrl, agentId, threadId });
+  registerFileUploadHandler(newAdapter, { baseUrl: `${apiOrigin}/api/agents`, agentId, threadId });
 
   return newAdapter;
 }

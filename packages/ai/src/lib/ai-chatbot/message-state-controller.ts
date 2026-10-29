@@ -11,6 +11,18 @@ import type {
 import type { ToolResultEvent } from './agent-adapter.js';
 import { generateId } from './utils.js';
 
+function withoutUiResource(toolCall: ToolCall): ToolCall {
+  if (!toolCall.uiResource) {
+    return toolCall;
+  }
+  const { uiResource: _uiResource, ...rest } = toolCall;
+  return rest;
+}
+
+function responseItemWithoutUiResource(item: ResponseItem): ResponseItem {
+  return item.type === 'toolCall' ? { type: 'toolCall', data: withoutUiResource(item.data) } : item;
+}
+
 export interface MessageStateControllerConfig {
   onThreadSettled?: () => void;
 }
@@ -156,37 +168,70 @@ export class MessageStateController implements ReactiveController {
     this.#notifyStateChange();
   }
 
+  /**
+   * Applies `updates` to a tool call wherever it is rendered: the in-progress response,
+   * an already finalized/restored response, or a top-level tool-call item.
+   */
   public updateToolCallInResponse(toolCallId: string, updates: Partial<ToolCall>): void {
     const toolCall = this._toolCalls.get(toolCallId);
     if (!toolCall) {
       return;
     }
 
-    const isCompleting = updates.status === 'complete' || updates.status === 'error';
+    const isFinishing = updates.status === 'complete' || updates.status === 'error' || updates.status === 'cancelled';
     const updated = {
       ...toolCall,
       ...updates,
-      ...(isCompleting && !toolCall.endTimestamp ? { endTimestamp: Date.now() } : {})
+      ...(isFinishing && !toolCall.endTimestamp ? { endTimestamp: Date.now() } : {})
     };
     this._toolCalls.set(toolCallId, updated);
-
-    if (this._activeResponse) {
-      for (const child of this._activeResponse.children) {
-        if (child.type === 'toolCall' && child.data.id === toolCallId) {
-          child.data = updated;
-          break;
-        }
-      }
-    }
-
-    this.#updateResponseInItems();
+    this.#replaceToolCall(updated);
     this.#notifyStateChange();
   }
 
   public completeToolCallInResponse(toolCallId: string, result: unknown, event?: ToolResultEvent): void {
     this.updateToolCallInResponse(toolCallId, {
       result,
-      status: event?.isError === true ? 'error' : 'complete'
+      status: this.#resultStatus(event),
+      ...(event
+        ? {
+            structuredContent: event.structuredContent,
+            structuredContentOmitted: event.structuredContentOmitted,
+            mcpResult: event.mcpResult,
+            mcpResultOmitted: event.mcpResultOmitted
+          }
+        : {})
+    });
+  }
+
+  #resultStatus(event?: ToolResultEvent): ToolCall['status'] {
+    if (event?.cancelled) {
+      return 'cancelled';
+    }
+    return event?.isError ? 'error' : 'complete';
+  }
+
+  #replaceToolCall(updated: ToolCall): void {
+    const matches = (child: ResponseItem): boolean => child.type === 'toolCall' && child.data.id === updated.id;
+    const replace = (children: ResponseItem[]): ResponseItem[] =>
+      children.map(child => (matches(child) ? { type: 'toolCall', data: updated } : child));
+
+    const activeResponse = this._activeResponse;
+    if (activeResponse?.children.some(matches)) {
+      activeResponse.children = replace(activeResponse.children);
+    }
+
+    this._messageItems = this._messageItems.map(item => {
+      if (item.type === 'toolCall' && item.data.id === updated.id) {
+        return { type: 'toolCall', data: updated };
+      }
+      if (item.type !== 'assistant' || !item.data.children.some(matches)) {
+        return item;
+      }
+      if (item.data.id === activeResponse?.id) {
+        return { type: 'assistant', data: { ...activeResponse } };
+      }
+      return { type: 'assistant', data: { ...item.data, children: replace(item.data.children) } };
     });
   }
 
@@ -319,15 +364,34 @@ export class MessageStateController implements ReactiveController {
     this._config.onThreadSettled?.();
   }
 
-  public removeMessageItemsFrom(index: number): void {
+  /** Tool call ids rendered at or after `index`, inside assistant responses or as top-level items. */
+  public getToolCallIdsFrom(index: number): string[] {
+    return this._messageItems.slice(index).flatMap(item => {
+      if (item.type === 'toolCall') {
+        return [item.data.id];
+      }
+      if (item.type === 'assistant') {
+        return item.data.children.flatMap(child => (child.type === 'toolCall' ? [child.data.id] : []));
+      }
+      return [];
+    });
+  }
+
+  /** Removes items from `index` onward and returns the ids of the tool calls they held. */
+  public removeMessageItemsFrom(index: number): string[] {
+    const removedToolCallIds = this.getToolCallIdsFrom(index);
+    removedToolCallIds.forEach(id => this._toolCalls.delete(id));
     this._messageItems = this._messageItems.slice(0, index);
     this._activeResponse = null;
     this.#notifyStateChange();
+    return removedToolCallIds;
   }
 
   /**
    * Reconstructs the message hierarchy for API compatibility.
    * Converts assistant responses back to ChatMessage format with tool calls.
+   * MCP-app `uiResource`s are stripped: they are re-resolved via the adapter on restore,
+   * never persisted or sent back to the agent.
    */
   public getMessages(): ChatMessage[] {
     const messages: ChatMessage[] = [];
@@ -337,12 +401,13 @@ export class MessageStateController implements ReactiveController {
         messages.push({ ...item.data, toolCalls: [] });
       } else if (item.type === 'assistant') {
         const response = item.data;
-        const textContent = response.children
+        const children = response.children.map(responseItemWithoutUiResource);
+        const textContent = children
           .filter((c): c is ResponseItem & { type: 'text' } => c.type === 'text')
           .map(c => c.content)
           .join('');
 
-        const toolCalls = response.children
+        const toolCalls = children
           .filter((c): c is ResponseItem & { type: 'toolCall' } => c.type === 'toolCall')
           .map(c => c.data);
 
@@ -354,14 +419,14 @@ export class MessageStateController implements ReactiveController {
           status: response.status === 'streaming' ? 'streaming' : response.status === 'error' ? 'error' : 'complete',
           toolCalls: toolCalls.length ? toolCalls : undefined,
           feedback: response.feedback,
-          children: response.children
+          children
         };
 
         messages.push(message);
       } else if (item.type === 'toolCall') {
         const lastMsg = messages[messages.length - 1];
         if (lastMsg && lastMsg.role === 'assistant') {
-          lastMsg.toolCalls = [...(lastMsg.toolCalls || []), item.data];
+          lastMsg.toolCalls = [...(lastMsg.toolCalls || []), withoutUiResource(item.data)];
         }
       }
     }
@@ -380,10 +445,11 @@ export class MessageStateController implements ReactiveController {
 
         if (msg.children?.length) {
           children = msg.children.map(child => {
-            if (child.type === 'toolCall') {
-              this._toolCalls.set(child.data.id, child.data);
+            const restored = responseItemWithoutUiResource(child);
+            if (restored.type === 'toolCall') {
+              this._toolCalls.set(restored.data.id, restored.data);
             }
-            return child;
+            return restored;
           });
         } else {
           children = [];
@@ -391,7 +457,7 @@ export class MessageStateController implements ReactiveController {
             children.push({ type: 'text', messageId: msg.id, content: msg.content, status: 'complete' });
           }
           if (msg.toolCalls) {
-            for (const toolCall of msg.toolCalls) {
+            for (const toolCall of msg.toolCalls.map(withoutUiResource)) {
               children.push({ type: 'toolCall', data: toolCall });
               this._toolCalls.set(toolCall.id, toolCall);
             }
