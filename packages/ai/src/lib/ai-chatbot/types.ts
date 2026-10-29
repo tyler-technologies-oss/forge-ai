@@ -217,14 +217,22 @@ export interface McpAppToolInfo {
 }
 
 /**
- * Host context projected into an MCP-app widget. The ~80 standardized CSS variables and
- * font declarations (`styles`) are NOT propagated, so widgets fall back to their own
- * defaults.
+ * Theming sent to MCP-app widgets (spec `hostContext.styles`): spec CSS variables (e.g.
+ * `--color-background-primary`) resolved from Forge tokens. Font loading (`css.fonts`) is not sent.
+ */
+export interface McpAppHostStyles {
+  variables?: Record<string, string>;
+}
+
+/**
+ * Host context projected into an MCP-app widget.
  *
  * Local type — not aliased from ext-apps.
  */
 export interface McpAppHostContext {
   theme: 'light' | 'dark';
+  /** Spec CSS variables resolved from the widget's Forge tokens. */
+  styles?: McpAppHostStyles;
   /** The tool call that instantiated the widget. */
   toolInfo?: McpAppToolInfo;
   /** Size of the container holding the widget. */

@@ -305,23 +305,30 @@ const BASE_WIDGET_STYLES = `
   :root { color-scheme: light dark; }
   * { box-sizing: border-box; }
   body {
-    font-family: system-ui, sans-serif;
+    font-family: var(--font-sans, system-ui, sans-serif);
+    font-size: var(--font-text-md-size, 1rem);
     margin: 0;
     padding: 16px;
-    background: #fff;
-    color: #1a1a1a;
+    background: var(--color-background-primary, #fff);
+    color: var(--color-text-primary, #1a1a1a);
   }
-  body[data-theme='dark'] { background: #1e1e1e; color: #f0f0f0; }
+  body[data-theme='dark'] {
+    background: var(--color-background-primary, #1e1e1e);
+    color: var(--color-text-primary, #f0f0f0);
+  }
   button {
     font: inherit;
     padding: 8px 14px;
-    border-radius: 6px;
-    border: 1px solid transparent;
+    border-radius: var(--border-radius-md, 6px);
+    border: var(--border-width-regular, 1px) solid transparent;
     cursor: pointer;
   }
-  button.primary { background: #2f5fdb; color: #fff; }
-  body[data-theme='dark'] button.primary { background: #6690ff; color: #0b1220; }
-  button.secondary { background: transparent; border-color: currentColor; color: inherit; }
+  button.primary { background: var(--color-ring-primary, #2f5fdb); color: var(--color-text-inverse, #fff); }
+  button.secondary {
+    background: transparent;
+    border-color: var(--color-border-primary, currentColor);
+    color: inherit;
+  }
 `;
 
 function widgetShell(scenario: McpAppDemoScenario, bodyHtml: string, script: string): string {
@@ -389,11 +396,20 @@ const BRIDGE_CLIENT = `
         return;
       }
       console.log(logPrefix, '← host', data.method, data);
+      if (data.method === 'ui/notifications/host-context-changed') {
+        applyStyles(data.params && data.params.styles);
+      }
       const handler = listeners[data.method];
       if (handler) {
         handler(data.params || {});
       }
     });
+
+    // Spec hostContext.styles.variables, set on :root so widget CSS can use var(--color-*, fallback).
+    function applyStyles(styles) {
+      const variables = (styles && styles.variables) || {};
+      Object.keys(variables).forEach(key => document.documentElement.style.setProperty(key, variables[key]));
+    }
 
     let resizeTimer = null;
     function reportSize() {
@@ -416,6 +432,7 @@ const BRIDGE_CLIENT = `
         appCapabilities: { availableDisplayModes: ['inline', 'fullscreen', 'pip'] },
         protocolVersion: '2026-01-26'
       }).then(result => {
+        applyStyles(result.hostContext && result.hostContext.styles);
         notify('ui/notifications/initialized');
         reportSize();
         return result;
@@ -577,7 +594,7 @@ function buildStoreLocatorWidgetHtml(): string {
         list.innerHTML = '';
         structured.results.forEach(store => {
           const item = document.createElement('li');
-          item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 8px; border: 1px solid currentColor; border-radius: 6px; opacity: 0.9;';
+          item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 8px; border: 1px solid var(--color-border-primary, currentColor); border-radius: var(--border-radius-md, 6px);';
           const label = document.createElement('span');
           label.textContent = store.name + ' — ' + store.distanceMi + ' mi';
           const actions = document.createElement('div');

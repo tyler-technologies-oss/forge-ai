@@ -79,6 +79,7 @@ export type {
   McpAppResourceCsp,
   McpAppResourcePermissions,
   McpAppHostContext,
+  McpAppHostStyles,
   McpAppHostCapabilities,
   McpAppContainerDimensions,
   McpAppContentModalities,

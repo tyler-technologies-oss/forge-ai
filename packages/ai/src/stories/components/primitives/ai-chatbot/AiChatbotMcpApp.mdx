@@ -176,8 +176,19 @@ Every widget gets `theme`, `displayMode`, `availableDisplayModes`, `toolInfo`
 (`{ width, maxHeight: 2000 }` inline; fixed `width`/`height` in fullscreen/pip), `locale`,
 `timeZone`, `userAgent`, `platform: 'web'`, `deviceCapabilities` (`touch`/`hover`) and
 zero `safeAreaInsets`. A container resize sends `ui/notifications/host-context-changed`
-(throttled to one per frame, only after `initialized`). `styles` (CSS variables/fonts) is
-not sent. Inline heights from `size-changed` are capped at 2000px.
+(throttled to one per frame, only after `initialized`). Inline heights from `size-changed`
+are capped at 2000px.
+
+### Theming
+
+`styles.variables` carries the spec's CSS variables (`--color-background-primary`,
+`--color-text-secondary`, `--font-sans`, `--border-radius-md`, `--shadow-md`, …) filled
+from Forge tokens. The widget is cross-origin and can't read the page's custom properties,
+so the host sends each token's resolved value. Token overrides in scope of the chatbot
+(e.g. `--forge-theme-surface`) carry through. Values are re-read whenever the host context
+changes (e.g. `mcp-app-theme` or the OS theme flips). Widgets apply them with
+`applyHostStyleVariables` from `@modelcontextprotocol/ext-apps` and keep their own
+fallbacks for anything not sent. Font loading (`styles.css.fonts`) is not sent.
 
 ### Links
 

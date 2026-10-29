@@ -8,6 +8,7 @@ import type {
   McpAppDisplayMode,
   McpAppHostCapabilities,
   McpAppHostContext,
+  McpAppHostStyles,
   McpModelContextUpdateParams,
   ToolCall
 } from '../../ai-chatbot';
@@ -42,6 +43,68 @@ const HOST_INFO = { name: 'forge-ai', version: '1.0.0' } as const;
 const MAX_INLINE_HEIGHT = 2000;
 
 const OPEN_LINK_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+
+/** Spec style variables the host fills from Forge tokens; keep in sync with `$host-style-variables` in ai-mcp-app.scss. */
+const HOST_STYLE_KEYS = [
+  'color-background-primary',
+  'color-background-secondary',
+  'color-background-tertiary',
+  'color-background-inverse',
+  'color-background-info',
+  'color-background-danger',
+  'color-background-success',
+  'color-background-warning',
+  'color-text-primary',
+  'color-text-secondary',
+  'color-text-tertiary',
+  'color-text-inverse',
+  'color-text-info',
+  'color-text-danger',
+  'color-text-success',
+  'color-text-warning',
+  'color-text-disabled',
+  'color-border-primary',
+  'color-border-secondary',
+  'color-border-info',
+  'color-border-danger',
+  'color-border-success',
+  'color-border-warning',
+  'color-ring-primary',
+  'font-sans',
+  'font-weight-normal',
+  'font-weight-medium',
+  'font-weight-bold',
+  'font-text-xs-size',
+  'font-text-sm-size',
+  'font-text-md-size',
+  'font-text-lg-size',
+  'font-text-xs-line-height',
+  'font-text-sm-line-height',
+  'font-text-md-line-height',
+  'font-text-lg-line-height',
+  'font-heading-sm-size',
+  'font-heading-md-size',
+  'font-heading-lg-size',
+  'font-heading-xl-size',
+  'font-heading-2xl-size',
+  'font-heading-3xl-size',
+  'font-heading-sm-line-height',
+  'font-heading-md-line-height',
+  'font-heading-lg-line-height',
+  'font-heading-xl-line-height',
+  'font-heading-2xl-line-height',
+  'font-heading-3xl-line-height',
+  'border-radius-xs',
+  'border-radius-sm',
+  'border-radius-md',
+  'border-radius-lg',
+  'border-radius-xl',
+  'border-radius-full',
+  'border-width-regular',
+  'shadow-sm',
+  'shadow-md',
+  'shadow-lg'
+];
 
 /** MCP logging levels (RFC 5424) mapped onto console methods. */
 const CONSOLE_LEVELS: Record<string, 'debug' | 'info' | 'warn' | 'error'> = {
@@ -122,6 +185,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
   #lastHostContext: McpAppHostContext | null = null;
   #unregisterView: (() => void) | null = null;
   #containerDimensions: McpAppContainerDimensions = { maxHeight: MAX_INLINE_HEIGHT };
+  #hostStyles: McpAppHostStyles = {};
   #resizeFrame: number | null = null;
   readonly #resizeObserver = new ResizeObserver(() => this.#scheduleContainerMeasure());
 
@@ -160,6 +224,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
   get #hostContext(): McpAppHostContext {
     return {
       ...(this.host?.hostContext ?? { theme: 'light' }),
+      styles: this.#hostStyles,
       toolInfo: { id: this.toolCall.id, tool: { name: this.toolCall.name, inputSchema: { type: 'object' } } },
       containerDimensions: this.#containerDimensions,
       displayMode: this._displayMode
@@ -308,6 +373,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       this.#resizeObserver.observe(this._container);
     }
     this.#lastHostContext = host.hostContext;
+    this.#hostStyles = this.#resolveHostStyles();
     this.#unregisterView = host.registerView({ toolCallId: this.toolCall.id, teardown: () => this.teardown() });
 
     controller
@@ -329,8 +395,25 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     const next = this.host?.hostContext;
     if (next && (next !== this.#lastHostContext || changedProperties.has('_displayMode'))) {
       this.#lastHostContext = next;
+      this.#hostStyles = this.#resolveHostStyles();
       this.#controller?.sendHostContextChange(this.#hostContext);
     }
+  }
+
+  /**
+   * The View is cross-origin and can't see Forge's custom properties, so send their resolved
+   * values (including any consumer token overrides in scope) as spec `styles.variables`.
+   */
+  #resolveHostStyles(): McpAppHostStyles {
+    const computed = getComputedStyle(this);
+    const variables: Record<string, string> = {};
+    for (const key of HOST_STYLE_KEYS) {
+      const value = computed.getPropertyValue(`--_mcp-host-${key}`).trim();
+      if (value) {
+        variables[`--${key}`] = value;
+      }
+    }
+    return { variables };
   }
 
   #scheduleContainerMeasure(): void {
