@@ -1,5 +1,0 @@
-import{j as o,M as e,T as i,C as m}from"./blocks-ogXkaG0a.js";import{useMDXComponents as r}from"./index-Du2BhArc.js";import{C as a}from"./CustomArgTypes-aQZBZ52J.js";import{A as p,D as c}from"./AiErrorMessage.stories-Cf3sh0yQ.js";import"./preload-helper-PPVm8Dsz.js";import"./_commonjsHelpers-CqkleIqs.js";import"./iframe-dSzDzv1f.js";import"./utils-D2XdpfxZ.js";import"./ai-error-message-BSCgsjKy.js";import"./custom-element-UsVr97OX.js";import"./property-Cb7Mf2SR.js";import"./query-assigned-nodes-B1Fbozr4.js";import"./class-map-C04AZvwf.js";function n(t){const s={p:"p",...r(),...t.components};return o.jsxs(o.Fragment,{children:[o.jsx(e,{of:p}),`
-`,o.jsx(i,{}),`
-`,o.jsx(s.p,{children:"The AI Error Message component displays error messages using a banner-style format with consistent styling based on Forge design tokens."}),`
-`,o.jsx(m,{of:c}),`
-`,o.jsx(a,{})]})}function T(t={}){const{wrapper:s}={...r(),...t.components};return s?o.jsx(s,{...t,children:o.jsx(n,{...t})}):n(t)}export{T as default};
