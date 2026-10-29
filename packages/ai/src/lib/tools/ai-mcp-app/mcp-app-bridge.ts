@@ -1,11 +1,11 @@
 import type { McpAppDisplayMode, McpAppHostCapabilities, McpAppHostContext } from '../../ai-chatbot';
 import type { IMcpAppBridge, McpAppBridgeConnectConfig, McpAppViewToolResult } from './mcp-app-bridge-types.js';
 
+// The only published MCP Apps version; negotiate once a second one exists.
 const PROTOCOL_VERSION = '2026-01-26';
 const METHOD_NOT_FOUND = -32601;
 const INVALID_PARAMS = -32602;
 const SERVER_ERROR = -32000;
-const TEARDOWN_TIMEOUT_MS = 1000;
 const DISPLAY_MODES: McpAppDisplayMode[] = ['inline', 'fullscreen', 'pip'];
 
 /** `connecting` until the View sends `initialized`; nothing but responses is sent before `ready`. */
@@ -162,17 +162,14 @@ export class McpAppBridge implements IMcpAppBridge {
   }
 
   /**
-   * Request `ui/resource-teardown` and wait (bounded) for the View's ack. A View that never
-   * initialized is disposed without being messaged.
+   * Send `ui/resource-teardown` and dispose immediately; the host doesn't wait for the ack,
+   * so the iframe is removed right away. A View that never initialized isn't messaged.
    */
-  public sendTeardown(): Promise<void> {
-    if (this.#phase !== 'ready') {
-      this.#dispose();
-      return Promise.resolve();
+  public sendTeardown(): void {
+    if (this.#phase === 'ready') {
+      this.#sendRequest('ui/resource-teardown', {}).catch(() => undefined);
     }
-    const ack = this.#sendRequest('ui/resource-teardown', {}).catch(() => undefined);
-    const timeout = new Promise<void>(resolve => setTimeout(resolve, TEARDOWN_TIMEOUT_MS));
-    return Promise.race([ack, timeout]).then(() => this.#dispose());
+    this.#dispose();
   }
 
   #flushHostContext(): void {
@@ -294,6 +291,7 @@ export class McpAppBridge implements IMcpAppBridge {
         if (!this.oncalltool || !this.#capabilities.serverTools) {
           throw methodNotFound(method);
         }
+        this.#assertReady(method);
         if (typeof p.name !== 'string' || !p.name) {
           throw invalidParams('tools/call requires a tool name');
         }
@@ -302,12 +300,23 @@ export class McpAppBridge implements IMcpAppBridge {
         if (!this.onreadresource) {
           throw methodNotFound(method);
         }
+        this.#assertReady(method);
         if (typeof p.uri !== 'string' || !p.uri) {
           throw invalidParams('resources/read requires a uri');
         }
         return this.onreadresource({ uri: p.uri });
       default:
         throw methodNotFound(method);
+    }
+  }
+
+  /** Server-bound requests reach the adapter only after the View completes the handshake. */
+  #assertReady(method: string): void {
+    if (this.#phase !== 'ready') {
+      throw new JsonRpcError({
+        code: SERVER_ERROR,
+        message: `${method} is not allowed before ui/notifications/initialized`
+      });
     }
   }
 

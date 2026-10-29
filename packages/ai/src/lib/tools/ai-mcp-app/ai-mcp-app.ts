@@ -9,9 +9,12 @@ import type {
   McpAppHostCapabilities,
   McpAppHostContext,
   McpAppHostStyles,
+  McpAppToolInfo,
   McpModelContextUpdateParams,
-  ToolCall
+  ToolCall,
+  ToolDefinition
 } from '../../ai-chatbot';
+import { inertOutside } from '../../utils/inert-outside.js';
 import { McpAppBridge } from './mcp-app-bridge.js';
 import type { McpAppLoggingMessage, McpAppRequestResult } from './mcp-app-bridge-types.js';
 import { mcpAppHostContext, type McpAppHost } from './mcp-app-context.js';
@@ -162,6 +165,10 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
   @property({ attribute: false })
   public toolCall!: ToolCall;
 
+  /** Client-side definition of the tool, when one is registered; supplies `toolInfo.tool`. */
+  @property({ attribute: false })
+  public toolDefinition?: ToolDefinition;
+
   @consume({ context: mcpAppHostContext, subscribe: true })
   @property({ attribute: false })
   public host?: McpAppHost;
@@ -186,6 +193,8 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
   #unregisterView: (() => void) | null = null;
   #containerDimensions: McpAppContainerDimensions = { maxHeight: MAX_INLINE_HEIGHT };
   #hostStyles: McpAppHostStyles = {};
+  /** Restores the page while fullscreen; set only while the rest of the page is inert. */
+  #restorePage: (() => void) | null = null;
   #resizeFrame: number | null = null;
   readonly #resizeObserver = new ResizeObserver(() => this.#scheduleContainerMeasure());
 
@@ -225,9 +234,23 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return {
       ...(this.host?.hostContext ?? { theme: 'light' }),
       styles: this.#hostStyles,
-      toolInfo: { id: this.toolCall.id, tool: { name: this.toolCall.name, inputSchema: { type: 'object' } } },
+      toolInfo: this.#toolInfo,
       containerDimensions: this.#containerDimensions,
       displayMode: this._displayMode
+    };
+  }
+
+  /** Backend-only tools have no client definition, so their schema is the minimal `{ type: 'object' }`. */
+  get #toolInfo(): McpAppToolInfo {
+    const definition = this.toolDefinition;
+    return {
+      id: this.toolCall.id,
+      tool: {
+        name: this.toolCall.name,
+        ...(definition?.description ? { description: definition.description } : {}),
+        ...(definition?.displayName ? { title: definition.displayName } : {}),
+        inputSchema: { ...definition?.parameters, type: 'object' }
+      }
     };
   }
 
@@ -269,7 +292,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
         this.#dispatchUpdateModelContext(params);
         await this.host?.updateModelContext(params);
       },
-      onrequestteardown: () => void this.#handleRequestTeardown()
+      onrequestteardown: () => this.#handleRequestTeardown()
     };
   }
 
@@ -302,21 +325,22 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     super.disconnectedCallback();
     this.#resizeObserver.disconnect();
     this.#cancelContainerMeasure();
-    void this.teardown();
+    this.#releasePage();
+    this.teardown();
   }
 
   /**
-   * Send `ui/resource-teardown` to the View and wait (bounded) for its ack. The chatbot
-   * calls this before removing widgets so the View can save state; it also runs on
-   * disconnect as a fallback. A later `toolCall` update remounts the widget.
+   * Send `ui/resource-teardown` to the View and release the bridge without waiting for the
+   * ack. The chatbot calls this when removing widgets; it also runs on disconnect as a
+   * fallback. A later `toolCall` update remounts the widget.
    */
-  public async teardown(): Promise<void> {
+  public teardown(): void {
     this.#settlePendingLink({ isError: true });
     this.#unregisterView?.();
     this.#unregisterView = null;
     const controller = this.#controller;
     this.#controller = null;
-    await controller?.teardown();
+    controller?.teardown();
   }
 
   /**
@@ -349,9 +373,19 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     } else if (!container.matches(':popover-open')) {
       container.showPopover();
     }
+    // Fullscreen behaves as a modal: the page behind it can't be focused or clicked. Pip stays non-modal.
+    this.#releasePage();
+    if (this._displayMode === 'fullscreen') {
+      this.#restorePage = inertOutside(this);
+    }
     if (this.#isPromoted) {
       this.updateComplete.then(() => this.renderRoot.querySelector<HTMLButtonElement>('.exit-button')?.focus());
     }
+  }
+
+  #releasePage(): void {
+    this.#restorePage?.();
+    this.#restorePage = null;
   }
 
   #connect(): void {
@@ -523,7 +557,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
    * host's normal per-widget teardown (`ui/resource-teardown` + adapter dispose), then stop
    * rendering the iframe. The tool call stays in the thread; nothing is remounted.
    */
-  async #handleRequestTeardown(): Promise<void> {
+  #handleRequestTeardown(): void {
     if (this._lifecycle !== 'live') {
       return;
     }
@@ -539,7 +573,11 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     this._lifecycle = 'closing';
     this.#resizeObserver.disconnect();
     this.#cancelContainerMeasure();
-    await (this.host?.teardownView({ toolCallId: this.toolCall.id }) ?? this.teardown());
+    if (this.host) {
+      this.host.teardownView({ toolCallId: this.toolCall.id });
+    } else {
+      this.teardown();
+    }
     this.style.removeProperty('height');
     this._lifecycle = 'closed';
   }

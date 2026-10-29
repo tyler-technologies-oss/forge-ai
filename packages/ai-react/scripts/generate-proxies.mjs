@@ -2,13 +2,18 @@ import { generateReactWrappers } from 'custom-element-react-wrappers';
 import { pascalCase } from 'change-case';
 import manifest from '@tylertech/forge-ai/custom-elements.json' with { type: 'json' };
 
+// Internal elements rendered only by other components; consumers never use them directly.
+const INTERNAL_TAG_NAMES = ['forge-ai-mcp-app'];
+
 // Filter out modules that don't have custom elements with tagNames
 // This prevents generating React wrappers for base classes.
 const filteredManifest = {
   ...manifest,
   modules: manifest.modules.filter(module => {
-    // Only keep modules that have at least one class declaration with a tagName
-    return module.declarations.some(d => d.kind === 'class' && d.customElement && d.tagName);
+    // Only keep modules that have at least one public class declaration with a tagName
+    return module.declarations.some(
+      d => d.kind === 'class' && d.customElement && d.tagName && !INTERNAL_TAG_NAMES.includes(d.tagName)
+    );
   })
 };
 

@@ -110,7 +110,12 @@ export class AiAssistantResponseComponent extends LitElement {
 
   #renderToolCall(toolCall: ToolCall): unknown {
     if (toolCall.uiResource) {
-      return keyed(toolCall.id, html`<forge-ai-mcp-app .toolCall=${toolCall}></forge-ai-mcp-app>`);
+      return keyed(
+        toolCall.id,
+        html`<forge-ai-mcp-app
+          .toolCall=${toolCall}
+          .toolDefinition=${this.tools?.get(toolCall.name)}></forge-ai-mcp-app>`
+      );
     }
 
     if (this.#isMcpAppToolCall(toolCall)) {

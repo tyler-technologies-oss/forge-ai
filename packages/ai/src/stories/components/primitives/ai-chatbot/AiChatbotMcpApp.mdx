@@ -148,8 +148,8 @@ before it sends `ui/notifications/initialized`.
 
 ### Teardown
 
-Widgets get `ui/resource-teardown` (and a bounded wait for the ack) before their iframes are
-removed: on `clearMessages`, `startNewChat`, `setThreadState`, and when editing or resending a
+Widgets get `ui/resource-teardown` and their iframes are removed immediately (the host
+doesn't wait for the ack, so Views should persist state as they go): on `clearMessages`, `startNewChat`, `setThreadState`, and when editing or resending a
 message removes the turns that rendered them. Only the removed turns' widgets are torn down;
 the adapter's `disposeMcpAppView` is called for each.
 
@@ -167,12 +167,15 @@ The `ui/initialize` result advertises only what is actually implemented:
 Requests for unsupported methods (`tools/list`, `resources/list`, `prompts/list`,
 `sampling/createMessage`, `ui/download-file`, …) get JSON-RPC `-32601` (method not
 found); malformed params get `-32602`; adapter rejections get `-32000`. A request the
-adapter resolves with `undefined` is answered with `{}`.
+adapter resolves with `undefined` is answered with `{}`. `tools/call` and `resources/read`
+sent before `ui/notifications/initialized` are rejected with `-32000` and never reach the
+adapter.
 
 ### Host context
 
 Every widget gets `theme`, `displayMode`, `availableDisplayModes`, `toolInfo`
-(`{ id: toolCallId, tool: { name, inputSchema } }`), `containerDimensions`
+(`{ id: toolCallId, tool: { name, title?, description?, inputSchema } }`, from the
+registered `ToolDefinition` when there is one; otherwise `inputSchema` is `{ type: 'object' }`), `containerDimensions`
 (`{ width, maxHeight: 2000 }` inline; fixed `width`/`height` in fullscreen/pip), `locale`,
 `timeZone`, `userAgent`, `platform: 'web'`, `deviceCapabilities` (`touch`/`hover`) and
 zero `safeAreaInsets`. A container resize sends `ui/notifications/host-context-changed`
@@ -185,10 +188,22 @@ are capped at 2000px.
 `--color-text-secondary`, `--font-sans`, `--border-radius-md`, `--shadow-md`, …) filled
 from Forge tokens. The widget is cross-origin and can't read the page's custom properties,
 so the host sends each token's resolved value. Token overrides in scope of the chatbot
-(e.g. `--forge-theme-surface`) carry through. Values are re-read whenever the host context
-changes (e.g. `mcp-app-theme` or the OS theme flips). Widgets apply them with
+(e.g. `--forge-theme-surface`) carry through. Widgets apply them with
 `applyHostStyleVariables` from `@modelcontextprotocol/ext-apps` and keep their own
 fallbacks for anything not sent. Font loading (`styles.css.fonts`) is not sent.
+
+The chatbot can't detect Forge token changes on its own, so tell it when the theme changes:
+
+- **Light/dark switch:** set `mcpAppTheme` (`mcp-app-theme`) from your app's theme
+  mechanism. Widgets get the new `theme` and re-resolved `styles.variables`. When unset,
+  it follows `prefers-color-scheme`.
+- **Other token changes** (e.g. a brand change): call `chatbot.refreshMcpAppStyles()`.
+
+```ts
+themeService.onChange(theme => {
+  chatbot.mcpAppTheme = theme;
+});
+```
 
 ### Links
 
@@ -231,6 +246,10 @@ level.
 The host offers `inline`, `fullscreen` and `pip`. A widget is switched only to a mode it
 declared in `ui/initialize` (`appCapabilities.availableDisplayModes`); otherwise the
 current mode is returned unchanged.
+
+Promoted widgets get a host-owned close button; it and Escape return the widget inline.
+Fullscreen is modal: the rest of the page is made `inert` while it's open. Pip stays
+non-modal, so the chat behind it remains usable.
 
 ## What to look for
 

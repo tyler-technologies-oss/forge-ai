@@ -11,7 +11,7 @@ import type { McpAppRequestResult } from './mcp-app-bridge-types.js';
 /** A mounted widget, registered so the host can tear it down before removing it. */
 export interface McpAppViewRegistration {
   toolCallId: string;
-  teardown(): Promise<void>;
+  teardown(): void;
 }
 
 /**
@@ -33,7 +33,7 @@ export interface McpAppHost {
    */
   draftMessage(params: { toolCallId: string; content: unknown[] }): Promise<McpAppRequestResult>;
   /** Tear down one widget through the host's normal per-widget teardown path. */
-  teardownView(params: { toolCallId: string }): Promise<void>;
+  teardownView(params: { toolCallId: string }): void;
   /** Register a mounted widget; returns the unregister callback. */
   registerView(view: McpAppViewRegistration): () => void;
   hostContext: McpAppHostContext;

@@ -129,11 +129,8 @@ export interface IMcpAppBridge {
    */
   sendHostContextChange(hostContext: McpAppHostContext): void;
 
-  /**
-   * Request the widget tear down. Returns a promise the caller awaits before removing
-   * the iframe — the spec SHOULD wait for the widget's ack to prevent data loss.
-   */
-  sendTeardown(): Promise<void>;
+  /** Notify the widget it is being torn down (`ui/resource-teardown`) and release the bridge without waiting for the ack. */
+  sendTeardown(): void;
 
   // --- View→host handler slots (assigned by the controller) ---
 

@@ -232,17 +232,13 @@ export class McpAppBridgeController {
     }
   }
 
-  /** Send `ui/resource-teardown` and wait (bounded) for the ack before the iframe goes away. */
-  public async teardown(): Promise<void> {
+  /** Send `ui/resource-teardown` and release the bridge; the iframe is removed without waiting for the ack. */
+  public teardown(): void {
     if (!this.#connected) {
       return;
     }
     this.#outcome = 'torn-down';
-    try {
-      await this.#bridge.sendTeardown();
-    } catch {
-      // Teardown ack is best-effort; the iframe is removed regardless.
-    }
+    this.#bridge.sendTeardown();
   }
 
   #coerceArgs(args: unknown): Record<string, unknown> {

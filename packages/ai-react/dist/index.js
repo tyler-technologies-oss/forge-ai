@@ -64,6 +64,5 @@ export * from "./ForgeAiOverlay.js";
 export * from "./ForgeAiPopover.js";
 export * from "./ForgeAiTooltip.js";
 export * from "./ForgeAiToolDataTable.js";
-export * from "./ForgeAiMcpApp.js";
 export * from "./ForgeAiPaginator.js";
 export * from "./ForgeAiToolSteps.js";

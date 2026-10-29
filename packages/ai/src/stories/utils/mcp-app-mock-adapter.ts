@@ -497,7 +497,7 @@ function buildHandRolledWidgetHtml(): string {
 
         request('ui/initialize', {
           appInfo: { name: 'mock-widget-hand-rolled', version: '1.0.0' },
-          appCapabilities: {},
+          appCapabilities: { availableDisplayModes: ['inline', 'fullscreen', 'pip'] },
           protocolVersion: '2026-01-26'
         }).then(result => {
           window.__mcpInitializeResult = result;
@@ -554,7 +554,7 @@ function buildSdkWidgetHtml(): string {
     <script type="module">
       ${WIDGET_UI_SCRIPT}
       const { App, PostMessageTransport } = window.__mcpAppSdk;
-      const app = new App({ name: 'mock-widget-sdk', version: '1.0.0' }, {});
+      const app = new App({ name: 'mock-widget-sdk', version: '1.0.0' }, { availableDisplayModes: ['inline', 'fullscreen', 'pip'] });
 
       app.ontoolinputpartial = params => ui.setArgs(true, params.arguments);
       app.ontoolinput = params => ui.setArgs(false, params.arguments);

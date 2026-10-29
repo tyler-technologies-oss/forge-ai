@@ -96,12 +96,11 @@ export interface ForgeAiChatbotProps extends Pick<
   /** undefined */
   mcpAppSandboxUrl?: ForgeAiChatbotElement["mcpAppSandboxUrl"];
 
-  /** Theme fed into an MCP-app widget's `hostContext.theme`. The chatbot's own visible
-appearance is controlled entirely by Forge design tokens and is unaffected by this
-property — it exists solely so a consumer that already knows its own light/dark
-state can pass it through to widgets, rather than widgets guessing from
-`prefers-color-scheme`. Absent → falls back to the OS media query, matching prior
-behavior. */
+  /** Theme fed into an MCP-app widget's `hostContext.theme`. The chatbot's own appearance
+comes from Forge tokens and is unaffected. Set this whenever the app switches between
+light and dark: it is the signal that re-sends `theme` and the Forge-derived
+`styles.variables` to widgets, since token changes alone can't be detected. Absent →
+follows `prefers-color-scheme`. */
   mcpAppTheme?: ForgeAiChatbotElement["mcpAppTheme"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
@@ -290,6 +289,9 @@ behavior. */
  * No-ops if no message with that id exists. Safe to call at any time, including
  * while a response is streaming. Removal is never automatic - call this when your
  * host logic determines the message is no longer relevant.
+ * - **refreshMcpAppStyles(): _void_** - Re-sends the Forge-derived `styles.variables` to every MCP-app widget. Call after
+ * changing Forge tokens without a light/dark switch (e.g. a brand change); for light/dark,
+ * set mcpAppTheme instead.
  *
  * ### **Slots:**
  *  - **header** - Slot for custom header content
