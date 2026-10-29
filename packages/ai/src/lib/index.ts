@@ -9,6 +9,7 @@ export * from './ai-artifact-card';
 export * from './ai-artifact-card-group';
 export * from './ai-attachment';
 export * from './ai-button';
+export * from './ai-canvas';
 export * from './ai-chain-of-thought';
 export * from './ai-chat-header';
 export * from './ai-chat-interface';

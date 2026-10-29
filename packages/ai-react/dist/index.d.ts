@@ -6,6 +6,7 @@ export * from "./ForgeAiArtifact.js";
 export * from "./ForgeAiAssistantResponse.js";
 export * from "./ForgeAiAttachment.js";
 export * from "./ForgeAiButton.js";
+export * from "./ForgeAiCanvas.js";
 export * from "./ForgeAiChainOfThought.js";
 export * from "./ForgeAiThoughtBase.js";
 export * from "./ForgeAiThoughtDetail.js";

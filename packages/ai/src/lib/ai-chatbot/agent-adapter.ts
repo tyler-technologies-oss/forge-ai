@@ -1,4 +1,4 @@
-import type { ChatMessage, FileUploadCallbacks, McpAppUiResource, McpToolResult, ToolDefinition } from './types.js';
+import type { ChatMessage, FileUploadCallbacks, McpAppUiResource, McpToolResult, AnyToolDefinition } from './types.js';
 import { EventEmitter, type Subscription } from './event-emitter.js';
 
 export interface MessageStartEvent {
@@ -194,7 +194,7 @@ export interface ActivityDeltaAgentEvent {
 
 export abstract class AgentAdapter {
   protected _state: AdapterState = { isConnected: false, isConnecting: false, isRunning: false };
-  protected _tools: ToolDefinition[] = [];
+  protected _tools: AnyToolDefinition[] = [];
   protected _events = {
     runStarted: new EventEmitter<void>(),
     runFinished: new EventEmitter<void>(),
@@ -269,11 +269,11 @@ export abstract class AgentAdapter {
    */
   public disposeMcpAppView?(params: { toolCallId: string }): void;
 
-  public setTools(tools: ToolDefinition[]): void {
+  public setTools(tools: AnyToolDefinition[]): void {
     this._tools = tools;
   }
 
-  public getTools(): ToolDefinition[] {
+  public getTools(): AnyToolDefinition[] {
     return [...this._tools];
   }
 
@@ -282,7 +282,7 @@ export abstract class AgentAdapter {
    * MCP-app tools are a host-internal mechanism for streaming a UI resource into an existing
    * tool call — the model never calls them directly, so they must never reach the agent.
    */
-  public getModelFacingTools(): ToolDefinition[] {
+  public getModelFacingTools(): AnyToolDefinition[] {
     return this._tools.filter(tool => tool.mcpApp === undefined);
   }
 

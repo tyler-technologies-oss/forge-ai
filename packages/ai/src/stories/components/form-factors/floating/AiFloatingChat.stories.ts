@@ -8,6 +8,7 @@ import '$lib/ai-disclaimer';
 import type { Thread } from '$lib/ai-threads';
 import type { AgentInfo } from '$lib/ai-agent-info';
 import { MockAdapter } from '../../../utils/mock-adapter';
+import { canvasTableTool, salesTableArgs } from '../../../utils/canvas-table-tool';
 
 const component = 'forge-ai-floating-chat';
 
@@ -367,6 +368,38 @@ export const WithConversationHistory: Story = {
           }}>
         </forge-ai-fab>
       </div>
+    `;
+  }
+};
+
+/** The tool shows an artifact card in the thread; opening it presents the full table in a modal over the chat. */
+export const WithArtifactCanvas: Story = {
+  args: {
+    open: true
+  },
+  render: function (args) {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: true,
+      streamingDelay: 30,
+      responseDelay: 400,
+      tools: [canvasTableTool],
+      simulatedToolCall: { name: canvasTableTool.name, args: salesTableArgs }
+    });
+
+    return html`
+      <forge-ai-floating-chat
+        ?open=${args.open}
+        @forge-ai-floating-chat-close=${action('forge-ai-floating-chat-close')}>
+        <forge-ai-chatbot
+          .adapter=${adapter}
+          .suggestions=${[{ text: 'Show me Q3 sales by region', value: 'Show me Q3 sales by region' }]}
+          show-minimize-button
+          show-expand-button
+          @forge-ai-chatbot-canvas-open=${(evt: CustomEvent) => action('forge-ai-chatbot-canvas-open')(evt.detail)}
+          @forge-ai-chatbot-canvas-close=${action('forge-ai-chatbot-canvas-close')}>
+        </forge-ai-chatbot>
+      </forge-ai-floating-chat>
     `;
   }
 };

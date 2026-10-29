@@ -2,7 +2,7 @@ import { LitElement, html, nothing, unsafeCSS, type PropertyValues, type Templat
 import { customElement, property, state } from 'lit/decorators.js';
 import { when } from 'lit/directives/when.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import type { ToolCall, ToolDefinition } from '../ai-chatbot/types.js';
+import type { ToolCall, AnyToolDefinition } from '../ai-chatbot/types.js';
 import { isToolCallSettled } from '../ai-chatbot/utils.js';
 
 import '../ai-spinner/ai-spinner.js';
@@ -39,7 +39,7 @@ export class AiToolCallIndicatorComponent extends LitElement {
   public toolCalls: ToolCall[] = [];
 
   @property({ attribute: false })
-  public tools?: Map<string, ToolDefinition>;
+  public tools?: Map<string, AnyToolDefinition>;
 
   @property({ type: Boolean, reflect: true, attribute: 'debug-mode' })
   public debugMode = false;

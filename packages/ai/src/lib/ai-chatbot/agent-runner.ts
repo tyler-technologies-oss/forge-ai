@@ -1,5 +1,5 @@
 import type { AgentAdapter, ErrorEvent, MessageDeltaEvent, MessageStartEvent, ToolCallEvent } from './agent-adapter.js';
-import type { ChatMessage, HandlerContext, ToolCall, ToolDefinition } from './types.js';
+import type { ChatMessage, HandlerContext, ToolCall, AnyToolDefinition } from './types.js';
 import { SubscriptionManager } from './event-emitter.js';
 import { generateId } from './utils.js';
 
@@ -9,7 +9,7 @@ export interface AgentRunnerConfig {
   /** The user prompt to send to the agent */
   prompt: string;
   /** Optional tools the agent can call during execution */
-  tools?: ToolDefinition[];
+  tools?: AnyToolDefinition[];
   /** Execution mode: 'one-shot' stops after first response, 'multi-turn' allows tool usage loops. @default 'one-shot' */
   mode?: 'one-shot' | 'multi-turn';
   /** Maximum conversation turns in multi-turn mode to prevent infinite loops. @default 20 */
@@ -93,7 +93,7 @@ export class AgentRunner {
   static #executePrompt(
     adapter: AgentAdapter,
     userMessage: ChatMessage,
-    tools: ToolDefinition[] | undefined,
+    tools: AnyToolDefinition[] | undefined,
     mode: 'one-shot' | 'multi-turn',
     maxTurns: number,
     callbacks: {
@@ -205,7 +205,7 @@ export class AgentRunner {
 
   static #createToolCallHandler(
     adapter: AgentAdapter,
-    tools: ToolDefinition[] | undefined,
+    tools: AnyToolDefinition[] | undefined,
     state: RunState
   ): (event: ToolCallEvent) => Promise<void> {
     return async (event: ToolCallEvent): Promise<void> => {
@@ -258,7 +258,7 @@ export class AgentRunner {
 
   static async #executeToolCall(
     event: ToolCallEvent,
-    tools: ToolDefinition[] | undefined,
+    tools: AnyToolDefinition[] | undefined,
     state: RunState,
     adapter: AgentAdapter
   ): Promise<void> {

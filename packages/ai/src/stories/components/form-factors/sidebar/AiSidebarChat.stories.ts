@@ -19,6 +19,7 @@ import '$lib/ai-chatbot';
 import type { Thread } from '$lib/ai-threads';
 import type { AgentInfo } from '$lib/ai-agent-info';
 import { MockAdapter } from '../../../utils/mock-adapter';
+import { canvasTableTool, salesTableArgs } from '../../../utils/canvas-table-tool';
 
 import {
   defineScaffoldComponent,
@@ -434,6 +435,62 @@ export const WithConversationHistory: Story = {
         </main>
 
         <div slot="body-right">${sidebarChat}</div>
+      </forge-scaffold>
+    `;
+  }
+};
+
+/** The tool shows an artifact card in the thread; opening it presents the full table in a modal over the sidebar. */
+export const WithArtifactCanvas: Story = {
+  args: {
+    open: true
+  },
+  render: function (args) {
+    const adapter = new MockAdapter({
+      simulateStreaming: true,
+      simulateTools: true,
+      streamingDelay: 30,
+      responseDelay: 400,
+      tools: [canvasTableTool],
+      simulatedToolCall: { name: canvasTableTool.name, args: salesTableArgs }
+    });
+
+    return html`
+      <forge-scaffold style="overflow: hidden; height: 800px; border: 1px solid var(--forge-theme-outline);">
+        <forge-app-bar slot="header" title-text="AI Sidebar Chat with Artifact Canvas"></forge-app-bar>
+
+        <forge-toolbar slot="body-header">
+          <h2 class="forge-typography--heading4">Page Title</h2>
+          <forge-ai-button
+            slot="end"
+            @click=${() => {
+              const sidebar = document.querySelector('forge-ai-sidebar-chat');
+              sidebar?.toggle();
+            }}
+            >Ask AI Assistant</forge-ai-button
+          >
+        </forge-toolbar>
+
+        <main slot="body" style="padding: 24px;">
+          <forge-card>
+            <p>Ask for Q3 sales by region. The table opens in a modal over the sidebar.</p>
+          </forge-card>
+        </main>
+
+        <div slot="body-right">
+          <forge-ai-sidebar-chat
+            ?open=${args.open}
+            @forge-ai-sidebar-chat-close=${action('forge-ai-sidebar-chat-close')}>
+            <forge-ai-chatbot
+              .adapter=${adapter}
+              .suggestions=${[{ text: 'Show me Q3 sales by region', value: 'Show me Q3 sales by region' }]}
+              show-minimize-button
+              show-expand-button
+              @forge-ai-chatbot-canvas-open=${(evt: CustomEvent) => action('forge-ai-chatbot-canvas-open')(evt.detail)}
+              @forge-ai-chatbot-canvas-close=${action('forge-ai-chatbot-canvas-close')}>
+            </forge-ai-chatbot>
+          </forge-ai-sidebar-chat>
+        </div>
       </forge-scaffold>
     `;
   }

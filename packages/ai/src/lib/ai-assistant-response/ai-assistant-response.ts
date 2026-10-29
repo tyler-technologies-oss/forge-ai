@@ -3,7 +3,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { keyed } from 'lit/directives/keyed.js';
-import type { AssistantResponse, ToolCall, ToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
+import type { AssistantResponse, ToolCall, AnyToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
 import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-response-message-toolbar';
 
@@ -53,7 +53,7 @@ export class AiAssistantResponseComponent extends LitElement {
   public response!: AssistantResponse;
 
   @property({ attribute: false })
-  public tools?: Map<string, ToolDefinition>;
+  public tools?: Map<string, AnyToolDefinition>;
 
   @property({ type: Boolean, attribute: 'enable-reactions' })
   public enableReactions = false;

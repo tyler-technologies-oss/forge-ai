@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { ChatMessage, ContextItem, FileAttachment, ResponseItem, ToolCall, ToolDefinition } from './types.js';
+import type { ChatMessage, ContextItem, FileAttachment, ResponseItem, ToolCall, AnyToolDefinition } from './types.js';
 
 export { renderMarkdown, renderInlineMarkdown, type RenderMarkdownOptions } from '../utils/markdown.js';
 
@@ -7,7 +7,7 @@ export { renderMarkdown, renderInlineMarkdown, type RenderMarkdownOptions } from
  * Whether a tool call's renderer should currently be shown: once the call is complete,
  * or immediately (while still parsing/executing) if the tool opted into `renderOnStart`.
  */
-export function shouldShowToolRenderer(toolCall: ToolCall, toolDefinition?: ToolDefinition): boolean {
+export function shouldShowToolRenderer(toolCall: ToolCall, toolDefinition?: AnyToolDefinition): boolean {
   if (!toolDefinition?.renderer) {
     return false;
   }
@@ -22,7 +22,7 @@ export function shouldShowToolRenderer(toolCall: ToolCall, toolDefinition?: Tool
  * indicator, tool-call summary spinner): either genuinely finished, or already showing
  * its own renderer to the user, which makes a redundant "running" spinner misleading.
  */
-export function isToolCallSettled(toolCall: ToolCall, toolDefinition?: ToolDefinition): boolean {
+export function isToolCallSettled(toolCall: ToolCall, toolDefinition?: AnyToolDefinition): boolean {
   return (
     toolCall.status === 'complete' ||
     toolCall.status === 'error' ||

@@ -11,17 +11,128 @@
 @use '../utils/error-badge' as error-badge;
 
 $_max-content-width: 768px;
+$_canvas-transition: #{forge-animation.variable(duration-medium2)} #{forge-animation.variable(easing-standard)};
 
 :host {
   display: block;
   height: 100%;
 }
 
+// Set by the component from `chatWidth` (and while dragging) on `.launcher`.
+$_chat-width: var(--_chat-width, 420px);
+
+// Only the chat track interpolates (100% -> fixed width); the canvas track is leftover space in both
+// states. The panel itself is laid out at its final width from the first frame and pinned to the start
+// edge, so it moves with the chat's edge (pushed in/out) and is clipped by the track, never reflowed.
 .launcher {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 100% minmax(0, 1fr);
   height: 100%;
   box-sizing: border-box;
+  container-type: inline-size;
+  transition: grid-template-columns $_canvas-transition;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.canvas-track {
+  position: relative;
+  min-inline-size: 0;
+  // clip, not hidden: focusing the close button mid-transition must not scroll the panel into view.
+  overflow: clip;
+  visibility: hidden;
+  transition: visibility 0s linear #{forge-animation.variable(duration-medium2)};
+}
+
+$_handle-width: 8px;
+
+.resize-handle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: $_handle-width;
+  cursor: ew-resize;
+  touch-action: none;
+  z-index: 1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: 1px;
+    background-color: #{forge-theme.variable(outline)};
+    opacity: 0;
+    transition: all #{forge-animation.variable(duration-short4)} #{forge-animation.variable(easing-standard)};
+  }
+
+  &__grip {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    translate: 0 -50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: 6px;
+    block-size: 32px;
+    color: #{forge-theme.variable(text-low)};
+    background-color: #{forge-theme.variable(surface)};
+    border: 1px solid #{forge-theme.variable(outline)};
+    border-inline-start: none;
+    border-start-end-radius: #{forge-shape.variable(medium)};
+    border-end-end-radius: #{forge-shape.variable(medium)};
+    pointer-events: none;
+    transition:
+      color #{forge-animation.variable(duration-short4)} #{forge-animation.variable(easing-standard)},
+      border-color #{forge-animation.variable(duration-short4)} #{forge-animation.variable(easing-standard)};
+
+    svg {
+      flex-shrink: 0;
+      inline-size: 12px;
+      block-size: 12px;
+      fill: currentColor;
+    }
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 0.6;
+    inline-size: 2px;
+    background-color: #{forge-theme.variable(primary)};
+  }
+
+  &:focus-visible {
+    outline: 2px solid #{forge-theme.variable(primary)};
+    outline-offset: -2px;
+  }
+
+  &--active::before {
+    opacity: 0.8;
+    inline-size: 3px;
+    background-color: #{forge-theme.variable(primary)};
+  }
+
+  &:hover &__grip,
+  &:focus-visible &__grip,
+  &--active &__grip {
+    color: #{forge-theme.variable(primary)};
+    border-color: #{forge-theme.variable(primary)};
+  }
+}
+
+.canvas {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: max(0px, calc(100cqi - #{$_chat-width}));
 }
 
 .welcome {
@@ -241,7 +352,7 @@ $_max-content-width: 768px;
 :host(:state(welcome)) {
   --_ai-chatbot-launcher-align: var(--forge-ai-chatbot-launcher-align, center);
 
-  .launcher {
+  .chat {
     align-items: center;
     justify-content: var(--_ai-chatbot-launcher-align);
     gap: #{forge-spacing.variable(xxsmall)};
@@ -328,12 +439,38 @@ $_max-content-width: 768px;
   }
 }
 
+:host(:state(conversation):state(canvas-open)) {
+  .launcher {
+    grid-template-columns: #{$_chat-width} minmax(0, 1fr);
+  }
+
+  .canvas-track {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+}
+
 .launcher.skip-animation {
   .welcome,
   .conversation forge-ai-message-thread,
   .history,
   .prompt-section {
     animation: none;
+  }
+
+  &,
+  .canvas-track {
+    transition: none;
+  }
+}
+
+// Dragging must track the pointer immediately, not ease toward it.
+.launcher.resizing {
+  user-select: none;
+
+  &,
+  .canvas-track {
+    transition: none;
   }
 }
 
@@ -344,6 +481,11 @@ $_max-content-width: 768px;
     .history,
     .prompt-section {
       animation: none;
+    }
+
+    &,
+    .canvas-track {
+      transition: none;
     }
   }
 }

@@ -57,6 +57,12 @@ The sidebar width is retained when expanding to the modal and collapsing back, a
 
 Listen for `forge-ai-sidebar-chat-resize` to react to width changes. `event.detail.width` contains the new width in pixels.
 
+### Artifact Canvas
+
+Artifacts open in a modal over the sidebar, using the slotted chatbot's canvas API (`openCanvas()`, `closeCanvas()`, the `forge-ai-chatbot-canvas-open` and `-canvas-close` events). The sidebar keeps its width underneath. See [Chatbot → Artifact Canvas](?path=/docs/ai-components-primitives-chatbot--docs) for the details.
+
+<Canvas of={AiSidebarChatStories.WithArtifactCanvas} />
+
 ## API
 
 <CustomArgTypes />

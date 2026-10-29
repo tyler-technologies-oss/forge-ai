@@ -28,7 +28,7 @@ import type {
   MessageItem,
   ThreadState,
   ToolCall,
-  ToolDefinition,
+  AnyToolDefinition,
   UploadedFileMetadata
 } from '../ai-chatbot/types.js';
 import { generateId } from '../ai-chatbot/utils.js';
@@ -120,7 +120,7 @@ export class ChatbotCoreController implements ReactiveController {
     return this.messageItems.length > 0;
   }
 
-  public get tools(): Map<string, ToolDefinition> {
+  public get tools(): Map<string, AnyToolDefinition> {
     return new Map(this.#adapter?.getTools().map(t => [t.name, t]) ?? []);
   }
 
@@ -332,9 +332,7 @@ export class ChatbotCoreController implements ReactiveController {
   async #executeToolHandler(
     toolCallId: string,
     toolName: string,
-    handler: (
-      context: HandlerContext
-    ) => Promise<string | Record<string, unknown> | void> | string | Record<string, unknown> | void,
+    handler: NonNullable<AnyToolDefinition['handler']>,
     args: Record<string, unknown>
   ): Promise<void> {
     this.#executingToolHandlers++;
