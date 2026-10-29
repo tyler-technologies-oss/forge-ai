@@ -78,7 +78,7 @@
     "@custom-elements-manifest/analyzer": "catalog:",
     "@esm-bundle/chai": "catalog:",
     "@modelcontextprotocol/ext-apps": "^1.7.5",
-    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@open-wc/testing": "catalog:",
     "@repo/prettier-config": "workspace:",
     "@storybook/addon-a11y": "catalog:",
