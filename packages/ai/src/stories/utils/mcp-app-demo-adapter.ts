@@ -413,7 +413,7 @@ const BRIDGE_CLIENT = `
     function connect() {
       return request('ui/initialize', {
         appInfo: { name: 'mcp-app-demo', version: '1.0.0' },
-        appCapabilities: {},
+        appCapabilities: { availableDisplayModes: ['inline', 'fullscreen', 'pip'] },
         protocolVersion: '2026-01-26'
       }).then(result => {
         notify('ui/notifications/initialized');
@@ -552,7 +552,10 @@ function buildStoreLocatorWidgetHtml(): string {
   const body = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
       <strong style="font-size: 14px;">Nearby coffee shops</strong>
-      <button id="expand" class="secondary" type="button">Expand</button>
+      <div style="display: flex; gap: 8px;">
+        <button id="pip" class="secondary" type="button">Pop out</button>
+        <button id="expand" class="secondary" type="button">Expand</button>
+      </div>
     </div>
     <ul id="results" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px;"></ul>
   `;
@@ -560,7 +563,7 @@ function buildStoreLocatorWidgetHtml(): string {
   const script = `
     ${BRIDGE_CLIENT}
     (function () {
-      let expanded = false;
+      let mode = 'inline';
 
       function applyTheme(theme) {
         document.body.dataset.theme = theme || 'light';
@@ -608,15 +611,26 @@ function buildStoreLocatorWidgetHtml(): string {
         });
       }
 
-      document.getElementById('expand').addEventListener('click', async () => {
-        const nextMode = expanded ? 'inline' : 'fullscreen';
-        const result = await window.__bridge.request('ui/request-display-mode', { mode: nextMode });
-        expanded = result.mode === 'fullscreen';
-        document.getElementById('expand').textContent = expanded ? 'Collapse' : 'Expand';
-      });
+      // The host can change the mode itself (exit button, Escape), so track it from host context.
+      function applyDisplayMode(nextMode) {
+        mode = nextMode || 'inline';
+        document.getElementById('expand').textContent = mode === 'fullscreen' ? 'Collapse' : 'Expand';
+        document.getElementById('pip').textContent = mode === 'pip' ? 'Dock' : 'Pop out';
+      }
+
+      async function toggleDisplayMode(target) {
+        const result = await window.__bridge.request('ui/request-display-mode', { mode: mode === target ? 'inline' : target });
+        applyDisplayMode(result.mode);
+      }
+
+      document.getElementById('expand').addEventListener('click', () => toggleDisplayMode('fullscreen'));
+      document.getElementById('pip').addEventListener('click', () => toggleDisplayMode('pip'));
 
       window.__bridge.on('ui/notifications/tool-result', params => render(params.structuredContent));
-      window.__bridge.on('ui/notifications/host-context-changed', params => applyTheme(params.theme));
+      window.__bridge.on('ui/notifications/host-context-changed', params => {
+        applyTheme(params.theme);
+        applyDisplayMode(params.displayMode);
+      });
 
       window.__bridge.connect().then(result => applyTheme(result.hostContext && result.hostContext.theme));
     })();

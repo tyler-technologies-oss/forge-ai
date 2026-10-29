@@ -17,6 +17,7 @@ import { mcpAppHostContext, type McpAppHost } from './mcp-app-context.js';
 import { McpAppBridgeController, enforcedPermissions, type McpAppHandlers } from './mcp-app-bridge-controller.js';
 
 import '../../ai-empty-state/ai-empty-state.js';
+import '../../ai-confirmation-prompt/ai-confirmation-prompt.js';
 
 import styles from './ai-mcp-app.scss?inline';
 
@@ -54,6 +55,12 @@ const CONSOLE_LEVELS: Record<string, 'debug' | 'info' | 'warn' | 'error'> = {
   emergency: 'error'
 };
 
+/** A `ui/open-link` awaiting the user's confirmation; settled with the View's request result. */
+interface PendingLink {
+  href: string;
+  settle: (result: McpAppRequestResult) => void;
+}
+
 /** `live` until the View asks to be torn down; `closing` while its teardown runs; `closed` after. */
 type McpAppLifecycle = 'live' | 'closing' | 'closed';
 
@@ -78,8 +85,8 @@ function asOpenableUrl(url: string): string | null {
  * @tag forge-ai-mcp-app
  * @internal
  *
- * @event {CustomEvent<{ url: string }>} forge-ai-mcp-app-open-link - Fired (cancelable) when the app requests to open an http(s)/mailto link; the host opens it in a new tab unless `preventDefault()` is called
- * @event {CustomEvent<{ content: unknown[]; role: 'user' }>} forge-ai-mcp-app-message - Fired when the app sends a `ui/message`, before its text is posted into the chat as a user message
+ * @event {CustomEvent<{ url: string }>} forge-ai-mcp-app-open-link - Fired (cancelable) when the app requests to open an http(s)/mailto link; unless `preventDefault()` is called, the user is asked to confirm and the link opens in a new tab
+ * @event {CustomEvent<{ content: unknown[]; role: 'user' }>} forge-ai-mcp-app-message - Fired when the app sends a `ui/message`, before its text is placed in the prompt for the user to send
  * @event {CustomEvent<McpAppLoggingMessage>} forge-ai-mcp-app-logging-message - Fired (cancelable) when the app sends a logging message; logged to the console unless `preventDefault()` is called
  * @event {CustomEvent<{ toolCallId: string }>} forge-ai-mcp-app-request-teardown - Fired (cancelable) when the app asks to be torn down; the host tears the widget down unless `preventDefault()` is called
  * @event {CustomEvent<{ mode: McpAppDisplayMode }>} forge-ai-mcp-app-request-display-mode - Fired when the app's display mode changes
@@ -107,6 +114,9 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
 
   @state()
   private _lifecycle: McpAppLifecycle = 'live';
+
+  @state()
+  private _pendingLink: PendingLink | null = null;
 
   #controller: McpAppBridgeController | null = null;
   #lastHostContext: McpAppHostContext | null = null;
@@ -173,10 +183,10 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return {
       oncalltool: params => this.host?.callTool({ ...params, toolCallId: this.toolCall.id }) ?? unavailable(),
       onreadresource: params => this.host?.readResource({ ...params, toolCallId: this.toolCall.id }) ?? unavailable(),
-      onopenlink: async ({ url }) => this.#openLink(url),
+      onopenlink: ({ url }) => this.#openLink(url),
       onmessage: async ({ content, role }) => {
         this.#dispatchMessage(content, role);
-        return this.host?.sendMessage({ toolCallId: this.toolCall.id, content }) ?? { isError: true };
+        return this.host?.draftMessage({ toolCallId: this.toolCall.id, content }) ?? { isError: true };
       },
       onloggingmessage: message => this.#handleLoggingMessage(message),
       onsizechange: ({ height }) => {
@@ -236,6 +246,7 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
    * disconnect as a fallback. A later `toolCall` update remounts the widget.
    */
   public async teardown(): Promise<void> {
+    this.#settlePendingLink({ isError: true });
     this.#unregisterView?.();
     this.#unregisterView = null;
     const controller = this.#controller;
@@ -272,6 +283,9 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       }
     } else if (!container.matches(':popover-open')) {
       container.showPopover();
+    }
+    if (this.#isPromoted) {
+      this.updateComplete.then(() => this.renderRoot.querySelector<HTMLButtonElement>('.exit-button')?.focus());
     }
   }
 
@@ -346,9 +360,10 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       return null;
     }
     const width = Math.round(container.clientWidth);
+    // Promoted widgets share the container with the host toolbar, so the iframe is the real viewport.
     return this._displayMode === 'inline'
       ? { width, maxHeight: MAX_INLINE_HEIGHT }
-      : { width, height: Math.round(container.clientHeight) };
+      : { width, height: Math.round(this._iframe?.clientHeight ?? container.clientHeight) };
   }
 
   /** Sends `host-context-changed` when the container's measured size changed (held by the bridge until `initialized`). */
@@ -361,11 +376,15 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     this.#controller?.sendHostContextChange(this.#hostContext);
   }
 
-  /** Opens an http(s)/mailto link in a new tab unless a listener handled it via `preventDefault()`. */
-  #openLink(url: string): McpAppRequestResult {
+  /**
+   * Unless a listener handles it via `preventDefault()`, asks the user to confirm an
+   * http(s)/mailto link and opens it from that click — a real user gesture, so it isn't
+   * popup-blocked, and the View can't open links silently. Resolves with the user's choice.
+   */
+  #openLink(url: string): Promise<McpAppRequestResult> {
     const href = asOpenableUrl(url);
     if (!href) {
-      return { isError: true };
+      return Promise.resolve({ isError: true });
     }
     const event = new CustomEvent('forge-ai-mcp-app-open-link', {
       detail: { url: href },
@@ -373,10 +392,26 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
       composed: true,
       cancelable: true
     });
-    if (this.dispatchEvent(event)) {
+    if (!this.dispatchEvent(event)) {
+      return Promise.resolve({});
+    }
+    this.#settlePendingLink({ isError: true });
+    return new Promise(settle => {
+      this._pendingLink = { href, settle };
+    });
+  }
+
+  #settlePendingLink(result: McpAppRequestResult): void {
+    this._pendingLink?.settle(result);
+    this._pendingLink = null;
+  }
+
+  #confirmLink(): void {
+    const href = this._pendingLink?.href;
+    if (href) {
       window.open(href, '_blank', 'noopener,noreferrer');
     }
-    return {};
+    this.#settlePendingLink({});
   }
 
   #dispatchMessage(content: unknown[], role: 'user'): void {
@@ -440,6 +475,59 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
 
   readonly #iframe = html`<iframe title="MCP application" sandbox="allow-scripts allow-same-origin"></iframe>`;
 
+  /** Host-owned exit control for promoted (fullscreen/pip) widgets; the View can't hide or spoof it. */
+  readonly #promotedToolbar = html`
+    <div class="promoted-toolbar">
+      <button
+        class="forge-icon-button forge-icon-button--medium exit-button"
+        aria-label="Exit to inline view"
+        @click=${(): void => this.#exitToInline()}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" d="M0 0h24v24H0z" />
+          <path
+            d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+  `;
+
+  get #linkConfirmation(): TemplateResult | typeof nothing {
+    const link = this._pendingLink;
+    if (!link) {
+      return nothing;
+    }
+    return html`
+      <forge-ai-confirmation-prompt
+        text=${`Open this link in a new tab? ${link.href}`}
+        confirm-text="Open"
+        deny-text="Cancel"
+        @forge-ai-confirmation-prompt-confirm=${(): void => this.#confirmLink()}
+        @forge-ai-confirmation-prompt-deny=${(): void => this.#settlePendingLink({ isError: true })}>
+      </forge-ai-confirmation-prompt>
+    `;
+  }
+
+  get #isPromoted(): boolean {
+    return this._displayMode !== 'inline';
+  }
+
+  /** Returns a promoted widget to inline and tells the View (via `host-context-changed`). */
+  #exitToInline(): void {
+    if (!this.#isPromoted) {
+      return;
+    }
+    this._displayMode = 'inline';
+    this.#dispatchRequestDisplayMode('inline');
+  }
+
+  #handleContainerKeydown(evt: KeyboardEvent): void {
+    if (evt.key === 'Escape' && this.#isPromoted) {
+      evt.stopPropagation();
+      evt.preventDefault();
+      this.#exitToInline();
+    }
+  }
+
   get #bordered(): boolean {
     return this.#uiResource?.prefersBorder !== false;
   }
@@ -475,8 +563,12 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
           fullscreen: this._displayMode === 'fullscreen',
           pip: this._displayMode === 'pip'
         })}
-        popover="manual">
-        ${this.#iframe}
+        popover="manual"
+        role=${this.#isPromoted ? 'dialog' : nothing}
+        aria-label=${this.#isPromoted ? 'MCP application' : nothing}
+        data-handles-escape
+        @keydown=${this.#handleContainerKeydown}>
+        ${this.#isPromoted ? this.#promotedToolbar : nothing} ${this.#iframe} ${this.#linkConfirmation}
       </div>
     `;
   }

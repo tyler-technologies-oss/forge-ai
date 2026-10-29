@@ -102,7 +102,7 @@ property — it exists solely so a consumer that already knows its own light/dar
 state can pass it through to widgets, rather than widgets guessing from
 `prefers-color-scheme`. Absent → falls back to the OS media query, matching prior
 behavior. */
-  theme?: ForgeAiChatbotElement["theme"];
+  mcpAppTheme?: ForgeAiChatbotElement["mcpAppTheme"];
 
   /** A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the class selectors or functions like the method `Document.getElementsByClassName()`. */
   className?: string;

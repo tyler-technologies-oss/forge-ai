@@ -54,12 +54,12 @@ different slice of the app-to-host surface:
   from the user and forwards them as an app-initiated `tools/call`
   (`submitTripDetails`, a `visibility:["app"]`-style tool never exposed to the model's
   tool list), then renders the server's response inline. Exercises `oncalltool`.
-- **`StoreLocator`** — exercises `ui/request-display-mode` (the "Expand" button
-  promotes the widget to fullscreen via the Popover API — same DOM node, no iframe
-  reload) and `ui/open-link` (the "Directions" button; the host opens the link in a new
-  tab by default). Also exercises `ui/message` — "Ask about hours" is posted into the
-  chat as a user message, which the mock adapter answers as a natural follow-up rather
-  than re-running the tool call.
+- **`StoreLocator`** — exercises `ui/request-display-mode` (the "Expand" and "Pop out"
+  buttons promote the widget to fullscreen or pip via the Popover API — same DOM node, no iframe
+  reload) and `ui/open-link` (the "Directions" button; the host asks the user to confirm,
+  then opens the link in a new tab). Also exercises `ui/message` — "Ask about hours" fills the prompt; once
+  sent, the mock adapter answers it as a natural follow-up rather than re-running the
+  tool call.
 
 <Canvas of={AiChatbotMcpAppStories.WeatherCard} />
 <Canvas of={AiChatbotMcpAppStories.TripDetailsForm} />
@@ -183,18 +183,18 @@ not sent. Inline heights from `size-changed` are capped at 2000px.
 
 `ui/open-link` accepts `http:`, `https:` and `mailto:` URLs; anything else (e.g.
 `javascript:`, `data:`) is refused with `{ isError: true }`. For an accepted URL the
-cancelable `forge-ai-mcp-app-open-link` event fires first; unless a listener calls
-`preventDefault()` the host opens the URL in a new tab with `noopener,noreferrer`. The
-widget gets `{}` either way.
+cancelable `forge-ai-mcp-app-open-link` event fires first. If a listener calls
+`preventDefault()` it owns the link and the widget gets `{}`. Otherwise the user is
+asked to confirm inside the widget; on confirm the URL opens in a new tab with
+`noopener,noreferrer` (from the click, so it isn't popup-blocked) and the widget gets
+`{}`, on cancel it gets `{ isError: true }`.
 
 ### Messages
 
-`ui/message` text blocks are joined and posted into the chat as a user message through
-`sendMessage` — the same path as the prompt — so they show up in the thread and start a
-model turn. Other block types (image, audio, resource) are dropped; a message with no text
-is refused with `{ isError: true }`. Messages are not queued: while a response is
-streaming, an upload is pending or no adapter is set, the widget gets `{ isError: true }`
-and can retry. `forge-ai-mcp-app-message` fires first (informational).
+`ui/message` text blocks are joined and placed in the prompt input for the user to review
+and send; a widget never starts a model turn on its own. Other block types (image, audio,
+resource) are dropped; a message with no text is refused with `{ isError: true }`.
+`forge-ai-mcp-app-message` fires first (informational).
 
 ### Teardown requests
 
@@ -233,7 +233,7 @@ current mode is returned unchanged.
   (2026-01-26) defines only `'light' | 'dark'`, no `'system'`/`'auto'`. This control
   does **not** change the chatbot's own appearance (that's Forge design tokens,
   unrelated) — it only demonstrates the widget-facing signal a real consumer would set
-  via `<forge-ai-chatbot theme="dark">`. With `theme` set to `light` or `dark`, that
+  via `<forge-ai-chatbot mcp-app-theme="dark">`. With `theme` set to `light` or `dark`, that
   value wins outright. With `theme` left on **`auto`**, the widget instead tracks
   **Storybook's own dark-mode toolbar icon** (the sun/moon button, top toolbar) live —
   toggling it flips `hostContext.theme` without a page reload, since both this control

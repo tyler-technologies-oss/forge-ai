@@ -39,7 +39,7 @@ export interface ForgeAiMcpAppProps extends Pick<
   /** Allows developers to make HTML elements focusable, allow or prevent them from being sequentially focusable (usually with the `Tab` key, hence the name) and determine their relative ordering for sequential focus navigation. */
   tabIndex?: number;
 
-  /** Fired when the app sends a `ui/message`, before its text is posted into the chat as a user message */
+  /** Fired when the app sends a `ui/message`, before its text is placed in the prompt for the user to send */
   onForgeAiMcpAppMessage?: (
     event: CustomEvent<CustomEvent<{ content: unknown[]; role: "user" }>>,
   ) => void;
@@ -54,7 +54,7 @@ export interface ForgeAiMcpAppProps extends Pick<
     event: CustomEvent<CustomEvent<McpModelContextUpdateParams>>,
   ) => void;
 
-  /** Fired (cancelable) when the app requests to open an http(s)/mailto link; the host opens it in a new tab unless `preventDefault()` is called */
+  /** Fired (cancelable) when the app requests to open an http(s)/mailto link; unless `preventDefault()` is called, the user is asked to confirm and the link opens in a new tab */
   onForgeAiMcpAppOpenLink?: (
     event: CustomEvent<CustomEvent<{ url: string }>>,
   ) => void;
@@ -82,10 +82,10 @@ export interface ForgeAiMcpAppProps extends Pick<
  *
  *
  * ### **Events:**
- *  - **forge-ai-mcp-app-message** - Fired when the app sends a `ui/message`, before its text is posted into the chat as a user message
+ *  - **forge-ai-mcp-app-message** - Fired when the app sends a `ui/message`, before its text is placed in the prompt for the user to send
  * - **forge-ai-mcp-app-request-display-mode** - Fired when the app's display mode changes
  * - **forge-ai-mcp-app-update-model-context** - Fired when the app updates model context; detail carries `toolCallId`, `content` and `structuredContent`
- * - **forge-ai-mcp-app-open-link** - Fired (cancelable) when the app requests to open an http(s)/mailto link; the host opens it in a new tab unless `preventDefault()` is called
+ * - **forge-ai-mcp-app-open-link** - Fired (cancelable) when the app requests to open an http(s)/mailto link; unless `preventDefault()` is called, the user is asked to confirm and the link opens in a new tab
  * - **forge-ai-mcp-app-logging-message** - Fired (cancelable) when the app sends a logging message; logged to the console unless `preventDefault()` is called
  * - **forge-ai-mcp-app-request-teardown** - Fired (cancelable) when the app asks to be torn down; the host tears the widget down unless `preventDefault()` is called
  *

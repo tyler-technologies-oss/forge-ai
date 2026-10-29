@@ -105,23 +105,48 @@ export class AiMessageThreadComponent extends LitElement {
   @query('.message-thread')
   private _messageThreadContainer!: HTMLElement;
 
+  @query('.message-thread-content')
+  private _messageThreadContent!: HTMLElement;
+
   #markdownController!: MarkdownStreamController;
   #canAutoScroll = true;
+  #lastScrollTop = 0;
   #resizeObserver?: ResizeObserver;
+  #contentResizeObserver?: ResizeObserver;
 
   public override connectedCallback(): void {
     super.connectedCallback();
     this.#markdownController = new MarkdownStreamController(this);
     this.#resizeObserver = new ResizeObserver(() => this.#checkScrollState());
+    this.#contentResizeObserver = new ResizeObserver(() => this.#handleContentResize());
+    if (this.hasUpdated) {
+      this.#observe();
+    }
   }
 
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.#resizeObserver?.disconnect();
+    this.#contentResizeObserver?.disconnect();
   }
 
   public override firstUpdated(): void {
+    this.#observe();
+  }
+
+  #observe(): void {
     this.#resizeObserver?.observe(this._messageThreadContainer);
+    this.#contentResizeObserver?.observe(this._messageThreadContent);
+  }
+
+  /**
+   * Content can grow without `messageItems` changing (e.g. an MCP-app widget mounting or
+   * resizing itself), so keep the thread pinned to the bottom while the user hasn't scrolled away.
+   */
+  #handleContentResize(): void {
+    if (this.autoScroll === 'on') {
+      this.scrollToBottom({ behavior: 'instant' });
+    }
   }
 
   public override updated(changedProperties: PropertyValues<this>): void {
@@ -144,8 +169,12 @@ export class AiMessageThreadComponent extends LitElement {
       return;
     }
 
+    // Only an upward scroll releases the pin; content growing mid smooth-scroll also leaves us far from the bottom.
     const { scrollTop, scrollHeight, clientHeight } = container;
-    const canAutoScroll = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_THRESHOLD;
+    const scrolledUp = scrollTop < this.#lastScrollTop;
+    this.#lastScrollTop = scrollTop;
+    const canAutoScroll = isNearBottom || (this.#canAutoScroll && !scrolledUp);
     if (canAutoScroll !== this.#canAutoScroll) {
       this.#canAutoScroll = canAutoScroll;
       this.requestUpdate();

@@ -244,15 +244,18 @@ export class AiAssistantResponseComponent extends LitElement {
     // has mounted: a renderOnStart tool awaiting user input should keep this hidden, while a
     // truly settled tool call should let the indicator reappear to signal a gap before the next step.
     // MCP-app tool calls never render an indicator of their own, so they instead stay covered
-    // until the widget mounts (uiResource stamped) — after that the widget is the visible signal.
+    // until the widget mounts (uiResource stamped) — after that the widget is the visible signal
+    // until the call settles.
     const hasActiveToolCall = this.response.children.some(child => {
       if (child.type !== 'toolCall') {
         return false;
       }
+      const isUnsettled =
+        child.data.status === 'parsing' || child.data.status === 'executing' || child.data.status === 'pending';
       if (this.#isMcpAppToolCall(child.data)) {
-        return !!child.data.uiResource;
+        return !!child.data.uiResource && isUnsettled;
       }
-      return child.data.status === 'parsing' || child.data.status === 'executing' || child.data.status === 'pending';
+      return isUnsettled;
     });
     if (hasActiveToolCall) {
       return nothing;

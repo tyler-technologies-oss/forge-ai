@@ -43,7 +43,7 @@ export default meta;
 type Story = StoryObj<{ theme: 'auto' | 'light' | 'dark'; widgetVariant: McpAppWidgetVariant }>;
 
 /**
- * Returns a `ref()` callback that keeps `<forge-ai-chatbot>.theme` in sync with the
+ * Returns a `ref()` callback that keeps `<forge-ai-chatbot>.mcpAppTheme` in sync with the
  * requested control value. For an explicit `light`/`dark`, sets it once. For `auto`,
  * subscribes to the same `DARK_MODE` channel event `.storybook/preview.ts` already
  * listens to for Forge's own dark theme — so toggling Storybook's toolbar icon updates
@@ -62,13 +62,13 @@ function bindChatbotTheme(theme: 'auto' | 'light' | 'dark') {
 
     const chatbot = el as AiChatbotComponent;
     if (theme !== 'auto') {
-      chatbot.theme = theme;
+      chatbot.mcpAppTheme = theme;
       return;
     }
 
     const channel = addons.getChannel();
     const applyDarkMode = (isDark: boolean): void => {
-      chatbot.theme = isDark ? 'dark' : 'light';
+      chatbot.mcpAppTheme = isDark ? 'dark' : 'light';
     };
     applyDarkMode(document.body.classList.contains('forge-storybook-dark'));
     channel.on('DARK_MODE', applyDarkMode);

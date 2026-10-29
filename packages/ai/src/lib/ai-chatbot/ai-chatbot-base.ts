@@ -162,13 +162,13 @@ export abstract class AiChatbotBase extends LitElement {
    * `prefers-color-scheme`. Absent → falls back to the OS media query, matching prior
    * behavior.
    */
-  @property({ attribute: 'theme' })
-  public theme?: 'light' | 'dark';
+  @property({ attribute: 'mcp-app-theme' })
+  public mcpAppTheme?: 'light' | 'dark';
 
   readonly #themeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
   get #effectiveTheme(): 'light' | 'dark' {
-    return this.theme ?? (this.#themeMediaQuery.matches ? 'dark' : 'light');
+    return this.mcpAppTheme ?? (this.#themeMediaQuery.matches ? 'dark' : 'light');
   }
 
   readonly #mcpAppViews = new Map<string, McpAppViewRegistration>();
@@ -183,7 +183,7 @@ export abstract class AiChatbotBase extends LitElement {
       this._coreController?.adapter?.readMcpResource?.(params) ??
       Promise.reject(new Error('resources/read is not supported by this host')),
     updateModelContext: params => this._coreController?.adapter?.updateMcpModelContext?.(params) ?? Promise.resolve(),
-    sendMessage: ({ content }) => this.#sendMcpAppMessage(content),
+    draftMessage: ({ content }) => this.#draftMcpAppMessage(content),
     teardownView: ({ toolCallId }) => this._teardownMcpAppViews({ toolCallIds: [toolCallId] }),
     registerView: view => {
       this.#mcpAppViews.set(view.toolCallId, view);
@@ -199,18 +199,17 @@ export abstract class AiChatbotBase extends LitElement {
   };
 
   /**
-   * Posts a widget's `ui/message` text as a user message through {@link sendMessage} (the
-   * same path as the prompt), starting a model turn. Rejected (not queued) while a
-   * response is streaming, an upload is pending, no adapter is set, or the message has no
-   * text content.
+   * Places a widget's `ui/message` text in the prompt for the user to review and send. A
+   * widget never starts a model turn on its own. Refused when the message has no text.
    */
-  async #sendMcpAppMessage(content: unknown[]): Promise<McpAppRequestResult> {
+  async #draftMcpAppMessage(content: unknown[]): Promise<McpAppRequestResult> {
     const text = mcpMessageText(content);
-    const canAccept = !!this._coreController?.adapter && !this._isStreaming && this._coreController.canSendMessage();
-    if (!text.trim() || !canAccept) {
+    const prompt = this._promptRef.value;
+    if (!text.trim() || !prompt) {
       return { isError: true };
     }
-    await this.sendMessage(text);
+    prompt.value = text;
+    prompt.focus();
     return {};
   }
 
@@ -313,7 +312,7 @@ export abstract class AiChatbotBase extends LitElement {
       this._mcpAppHost = { ...this._mcpAppHost, sandboxUrl: this.mcpAppSandboxUrl };
     }
 
-    if (changedProperties.has('theme')) {
+    if (changedProperties.has('mcpAppTheme')) {
       this._mcpAppHost = {
         ...this._mcpAppHost,
         hostContext: { ...this._mcpAppHost.hostContext, theme: this.#effectiveTheme }

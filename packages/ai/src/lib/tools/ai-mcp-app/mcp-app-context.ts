@@ -28,10 +28,10 @@ export interface McpAppHost {
   readResource(params: McpResourceReadParams): Promise<unknown>;
   updateModelContext(params: McpModelContextUpdateParams): Promise<void>;
   /**
-   * Post a widget's `ui/message` into the chat as a user message (starting a model turn).
-   * Resolves `{ isError: true }` when the chat can't accept it right now.
+   * Place a widget's `ui/message` text in the prompt for the user to send. Resolves
+   * `{ isError: true }` when there is no text or no prompt.
    */
-  sendMessage(params: { toolCallId: string; content: unknown[] }): Promise<McpAppRequestResult>;
+  draftMessage(params: { toolCallId: string; content: unknown[] }): Promise<McpAppRequestResult>;
   /** Tear down one widget through the host's normal per-widget teardown path. */
   teardownView(params: { toolCallId: string }): Promise<void>;
   /** Register a mounted widget; returns the unregister callback. */

@@ -59,6 +59,8 @@ export class ChatbotCoreController implements ReactiveController {
   readonly #presumedCompleteToolCallIds = new Set<string>();
   /** Resolved UI resources whose tool call is not in state yet. */
   readonly #pendingUiResources = new Map<string, McpAppUiResource>();
+  /** Bumped whenever the thread is cleared or replaced, so in-flight UI resource resolves from before are dropped. */
+  #threadGeneration = 0;
 
   constructor(host: ReactiveControllerHost, config: ChatbotCoreControllerConfig) {
     this.#host = host;
@@ -410,14 +412,17 @@ export class ChatbotCoreController implements ReactiveController {
   /**
    * Resolves and stamps the UI resource. Works whether the event arrives before or after
    * the tool call's chunks, mid-run, after the run ended, or after `setMessages` for
-   * tool calls restored from history.
+   * tool calls restored from history. A resolve that outlives the thread it started in
+   * (cleared/replaced, or the adapter swapped) is dropped.
    */
   async #handleMcpUiResource(event: McpUiResourceEvent): Promise<void> {
-    if (!this.#adapter?.resolveMcpAppResource) {
+    const adapter = this.#adapter;
+    if (!adapter?.resolveMcpAppResource) {
       return;
     }
 
     const { toolCallId, resourceUri } = event;
+    const generation = this.#threadGeneration;
     this.#mcpAppToolCallIds.add(toolCallId);
     if (this.#presumedCompleteToolCallIds.delete(toolCallId)) {
       this.#messageStateController.updateToolCallInResponse(toolCallId, {
@@ -428,13 +433,13 @@ export class ChatbotCoreController implements ReactiveController {
 
     let uiResource: McpAppUiResource | undefined;
     try {
-      uiResource = await this.#adapter.resolveMcpAppResource({ resourceUri, toolCallId });
+      uiResource = await adapter.resolveMcpAppResource({ resourceUri, toolCallId });
     } catch (error) {
       console.warn(`[forge-ai-mcp-app] Failed to resolve UI resource for tool call ${toolCallId}:`, error);
       return;
     }
 
-    if (!uiResource) {
+    if (!uiResource || adapter !== this.#adapter || generation !== this.#threadGeneration) {
       return;
     }
 
@@ -452,15 +457,6 @@ export class ChatbotCoreController implements ReactiveController {
     }
     this.#pendingUiResources.delete(toolCallId);
     return { uiResource };
-  }
-
-  #applyPendingUiResources(): void {
-    for (const [toolCallId, uiResource] of this.#pendingUiResources) {
-      if (this.#messageStateController.getToolCall(toolCallId)) {
-        this.#pendingUiResources.delete(toolCallId);
-        this.#messageStateController.updateToolCallInResponse(toolCallId, { uiResource });
-      }
-    }
   }
 
   async #sendToolResult(toolCallId: string, result: unknown): Promise<void> {
@@ -575,6 +571,7 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   public clearMessages(): void {
+    this.#threadGeneration++;
     this.#mcpAppToolCallIds.clear();
     this.#presumedCompleteToolCallIds.clear();
     this.#pendingUiResources.clear();
@@ -587,8 +584,11 @@ export class ChatbotCoreController implements ReactiveController {
   }
 
   public setMessages(messages: ChatMessage[]): void {
+    this.#threadGeneration++;
+    this.#mcpAppToolCallIds.clear();
+    this.#presumedCompleteToolCallIds.clear();
+    this.#pendingUiResources.clear();
     this.#messageStateController.setMessages(messages);
-    this.#applyPendingUiResources();
   }
 
   public updateMessageContent(id: string, content: string): void {
