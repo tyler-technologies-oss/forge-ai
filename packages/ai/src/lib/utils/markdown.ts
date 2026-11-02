@@ -19,21 +19,97 @@ export interface RenderMarkdownOptions {
  */
 const COMPLETE_CONTENT_REMEND_OPTIONS: RemendOptions = { links: false, images: false };
 
+/**
+ * Rendered content is model output and therefore attacker-influenced, so nothing in it may make the
+ * browser fetch another origin without a click. SVG and MathML are excluded entirely because their
+ * presentation attributes are parsed as CSS and can reach a URL in too many ways to filter reliably.
+ * Media elements and fetching attributes are forbidden; `<img>` is handled by the hook below.
+ */
 const DOMPURIFY_CONFIG: Config = {
-  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'select', 'textarea', 'button'],
-  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
+  USE_PROFILES: { html: true },
+  FORBID_TAGS: [
+    'script',
+    'style',
+    'iframe',
+    'object',
+    'embed',
+    'form',
+    'input',
+    'select',
+    'textarea',
+    'button',
+    'picture',
+    'source',
+    'video',
+    'audio',
+    'track'
+  ],
+  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'style', 'srcset', 'poster', 'background'],
   ADD_ATTR: ['target', 'rel']
 };
+
+const DEFAULT_IMAGE_LABEL = 'Image';
+
+// A dedicated instance keeps these hooks out of the host app's own DOMPurify sanitize calls.
+const markdownSanitizer = DOMPurify();
 
 // Force every surviving anchor — including raw `<a>` markup emitted by the agent
 // that bypasses the marked link renderer — to open in a new tab with a safe
 // `rel`. Unsafe protocols are already stripped by DOMPurify's default policy.
-DOMPurify.addHook('afterSanitizeAttributes', node => {
+markdownSanitizer.addHook('afterSanitizeAttributes', node => {
   if (node.nodeName === 'A') {
     node.setAttribute('target', '_blank');
     node.setAttribute('rel', 'noreferrer noopener');
+  } else if (node.nodeName === 'IMG') {
+    replaceExternalImage(node);
   }
 });
+
+function resolveUrl(value: string): URL | undefined {
+  try {
+    return new URL(value, document.baseURI);
+  } catch {
+    return undefined;
+  }
+}
+
+function isInlineLoadable(url: URL): boolean {
+  if (url.protocol === 'data:') {
+    return /^data:image\//i.test(url.href);
+  }
+  return url.origin === window.location.origin;
+}
+
+/**
+ * Swaps an image that would load from another origin for a click-to-open link naming its host,
+ * or for its alt text when it cannot be linked (non-http source, or already inside a link).
+ */
+function replaceExternalImage(img: Element): void {
+  const src = img.getAttribute('src')?.trim();
+  if (!src) {
+    return;
+  }
+  const url = resolveUrl(src);
+  if (url && isInlineLoadable(url)) {
+    return;
+  }
+  img.replaceWith(createImageFallback({ img, url }));
+}
+
+function createImageFallback({ img, url }: { img: Element; url: URL | undefined }): Node {
+  const doc = img.ownerDocument;
+  const label = img.getAttribute('alt') || DEFAULT_IMAGE_LABEL;
+  const isLinkable = !!url && /^https?:$/.test(url.protocol) && !img.closest('a');
+  if (!isLinkable) {
+    return doc.createTextNode(label);
+  }
+  const link = doc.createElement('a');
+  link.setAttribute('href', url.href);
+  link.setAttribute('target', '_blank');
+  link.setAttribute('rel', 'noreferrer noopener');
+  link.textContent = `${label} (${url.host})`;
+  return link;
+}
 
 /**
  * Renders markdown content to sanitized HTML.
@@ -66,7 +142,7 @@ export function renderMarkdown(content: string, { streaming = true }: RenderMark
     breaks: true,
     renderer
   }) as string;
-  return DOMPurify.sanitize(rawHtml, DOMPURIFY_CONFIG);
+  return markdownSanitizer.sanitize(rawHtml, DOMPURIFY_CONFIG);
 }
 
 /**
@@ -84,5 +160,5 @@ export function renderInlineMarkdown(content: string): string {
     gfm: true,
     breaks: true
   }) as string;
-  return DOMPurify.sanitize(rawHtml, DOMPURIFY_CONFIG);
+  return markdownSanitizer.sanitize(rawHtml, DOMPURIFY_CONFIG);
 }
