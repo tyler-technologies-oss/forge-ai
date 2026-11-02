@@ -80,7 +80,8 @@ export interface McpAppSizeChange {
  * Config for the `ui/initialize` handshake and injecting the resource into the sandbox.
  *
  * The controller owns the outer sandbox iframe DOM (setting `src` with the `?csp=` query
- * param + the outer `allow` attribute); it hands the bridge the loaded iframe's
+ * param, JSON of the declared CSP domain lists that the sandbox origin turns into the CSP
+ * header, + the outer `allow` attribute); it hands the bridge the loaded iframe's
  * `contentWindow` so the bridge can scope its transport to that window and drive the
  * `sandbox-proxy-ready` → `sandbox-resource-ready` → `initialized` handshake. All fields
  * are bridge-agnostic (no ext-apps types leak through this surface).

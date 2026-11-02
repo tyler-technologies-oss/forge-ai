@@ -12,8 +12,9 @@
  *   4. Relay every message that is NOT a `ui/notifications/sandbox-*` handshake message
  *      bidirectionally between the host and the inner app frame.
  *
- * CSP is applied as an HTTP response header on this document by the serving origin
- * (read from the `?csp=` query param) — the inner iframe, created same-origin via
+ * CSP is applied as an HTTP response header on this document by the serving origin,
+ * which builds it from the JSON declared domain lists in the `?csp=` query param — the
+ * inner iframe, created same-origin via
  * `document.write`, inherits that policy. The proxy itself does not set CSP.
  */
 

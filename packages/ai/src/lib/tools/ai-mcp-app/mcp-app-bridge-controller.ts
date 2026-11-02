@@ -49,32 +49,21 @@ const PERMISSION_FEATURES: Record<keyof McpAppResourcePermissions, string> = {
 /** Characters that could break out of a CSP source list. */
 const UNSAFE_CSP_SOURCE = /[\s;,'"]/;
 
-function cspSources(domains: string[] | undefined, fallback: string): string {
-  const safe = (domains ?? []).filter(domain => !!domain && !UNSAFE_CSP_SOURCE.test(domain));
-  return safe.length ? safe.join(' ') : fallback;
-}
+const CSP_PARAM_KEYS = ['connectDomains', 'resourceDomains', 'frameDomains', 'baseUriDomains'] as const;
 
 /**
- * Compose the CSP header value the sandbox server expects on `?csp=` (spec "CSP
- * Construction from Metadata"). Empty allow-lists produce the restrictive default:
- * `connect-src 'none'`, `frame-src 'none'`, `base-uri 'self'`, `object-src 'none'`.
+ * Serialize the declared CSP domains for the sandbox `?csp=` param. The sandbox origin
+ * builds the actual CSP header from these; empty lists are omitted.
  */
-export function buildCspHeader(csp: McpAppResourceCsp): string {
-  const resource = cspSources(csp.resourceDomains, '');
-  const extra = resource ? ` ${resource}` : '';
-
-  return [
-    "default-src 'none'",
-    `script-src 'self' 'unsafe-inline'${extra}`,
-    `style-src 'self' 'unsafe-inline'${extra}`,
-    `img-src 'self' data:${extra}`,
-    `media-src 'self' data:${extra}`,
-    `font-src 'self' data:${extra}`,
-    `connect-src ${cspSources(csp.connectDomains, "'none'")}`,
-    `frame-src ${cspSources(csp.frameDomains, "'none'")}`,
-    `base-uri ${cspSources(csp.baseUriDomains, "'self'")}`,
-    "object-src 'none'"
-  ].join('; ');
+export function buildCspParam(csp: McpAppResourceCsp): string {
+  const declared: Partial<Record<(typeof CSP_PARAM_KEYS)[number], string[]>> = {};
+  for (const key of CSP_PARAM_KEYS) {
+    const safe = (csp[key] ?? []).filter(domain => !!domain && !UNSAFE_CSP_SOURCE.test(domain));
+    if (safe.length) {
+      declared[key] = safe;
+    }
+  }
+  return JSON.stringify(declared);
 }
 
 /**
@@ -176,7 +165,7 @@ export class McpAppBridgeController {
     });
 
     const separator = sandboxUrl.includes('?') ? '&' : '?';
-    iframe.src = `${sandboxUrl}${separator}csp=${encodeURIComponent(buildCspHeader(csp))}`;
+    iframe.src = `${sandboxUrl}${separator}csp=${encodeURIComponent(buildCspParam(csp))}`;
 
     return this.#connected;
   }

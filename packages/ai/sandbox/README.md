@@ -28,5 +28,9 @@ Point a story's `sandboxUrl` at `http://localhost:6017/sandbox.html`.
   referrer, it pins the origin of the first host message; only the data-free
   `sandbox-proxy-ready` is ever posted to `'*'`).
 - `server.mjs` — sets the CSP as a real HTTP `Content-Security-Policy` response header
-  on `sandbox.html`, read from the `?csp=` query param (spec-faithful, tamper-proof).
-  Applies the restrictive default block when `?csp=` is absent.
+  on `sandbox.html`. The host sends only JSON declared domain lists in `?csp=`
+  (`connectDomains`, `resourceDomains`, `frameDomains`, `baseUriDomains`); the server
+  validates each source (`https`/`wss` host, optional `*.` and port; max 32 per list, 4096
+  chars total) and builds every directive itself. Missing or invalid input applies the
+  restrictive default block. `frame-ancestors` is omitted by default (any origin may frame
+  the sandbox); set `MCP_SANDBOX_FRAME_ANCESTORS` (space-separated origins) to restrict it.
