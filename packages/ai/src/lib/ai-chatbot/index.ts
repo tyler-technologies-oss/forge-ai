@@ -87,6 +87,7 @@ export type {
   ForgeAiChatbotThreadRenameEventData,
   ForgeAiChatbotThreadDeleteEventData,
   McpAppUiResource,
+  McpAppUiResourceStatus,
   McpAppResourceCsp,
   McpAppResourcePermissions,
   McpAppHostContext,

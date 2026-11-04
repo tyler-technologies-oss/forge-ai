@@ -114,7 +114,7 @@ carries the widget's `toolCallId` so host calls are per-widget.
 | Member                                                                             | Purpose                                                                                                                                                                 |
 | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_emitMcpUiResource({ toolCallId, resourceUri, toolName?, serverId?, mimeType? })` | Announce a widget. Order relative to the `tool-call` chunk doesn't matter. Call it again after `setMessages`/`setThreadState` to remount widgets restored from history. |
-| `resolveMcpAppResource({ resourceUri, toolCallId })`                               | Fetch the template. Return `{ html, csp, permissions, prefersBorder? }` with `csp`/`permissions` from the template's `_meta.ui` (`{}` when empty).                      |
+| `resolveMcpAppResource({ resourceUri, toolCallId })`                               | Fetch the template. Return `{ html, csp, permissions, prefersBorder? }` with `csp`/`permissions` from the template's `_meta.ui` (`{}` when empty). See below.           |
 | `callMcpTool({ name, arguments, toolCallId })`                                     | View `tools/call`. Resolve tool-level errors with `isError: true`; reject HTTP errors (e.g. 403 for a tool without `"app"` visibility) to return a JSON-RPC error.      |
 | `readMcpResource({ uri, toolCallId })`                                             | View `resources/read`. When absent the request is rejected. `serverResources` is not advertised.                                                                        |
 | `updateMcpModelContext({ toolCallId, content, structuredContent })`                | View `ui/update-model-context`. Each call replaces the widget's context; debounce and hold until the run ends if the backend requires it.                               |
@@ -122,6 +122,22 @@ carries the widget's `toolCallId` so host calls are per-widget.
 
 `permissions` uses the spec shape — keys present are requested:
 `{ camera: {}, microphone: {}, geolocation: {}, clipboardWrite: {} }`.
+
+### Resource loading
+
+From the moment `mcp-ui-resource` arrives, the tool call carries `uiResourceStatus: 'loading'`
+and renders as a `forge-ai-mcp-app` skeleton in its final position, never in the tool-call
+indicator. Text that streams afterwards renders below it. When `resolveMcpAppResource`
+settles, the same element switches in place:
+
+- **Resolves a resource** — `uiResource` is stamped, the status is cleared and the widget mounts.
+- **Resolves `undefined`** (MCP apps unavailable, e.g. HTTP 422) — the status is cleared and the
+  call falls back to a plain tool call (tool-call indicator or its renderer).
+- **Throws** — `uiResourceStatus: 'error'`; the widget shows "Unable to display app".
+
+Core applies no timeout; reject from `resolveMcpAppResource` if a fetch should give up. When
+the same `toolCallId` is announced again, the latest announcement wins and older resolves are
+dropped. `uiResource` and `uiResourceStatus` are stripped from `getMessages()`.
 
 ### Tool results
 

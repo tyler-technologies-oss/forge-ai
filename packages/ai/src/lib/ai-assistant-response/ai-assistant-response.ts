@@ -5,6 +5,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { keyed } from 'lit/directives/keyed.js';
 import type { AssistantResponse, ToolCall, AnyToolDefinition, ResponseItem } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
+import { rendersAsMcpAppWidget } from '../ai-chatbot/utils.js';
 import type { ForgeAiResponseMessageToolbarFeedbackEventData } from '../ai-response-message-toolbar';
 
 import '../ai-response-message-toolbar';
@@ -105,11 +106,11 @@ export class AiAssistantResponseComponent extends LitElement {
   }
 
   #isMcpAppToolCall(toolCall: ToolCall): boolean {
-    return !!toolCall.uiResource || this.tools?.get(toolCall.name)?.mcpApp !== undefined;
+    return rendersAsMcpAppWidget(toolCall) || this.tools?.get(toolCall.name)?.mcpApp !== undefined;
   }
 
   #renderToolCall(toolCall: ToolCall): unknown {
-    if (toolCall.uiResource) {
+    if (rendersAsMcpAppWidget(toolCall)) {
       return keyed(
         toolCall.id,
         html`<forge-ai-mcp-app
@@ -163,7 +164,7 @@ export class AiAssistantResponseComponent extends LitElement {
         results.push(this.#renderTextChunk(child));
       } else if (this.#isMcpAppToolCall(child.data)) {
         // MCP-app tool calls never go through the tool-call indicator — the widget itself
-        // (once mounted) is the visible signal; before that, the thinking indicator covers it.
+        // (loading placeholder, then the app) is the visible signal.
         flushIndicator();
         results.push(this.#renderToolCall(child.data));
       } else {
@@ -248,9 +249,9 @@ export class AiAssistantResponseComponent extends LitElement {
     // This is intentionally based on the tool call's real status, not on whether its renderer
     // has mounted: a renderOnStart tool awaiting user input should keep this hidden, while a
     // truly settled tool call should let the indicator reappear to signal a gap before the next step.
-    // MCP-app tool calls never render an indicator of their own, so they instead stay covered
-    // until the widget mounts (uiResource stamped) — after that the widget is the visible signal
-    // until the call settles.
+    // MCP-app tool calls never render an indicator of their own; once announced their widget
+    // (loading or live) is the visible signal until the call settles. A call known only from
+    // its tool definition has no widget yet, so the thinking indicator still covers it.
     const hasActiveToolCall = this.response.children.some(child => {
       if (child.type !== 'toolCall') {
         return false;
@@ -258,7 +259,7 @@ export class AiAssistantResponseComponent extends LitElement {
       const isUnsettled =
         child.data.status === 'parsing' || child.data.status === 'executing' || child.data.status === 'pending';
       if (this.#isMcpAppToolCall(child.data)) {
-        return !!child.data.uiResource && isUnsettled;
+        return rendersAsMcpAppWidget(child.data) && isUnsettled;
       }
       return isUnsettled;
     });

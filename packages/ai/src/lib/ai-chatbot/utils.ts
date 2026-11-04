@@ -32,6 +32,14 @@ export function isToolCallSettled(toolCall: ToolCall, toolDefinition?: AnyToolDe
 }
 
 /**
+ * Whether a tool call renders as a `<forge-ai-mcp-app>` widget: its UI resource is resolved,
+ * or announced and still loading (or failed to load).
+ */
+export function rendersAsMcpAppWidget(toolCall: ToolCall): boolean {
+  return !!toolCall.uiResource || !!toolCall.uiResourceStatus;
+}
+
+/**
  * Generates a unique ID using UUID v4
  */
 export function generateId(): string {

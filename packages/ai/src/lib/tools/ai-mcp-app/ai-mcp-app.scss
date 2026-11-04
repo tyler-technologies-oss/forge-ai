@@ -5,6 +5,7 @@
 @use '@tylertech/forge/sass/core/styles/typography' as forge-typography;
 @use '@tylertech/forge/sass/core/styles/border' as forge-border;
 @use '@tylertech/forge/dist/icon-button/forge-icon-button';
+@use '@tylertech/forge/dist/skeleton/forge-skeleton';
 
 // Forge tokens exposed as MCP Apps `hostContext.styles.variables` (spec key minus `--`).
 // The widget is cross-origin, so the host resolves these via getComputedStyle and sends values.
@@ -138,6 +139,13 @@ $host-style-variables: (
     overflow: hidden;
     box-shadow: #{forge-elevation.value(4)};
   }
+}
+
+// Placeholder while the UI resource resolves; sized so the widget's later mount barely shifts layout.
+.loading .forge-skeleton {
+  --forge-skeleton-height: 120px;
+  --forge-skeleton-margin: 0;
+  --forge-skeleton-shape: #{forge-shape.variable(large)};
 }
 
 .promoted-toolbar {

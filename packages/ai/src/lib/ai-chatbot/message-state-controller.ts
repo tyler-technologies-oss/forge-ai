@@ -11,16 +11,16 @@ import type {
 import type { ToolResultEvent } from './agent-adapter.js';
 import { generateId } from './utils.js';
 
-function withoutUiResource(toolCall: ToolCall): ToolCall {
-  if (!toolCall.uiResource) {
+function withoutMcpAppResource(toolCall: ToolCall): ToolCall {
+  if (!toolCall.uiResource && !toolCall.uiResourceStatus) {
     return toolCall;
   }
-  const { uiResource: _uiResource, ...rest } = toolCall;
+  const { uiResource: _uiResource, uiResourceStatus: _uiResourceStatus, ...rest } = toolCall;
   return rest;
 }
 
-function responseItemWithoutUiResource(item: ResponseItem): ResponseItem {
-  return item.type === 'toolCall' ? { type: 'toolCall', data: withoutUiResource(item.data) } : item;
+function responseItemWithoutMcpAppResource(item: ResponseItem): ResponseItem {
+  return item.type === 'toolCall' ? { type: 'toolCall', data: withoutMcpAppResource(item.data) } : item;
 }
 
 export interface MessageStateControllerConfig {
@@ -390,8 +390,8 @@ export class MessageStateController implements ReactiveController {
   /**
    * Reconstructs the message hierarchy for API compatibility.
    * Converts assistant responses back to ChatMessage format with tool calls.
-   * MCP-app `uiResource`s are stripped: they are re-resolved via the adapter on restore,
-   * never persisted or sent back to the agent.
+   * MCP-app `uiResource`/`uiResourceStatus` are stripped: resources are re-resolved via the
+   * adapter on restore, never persisted or sent back to the agent.
    */
   public getMessages(): ChatMessage[] {
     const messages: ChatMessage[] = [];
@@ -401,7 +401,7 @@ export class MessageStateController implements ReactiveController {
         messages.push({ ...item.data, toolCalls: [] });
       } else if (item.type === 'assistant') {
         const response = item.data;
-        const children = response.children.map(responseItemWithoutUiResource);
+        const children = response.children.map(responseItemWithoutMcpAppResource);
         const textContent = children
           .filter((c): c is ResponseItem & { type: 'text' } => c.type === 'text')
           .map(c => c.content)
@@ -426,7 +426,7 @@ export class MessageStateController implements ReactiveController {
       } else if (item.type === 'toolCall') {
         const lastMsg = messages[messages.length - 1];
         if (lastMsg && lastMsg.role === 'assistant') {
-          lastMsg.toolCalls = [...(lastMsg.toolCalls || []), withoutUiResource(item.data)];
+          lastMsg.toolCalls = [...(lastMsg.toolCalls || []), withoutMcpAppResource(item.data)];
         }
       }
     }
@@ -445,7 +445,7 @@ export class MessageStateController implements ReactiveController {
 
         if (msg.children?.length) {
           children = msg.children.map(child => {
-            const restored = responseItemWithoutUiResource(child);
+            const restored = responseItemWithoutMcpAppResource(child);
             if (restored.type === 'toolCall') {
               this._toolCalls.set(restored.data.id, restored.data);
             }
@@ -457,7 +457,7 @@ export class MessageStateController implements ReactiveController {
             children.push({ type: 'text', messageId: msg.id, content: msg.content, status: 'complete' });
           }
           if (msg.toolCalls) {
-            for (const toolCall of msg.toolCalls.map(withoutUiResource)) {
+            for (const toolCall of msg.toolCalls.map(withoutMcpAppResource)) {
               children.push({ type: 'toolCall', data: toolCall });
               this._toolCalls.set(toolCall.id, toolCall);
             }

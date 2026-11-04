@@ -5,6 +5,7 @@ import { when } from 'lit/directives/when.js';
 import { keyed } from 'lit/directives/keyed.js';
 import type { MessageItem, AnyToolDefinition, ToolCall, AssistantResponse } from '../ai-chatbot/types.js';
 import { MarkdownStreamController } from '../ai-chatbot/markdown-stream-controller.js';
+import { rendersAsMcpAppWidget } from '../ai-chatbot/utils.js';
 import type { ForgeAiAssistantResponseFeedbackEventData } from '../ai-assistant-response';
 import type { FeatureToggle } from '../ai-chatbot/ai-chatbot.js';
 
@@ -269,7 +270,7 @@ export class AiMessageThreadComponent extends LitElement {
   }
 
   #renderToolCall(toolCall: ToolCall): unknown {
-    if (toolCall.uiResource) {
+    if (rendersAsMcpAppWidget(toolCall)) {
       return keyed(toolCall.id, html`<forge-ai-mcp-app .toolCall=${toolCall}></forge-ai-mcp-app>`);
     }
 
@@ -345,7 +346,7 @@ export class AiMessageThreadComponent extends LitElement {
         return true;
       }
       if (item.type === 'toolCall') {
-        if (item.data.uiResource) {
+        if (rendersAsMcpAppWidget(item.data)) {
           return true;
         }
         const toolDef = this.tools?.get(item.data.name);

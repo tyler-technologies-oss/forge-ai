@@ -293,6 +293,9 @@ export interface McpAppUiResource {
   prefersBorder?: boolean;
 }
 
+/** Resolve state of an announced MCP-app UI resource that has not been stamped yet. */
+export type McpAppUiResourceStatus = 'loading' | 'error';
+
 /** Display modes an MCP-app widget can be presented in (spec 2026-01-26). */
 export type McpAppDisplayMode = 'inline' | 'fullscreen' | 'pip';
 
@@ -454,10 +457,16 @@ export interface ToolCall<TArgs = Record<string, unknown>, TResult = unknown> {
   endTimestamp?: number;
   /**
    * The resolved MCP-app UI resource. When present, this tool call renders as a
-   * sandboxed `<forge-ai-mcp-app>` widget instead of the standard tool-call UI. Its
-   * presence is the single render discriminator.
+   * sandboxed `<forge-ai-mcp-app>` widget instead of the standard tool-call UI.
    */
   uiResource?: McpAppUiResource;
+  /**
+   * Set while an announced MCP-app UI resource has not resolved: `loading` while it is
+   * being fetched, `error` when the fetch failed. The tool call renders as a
+   * `<forge-ai-mcp-app>` placeholder (or error) in its final position meanwhile.
+   * Cleared once `uiResource` is stamped, or when the adapter resolves no resource.
+   */
+  uiResourceStatus?: McpAppUiResourceStatus;
   /** Companion structured payload for the widget, stripped from LLM context. */
   structuredContent?: unknown;
   /** `true` when `structuredContent` was dropped by the backend (size caps). */

@@ -143,7 +143,8 @@ function asOpenableUrl(url: string): string | null {
  * Renders an MCP-app UI resource stamped onto a {@link ToolCall} as a sandboxed,
  * cross-origin widget. The iframe + bridge are mounted once and survive every `toolCall`
  * delta (Lit reuses this node at its keyed position), so args stream live without
- * remounting.
+ * remounting. While `uiResourceStatus` is `loading` it renders a skeleton placeholder in the
+ * same position, and connects once `uiResource` is stamped onto the same element.
  *
  * The cross-origin sandbox is mandatory: when no `sandboxUrl` is available the element
  * renders an error artifact rather than an insecure same-origin iframe.
@@ -222,7 +223,15 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return this._lifecycle === 'live' && this.#canRender;
   }
 
+  /** Announced but not resolved yet: render a placeholder in place, never connect. */
+  get #isLoading(): boolean {
+    return !this.#uiResource && this.toolCall?.uiResourceStatus === 'loading';
+  }
+
   get #errorBody(): string {
+    if (!this.#uiResource && this.toolCall?.uiResourceStatus === 'error') {
+      return "This interactive app can't be shown because it failed to load.";
+    }
     if (!this.host?.sandboxUrl) {
       return "This interactive app can't be shown because no secure sandbox is configured.";
     }
@@ -653,6 +662,12 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
     return this.#uiResource?.prefersBorder !== false;
   }
 
+  readonly #loadingPlaceholder = html`
+    <div class="container loading" role="status" aria-label="Loading app">
+      <div class="forge-skeleton"></div>
+    </div>
+  `;
+
   get #errorArtifact(): TemplateResult {
     return html`
       <div class="container bordered">
@@ -671,6 +686,9 @@ export class McpAppToolElement extends LitElement implements IToolRenderer {
   public override render(): TemplateResult | typeof nothing {
     if (this._lifecycle === 'closed') {
       return nothing;
+    }
+    if (this.#isLoading) {
+      return this.#loadingPlaceholder;
     }
     if (!this.#canRender) {
       return this.#errorArtifact;
