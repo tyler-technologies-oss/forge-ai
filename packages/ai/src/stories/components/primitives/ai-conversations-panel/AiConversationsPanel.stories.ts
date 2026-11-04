@@ -7,9 +7,7 @@ import type { Thread } from '$lib/ai-threads';
 import type {
   AiConversationsPanelComponent,
   ForgeAiConversationsPanelSearchEventData,
-  ForgeAiConversationsPanelLoadMoreEventData,
-  ForgeAiConversationsPanelRenameEventData,
-  ForgeAiConversationsPanelDeleteEventData
+  ForgeAiConversationsPanelLoadMoreEventData
 } from '$lib/ai-conversations-panel';
 
 const component = 'forge-ai-conversations-panel';

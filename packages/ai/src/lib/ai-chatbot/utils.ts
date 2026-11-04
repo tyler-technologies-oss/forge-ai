@@ -24,8 +24,19 @@ export function shouldShowToolRenderer(toolCall: ToolCall, toolDefinition?: AnyT
  */
 export function isToolCallSettled(toolCall: ToolCall, toolDefinition?: AnyToolDefinition): boolean {
   return (
-    toolCall.status === 'complete' || toolCall.status === 'error' || shouldShowToolRenderer(toolCall, toolDefinition)
+    toolCall.status === 'complete' ||
+    toolCall.status === 'error' ||
+    toolCall.status === 'cancelled' ||
+    shouldShowToolRenderer(toolCall, toolDefinition)
   );
+}
+
+/**
+ * Whether a tool call renders as a `<forge-ai-mcp-app>` widget: its UI resource is resolved,
+ * or announced and still loading (or failed to load).
+ */
+export function rendersAsMcpAppWidget(toolCall: ToolCall): boolean {
+  return !!toolCall.uiResource || !!toolCall.uiResourceStatus;
 }
 
 /**
@@ -89,6 +100,8 @@ export function formatToolCallForExport(toolCall: ToolCall): string {
         ? (toolCall.result as { error: string }).error
         : 'Unknown error';
     lines.push(`    Error: ${errorMsg}`);
+  } else if (toolCall.status === 'cancelled') {
+    lines.push('    Cancelled');
   } else if (toolCall.result !== undefined) {
     lines.push(`    Result: ${JSON.stringify(toolCall.result)}`);
   }

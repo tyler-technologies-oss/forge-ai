@@ -55,7 +55,7 @@ export const Streaming: Story = {
 };
 
 export const InMessageContext: Story = {
-  render: (args: any) => {
+  render: () => {
     const onCopy = action('forge-ai-user-message-toolbar-copy');
     const onResend = action('forge-ai-user-message-toolbar-resend');
     const onEdit = action('forge-ai-user-message-toolbar-edit');

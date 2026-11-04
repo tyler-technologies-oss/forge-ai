@@ -46,6 +46,7 @@
     "preview": "vite preview",
     "prestorybook": "pnpm run cem",
     "storybook": "storybook dev -p 6016",
+    "sandbox": "node sandbox/server.mjs",
     "prebuild:storybook": "pnpm run cem",
     "build:storybook": "storybook build",
     "lint": "pnpm run lint:lit-analyzer && pnpm run lint:eslint && pnpm run lint:stylelint",
@@ -76,6 +77,8 @@
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "catalog:",
     "@esm-bundle/chai": "catalog:",
+    "@modelcontextprotocol/ext-apps": "^1.7.5",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@open-wc/testing": "catalog:",
     "@repo/prettier-config": "workspace:",
     "@storybook/addon-a11y": "catalog:",

@@ -8,6 +8,7 @@
     "emitDeclarationOnly": true,
     "outDir": "./types",
     "strict": true,
+    "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,

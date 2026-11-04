@@ -19,7 +19,6 @@ const component = 'forge-ai-threads';
 
 const createMockMessages = (
   threadId: string,
-  topic: string,
   conversation: Array<{ role: 'user' | 'assistant'; content: string }>
 ): ChatMessage[] => {
   const baseTime = Date.now() - 86400000;
@@ -143,14 +142,11 @@ const generateThreadData = (size: 'empty' | 'small' | 'medium' | 'large') => {
     threads.push(thread);
 
     if (useDetailed) {
-      messagesMap.set(
-        threadId,
-        createMockMessages(threadId, detailedThreadData[i].topic, detailedThreadData[i].conversation)
-      );
+      messagesMap.set(threadId, createMockMessages(threadId, detailedThreadData[i].conversation));
     } else {
       messagesMap.set(
         threadId,
-        createMockMessages(threadId, thread.title, [
+        createMockMessages(threadId, [
           { role: 'user', content: `Can you help me with ${thread.title.toLowerCase()}?` },
           {
             role: 'assistant',

@@ -45,11 +45,23 @@ const baseUrlInput = document.getElementById('baseUrl') as HTMLInputElement;
 const agentIdInput = document.getElementById('agentId') as HTMLInputElement;
 const reconnectBtn = document.getElementById('reconnectBtn') as ButtonComponent;
 const persistSwitch = document.getElementById('persist') as SwitchComponent;
+const historyThreadIdInput = document.getElementById('historyThreadId') as HTMLInputElement;
+const loadHistoryBtn = document.getElementById('loadHistoryBtn') as ButtonComponent;
 
 const urlParams = new URLSearchParams(window.location.search);
 const urlBaseUrl = urlParams.get('baseUrl');
 const urlAgentId = urlParams.get('agentId');
 const urlPersist = urlParams.get('persist');
+const urlTeamId = urlParams.get('teamId') ?? undefined;
+const urlHistoryThreadId = urlParams.get('threadId');
+const urlSandboxUrl = urlParams.get('sandboxUrl');
+
+if (urlSandboxUrl) {
+  chatbot.mcpAppSandboxUrl = urlSandboxUrl;
+}
+if (urlHistoryThreadId) {
+  historyThreadIdInput.value = urlHistoryThreadId;
+}
 
 if (urlBaseUrl) {
   baseUrlInput.value = urlBaseUrl;
@@ -65,6 +77,10 @@ let initialBaseUrl = baseUrlInput.value;
 let initialAgentId = agentIdInput.value;
 
 let eventCounter = 0;
+
+function summarizeWidgetHtml(key: string, value: unknown): unknown {
+  return key === 'html' && typeof value === 'string' ? `[${value.length} chars]` : value;
+}
 
 function addEventToStream(type: string, data: unknown): void {
   const time = new Date().toLocaleTimeString();
@@ -85,11 +101,12 @@ function addEventToStream(type: string, data: unknown): void {
   popover.id = popoverId;
   popover.placement = 'bottom-end';
   popover.anchor = eventId;
-  popover.innerHTML = `
-    <div class="event-data-popover">
-      <pre>${JSON.stringify(data, null, 2)}</pre>
-    </div>
-  `;
+  const dataContainer = document.createElement('div');
+  dataContainer.className = 'event-data-popover';
+  const dataPre = document.createElement('pre');
+  dataPre.textContent = JSON.stringify(data, summarizeWidgetHtml, 2);
+  dataContainer.appendChild(dataPre);
+  popover.appendChild(dataContainer);
 
   listItem.appendChild(popover);
 
@@ -161,10 +178,18 @@ function clearThreadState(agentId: string): void {
   console.log('🗑️ Thread state cleared');
 }
 
+/** Accepts either the API origin or the legacy `${origin}/api/agents` value. */
+function toApiOrigin(baseUrl: string): string {
+  return baseUrl.replace(/\/+$/, '').replace(/\/api\/agents$/, '');
+}
+
 function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
+  const apiOrigin = toApiOrigin(baseUrl);
   const newAdapter = new MastraStreamAdapter(
     {
-      url: `${baseUrl}/api/agents/${agentId}/stream`,
+      baseUrl: apiOrigin,
+      agentId,
+      teamId: urlTeamId,
       context: {
         clientContext: {
           pageUrl: window.location.href,
@@ -185,12 +210,12 @@ function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
     threadId
   );
 
-  registerFileUploadHandler(newAdapter, { baseUrl, agentId, threadId });
+  registerFileUploadHandler(newAdapter, { baseUrl: `${apiOrigin}/api/agents`, agentId, threadId });
 
   newAdapter.onRunStarted(() => {
     newAdapter.setContext({
       clientContext: {
-        ...newAdapter.getContext()?.clientContext ?? {},
+        ...(newAdapter.getContext()?.clientContext ?? {}),
         timestamp: new Date().toISOString(),
         viewport: {
           width: window.innerWidth,
@@ -210,6 +235,7 @@ function createAdapter(baseUrl: string, agentId: string): MastraStreamAdapter {
   newAdapter.onToolCallArgs(event => addEventToStream('TOOL_CALL_ARGS', event));
   newAdapter.onToolCallEnd(event => addEventToStream('TOOL_CALL_END', event));
   newAdapter.onToolCallResult(event => addEventToStream('TOOL_CALL_RESULT', event));
+  newAdapter.onMcpUiResource(event => addEventToStream('MCP_UI_RESOURCE', event));
   newAdapter.onError(event => addEventToStream('RUN_ERROR', event));
   newAdapter.onStateChange(state => addEventToStream('STATE_CHANGE', state));
 
@@ -255,6 +281,42 @@ async function initializeAdapter(baseUrl: string, agentId: string, restoreState 
   const newUrl = `${window.location.pathname}?${params.toString()}`;
   window.history.replaceState({}, '', newUrl);
 }
+
+/** Restores a server-owned thread, including MCP-app widgets (contract §7 / R6). */
+async function loadThreadFromBackend(baseUrl: string, agentId: string, historyThreadId: string): Promise<void> {
+  adapter?.disconnect();
+  threadId = historyThreadId;
+  adapter = createAdapter(baseUrl, agentId);
+  chatbot.adapter = adapter;
+
+  try {
+    const history = await adapter.loadThreadHistory({ threadId: historyThreadId, conversationId: historyThreadId });
+    await chatbot.setThreadState(history.threadState);
+    adapter.remountMcpAppWidgets(history.widgets);
+    addEventToStream('THREAD_LOADED', {
+      threadId: history.threadState.threadId,
+      conversationId: history.conversationId,
+      messageCount: history.threadState.messages.length,
+      widgets: history.widgets
+    });
+  } catch (error) {
+    console.error('Failed to load thread history:', error);
+    addEventToStream('THREAD_LOAD_ERROR', { message: error instanceof Error ? error.message : String(error) });
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  params.set('threadId', historyThreadId);
+  window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+}
+
+loadHistoryBtn.addEventListener('click', () => {
+  const historyThreadId = historyThreadIdInput.value.trim();
+  if (!historyThreadId) {
+    return;
+  }
+  loadThreadFromBackend(baseUrlInput.value.trim(), agentIdInput.value.trim(), historyThreadId);
+});
 
 function checkForChanges(): void {
   const hasChanges = baseUrlInput.value.trim() !== initialBaseUrl || agentIdInput.value.trim() !== initialAgentId;
@@ -311,7 +373,11 @@ const agents = [
 
 chatbot.agents = agents;
 
-initializeAdapter(baseUrlInput.value, agentIdInput.value, true);
+if (urlHistoryThreadId) {
+  loadThreadFromBackend(baseUrlInput.value, agentIdInput.value, urlHistoryThreadId);
+} else {
+  initializeAdapter(baseUrlInput.value, agentIdInput.value, true);
+}
 chatbot.suggestions = [
   { text: 'What can you help me with?', value: 'What can you help me with?' },
   { text: 'Show me confetti!', value: 'Show me confetti!' },

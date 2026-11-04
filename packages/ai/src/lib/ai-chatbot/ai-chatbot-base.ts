@@ -1,3 +1,4 @@
+import { provide } from '@lit/context';
 import { LitElement, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import type { Ref } from 'lit/directives/ref.js';
@@ -9,6 +10,12 @@ import type { ForgeAiFilePickerChangeEventData, ForgeAiFilePickerErrorEventData 
 import type { AiPromptComponent, ForgeAiPromptCommandEventData, ForgeAiPromptSendEventData } from '../ai-prompt';
 import type { ForgeAiSuggestionsEventData, Suggestion } from '../ai-suggestions';
 import type { ForgeAiVoiceInputResultEvent } from '../ai-voice-input';
+import {
+  mcpAppHostContext,
+  type McpAppHost,
+  type McpAppViewRegistration
+} from '../tools/ai-mcp-app/mcp-app-context.js';
+import type { McpAppRequestResult } from '../tools/ai-mcp-app/mcp-app-bridge-types.js';
 import { AgentAdapter } from './agent-adapter.js';
 import { ChatbotCoreController } from '../core/chatbot-core-controller.js';
 import type {
@@ -17,6 +24,8 @@ import type {
   ClientMessageInput,
   ContextItem,
   HeadingLevel,
+  McpAppHostCapabilities,
+  McpAppHostContext,
   MessageItem,
   SlashCommand,
   SlashCommandId,
@@ -32,6 +41,53 @@ import {
   generateId
 } from './utils.js';
 import type { ForgeAiMessageThreadThumbsEventData } from '../ai-message-thread';
+
+/**
+ * Capabilities the host implements itself. `serverTools` / `updateModelContext` are added
+ * only when the adapter implements the matching hook; `serverResources` and `downloadFile`
+ * are never advertised.
+ */
+function mcpAppHostCapabilities(adapter: AgentAdapter | undefined): McpAppHostCapabilities {
+  return {
+    openLinks: {},
+    logging: {},
+    message: { text: {} },
+    ...(typeof adapter?.callMcpTool === 'function' ? { serverTools: {} } : {}),
+    ...(typeof adapter?.updateMcpModelContext === 'function'
+      ? { updateModelContext: { text: {}, structuredContent: {} } }
+      : {})
+  };
+}
+
+/** Environment fields of the MCP-app host context shared by every widget. */
+function mcpAppEnvironment(): Omit<McpAppHostContext, 'theme'> {
+  return {
+    availableDisplayModes: ['inline', 'fullscreen', 'pip'],
+    locale: navigator.language,
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    userAgent: navigator.userAgent,
+    platform: 'web',
+    deviceCapabilities: {
+      touch: window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0,
+      hover: window.matchMedia('(hover: hover)').matches
+    },
+    safeAreaInsets: { top: 0, right: 0, bottom: 0, left: 0 }
+  };
+}
+
+/** Joins a `ui/message`'s text blocks; other block types are dropped. */
+function mcpMessageText(content: unknown[]): string {
+  return content
+    .filter(
+      (block): block is { type: 'text'; text: string } =>
+        !!block &&
+        typeof block === 'object' &&
+        (block as { type?: unknown }).type === 'text' &&
+        typeof (block as { text?: unknown }).text === 'string'
+    )
+    .map(block => block.text)
+    .join('\n\n');
+}
 
 export type FeatureToggle = 'on' | 'off';
 
@@ -96,6 +152,99 @@ export abstract class AiChatbotBase extends LitElement {
   @property({ attribute: false })
   public contextItems: ContextItem[] = [];
 
+  @property({ attribute: 'mcp-app-sandbox-url' })
+  public mcpAppSandboxUrl?: string;
+
+  /**
+   * Theme fed into an MCP-app widget's `hostContext.theme`. The chatbot's own appearance
+   * comes from Forge tokens and is unaffected. Set this whenever the app switches between
+   * light and dark: it is the signal that re-sends `theme` and the Forge-derived
+   * `styles.variables` to widgets, since token changes alone can't be detected. Absent →
+   * follows `prefers-color-scheme`.
+   */
+  @property({ attribute: 'mcp-app-theme' })
+  public mcpAppTheme?: 'light' | 'dark';
+
+  readonly #themeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  get #effectiveTheme(): 'light' | 'dark' {
+    return this.mcpAppTheme ?? (this.#themeMediaQuery.matches ? 'dark' : 'light');
+  }
+
+  readonly #mcpAppViews = new Map<string, McpAppViewRegistration>();
+
+  @provide({ context: mcpAppHostContext })
+  @property({ attribute: false })
+  private _mcpAppHost: McpAppHost = {
+    callTool: params =>
+      this._coreController?.adapter?.callMcpTool?.(params) ??
+      Promise.reject(new Error('tools/call is not supported by this host')),
+    readResource: params =>
+      this._coreController?.adapter?.readMcpResource?.(params) ??
+      Promise.reject(new Error('resources/read is not supported by this host')),
+    updateModelContext: params => this._coreController?.adapter?.updateMcpModelContext?.(params) ?? Promise.resolve(),
+    draftMessage: ({ content }) => this.#draftMcpAppMessage(content),
+    teardownView: ({ toolCallId }) => this._teardownMcpAppViews({ toolCallIds: [toolCallId] }),
+    registerView: view => {
+      this.#mcpAppViews.set(view.toolCallId, view);
+      return () => {
+        if (this.#mcpAppViews.get(view.toolCallId) === view) {
+          this.#mcpAppViews.delete(view.toolCallId);
+        }
+      };
+    },
+    hostContext: { theme: this.#effectiveTheme, ...mcpAppEnvironment() },
+    sandboxUrl: undefined,
+    hostCapabilities: mcpAppHostCapabilities(undefined)
+  };
+
+  /**
+   * Places a widget's `ui/message` text in the prompt for the user to review and send. A
+   * widget never starts a model turn on its own. Refused when the message has no text.
+   */
+  async #draftMcpAppMessage(content: unknown[]): Promise<McpAppRequestResult> {
+    const text = mcpMessageText(content);
+    const prompt = this._promptRef.value;
+    if (!text.trim() || !prompt) {
+      return { isError: true };
+    }
+    prompt.value = text;
+    prompt.focus();
+    return {};
+  }
+
+  /**
+   * Sends `ui/resource-teardown` to mounted MCP-app widgets (all, or only `toolCallIds`) and
+   * releases them immediately, without waiting for acks. The adapter then drops any state it
+   * holds for them (e.g. a pending model context).
+   */
+  protected _teardownMcpAppViews({ toolCallIds }: { toolCallIds?: string[] } = {}): void {
+    const views = [...this.#mcpAppViews.values()].filter(view => toolCallIds?.includes(view.toolCallId) ?? true);
+    for (const view of views) {
+      this.#mcpAppViews.delete(view.toolCallId);
+      view.teardown();
+      this._coreController?.adapter?.disposeMcpAppView?.({ toolCallId: view.toolCallId });
+    }
+  }
+
+  /** Tears down widgets rendered at or after `index`, then removes those items. */
+  #removeMessageItemsFrom(index: number): void {
+    this._teardownMcpAppViews({ toolCallIds: this._coreController.getToolCallIdsFrom(index) });
+    this._coreController.removeMessageItemsFrom(index);
+  }
+
+  #handleThemeChange = (): void => {
+    this.#refreshMcpAppHostContext();
+  };
+
+  /** A new host context object makes every widget re-read its Forge styles and notify its View. */
+  #refreshMcpAppHostContext(): void {
+    this._mcpAppHost = {
+      ...this._mcpAppHost,
+      hostContext: { ...this._mcpAppHost.hostContext, theme: this.#effectiveTheme }
+    };
+  }
+
   protected _coreController!: ChatbotCoreController;
 
   protected get _isStreaming(): boolean {
@@ -155,12 +304,31 @@ export abstract class AiChatbotBase extends LitElement {
       this._coreController.adapter = this.adapter;
     }
 
+    this.#themeMediaQuery.addEventListener('change', this.#handleThemeChange);
+
     this._onConnected();
+  }
+
+  public override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#themeMediaQuery.removeEventListener('change', this.#handleThemeChange);
   }
 
   public override willUpdate(changedProperties: PropertyValues<this>): void {
     if (changedProperties.has('adapter') && this._coreController) {
       this._coreController.adapter = this.adapter;
+    }
+
+    if (changedProperties.has('adapter')) {
+      this._mcpAppHost = { ...this._mcpAppHost, hostCapabilities: mcpAppHostCapabilities(this.adapter) };
+    }
+
+    if (changedProperties.has('mcpAppSandboxUrl')) {
+      this._mcpAppHost = { ...this._mcpAppHost, sandboxUrl: this.mcpAppSandboxUrl };
+    }
+
+    if (changedProperties.has('mcpAppTheme')) {
+      this.#refreshMcpAppHostContext();
     }
   }
 
@@ -374,7 +542,7 @@ export abstract class AiChatbotBase extends LitElement {
 
     const responseIndex = messageIndex + 1;
     if (responseIndex < this._messageItems.length) {
-      this._coreController.removeMessageItemsFrom(responseIndex);
+      this.#removeMessageItemsFrom(responseIndex);
     }
 
     adapter.sendMessage(this.getMessages());
@@ -397,7 +565,7 @@ export abstract class AiChatbotBase extends LitElement {
 
     const responseIndex = messageIndex + 1;
     if (responseIndex < this._messageItems.length) {
-      this._coreController.removeMessageItemsFrom(responseIndex);
+      this.#removeMessageItemsFrom(responseIndex);
     }
 
     adapter.sendMessage(this.getMessages());
@@ -418,7 +586,7 @@ export abstract class AiChatbotBase extends LitElement {
       return;
     }
 
-    this._coreController.removeMessageItemsFrom(responseIndex);
+    this.#removeMessageItemsFrom(responseIndex);
     adapter.sendMessage(this.getMessages());
   }
 
@@ -509,6 +677,7 @@ export abstract class AiChatbotBase extends LitElement {
       return false;
     }
 
+    this._teardownMcpAppViews();
     this._coreController.clearMessages();
     return true;
   }
@@ -527,6 +696,7 @@ export abstract class AiChatbotBase extends LitElement {
    * resetting thread IDs or closing panels.
    */
   public startNewChat(): void {
+    this._teardownMcpAppViews();
     this._coreController.clearMessages();
   }
 
@@ -602,6 +772,15 @@ export abstract class AiChatbotBase extends LitElement {
     this._handleStop();
   }
 
+  /**
+   * Re-sends the Forge-derived `styles.variables` to every MCP-app widget. Call after
+   * changing Forge tokens without a light/dark switch (e.g. a brand change); for light/dark,
+   * set {@link mcpAppTheme} instead.
+   */
+  public refreshMcpAppStyles(): void {
+    this.#refreshMcpAppHostContext();
+  }
+
   public async scrollToBottom({ behavior }: { behavior?: ScrollBehavior } = {}): Promise<void> {
     await this._messageThreadRef.value?.updateComplete;
     await new Promise(requestAnimationFrame);
@@ -624,6 +803,7 @@ export abstract class AiChatbotBase extends LitElement {
   }
 
   public async setThreadState(threadState: ThreadState): Promise<void> {
+    this._teardownMcpAppViews();
     this.setMessages(threadState.messages);
     this.selectedAgentId = threadState.selectedAgentId;
 

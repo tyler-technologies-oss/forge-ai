@@ -37,13 +37,24 @@
             <forge-button id="reconnectBtn" variant="raised" disabled>Reconnect</forge-button>
             <forge-switch id="persist" id="persist">Persist thread state</forge-switch>
           </div>
+          <div class="history-container">
+            <forge-text-field>
+              <input type="text" id="historyThreadId" />
+              <label for="historyThreadId">Thread ID (agent) / conversation ID (team)</label>
+            </forge-text-field>
+            <forge-button id="loadHistoryBtn" variant="outlined">Load from backend</forge-button>
+          </div>
         </forge-card>
 
         <!-- Chat and Events Layout -->
         <div class="layout">
           <!-- Main Content (Chatbot) -->
           <forge-card class="chatbot-card">
-            <forge-ai-chatbot id="chatbot" file-upload="on" enable-reactions></forge-ai-chatbot>
+            <forge-ai-chatbot
+              id="chatbot"
+              file-upload="on"
+              enable-reactions
+              mcp-app-sandbox-url="http://localhost:6017/sandbox.html"></forge-ai-chatbot>
           </forge-card>
 
           <!-- Right Sidebar -->
