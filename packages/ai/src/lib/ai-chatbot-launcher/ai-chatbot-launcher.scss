@@ -474,8 +474,9 @@ $_handle-width: 8px;
   }
 }
 
+// The :host() prefix matches the specificity of the :host(:state(...)) animation rules, so these win by coming last.
 @media (prefers-reduced-motion: reduce) {
-  .launcher {
+  :host .launcher {
     .welcome,
     .conversation forge-ai-message-thread,
     .history,
