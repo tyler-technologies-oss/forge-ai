@@ -55,14 +55,47 @@ describe('markdown', () => {
         expect(link?.textContent).to.equal(`Image (${OUTSIDE_HOST})`);
       });
 
-      it('should render an outside image inside a link as alt text to avoid nesting links', () => {
+      it('should render an outside image inside a link as text naming the host, keeping the link destination', () => {
         const html = render(`[![status](https://${OUTSIDE_HOST}/p.png)](https://example.com/page)`);
         const links = parse(html).querySelectorAll('a');
 
         expect(fetchingReferences(html)).to.deep.equal([]);
         expect(links.length).to.equal(1);
         expect(links[0].getAttribute('href')).to.equal('https://example.com/page');
-        expect(links[0].textContent).to.equal('status');
+        expect(links[0].textContent).to.equal(`status (${OUTSIDE_HOST})`);
+      });
+
+      [
+        ['video', `<video src="https://${OUTSIDE_HOST}/a.mp4" title="Demo">fallback</video>`, 'Demo'],
+        ['audio', `<audio src="https://${OUTSIDE_HOST}/a.mp3"></audio>`, 'Audio'],
+        ['video with a source child', `<video><source src="https://${OUTSIDE_HOST}/a.mp4"></video>`, 'Video']
+      ].forEach(([label, content, linkLabel]) => {
+        it(`should replace ${label} with a link naming the host`, () => {
+          const html = render(content);
+          const link = parse(html).querySelector('a');
+
+          expect(fetchingReferences(html)).to.deep.equal([]);
+          expect(parse(html).querySelector('video, audio')).to.be.null;
+          expect(link?.getAttribute('href')).to.contain(OUTSIDE_HOST);
+          expect(link?.textContent).to.equal(`${linkLabel} (${OUTSIDE_HOST})`);
+        });
+      });
+
+      it('should replace same-origin media with a link instead of loading it', () => {
+        const html = render('<video src="/api/files/demo.mp4" controls>Download <a href="/x">here</a></video>');
+        const links = parse(html).querySelectorAll('a');
+
+        expect(parse(html).querySelector('video')).to.be.null;
+        expect(links.length).to.equal(1);
+        expect(links[0].getAttribute('href')).to.equal(new URL('/api/files/demo.mp4', document.baseURI).href);
+        expect(links[0].textContent).to.equal(`Video (${window.location.host})`);
+      });
+
+      it('should render media without a source as its label', () => {
+        const html = render('<video controls></video>');
+
+        expect(parse(html).querySelector('video, a')).to.be.null;
+        expect(parse(html).textContent?.trim()).to.equal('Video');
       });
 
       [
@@ -77,11 +110,8 @@ describe('markdown', () => {
         ['svg feImage', `<svg><filter id="f"><feImage href="https://${OUTSIDE_HOST}/a.png"></feImage></filter></svg>`],
         ['svg presentation url()', `<svg><rect fill="url(https://${OUTSIDE_HOST}/a.svg#p)"></rect></svg>`],
         ['CSS-escaped svg url()', `<svg><rect fill="\\75 rl(https://${OUTSIDE_HOST}/a.svg#p)"></rect></svg>`],
+        ['CSS-escaped svg mask url()', `<svg><rect mask="\\75 rl('https://${OUTSIDE_HOST}/a.svg#m')"></rect></svg>`],
         ['svg mask image-set()', `<svg><rect mask="image-set('https://${OUTSIDE_HOST}/a.png' 1x)"></rect></svg>`],
-        [
-          'svg mask image-set(attr())',
-          `<svg><path title="https://${OUTSIDE_HOST}/a.png" mask="image-set(attr(title) 1x)"></path></svg>`
-        ],
         ['mathml mglyph', `<math><mi><mglyph src="https://${OUTSIDE_HOST}/a.png" alt="g"></mglyph></mi></math>`],
         ['style url()', `<div style="background-image:url(https://${OUTSIDE_HOST}/a.png)">x</div>`],
         ['background attribute', `<table background="https://${OUTSIDE_HOST}/a.png"><tr><td>x</td></tr></table>`],
@@ -92,10 +122,104 @@ describe('markdown', () => {
         });
       });
 
-      it('should drop svg and mathml elements', () => {
-        expect(parse(render('<svg><rect></rect></svg><math><mi>x</mi></math>')).querySelector('svg, rect, math, mi')).to
-          .be.null;
+      it('should drop a CSS function in an svg presentation attribute on an HTML element', () => {
+        const html = render(
+          `<a href="/x" title="https://${OUTSIDE_HOST}/a.png" mask="image-set(attr(title) 1x)">x</a>`
+        );
+
+        expect(parse(html).querySelector('a')?.hasAttribute('mask')).to.be.false;
       });
+
+      it('should keep parentheses in an ordinary HTML attribute', () => {
+        const html = render('<span aria-label="Revenue (USD)">x</span>');
+
+        expect(parse(html).querySelector('span')?.getAttribute('aria-label')).to.equal('Revenue (USD)');
+      });
+    });
+  });
+
+  describe('svg and mathml', () => {
+    [
+      ['image-set(attr()) via title', `title="https://${OUTSIDE_HOST}/a.png" mask="image-set(attr(title) 1x)"`],
+      ['image-set(attr()) via data-*', `data-x="https://${OUTSIDE_HOST}/a.png" mask="image-set(attr(data-x) 1x)"`],
+      ['-webkit-image-set(attr())', `title="https://${OUTSIDE_HOST}/a.png" mask="-webkit-image-set(attr(title) 1x)"`]
+    ].forEach(([label, attributes]) => {
+      it(`should drop an svg mask that loads a URL from another attribute: ${label}`, () => {
+        const html = renderMarkdown(`<svg><path ${attributes}></path></svg>`, { streaming: false });
+
+        expect(parse(html).querySelector('path')?.hasAttribute('mask')).to.be.false;
+      });
+    });
+
+    [
+      ['a same-document url() fragment', 'url(#grad)'],
+      ['an rgb() color', 'rgb(10, 20, 30)']
+    ].forEach(([label, fill]) => {
+      it(`should keep an svg fill set to ${label}`, () => {
+        const html = renderMarkdown(`<svg><rect fill="${fill}"></rect></svg>`, { streaming: false });
+
+        expect(parse(html).querySelector('rect')?.getAttribute('fill')).to.equal(fill);
+      });
+    });
+
+    it('should keep an svg transform made of transform functions', () => {
+      const html = renderMarkdown('<svg><path transform="translate(2, 2) rotate(10)"></path></svg>', {
+        streaming: false
+      });
+
+      expect(parse(html).querySelector('path')?.getAttribute('transform')).to.equal('translate(2, 2) rotate(10)');
+    });
+
+    it('should check a long svg attribute in linear time', () => {
+      const value = 'aB-'.repeat(40_000);
+      const started = performance.now();
+      const html = renderMarkdown(`<svg><path d="M0 0h9v9z" data-x="${value}"></path></svg>`, { streaming: false });
+
+      expect(performance.now() - started).to.be.lessThan(1_000);
+      expect(parse(html).querySelector('path')?.getAttribute('data-x')).to.equal(value);
+    });
+
+    it('should keep svg text and mathml', () => {
+      const html = renderMarkdown('<svg><text>Q3 revenue</text></svg> <math><mi>x</mi><mo>=</mo><mn>2</mn></math>', {
+        streaming: false
+      });
+
+      expect(parse(html).querySelector('svg text')?.textContent).to.equal('Q3 revenue');
+      expect(parse(html).querySelector('math')?.textContent).to.equal('x=2');
+    });
+  });
+
+  describe('complete content', () => {
+    ['Cost<Budget Review Q3', 'price<limit and x<y'].forEach(message => {
+      it(`should keep the text after a "<" in a finished message: ${message}`, () => {
+        expect(parse(renderMarkdown(message, { streaming: false })).textContent?.trim()).to.equal(message);
+      });
+    });
+
+    it('should still hide a tag that is only partly streamed', () => {
+      expect(parse(renderMarkdown('Partial reply <cust')).textContent?.trim()).to.equal('Partial reply');
+    });
+  });
+
+  describe('renderInlineMarkdown without links', () => {
+    it('should render links as their text', () => {
+      const html = renderInlineMarkdown(
+        'Opened [parcel 4471](https://example.com/parcel/4471) and <a href="/x">x</a>',
+        {
+          links: false
+        }
+      );
+
+      expect(parse(html).querySelector('a')).to.be.null;
+      expect(parse(html).textContent).to.equal('Opened parcel 4471 and x');
+    });
+
+    it('should render an outside image as text naming the host', () => {
+      const html = renderInlineMarkdown(`![status](https://${OUTSIDE_HOST}/p.png)`, { links: false });
+
+      expect(fetchingReferences(html)).to.deep.equal([]);
+      expect(parse(html).querySelector('a, img')).to.be.null;
+      expect(parse(html).textContent).to.equal(`status (${OUTSIDE_HOST})`);
     });
   });
 
@@ -118,12 +242,19 @@ describe('markdown', () => {
     ['same-origin absolute', `${window.location.origin}/logo.png`],
     ['data:image', 'data:image/png;base64,iVBORw0KGgo=']
   ].forEach(([label, src]) => {
-    it(`should keep an allowed ${label} image inline`, () => {
+    it(`should keep an allowed ${label} image inline as written`, () => {
       const img = parse(renderMarkdown(`![chart](${src})`, { streaming: false })).querySelector('img');
 
       expect(img?.getAttribute('src')).to.equal(src);
       expect(img?.getAttribute('alt')).to.equal('chart');
     });
+  });
+
+  it('should not load an opaque-origin source inline', () => {
+    const html = renderMarkdown('<img alt="status" src="cid:part1@example">', { streaming: false });
+
+    expect(parse(html).querySelector('img')).to.be.null;
+    expect(parse(html).textContent).to.equal('status');
   });
 
   it('should render a non-image data: URI as alt text', () => {
@@ -168,7 +299,7 @@ describe('markdown', () => {
     expect(table.querySelector('th')?.getAttribute('align')).to.equal('left');
   });
 
-  it('should not affect the global DOMPurify instance', () => {
+  it('should leave the host app DOMPurify sanitize calls untouched', () => {
     renderMarkdown(`![status](https://${OUTSIDE_HOST}/p.png)`, { streaming: false });
 
     const img = parse(
@@ -177,5 +308,37 @@ describe('markdown', () => {
 
     expect(img?.getAttribute('src')).to.equal('https://cdn.example.com/logo.png');
     expect(img?.getAttribute('style')).to.equal('width:10px');
+  });
+
+  it('should apply hooks the host app registers on the shared DOMPurify instance', () => {
+    const stripStorageHref = (node: Element): void => {
+      if (node.getAttribute('href')?.startsWith('s3:')) {
+        node.removeAttribute('href');
+      }
+    };
+    DOMPurify.addHook('afterSanitizeAttributes', stripStorageHref);
+    try {
+      const html = renderMarkdown('[Y.pdf][ref]\n\n[ref]: s3://bucket/Y.pdf', { streaming: false });
+
+      expect(parse(html).querySelector('a')?.hasAttribute('href')).to.be.false;
+    } finally {
+      DOMPurify.removeHook('afterSanitizeAttributes', stripStorageHref);
+    }
+  });
+
+  it('should remove its hooks when sanitizing throws', () => {
+    const throwOnce = (): void => {
+      throw new Error('boom');
+    };
+    DOMPurify.addHook('uponSanitizeElement', throwOnce);
+    try {
+      expect(() => renderMarkdown('x', { streaming: false })).to.throw('boom');
+    } finally {
+      DOMPurify.removeHook('uponSanitizeElement', throwOnce);
+    }
+
+    const html = DOMPurify.sanitize(`<img src="https://${OUTSIDE_HOST}/p.png">`);
+
+    expect(parse(html).querySelector('img')?.getAttribute('src')).to.contain(OUTSIDE_HOST);
   });
 });
