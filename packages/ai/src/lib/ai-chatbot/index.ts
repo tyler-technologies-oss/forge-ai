@@ -116,4 +116,4 @@ export {
 } from './request-serialization.js';
 
 // Utilities
-export { generateId, renderMarkdown, renderInlineMarkdown } from './utils.js';
+export { generateId, renderMarkdown, renderInlineMarkdown, setTrustedImageOrigin } from './utils.js';

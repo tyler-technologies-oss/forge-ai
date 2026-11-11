@@ -1,7 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { ChatMessage, ContextItem, FileAttachment, ResponseItem, ToolCall, AnyToolDefinition } from './types.js';
 
-export { renderMarkdown, renderInlineMarkdown, type RenderMarkdownOptions } from '../utils/markdown.js';
+export {
+  renderMarkdown,
+  renderInlineMarkdown,
+  setTrustedImageOrigin,
+  type RenderMarkdownOptions,
+  type RenderInlineMarkdownOptions
+} from '../utils/markdown.js';
 
 /**
  * Whether a tool call's renderer should currently be shown: once the call is complete,
