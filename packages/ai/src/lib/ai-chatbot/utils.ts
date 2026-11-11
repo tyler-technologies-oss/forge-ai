@@ -4,6 +4,7 @@ import type { ChatMessage, ContextItem, FileAttachment, ResponseItem, ToolCall, 
 export {
   renderMarkdown,
   renderInlineMarkdown,
+  setTrustedImageOrigin,
   type RenderMarkdownOptions,
   type RenderInlineMarkdownOptions
 } from '../utils/markdown.js';

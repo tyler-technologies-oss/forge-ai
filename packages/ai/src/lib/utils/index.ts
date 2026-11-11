@@ -4,6 +4,7 @@ export { KeyboardNavigationController } from './keyboard-navigation-controller';
 export {
   renderMarkdown,
   renderInlineMarkdown,
+  setTrustedImageOrigin,
   type RenderMarkdownOptions,
   type RenderInlineMarkdownOptions
 } from './markdown';
